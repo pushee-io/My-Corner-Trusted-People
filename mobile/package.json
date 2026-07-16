@@ -1,0 +1,39 @@
+{
+  "name": "my-corner-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "format": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:e2e": "jest --testMatch '**/__tests__/**/*.flow.test.ts'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.75.0",
+    "@tanstack/react-query": "5.90.5",
+    "expo": "57.0.6",
+    "expo-image-picker": "18.0.0",
+    "expo-router": "7.0.0",
+    "expo-status-bar": "4.0.0",
+    "react": "19.2.0",
+    "react-hook-form": "7.62.0",
+    "react-native": "0.86.0",
+    "zod": "4.1.5"
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "13.3.3",
+    "@types/react": "19.2.0",
+    "eslint": "9.35.0",
+    "eslint-config-expo": "11.0.0",
+    "jest": "30.0.5",
+    "jest-expo": "57.0.0",
+    "prettier": "3.6.2",
+    "typescript": "6.0.0"
+  }
+}
