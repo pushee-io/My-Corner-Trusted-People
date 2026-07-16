@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "My Corner",
+    "slug": "my-corner",
+    "scheme": "mycorner",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0E6B50"
+      },
+      "package": "com.mycorner.trustedpeople"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "useMockData": true,
+      "locale": "en-GH",
+      "currency": "GHS",
+      "timezone": "Africa/Accra"
+    }
+  }
+}
