@@ -9,7 +9,28 @@ export default function CategoriesScreen() {
     <Screen title="Hire help">
       <View style={styles.list}>
         {categories.map((category) => (
-          <Link key={category.id} href={{ pathname: '/hire/providers', params: { categoryId: category.id } }} asChild>
+          <Link
+            key={category.id}
+            href={{
+              pathname: '/hire/request/review',
+              params: {
+                requesterName: 'Akosua Mensah',
+                providerId: 'prov-01',
+                categoryId: category.id,
+                neighborhood: 'East Legon',
+                areaLabel: 'East Legon, general area only',
+                title: `${category.name} help needed`,
+                description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+                originalUserText: 'Water is leaking under the kitchen sink.',
+                urgency: 'soon',
+                preferredDate: '2026-07-18',
+                preferredTime: 'Afternoon',
+                contactPreference: 'app_update',
+                photoCount: '0',
+              },
+            }}
+            asChild
+          >
             <Pressable style={styles.card}>
               <Text style={styles.icon}>{category.icon}</Text>
               <Text style={styles.cardText}>{category.name}</Text>
