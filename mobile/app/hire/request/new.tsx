@@ -72,6 +72,31 @@ export default function NewRequestScreen() {
     });
   }
 
+  function useSampleRequest() {
+    const sampleDraft = {
+      ...draft,
+      title: title || 'Kitchen sink leak',
+      description:
+        description ||
+        'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+    };
+
+    trackEvent('request_sample_used', {
+      categoryId: sampleDraft.categoryId,
+      providerId: sampleDraft.providerId,
+      urgency,
+    });
+
+    router.push({
+      pathname: '/hire/request/review',
+      params: {
+        ...sampleDraft,
+        originalUserText: sampleDraft.description,
+        photoCount: String(sampleDraft.photoCount),
+      },
+    });
+  }
+
   async function useAiStructurer() {
     if (!featureFlags.ai_service_request_structurer) {
       setError('AI structuring is currently off. You can still submit the request manually.');
@@ -86,6 +111,9 @@ export default function NewRequestScreen() {
     <Screen title="Create request">
       <OfflineBanner />
       <Text style={styles.summary}>Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.</Text>
+      <Pressable onPress={useSampleRequest} style={styles.button}>
+        <Text style={styles.buttonText}>Use sample request and review</Text>
+      </Pressable>
       <Text style={styles.label}>Job title</Text>
       <TextInput value={title} onChangeText={setTitle} style={styles.input} placeholder="Example: Kitchen sink leak" accessibilityLabel="Job title" />
       <Text style={styles.label}>Description</Text>
