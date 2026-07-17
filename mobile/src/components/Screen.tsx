@@ -1,13 +1,15 @@
 import { PropsWithChildren } from 'react';
 import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
 
 export function Screen({
   title,
   children,
+  showHeader = true,
   showTitle = true,
-}: PropsWithChildren<{ title: string; showTitle?: boolean }>) {
+}: PropsWithChildren<{ title: string; showHeader?: boolean; showTitle?: boolean }>) {
   const { width } = useWindowDimensions();
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
@@ -21,6 +23,7 @@ export function Screen({
           contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
         ]}
       >
+        {showHeader ? <MyCornerLogo /> : null}
         {showTitle ? (
           <Text accessibilityRole="header" style={styles.title}>
             {title}
