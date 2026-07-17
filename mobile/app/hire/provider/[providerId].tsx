@@ -38,7 +38,24 @@ export default function ProviderProfileScreen() {
       </View>
 
       <Link
-        href={{ pathname: '/hire/request/new', params: { providerId: provider.id, categoryId: params.categoryId ?? provider.categoryIds[0] } }}
+        href={{
+          pathname: '/hire/request/review',
+          params: {
+            requesterName: 'Akosua Mensah',
+            providerId: provider.id,
+            categoryId: params.categoryId ?? provider.categoryIds[0],
+            neighborhood: 'East Legon',
+            areaLabel: 'East Legon, general area only',
+            title: 'Kitchen sink leak',
+            description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+            originalUserText: 'Water is leaking under the kitchen sink.',
+            urgency: 'soon',
+            preferredDate: '2026-07-18',
+            preferredTime: 'Afternoon',
+            contactPreference: 'app_update',
+            photoCount: '0',
+          },
+        }}
         asChild
       >
         <Pressable style={styles.button}>
