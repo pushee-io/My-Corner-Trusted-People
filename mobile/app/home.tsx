@@ -13,7 +13,27 @@ export default function HomeScreen() {
   return (
     <Screen title="My Corner home">
       <Text style={styles.body}>East Legon · Accra pilot</Text>
-      <Link href="/hire/categories" asChild>
+      <Link
+        href={{
+          pathname: '/hire/request/review',
+          params: {
+            requesterName: 'Akosua Mensah',
+            providerId: 'prov-01',
+            categoryId: 'plumbing',
+            neighborhood: 'East Legon',
+            areaLabel: 'East Legon, general area only',
+            title: 'Kitchen sink leak',
+            description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+            originalUserText: 'Water is leaking under the kitchen sink.',
+            urgency: 'soon',
+            preferredDate: '2026-07-18',
+            preferredTime: 'Afternoon',
+            contactPreference: 'app_update',
+            photoCount: '0',
+          },
+        }}
+        asChild
+      >
         <Pressable style={styles.button}><Text style={styles.buttonText}>Hire help</Text></Pressable>
       </Link>
       {latest ? (
