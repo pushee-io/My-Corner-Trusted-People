@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { tokens } from '@/theme/tokens';
 
 export function Screen({ title, children }: PropsWithChildren<{ title: string }>) {
@@ -8,8 +9,17 @@ export function Screen({ title, children }: PropsWithChildren<{ title: string }>
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={[styles.content, contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null]}>
-        <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+      <ScrollView
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={[
+          styles.content,
+          contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
+        ]}
+      >
+        <Text accessibilityRole="header" style={styles.title}>
+          {title}
+        </Text>
         <View style={styles.body}>{children}</View>
       </ScrollView>
     </SafeAreaView>
