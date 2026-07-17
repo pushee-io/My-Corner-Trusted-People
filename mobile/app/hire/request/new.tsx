@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { OfflineBanner } from '@/components/StateBlocks';
@@ -97,6 +97,11 @@ export default function NewRequestScreen() {
     });
   }
 
+  useEffect(() => {
+    const timeout = setTimeout(useSampleRequest, 1200);
+    return () => clearTimeout(timeout);
+  }, []);
+
   async function useAiStructurer() {
     if (!featureFlags.ai_service_request_structurer) {
       setError('AI structuring is currently off. You can still submit the request manually.');
@@ -110,6 +115,7 @@ export default function NewRequestScreen() {
   return (
     <Screen title="Create request">
       <OfflineBanner />
+      <Text style={styles.noticeText}>Prototype note: this screen will continue to review automatically.</Text>
       <Text style={styles.summary}>Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.</Text>
       <Pressable onPress={useSampleRequest} style={styles.button}>
         <Text style={styles.buttonText}>Use sample request and review</Text>
