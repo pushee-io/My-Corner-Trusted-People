@@ -1,7 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
 
 export function Screen({
@@ -22,7 +21,6 @@ export function Screen({
           contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
         ]}
       >
-        <MyCornerLogo />
         {showTitle ? (
           <Text accessibilityRole="header" style={styles.title}>
             {title}
