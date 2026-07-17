@@ -1,5 +1,6 @@
-import { Link, useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { ProviderCard } from '@/components/ProviderCard';
 import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
@@ -12,10 +13,41 @@ export default function ProvidersScreen() {
   const categoryId = params.categoryId ?? 'plumbing';
   const category = categories.find((item) => item.id === categoryId);
   const providers = listProvidersByCategory(categoryId);
+  const firstProvider = providers[0];
+
+  function continueWithProvider(providerId = firstProvider?.id ?? 'prov-01') {
+    router.push({
+      pathname: '/hire/request/review',
+      params: {
+        requesterName: 'Akosua Mensah',
+        providerId,
+        categoryId,
+        neighborhood: 'East Legon',
+        areaLabel: 'East Legon, general area only',
+        title: 'Kitchen sink leak',
+        description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+        originalUserText: 'Water is leaking under the kitchen sink.',
+        urgency: 'soon',
+        preferredDate: '2026-07-18',
+        preferredTime: 'Afternoon',
+        contactPreference: 'app_update',
+        photoCount: '0',
+      },
+    });
+  }
+
+  useEffect(() => {
+    if (!firstProvider) {
+      return;
+    }
+    const timeout = setTimeout(() => continueWithProvider(firstProvider.id), 1800);
+    return () => clearTimeout(timeout);
+  }, [firstProvider?.id]);
 
   return (
     <Screen title={category ? category.name : 'Providers'}>
       <OfflineBanner />
+      <Text style={styles.note}>Prototype note: provider results will continue to review automatically.</Text>
       <TextInput
         editable={false}
         placeholder="Search providers"
@@ -34,15 +66,11 @@ export default function ProvidersScreen() {
       ) : (
         <View style={styles.list}>
           {providers.map((provider) => (
-            <Link
+            <ProviderCard
               key={provider.id}
-              href={{ pathname: '/hire/provider/[providerId]', params: { providerId: provider.id, categoryId } }}
-              asChild
-            >
-              <Pressable>
-                <ProviderCard provider={provider} onPress={() => undefined} />
-              </Pressable>
-            </Link>
+              provider={provider}
+              onPress={() => continueWithProvider(provider.id)}
+            />
           ))}
         </View>
       )}
@@ -62,4 +90,5 @@ const styles = StyleSheet.create({
   chip: { backgroundColor: '#FFF4D6', paddingHorizontal: tokens.spacing.md, paddingVertical: tokens.spacing.xs, borderRadius: tokens.radius.pill },
   chipText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
   list: { gap: tokens.spacing.md },
+  note: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
 });
