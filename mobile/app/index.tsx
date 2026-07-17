@@ -5,7 +5,7 @@ import { tokens } from '@/theme/tokens';
 
 export default function WelcomeScreen() {
   return (
-    <Screen title="My Corner">
+    <Screen title="My Corner" showTitle={false}>
       <View style={styles.heroLogo}>
         <View style={styles.heroMark}>
           <View style={styles.cornerVertical} />
