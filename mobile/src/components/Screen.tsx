@@ -7,9 +7,8 @@ import { tokens } from '@/theme/tokens';
 export function Screen({
   title,
   children,
-  showHeader = true,
   showTitle = true,
-}: PropsWithChildren<{ title: string; showHeader?: boolean; showTitle?: boolean }>) {
+}: PropsWithChildren<{ title: string; showTitle?: boolean }>) {
   const { width } = useWindowDimensions();
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
@@ -23,7 +22,7 @@ export function Screen({
           contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
         ]}
       >
-        {showHeader ? <MyCornerLogo /> : null}
+        <MyCornerLogo />
         {showTitle ? (
           <Text accessibilityRole="header" style={styles.title}>
             {title}
