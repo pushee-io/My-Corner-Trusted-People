@@ -1,7 +1,19 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
 import { verificationItems } from '@/lib/account';
 import { tokens } from '@/theme/tokens';
+
+const steps = [
+  { href: '/profile/phone-verification', label: 'Phone verification', detail: 'Use the Ghana test phone provider.' },
+  { href: '/profile/legal-name', label: 'Private legal name', detail: 'Stored separately from public display name.' },
+  { href: '/profile/manual-biometric', label: 'Test identity assurance', detail: 'Clearly labeled test mode. No Ghana Card image collection.' },
+  { href: '/profile/address', label: 'Ghana address', detail: 'Ghana-compatible address fields and private GhanaPost GPS support.' },
+  { href: '/profile/map-confirmation', label: 'Map confirmation', detail: 'Confirm a general residential point, not a public pin.' },
+  { href: '/profile/location-consistency', label: 'Location check', detail: 'Foreground-only check with fallback.' },
+  { href: '/profile/postcard-challenge', label: 'Postcard code', detail: 'Test challenge assigns verified neighborhood membership.' },
+] as const;
 
 function statusLabel(status: string) {
   if (status === 'verified') return 'Verified';
@@ -11,13 +23,27 @@ function statusLabel(status: string) {
 }
 
 export default function VerificationScreen() {
+  const unlock = getDay2BFeedUnlockStatus();
+
   return (
-    <Screen title="Account verification">
-      <View style={styles.notice}>
-        <Text style={styles.noticeText}>
-          Verification signals are evidence only. My Corner does not guarantee provider or requester conduct.
-        </Text>
+    <Screen title="Resident verification">
+      <View style={unlock.status === 'unlocked' ? styles.unlocked : styles.notice}>
+        <Text style={styles.noticeText}>{unlock.title}</Text>
+        <Text style={styles.body}>{unlock.message}</Text>
       </View>
+
+      <Text style={styles.sectionTitle}>Day 2B flow</Text>
+
+      {steps.map((step) => (
+        <Link key={step.href} href={step.href} asChild>
+          <Pressable style={styles.card}>
+            <Text style={styles.title}>{step.label}</Text>
+            <Text style={styles.body}>{step.detail}</Text>
+          </Pressable>
+        </Link>
+      ))}
+
+      <Text style={styles.sectionTitle}>Existing account signals</Text>
 
       {verificationItems.map((item) => (
         <View key={item.id} style={styles.card}>
@@ -34,12 +60,26 @@ const styles = StyleSheet.create({
   notice: {
     backgroundColor: '#FFF4D6',
     borderRadius: tokens.radius.md,
+    gap: tokens.spacing.sm,
+    padding: tokens.spacing.lg,
+  },
+  unlocked: {
+    backgroundColor: '#EEF7F4',
+    borderColor: tokens.color.success,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
   noticeText: {
     color: tokens.color.textPrimary,
     fontSize: tokens.type.support,
     fontWeight: '700',
+  },
+  sectionTitle: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '800',
   },
   card: {
     backgroundColor: tokens.color.surface,
