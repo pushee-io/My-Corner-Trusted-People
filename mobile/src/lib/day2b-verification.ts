@@ -1,15 +1,7 @@
-import {
-  createNeighborhoodFeedPost,
-  getFeedUnlockStatus,
-  listUnlockedNeighborhoodPosts,
-} from '@/lib/feed-unlock';
+import { createNeighborhoodFeedPost, getFeedUnlockStatus, listUnlockedNeighborhoodPosts } from '@/lib/feed-unlock';
 import { saveNeighborhoodMembershipRecord } from '@/lib/neighborhood-membership-record';
 import { testRequester } from '@/lib/session';
-import type {
-  AuditEvent,
-  NeighborhoodFeedPost,
-  NeighborhoodMembership,
-} from '@/types/contracts';
+import type { AuditEvent, NeighborhoodFeedPost, NeighborhoodMembership } from '@/types/contracts';
 
 type Day2BPostResult = NeighborhoodFeedPost | undefined;
 
