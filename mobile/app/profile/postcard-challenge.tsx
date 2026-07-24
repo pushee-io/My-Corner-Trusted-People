@@ -1,6 +1,8 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { completeResidenceVerificationFromPostcard } from '@/lib/day2b-verification';
 import { confirmPostcardChallengeCode, createPostcardChallenge, getPostcardChallenge } from '@/lib/postcard-challenge';
 import { tokens } from '@/theme/tokens';
 
@@ -26,7 +28,13 @@ export default function PostcardChallengeScreen() {
   }
 
   function confirmCode() {
-    setChallenge(confirmPostcardChallengeCode(code));
+    const confirmedChallenge = confirmPostcardChallengeCode(code);
+    setChallenge(confirmedChallenge);
+
+    if (confirmedChallenge?.status === 'code_confirmed') {
+      completeResidenceVerificationFromPostcard();
+      router.replace('/community');
+    }
   }
 
   return (
@@ -76,7 +84,7 @@ export default function PostcardChallengeScreen() {
       <TextInput value={code} onChangeText={setCode} style={styles.input} />
 
       <Pressable style={styles.secondary} onPress={confirmCode}>
-        <Text style={styles.secondaryText}>Confirm test code</Text>
+        <Text style={styles.secondaryText}>Confirm test code and unlock feed</Text>
       </Pressable>
     </Screen>
   );
