@@ -5,7 +5,11 @@ import {
 } from '@/lib/feed-unlock';
 import { saveNeighborhoodMembershipRecord } from '@/lib/neighborhood-membership-record';
 import { testRequester } from '@/lib/session';
-import type { AuditEvent, NeighborhoodFeedPost, NeighborhoodMembership } from '@/types/contracts';
+import type {
+  AuditEvent,
+  NeighborhoodFeedPost,
+  NeighborhoodMembership,
+} from '@/types/contracts';
 
 export const day2bNeighborhoodId = 'east-legon';
 export const day2bNeighborhoodName = 'East Legon';
@@ -58,7 +62,9 @@ export function listDay2BNeighborhoodPosts(): NeighborhoodFeedPost[] {
   return listUnlockedNeighborhoodPosts(testRequester.id, day2bNeighborhoodId);
 }
 
-export function createDay2BLocalPost(body: string): NeighborhoodFeedPost | undefined {
+export function createDay2BLocalPost(
+  body: string,
+): NeighborhoodFeedPost | undefined {
   return createNeighborhoodFeedPost({
     userId: testRequester.id,
     neighborhoodId: day2bNeighborhoodId,
