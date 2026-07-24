@@ -1,30 +1,35 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { getLegalNameRecord, saveLegalName } from '@/lib/legal-name';
+import { completeDay2BLegalName } from '@/lib/day2b-verification';
+import type { SafeIdentitySummary } from '@/lib/day2b-live-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function LegalNameScreen() {
   const [givenNames, setGivenNames] = useState('Akosua');
   const [familyName, setFamilyName] = useState('Mensah');
-  const [record, setRecord] = useState(getLegalNameRecord());
-  const [errors, setErrors] = useState<string[]>([]);
+  const [record, setRecord] = useState<SafeIdentitySummary>();
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  function save() {
-    const result = saveLegalName({ givenNames, familyName });
+  async function save() {
+    setSaving(true);
+    setError('');
 
-    setErrors(result.errors);
-    if (result.record) {
-      setRecord(result.record);
+    const result = await completeDay2BLegalName({ givenNames, familyName });
+    if (result.data) {
+      setRecord(result.data);
     }
+    setError(result.error ?? '');
+    setSaving(false);
   }
 
   return (
     <Screen title="Legal name">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Legal name is a private record for human review. It is not shown on your public profile and AI does not verify
-          it.
+          Legal name is written to the private identity table. The app reads back only the safe identity summary allowed
+          by RLS and column grants.
         </Text>
       </View>
 
@@ -44,21 +49,19 @@ export default function LegalNameScreen() {
         accessibilityLabel="Legal family name"
       />
 
-      {errors.map((error) => (
-        <Text key={error} style={styles.error}>
-          {error}
-        </Text>
-      ))}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable style={styles.button} onPress={save}>
-        <Text style={styles.buttonText}>Save private legal name</Text>
+      <Pressable style={styles.button} onPress={save} disabled={saving}>
+        <Text style={styles.buttonText}>{saving ? 'Saving...' : 'Save private legal name'}</Text>
       </Pressable>
 
       {record ? (
         <View style={styles.card}>
-          <Text style={styles.title}>Private record saved</Text>
-          <Text style={styles.body}>{record.fullLegalName}</Text>
-          <Text style={styles.meta}>Visibility: private admin review only</Text>
+          <Text style={styles.title}>Private identity saved</Text>
+          <Text style={styles.body}>Public display name: {record.publicDisplayName}</Text>
+          <Text style={styles.meta}>Assurance status: {record.assuranceStatus}</Text>
+          <Text style={styles.meta}>Provider: {record.assuranceProvider}</Text>
+          <Text style={styles.meta}>Legal name visible here: No</Text>
           <Text style={styles.meta}>AI verified: No</Text>
         </View>
       ) : null}
