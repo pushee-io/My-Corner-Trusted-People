@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { AddressProvider, addressProviderOptions, getGhanaAddressRecord, saveGhanaAddress } from '@/lib/ghana-address';
+import { AddressProvider, addressProviderOptions } from '@/lib/ghana-address';
+import { saveDay2BGhanaAddress } from '@/lib/day2b-verification';
+import type { SafeAddressSummary } from '@/lib/day2b-live-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function GhanaAddressScreen() {
@@ -10,11 +12,15 @@ export default function GhanaAddressScreen() {
   const [areaLabel, setAreaLabel] = useState('East Legon general area');
   const [ghanaPostGps, setGhanaPostGps] = useState('GA-123-4567');
   const [provider, setProvider] = useState<AddressProvider>('ghana_post_gps');
-  const [record, setRecord] = useState(getGhanaAddressRecord());
-  const [errors, setErrors] = useState<string[]>([]);
+  const [record, setRecord] = useState<SafeAddressSummary>();
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  function save() {
-    const result = saveGhanaAddress({
+  async function save() {
+    setSaving(true);
+    setError('');
+
+    const result = await saveDay2BGhanaAddress({
       neighborhood,
       city,
       areaLabel,
@@ -22,17 +28,19 @@ export default function GhanaAddressScreen() {
       provider,
     });
 
-    setErrors(result.errors);
-    if (result.record) {
-      setRecord(result.record);
+    if (result.data) {
+      setRecord(result.data);
     }
+    setError(result.error ?? '');
+    setSaving(false);
   }
 
   return (
     <Screen title="Ghana address">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Address is private. Public views show only neighborhood and broad area labels. This does not prove residence.
+          Address is saved through Supabase RLS. Public views still show only safe neighborhood labels, never GhanaPost
+          GPS or exact coordinates.
         </Text>
       </View>
 
@@ -63,25 +71,21 @@ export default function GhanaAddressScreen() {
         ))}
       </View>
 
-      {errors.map((error) => (
-        <Text key={error} style={styles.error}>
-          {error}
-        </Text>
-      ))}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable style={styles.button} onPress={save}>
-        <Text style={styles.buttonText}>Save private address</Text>
+      <Pressable style={styles.button} onPress={save} disabled={saving}>
+        <Text style={styles.buttonText}>{saving ? 'Saving...' : 'Save private address'}</Text>
       </Pressable>
 
       {record ? (
         <View style={styles.card}>
           <Text style={styles.title}>Private address saved</Text>
           <Text style={styles.body}>Public label: {record.publicLabel}</Text>
-          <Text style={styles.meta}>Provider: {record.provider}</Text>
-          <Text style={styles.meta}>Visibility: {record.visibility}</Text>
+          <Text style={styles.meta}>Provider: {record.providerName}</Text>
+          <Text style={styles.meta}>Verification status: {record.verificationStatus}</Text>
           <Text style={styles.meta}>Exact address public: No</Text>
+          <Text style={styles.meta}>GhanaPost GPS public: No</Text>
           <Text style={styles.meta}>Exact coordinates public: No</Text>
-          <Text style={styles.meta}>Proof of residence: No</Text>
         </View>
       ) : null}
     </Screen>
