@@ -1,31 +1,48 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { createDay2BLocalPost, getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
+import type { FeedUnlockResult } from '@/types/contracts';
 
 export default function NewLocalPostScreen() {
-  const unlock = getDay2BFeedUnlockStatus();
+  const [unlock, setUnlock] = useState<FeedUnlockResult>();
   const [body, setBody] = useState('Looking for someone who can inspect a small leak this week.');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  function submit() {
-    const post = createDay2BLocalPost(body);
-    if (!post) {
-      setError('Verify your neighborhood before posting to the private feed.');
+  useEffect(() => {
+    async function loadUnlock() {
+      const result = await getDay2BFeedUnlockStatus();
+      setUnlock(result.data);
+      setError(result.error ?? '');
+    }
+
+    void loadUnlock();
+  }, []);
+
+  async function submit() {
+    setSubmitting(true);
+    setError('');
+
+    const result = await createDay2BLocalPost(body);
+    if (!result.data) {
+      setError(result.error ?? 'Verify your neighborhood before posting to the private feed.');
+      setSubmitting(false);
       return;
     }
 
     router.replace('/community');
   }
 
-  if (!unlock.canPost) {
+  if (unlock?.canPost === false) {
     return (
       <Screen title="Create local post">
         <View style={styles.notice}>
           <Text style={styles.noticeText}>{unlock.message}</Text>
         </View>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
         <Pressable style={styles.button} onPress={() => router.push('/profile/phone-verification')}>
           <Text style={styles.buttonText}>Start resident verification</Text>
         </Pressable>
@@ -36,7 +53,7 @@ export default function NewLocalPostScreen() {
   return (
     <Screen title="Create local post">
       <View style={styles.notice}>
-        <Text style={styles.noticeText}>This post stays inside East Legon. Do not include exact home addresses.</Text>
+        <Text style={styles.noticeText}>This post is written through Supabase and protected by neighborhood RLS.</Text>
       </View>
       <TextInput
         value={body}
@@ -46,8 +63,8 @@ export default function NewLocalPostScreen() {
         accessibilityLabel="Post details"
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Pressable onPress={submit} style={styles.button}>
-        <Text style={styles.buttonText}>Post to East Legon</Text>
+      <Pressable onPress={submit} style={styles.button} disabled={submitting}>
+        <Text style={styles.buttonText}>{submitting ? 'Posting...' : 'Post to verified neighborhood'}</Text>
       </Pressable>
     </Screen>
   );
