@@ -1,20 +1,66 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import {
+  day2bNeighborhoodName,
+  getDay2BFeedUnlockStatus,
+  listDay2BNeighborhoodPosts,
+} from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
 
 export default function CommunityScreen() {
-  return (
-    <Screen title="Community">
-      <View style={styles.notice}>
-        <Text style={styles.noticeText}>Ordinary posts stay inside your verified neighborhood.</Text>
-      </View>
+  const unlock = getDay2BFeedUnlockStatus();
+  const posts = listDay2BNeighborhoodPosts();
 
-      <Link href="/community/new-post" asChild>
-        <Pressable style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Create local post</Text>
-        </Pressable>
-      </Link>
+  return (
+    <Screen title="My Neighborhood">
+      {unlock.status === 'locked' ? (
+        <>
+          <View style={styles.lockedNotice}>
+            <Text style={styles.sectionTitle}>{unlock.title}</Text>
+            <Text style={styles.body}>{unlock.message}</Text>
+            <Text style={styles.meta}>
+              Private neighborhood content is enforced by server-side membership checks, not just hidden navigation.
+            </Text>
+          </View>
+
+          <Link href="/profile/phone-verification" asChild>
+            <Pressable style={styles.primaryButton}>
+              <Text style={styles.primaryButtonText}>Start resident verification</Text>
+            </Pressable>
+          </Link>
+        </>
+      ) : (
+        <>
+          <View style={styles.unlockedNotice}>
+            <Text style={styles.sectionTitle}>{day2bNeighborhoodName} feed unlocked</Text>
+            <Text style={styles.body}>Ordinary posts stay inside your verified neighborhood.</Text>
+          </View>
+
+          <Link href="/community/new-post" asChild>
+            <Pressable style={styles.primaryButton}>
+              <Text style={styles.primaryButtonText}>Create local post</Text>
+            </Pressable>
+          </Link>
+
+          <Text style={styles.sectionTitle}>Private local posts</Text>
+
+          {posts.length === 0 ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>No posts yet</Text>
+              <Text style={styles.body}>Create the first private neighborhood post for this test slice.</Text>
+            </View>
+          ) : (
+            posts.map((post) => (
+              <View key={post.id} style={styles.card}>
+                <Text style={styles.cardTitle}>{post.authorDisplayName}</Text>
+                <Text style={styles.body}>{post.body}</Text>
+                <Text style={styles.meta}>Verified neighborhood only</Text>
+              </View>
+            ))
+          )}
+        </>
+      )}
 
       <Text style={styles.sectionTitle}>Explore</Text>
 
@@ -42,47 +88,29 @@ export default function CommunityScreen() {
         </Pressable>
       </Link>
 
-      <Link href="/messages" asChild>
-        <Pressable style={styles.linkButton}>
-          <Text style={styles.linkText}>Messages</Text>
-        </Pressable>
-      </Link>
-
       <Link href="/report/evidence" asChild>
         <Pressable style={styles.linkButton}>
           <Text style={styles.linkText}>Report evidence</Text>
         </Pressable>
       </Link>
-
-      <Text style={styles.sectionTitle}>East Legon local posts</Text>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Water pressure around Lagos Avenue</Text>
-        <Text style={styles.body}>Has anyone else had low water pressure this morning?</Text>
-        <Text style={styles.meta}>Verified neighborhood only</Text>
-      </View>
-
-      <Text style={styles.sectionTitle}>Greater Accra feed</Text>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Planned sanitation pickup notice</Text>
-        <Text style={styles.body}>Approved agency broadcast for selected Accra neighborhoods.</Text>
-        <Text style={styles.meta}>Approved regional content only</Text>
-      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  notice: {
+  lockedNotice: {
     backgroundColor: '#FFF4D6',
     borderRadius: tokens.radius.md,
+    gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
-  noticeText: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.support,
-    fontWeight: '700',
+  unlockedNotice: {
+    backgroundColor: '#EEF7F4',
+    borderColor: tokens.color.success,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.sm,
+    padding: tokens.spacing.lg,
   },
   primaryButton: {
     minHeight: tokens.touch.min,
