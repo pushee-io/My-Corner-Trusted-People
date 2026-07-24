@@ -189,7 +189,7 @@ select 'ama_challenge_id',
         and pa.is_current = true
       limit 1
     ),
-    'MC2026'
+    'MC2A26'
   );
 
 select pg_temp.assert_true(
@@ -207,7 +207,7 @@ select pg_temp.assert_true(
     (
       select value from day2b_test_ids where key = 'ama_challenge_id'
     ),
-    'mc2026'
+    'mc2a26'
   ) = (
     select id from public.neighborhoods where name = 'Day2B East Legon'
   ),
@@ -231,7 +231,7 @@ select pg_temp.assert_denied(
     (
       select value from day2b_test_ids where key = 'ama_challenge_id'
     ),
-    'MC2026'
+    'MC2A26'
   ),
   'consumed postcard challenge must not be reusable'
 );
@@ -319,14 +319,14 @@ select 'kofi_challenge_id',
       and pa.is_current = true
     limit 1
   ),
-  'KO2026'
+  'KP2A26'
 );
 
 select public.verify_test_residence_challenge(
   (
     select value from day2b_test_ids where key = 'kofi_challenge_id'
   ),
-  'KO2026'
+  'KP2A26'
 );
 
 select pg_temp.assert_true(
@@ -389,14 +389,14 @@ select 'esi_challenge_id',
       and pa.is_current = true
     limit 1
   ),
-  'ES2026'
+  'ES2A26'
 );
 
 select public.verify_test_residence_challenge(
   (
     select value from day2b_test_ids where key = 'esi_challenge_id'
   ),
-  'ES2026'
+  'ES2A26'
 );
 
 select pg_temp.assert_true(
