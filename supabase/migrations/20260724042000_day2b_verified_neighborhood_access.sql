@@ -1,3 +1,14 @@
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
 create type public.identity_assurance_status as enum ('not_started', 'in_review', 'approved_test_mode', 'rejected', 'expired');
 create type public.residence_verification_status as enum ('not_started', 'pending', 'verified', 'requires_reverification', 'expired', 'revoked', 'manual_review_required');
 create type public.residence_challenge_status as enum ('created', 'delivery_pending', 'delivered', 'code_entered', 'verified', 'expired', 'too_many_attempts', 'cancelled', 'manual_review_required');
