@@ -2,89 +2,82 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { completeResidenceVerificationFromPostcard } from '@/lib/day2b-verification';
-import { confirmPostcardChallengeCode, createPostcardChallenge, getPostcardChallenge } from '@/lib/postcard-challenge';
+import {
+  completeResidenceVerificationFromPostcard,
+  createDay2BPostcardChallenge,
+  day2bTestCode,
+} from '@/lib/day2b-verification';
+import type { TestResidenceChallengeSummary } from '@/lib/day2b-live-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function PostcardChallengeScreen() {
-  const [neighborhood, setNeighborhood] = useState('East Legon');
-  const [city, setCity] = useState('Accra');
-  const [mailingAreaLabel, setMailingAreaLabel] = useState('East Legon general mailing area');
-  const [code, setCode] = useState('MC-2468');
-  const [challenge, setChallenge] = useState(getPostcardChallenge());
-  const [errors, setErrors] = useState<string[]>([]);
+  const [code, setCode] = useState(day2bTestCode);
+  const [challenge, setChallenge] = useState<TestResidenceChallengeSummary>();
+  const [error, setError] = useState('');
+  const [working, setWorking] = useState(false);
 
-  function createChallenge() {
-    const result = createPostcardChallenge({
-      neighborhood,
-      city,
-      mailingAreaLabel,
-    });
+  async function createChallenge() {
+    setWorking(true);
+    setError('');
 
-    setErrors(result.errors);
-    if (result.challenge) {
-      setChallenge(result.challenge);
+    const result = await createDay2BPostcardChallenge();
+    if (result.data) {
+      setChallenge(result.data);
     }
+    setError(result.error ?? '');
+    setWorking(false);
   }
 
-  function confirmCode() {
-    const confirmedChallenge = confirmPostcardChallengeCode(code);
-    setChallenge(confirmedChallenge);
-
-    if (confirmedChallenge?.status === 'code_confirmed') {
-      completeResidenceVerificationFromPostcard();
-      router.replace('/community');
+  async function confirmCode() {
+    if (!challenge) {
+      setError('Create a test postcard challenge first.');
+      return;
     }
+
+    setWorking(true);
+    setError('');
+
+    const result = await completeResidenceVerificationFromPostcard({ challengeId: challenge.id, code });
+    if (result.data?.canRead) {
+      router.replace('/community');
+      return;
+    }
+
+    setError(result.error ?? 'The postcard challenge could not be verified.');
+    setWorking(false);
   }
 
   return (
     <Screen title="Postcard challenge">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Test mode only. This fictional postcard challenge uses a broad mailing area and does not expose exact
-          addresses.
+          Test mode only. Supabase stores the postcard code as a salted hash and creates verified membership through the
+          database RPC.
         </Text>
       </View>
 
-      <Text style={styles.label}>Neighborhood</Text>
-      <TextInput value={neighborhood} onChangeText={setNeighborhood} style={styles.input} />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Text style={styles.label}>City</Text>
-      <TextInput value={city} onChangeText={setCity} style={styles.input} />
-
-      <Text style={styles.label}>Broad mailing area label</Text>
-      <TextInput value={mailingAreaLabel} onChangeText={setMailingAreaLabel} style={styles.input} />
-
-      {errors.map((error) => (
-        <Text key={error} style={styles.error}>
-          {error}
-        </Text>
-      ))}
-
-      <Pressable style={styles.button} onPress={createChallenge}>
-        <Text style={styles.buttonText}>Create test postcard challenge</Text>
+      <Pressable style={styles.button} onPress={createChallenge} disabled={working}>
+        <Text style={styles.buttonText}>{working ? 'Working...' : 'Create test postcard challenge'}</Text>
       </Pressable>
 
       {challenge ? (
         <View style={styles.card}>
           <Text style={styles.title}>Status: {challenge.status}</Text>
-          <Text style={styles.body}>Provider: {challenge.provider}</Text>
-          <Text style={styles.body}>Mailing area: {challenge.mailingAreaLabel}</Text>
+          <Text style={styles.body}>Challenge ID: {challenge.id}</Text>
           <Text style={styles.meta}>Test code: {challenge.challengeCode}</Text>
+          <Text style={styles.meta}>Code stored as hash: Yes</Text>
           <Text style={styles.meta}>Exact address public: No</Text>
-          <Text style={styles.meta}>Exact coordinates stored: No</Text>
-          <Text style={styles.meta}>Ghana Card used: No</Text>
           <Text style={styles.meta}>AI final decision: No</Text>
-          <Text style={styles.meta}>Automatic residence proof: No</Text>
-          <Text style={styles.meta}>Human review required: Yes</Text>
         </View>
       ) : null}
 
       <Text style={styles.label}>Postcard code</Text>
-      <TextInput value={code} onChangeText={setCode} style={styles.input} />
+      <TextInput value={code} onChangeText={setCode} autoCapitalize="characters" style={styles.input} />
 
-      <Pressable style={styles.secondary} onPress={confirmCode}>
-        <Text style={styles.secondaryText}>Confirm test code and unlock feed</Text>
+      <Pressable style={styles.secondary} onPress={confirmCode} disabled={working}>
+        <Text style={styles.secondaryText}>Confirm code and unlock feed</Text>
       </Pressable>
     </Screen>
   );
