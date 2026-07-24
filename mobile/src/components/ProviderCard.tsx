@@ -23,7 +23,9 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
         <View style={styles.headerText}>
           <Text style={styles.name}>{provider.name}</Text>
           <Text style={styles.headline}>{provider.headline}</Text>
-          <Text style={styles.meta}>{provider.serviceLabel} · {provider.areaLabel}</Text>
+          <Text style={styles.meta}>
+            {provider.serviceLabel} · {provider.areaLabel}
+          </Text>
         </View>
       </View>
       <View style={styles.metrics}>
@@ -34,7 +36,9 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
       <View style={styles.signalRow}>
         {provider.trustSignals.map((signal) => (
           <View key={signal.id} style={styles.badge}>
-            <Text style={styles.badgeText}>{signal.label}: {signal.value}</Text>
+            <Text style={styles.badgeText}>
+              {signal.label}: {signal.value}
+            </Text>
           </View>
         ))}
       </View>

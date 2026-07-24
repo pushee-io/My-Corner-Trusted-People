@@ -24,7 +24,9 @@ export default function RequestStatusScreen() {
       <View style={styles.panel}>
         <StatusPill status={request.status} />
         <Text style={styles.title}>{request.title}</Text>
-        <Text style={styles.body}>{provider?.name ?? 'Selected provider'} · {request.areaLabel}</Text>
+        <Text style={styles.body}>
+          {provider?.name ?? 'Selected provider'} · {request.areaLabel}
+        </Text>
         {request.providerMessage ? <Text style={styles.message}>Provider note: {request.providerMessage}</Text> : null}
       </View>
       <View style={styles.panel}>
@@ -32,7 +34,9 @@ export default function RequestStatusScreen() {
         {request.statusTimeline.map((event) => (
           <View key={event.id} style={styles.timelineRow}>
             <Text style={styles.body}>{event.status}</Text>
-            <Text style={styles.note}>{event.actor} · {new Date(event.createdAt).toLocaleString('en-GH')}</Text>
+            <Text style={styles.note}>
+              {event.actor} · {new Date(event.createdAt).toLocaleString('en-GH')}
+            </Text>
             {event.note ? <Text style={styles.note}>{event.note}</Text> : null}
           </View>
         ))}
@@ -47,13 +51,32 @@ export default function RequestStatusScreen() {
 }
 
 const styles = StyleSheet.create({
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   section: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   note: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   message: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
-  timelineRow: { borderTopColor: tokens.color.border, borderTopWidth: 1, paddingTop: tokens.spacing.sm, gap: tokens.spacing.xs },
-  secondary: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.error, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  timelineRow: {
+    borderTopColor: tokens.color.border,
+    borderTopWidth: 1,
+    paddingTop: tokens.spacing.sm,
+    gap: tokens.spacing.xs,
+  },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.error,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   secondaryText: { color: tokens.color.error, textAlign: 'center', fontWeight: '700' },
 });

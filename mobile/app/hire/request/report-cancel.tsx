@@ -23,7 +23,9 @@ export default function ReportCancelScreen() {
 
   return (
     <Screen title="Cancel or report">
-      <Text style={styles.body}>Cancel if you no longer need help. Report only for safety, deception, abuse, or inappropriate behavior.</Text>
+      <Text style={styles.body}>
+        Cancel if you no longer need help. Report only for safety, deception, abuse, or inappropriate behavior.
+      </Text>
       <Pressable onPress={cancel} style={styles.button}>
         <Text style={styles.buttonText}>Cancel request</Text>
       </Pressable>
@@ -36,8 +38,21 @@ export default function ReportCancelScreen() {
 
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  report: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.error, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  report: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.error,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   reportText: { color: tokens.color.error, textAlign: 'center', fontWeight: '700' },
 });

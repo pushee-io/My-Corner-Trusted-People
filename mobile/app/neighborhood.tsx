@@ -9,10 +9,14 @@ export default function NeighborhoodScreen() {
       <Text style={styles.text}>Pilot location: Accra, Ghana.</Text>
       <Text style={styles.text}>Selected neighborhood: East Legon</Text>
       <View style={styles.notice}>
-        <Text style={styles.noticeText}>Only your general service area is used for browsing. Exact addresses stay private in this slice.</Text>
+        <Text style={styles.noticeText}>
+          Only your general service area is used for browsing. Exact addresses stay private in this slice.
+        </Text>
       </View>
       <Link href="/home" asChild>
-        <Pressable style={styles.button}><Text style={styles.buttonText}>Confirm neighborhood</Text></Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Confirm neighborhood</Text>
+        </Pressable>
       </Link>
     </Screen>
   );

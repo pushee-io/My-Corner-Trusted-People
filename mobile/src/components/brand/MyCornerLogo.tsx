@@ -3,7 +3,7 @@ import { tokens } from '@/theme/tokens';
 
 export function MyCornerLogo() {
   return (
-    <View style={styles.lockup} accessibilityLabel="My Corner, Trusted People">
+    <View style={styles.lockup}>
       <View style={styles.mark}>
         <View style={styles.cornerVertical} />
         <View style={styles.cornerHorizontal} />
@@ -19,11 +19,7 @@ export function MyCornerLogo() {
 }
 
 const styles = StyleSheet.create({
-  lockup: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: tokens.spacing.sm,
-  },
+  lockup: { alignItems: 'center', flexDirection: 'row', gap: tokens.spacing.sm },
   mark: {
     width: 42,
     height: 42,
@@ -67,14 +63,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: tokens.color.secondary,
   },
-  name: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.card,
-    fontWeight: '800',
-  },
-  descriptor: {
-    color: tokens.color.textSecondary,
-    fontSize: tokens.type.minimum,
-    fontWeight: '700',
-  },
+  name: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '800' },
+  descriptor: { color: tokens.color.textSecondary, fontSize: tokens.type.minimum, fontWeight: '700' },
 });

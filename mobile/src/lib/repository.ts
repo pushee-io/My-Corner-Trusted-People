@@ -38,7 +38,15 @@ export function listProviderRequests(providerId: string): JobRequest[] {
   return requests.filter((request) => request.providerId === providerId);
 }
 
-export function updateRequestStatus(requestId: string, status: RequestStatus, providerMessage?: string): JobRequest | undefined {
+export function listAllRequests(): JobRequest[] {
+  return requests;
+}
+
+export function updateRequestStatus(
+  requestId: string,
+  status: RequestStatus,
+  providerMessage?: string,
+): JobRequest | undefined {
   const request = requests.find((item) => item.id === requestId);
   if (!request) return undefined;
 

@@ -4,7 +4,9 @@ const sensitiveKeys = ['phone', 'address', 'description', 'message', 'email', 'n
 
 export function trackEvent(eventName: string, properties: EventProperties = {}) {
   const safeProperties = Object.fromEntries(
-    Object.entries(properties).filter(([key]) => !sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))),
+    Object.entries(properties).filter(
+      ([key]) => !sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive)),
+    ),
   );
 
   if (__DEV__) {
