@@ -1,34 +1,44 @@
 import { Link } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { day2bNeighborhoodName, getDay2BFeedUnlockStatus, listDay2BNeighborhoodPosts } from '@/lib/day2b-verification';
+import { getDay2BFeedUnlockStatus, listDay2BNeighborhoodPosts } from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
+import type { FeedUnlockResult, NeighborhoodFeedPost } from '@/types/contracts';
 
 export default function CommunityScreen() {
-  const unlock = getDay2BFeedUnlockStatus();
-  const posts = listDay2BNeighborhoodPosts();
+  const [unlock, setUnlock] = useState<FeedUnlockResult>();
+  const [posts, setPosts] = useState<NeighborhoodFeedPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  async function loadFeed() {
+    setLoading(true);
+    const unlockResult = await getDay2BFeedUnlockStatus();
+    const postResult = await listDay2BNeighborhoodPosts();
+
+    setUnlock(unlockResult.data);
+    setPosts(postResult.data ?? []);
+    setError(unlockResult.error ?? postResult.error ?? '');
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    void loadFeed();
+  }, []);
+
+  const canRead = unlock?.canRead === true;
 
   return (
     <Screen title="My Neighborhood">
-      {unlock.status === 'locked' ? (
-        <>
-          <View style={styles.lockedNotice}>
-            <Text style={styles.sectionTitle}>{unlock.title}</Text>
-            <Text style={styles.body}>{unlock.message}</Text>
-            <Text style={styles.meta}>Server membership checks protect private posts.</Text>
-          </View>
+      {loading ? <Text style={styles.body}>Checking verified neighborhood access...</Text> : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <Link href="/profile/phone-verification" asChild>
-            <Pressable style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>Start resident verification</Text>
-            </Pressable>
-          </Link>
-        </>
-      ) : (
+      {canRead ? (
         <>
           <View style={styles.unlockedNotice}>
-            <Text style={styles.sectionTitle}>{day2bNeighborhoodName} feed unlocked</Text>
-            <Text style={styles.body}>Posts stay inside your verified neighborhood.</Text>
+            <Text style={styles.sectionTitle}>{unlock?.title}</Text>
+            <Text style={styles.body}>{unlock?.message}</Text>
           </View>
 
           <Link href="/community/new-post" asChild>
@@ -41,8 +51,8 @@ export default function CommunityScreen() {
 
           {posts.length === 0 ? (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>No posts yet</Text>
-              <Text style={styles.body}>Create the first private post for this test slice.</Text>
+              <Text style={styles.cardTitle}>No visible posts yet</Text>
+              <Text style={styles.body}>RLS returned no posts for your verified neighborhood.</Text>
             </View>
           ) : (
             posts.map((post) => (
@@ -53,6 +63,20 @@ export default function CommunityScreen() {
               </View>
             ))
           )}
+        </>
+      ) : (
+        <>
+          <View style={styles.lockedNotice}>
+            <Text style={styles.sectionTitle}>{unlock?.title ?? 'Feed locked'}</Text>
+            <Text style={styles.body}>{unlock?.message ?? 'Sign in and complete residence verification.'}</Text>
+            <Text style={styles.meta}>Server-side RLS decides whether private posts are readable.</Text>
+          </View>
+
+          <Link href="/profile/phone-verification" asChild>
+            <Pressable style={styles.primaryButton}>
+              <Text style={styles.primaryButtonText}>Start resident verification</Text>
+            </Pressable>
+          </Link>
         </>
       )}
 
@@ -157,5 +181,10 @@ const styles = StyleSheet.create({
   meta: {
     color: tokens.color.textSecondary,
     fontSize: tokens.type.support,
+  },
+  error: {
+    color: tokens.color.error,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
   },
 });
