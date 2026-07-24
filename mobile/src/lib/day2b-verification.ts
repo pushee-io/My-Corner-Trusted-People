@@ -11,6 +11,8 @@ import type {
   NeighborhoodMembership,
 } from '@/types/contracts';
 
+type Day2BPostResult = NeighborhoodFeedPost | undefined;
+
 export const day2bNeighborhoodId = 'east-legon';
 export const day2bNeighborhoodName = 'East Legon';
 export const day2bAuthorDisplayName = 'Akosua M.';
@@ -62,9 +64,7 @@ export function listDay2BNeighborhoodPosts(): NeighborhoodFeedPost[] {
   return listUnlockedNeighborhoodPosts(testRequester.id, day2bNeighborhoodId);
 }
 
-export function createDay2BLocalPost(
-  body: string,
-): NeighborhoodFeedPost | undefined {
+export function createDay2BLocalPost(body: string): Day2BPostResult {
   return createNeighborhoodFeedPost({
     userId: testRequester.id,
     neighborhoodId: day2bNeighborhoodId,
