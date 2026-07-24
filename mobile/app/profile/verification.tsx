@@ -1,18 +1,46 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
 import { verificationItems } from '@/lib/account';
+import { getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
 
 const steps = [
-  { href: '/profile/phone-verification', label: 'Phone verification', detail: 'Use the Ghana test phone provider.' },
-  { href: '/profile/legal-name', label: 'Private legal name', detail: 'Stored separately from public display name.' },
-  { href: '/profile/manual-biometric', label: 'Test identity assurance', detail: 'Clearly labeled test mode. No Ghana Card image collection.' },
-  { href: '/profile/address', label: 'Ghana address', detail: 'Ghana-compatible address fields and private GhanaPost GPS support.' },
-  { href: '/profile/map-confirmation', label: 'Map confirmation', detail: 'Confirm a general residential point, not a public pin.' },
-  { href: '/profile/location-consistency', label: 'Location check', detail: 'Foreground-only check with fallback.' },
-  { href: '/profile/postcard-challenge', label: 'Postcard code', detail: 'Test challenge assigns verified neighborhood membership.' },
+  {
+    href: '/profile/phone-verification',
+    label: 'Phone verification',
+    detail: 'Use the Ghana test phone provider.',
+  },
+  {
+    href: '/profile/legal-name',
+    label: 'Private legal name',
+    detail: 'Stored separately from public display name.',
+  },
+  {
+    href: '/profile/manual-biometric',
+    label: 'Test identity assurance',
+    detail: 'Clearly labeled test mode. No Ghana Card image collection.',
+  },
+  {
+    href: '/profile/address',
+    label: 'Ghana address',
+    detail: 'Ghana-compatible address fields and private GhanaPost GPS support.',
+  },
+  {
+    href: '/profile/map-confirmation',
+    label: 'Map confirmation',
+    detail: 'Confirm a general residential point, not a public pin.',
+  },
+  {
+    href: '/profile/location-consistency',
+    label: 'Location check',
+    detail: 'Foreground-only check with fallback.',
+  },
+  {
+    href: '/profile/postcard-challenge',
+    label: 'Postcard code',
+    detail: 'Test challenge assigns verified neighborhood membership.',
+  },
 ] as const;
 
 function statusLabel(status: string) {
