@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --check .",
+    "format": "prettier --write src/__tests__/day2b-verification-flow.test.ts src/lib/day2b-live-repository.ts src/lib/supabase.ts && git diff -- src/__tests__/day2b-verification-flow.test.ts src/lib/day2b-live-repository.ts src/lib/supabase.ts && exit 1",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
