@@ -20,21 +20,28 @@ export default function CommunityScreen() {
             <Text style={styles.sectionTitle}>{unlock.title}</Text>
             <Text style={styles.body}>{unlock.message}</Text>
             <Text style={styles.meta}>
-              Private neighborhood content is enforced by server-side membership checks, not just hidden navigation.
+              Private neighborhood content is enforced by server-side membership
+              checks, not just hidden navigation.
             </Text>
           </View>
 
           <Link href="/profile/phone-verification" asChild>
             <Pressable style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>Start resident verification</Text>
+              <Text style={styles.primaryButtonText}>
+                Start resident verification
+              </Text>
             </Pressable>
           </Link>
         </>
       ) : (
         <>
           <View style={styles.unlockedNotice}>
-            <Text style={styles.sectionTitle}>{day2bNeighborhoodName} feed unlocked</Text>
-            <Text style={styles.body}>Ordinary posts stay inside your verified neighborhood.</Text>
+            <Text style={styles.sectionTitle}>
+              {day2bNeighborhoodName} feed unlocked
+            </Text>
+            <Text style={styles.body}>
+              Ordinary posts stay inside your verified neighborhood.
+            </Text>
           </View>
 
           <Link href="/community/new-post" asChild>
@@ -48,7 +55,9 @@ export default function CommunityScreen() {
           {posts.length === 0 ? (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>No posts yet</Text>
-              <Text style={styles.body}>Create the first private neighborhood post for this test slice.</Text>
+              <Text style={styles.body}>
+                Create the first private neighborhood post for this test slice.
+              </Text>
             </View>
           ) : (
             posts.map((post) => (
