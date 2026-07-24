@@ -77,8 +77,7 @@ export default function NewRequestScreen() {
       ...draft,
       title: title || 'Kitchen sink leak',
       description:
-        description ||
-        'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+        description || 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
     };
 
     trackEvent('request_sample_used', {
@@ -116,12 +115,20 @@ export default function NewRequestScreen() {
     <Screen title="Create request">
       <OfflineBanner />
       <Text style={styles.noticeText}>Prototype note: this screen will continue to review automatically.</Text>
-      <Text style={styles.summary}>Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.</Text>
+      <Text style={styles.summary}>
+        Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.
+      </Text>
       <Pressable onPress={useSampleRequest} style={styles.button}>
         <Text style={styles.buttonText}>Use sample request and review</Text>
       </Pressable>
       <Text style={styles.label}>Job title</Text>
-      <TextInput value={title} onChangeText={setTitle} style={styles.input} placeholder="Example: Kitchen sink leak" accessibilityLabel="Job title" />
+      <TextInput
+        value={title}
+        onChangeText={setTitle}
+        style={styles.input}
+        placeholder="Example: Kitchen sink leak"
+        accessibilityLabel="Job title"
+      />
       <Text style={styles.label}>Description</Text>
       <TextInput
         value={description}
@@ -137,13 +144,27 @@ export default function NewRequestScreen() {
       <Text style={styles.label}>General area</Text>
       <Text style={styles.readonly}>{draft.areaLabel}</Text>
       <Text style={styles.label}>Preferred date</Text>
-      <TextInput value={preferredDate} onChangeText={setPreferredDate} style={styles.input} accessibilityLabel="Preferred date" />
+      <TextInput
+        value={preferredDate}
+        onChangeText={setPreferredDate}
+        style={styles.input}
+        accessibilityLabel="Preferred date"
+      />
       <Text style={styles.label}>Preferred time</Text>
-      <TextInput value={preferredTime} onChangeText={setPreferredTime} style={styles.input} accessibilityLabel="Preferred time" />
+      <TextInput
+        value={preferredTime}
+        onChangeText={setPreferredTime}
+        style={styles.input}
+        accessibilityLabel="Preferred time"
+      />
       <Text style={styles.label}>Urgency</Text>
       <View style={styles.optionRow}>
         {urgencyOptions.map((option) => (
-          <Pressable key={option.value} onPress={() => setUrgency(option.value)} style={[styles.chip, urgency === option.value ? styles.chipSelected : null]}>
+          <Pressable
+            key={option.value}
+            onPress={() => setUrgency(option.value)}
+            style={[styles.chip, urgency === option.value ? styles.chipSelected : null]}
+          >
             <Text style={styles.chipText}>{option.label}</Text>
           </Pressable>
         ))}
@@ -151,7 +172,11 @@ export default function NewRequestScreen() {
       <Text style={styles.label}>Contact preference</Text>
       <View style={styles.optionRow}>
         {contactOptions.map((option) => (
-          <Pressable key={option.value} onPress={() => setContactPreference(option.value)} style={[styles.chip, contactPreference === option.value ? styles.chipSelected : null]}>
+          <Pressable
+            key={option.value}
+            onPress={() => setContactPreference(option.value)}
+            style={[styles.chip, contactPreference === option.value ? styles.chipSelected : null]}
+          >
             <Text style={styles.chipText}>{option.label}</Text>
           </Pressable>
         ))}
@@ -160,7 +185,10 @@ export default function NewRequestScreen() {
         <Text style={styles.photoText}>Optional photos: {photoCount}. Add photo placeholder</Text>
       </Pressable>
       <Pressable onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
-        <Text style={styles.noticeText}>{consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee provider conduct.</Text>
+        <Text style={styles.noticeText}>
+          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee
+          provider conduct.
+        </Text>
       </Pressable>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Pressable onPress={reviewRequest} style={styles.button}>
@@ -173,20 +201,67 @@ export default function NewRequestScreen() {
 const styles = StyleSheet.create({
   summary: { fontSize: tokens.type.body, color: tokens.color.textPrimary },
   label: { fontSize: tokens.type.label, color: tokens.color.textSecondary, fontWeight: '700' },
-  input: { minHeight: tokens.touch.min, backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.md, fontSize: tokens.type.body },
+  input: {
+    minHeight: tokens.touch.min,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    fontSize: tokens.type.body,
+  },
   multiline: { minHeight: 120, textAlignVertical: 'top' },
-  readonly: { padding: tokens.spacing.md, backgroundColor: '#EEF7F4', borderRadius: tokens.radius.md, color: tokens.color.textPrimary },
+  readonly: {
+    padding: tokens.spacing.md,
+    backgroundColor: '#EEF7F4',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+  },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
-  chip: { minHeight: tokens.touch.min, justifyContent: 'center', borderWidth: 1, borderColor: tokens.color.border, borderRadius: tokens.radius.pill, paddingHorizontal: tokens.spacing.md },
+  chip: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.pill,
+    paddingHorizontal: tokens.spacing.md,
+  },
   chipSelected: { backgroundColor: '#FFF4D6', borderColor: tokens.color.primary },
   chipText: { color: tokens.color.textPrimary, fontWeight: '700' },
-  photoBox: { minHeight: tokens.touch.min, justifyContent: 'center', borderStyle: 'dashed', borderWidth: 1, borderColor: tokens.color.border, borderRadius: tokens.radius.md, padding: tokens.spacing.md },
+  photoBox: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
   photoText: { color: tokens.color.textPrimary },
-  notice: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: '#FFF4D6', padding: tokens.spacing.md, borderRadius: tokens.radius.md },
+  notice: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: '#FFF4D6',
+    padding: tokens.spacing.md,
+    borderRadius: tokens.radius.md,
+  },
   noticeText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondaryButton: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, padding: tokens.spacing.md, borderRadius: tokens.radius.md },
+  secondaryButton: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    padding: tokens.spacing.md,
+    borderRadius: tokens.radius.md,
+  },
   secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
   error: { color: tokens.color.error, fontWeight: '700' },
 });

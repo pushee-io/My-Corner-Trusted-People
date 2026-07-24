@@ -16,10 +16,10 @@ function cleanNamePart(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
 }
 
-export function validateLegalName(input: {
-  givenNames: string;
-  familyName: string;
-}): { valid: boolean; errors: string[] } {
+export function validateLegalName(input: { givenNames: string; familyName: string }): {
+  valid: boolean;
+  errors: string[];
+} {
   const givenNames = cleanNamePart(input.givenNames);
   const familyName = cleanNamePart(input.familyName);
   const errors: string[] = [];
@@ -46,11 +46,10 @@ export function validateLegalName(input: {
   };
 }
 
-export function saveLegalName(input: {
-  profileId?: string;
-  givenNames: string;
-  familyName: string;
-}): { record?: LegalNameRecord; errors: string[] } {
+export function saveLegalName(input: { profileId?: string; givenNames: string; familyName: string }): {
+  record?: LegalNameRecord;
+  errors: string[];
+} {
   const validation = validateLegalName(input);
 
   if (!validation.valid) {

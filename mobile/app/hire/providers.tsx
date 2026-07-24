@@ -12,7 +12,6 @@ export default function ProvidersScreen() {
   const category = categories.find((item) => item.id === categoryId);
   const providers = listProvidersByCategory(categoryId);
 
-
   function continueWithProvider(providerId: string) {
     router.push({
       pathname: '/hire/request/review',
@@ -23,8 +22,7 @@ export default function ProvidersScreen() {
         neighborhood: 'East Legon',
         areaLabel: 'East Legon, general area only',
         title: 'Kitchen sink leak',
-        description:
-          'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+        description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
         originalUserText: 'Water is leaking under the kitchen sink.',
         urgency: 'soon',
         preferredDate: '2026-07-18',
@@ -60,10 +58,7 @@ export default function ProvidersScreen() {
       </View>
 
       {providers.length === 0 ? (
-        <EmptyState
-          title="No providers available"
-          body="Try a different category or neighborhood in this prototype."
-        />
+        <EmptyState title="No providers available" body="Try a different category or neighborhood in this prototype." />
       ) : (
         <View style={styles.list}>
           {providers.map((provider) => (
@@ -81,13 +76,9 @@ export default function ProvidersScreen() {
               <Text style={styles.providerMeta}>
                 {provider.rating} rating · {provider.reviewCount} reviews · {provider.completedJobs} jobs
               </Text>
-              <Text style={styles.trustText}>
-                Phone verified: {provider.phoneVerified ? 'Yes' : 'No'}
-              </Text>
+              <Text style={styles.trustText}>Phone verified: {provider.phoneVerified ? 'Yes' : 'No'}</Text>
               <Text style={styles.trustText}>Response rate: {provider.responseRate}</Text>
-              <Text style={styles.disclaimer}>
-                Trust signals are evidence, not a guarantee.
-              </Text>
+              <Text style={styles.disclaimer}>Trust signals are evidence, not a guarantee.</Text>
             </Pressable>
           ))}
         </View>

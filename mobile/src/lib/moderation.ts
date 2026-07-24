@@ -1,7 +1,12 @@
 import { featureFlags } from '@/lib/feature-flags';
 import type { ModerationStatus } from '@/types/contracts';
 
-export function moderateText(text: string): { enabled: boolean; status: ModerationStatus; flagged: boolean; reasons?: string[] } {
+export function moderateText(text: string): {
+  enabled: boolean;
+  status: ModerationStatus;
+  flagged: boolean;
+  reasons?: string[];
+} {
   if (!featureFlags.ai_content_moderation) {
     return { enabled: false, status: 'not_run', flagged: false };
   }

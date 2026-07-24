@@ -11,7 +11,9 @@ export default function ProviderProfilePreviewScreen() {
   return (
     <Screen title="Profile preview">
       {provider ? <ProviderCard provider={provider} onPress={() => undefined} /> : null}
-      <Text style={styles.note}>This is what requesters see. Trust signals are evidence, not a My Corner guarantee.</Text>
+      <Text style={styles.note}>
+        This is what requesters see. Trust signals are evidence, not a My Corner guarantee.
+      </Text>
     </Screen>
   );
 }

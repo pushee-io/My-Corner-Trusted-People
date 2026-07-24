@@ -5,9 +5,7 @@ import {
   listUnlockedNeighborhoodPosts,
   resetFeedStore,
 } from '@/lib/feed-unlock';
-import {
-  markMembershipForReverification,
-} from '@/lib/neighborhood-assignment';
+import { markMembershipForReverification } from '@/lib/neighborhood-assignment';
 import {
   getNeighborhoodMembershipRecord,
   resetNeighborhoodMembershipStore,
@@ -24,7 +22,11 @@ function membership(overrides: Partial<NeighborhoodMembership> = {}): Neighborho
     status: 'verified',
     assignedBy: 'server',
     verifiedAt: now,
-    evidenceSummary: ['phone passed', 'standardized_address passed for east-legon', 'postcard_challenge passed for east-legon'],
+    evidenceSummary: [
+      'phone passed',
+      'standardized_address passed for east-legon',
+      'postcard_challenge passed for east-legon',
+    ],
     ...overrides,
   };
 }

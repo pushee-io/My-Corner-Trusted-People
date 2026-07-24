@@ -1,8 +1,4 @@
-import {
-  confirmPhoneVerification,
-  normalizeGhanaPhone,
-  startPhoneVerification,
-} from '@/lib/phone-verification';
+import { confirmPhoneVerification, normalizeGhanaPhone, startPhoneVerification } from '@/lib/phone-verification';
 
 describe('Ghana phone verification test provider', () => {
   it('normalizes local Ghana mobile numbers', () => {

@@ -34,7 +34,8 @@ export default function ManualBiometricScreen() {
     <Screen title="Manual biometric review">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Test mode only. This flow does not use Ghana Card, does not collect Ghana Card images, and does not allow AI to make the final identity decision.
+          Test mode only. This flow does not use Ghana Card, does not collect Ghana Card images, and does not allow AI
+          to make the final identity decision.
         </Text>
       </View>
 
@@ -44,9 +45,7 @@ export default function ManualBiometricScreen() {
         accessibilityRole="checkbox"
         accessibilityState={{ checked: consentCaptured }}
       >
-        <Text style={styles.body}>
-          {consentCaptured ? 'Consent captured' : 'Tap to capture explicit consent'}
-        </Text>
+        <Text style={styles.body}>{consentCaptured ? 'Consent captured' : 'Tap to capture explicit consent'}</Text>
       </Pressable>
 
       <Text style={styles.label}>Human-review evidence note</Text>
@@ -59,7 +58,9 @@ export default function ManualBiometricScreen() {
       />
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={submitForReview}>

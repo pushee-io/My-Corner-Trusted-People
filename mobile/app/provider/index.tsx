@@ -21,24 +21,50 @@ export default function ProviderHomeScreen() {
         </View>
       ) : null}
       <Link href="/provider/requests" asChild>
-        <Pressable style={styles.button}><Text style={styles.buttonText}>Incoming requests</Text></Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Incoming requests</Text>
+        </Pressable>
       </Link>
       <Link href="/provider/availability" asChild>
-        <Pressable style={styles.secondary}><Text style={styles.secondaryText}>Availability</Text></Pressable>
+        <Pressable style={styles.secondary}>
+          <Text style={styles.secondaryText}>Availability</Text>
+        </Pressable>
       </Link>
       <Link href="/provider/profile-preview" asChild>
-        <Pressable style={styles.secondary}><Text style={styles.secondaryText}>Profile preview</Text></Pressable>
+        <Pressable style={styles.secondary}>
+          <Text style={styles.secondaryText}>Profile preview</Text>
+        </Pressable>
       </Link>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondary: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

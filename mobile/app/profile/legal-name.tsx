@@ -23,7 +23,8 @@ export default function LegalNameScreen() {
     <Screen title="Legal name">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Legal name is a private record for human review. It is not shown on your public profile and AI does not verify it.
+          Legal name is a private record for human review. It is not shown on your public profile and AI does not verify
+          it.
         </Text>
       </View>
 
@@ -44,7 +45,9 @@ export default function LegalNameScreen() {
       />
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={save}>

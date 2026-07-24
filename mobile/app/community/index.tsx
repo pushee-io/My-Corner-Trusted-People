@@ -7,9 +7,7 @@ export default function CommunityScreen() {
   return (
     <Screen title="Community">
       <View style={styles.notice}>
-        <Text style={styles.noticeText}>
-          Ordinary posts stay inside your verified neighborhood.
-        </Text>
+        <Text style={styles.noticeText}>Ordinary posts stay inside your verified neighborhood.</Text>
       </View>
 
       <Link href="/community/new-post" asChild>

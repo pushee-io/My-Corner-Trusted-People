@@ -1,9 +1,4 @@
-import type {
-  AuditEvent,
-  Neighborhood,
-  NeighborhoodMembership,
-  ResidenceVerificationSignal,
-} from '@/types/contracts';
+import type { AuditEvent, Neighborhood, NeighborhoodMembership, ResidenceVerificationSignal } from '@/types/contracts';
 
 type AssignmentInput = {
   userId: string;
@@ -42,9 +37,15 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
   );
   const neighborhoodExists = input.neighborhoods.some((neighborhood) => neighborhood.id === candidateNeighborhoodId);
   const isVerified = Boolean(
-    phoneSignal && addressSignal && postcardSignal && addressAndPostcardAgree && candidateNeighborhoodId && neighborhoodExists,
+    phoneSignal &&
+      addressSignal &&
+      postcardSignal &&
+      addressAndPostcardAgree &&
+      candidateNeighborhoodId &&
+      neighborhoodExists,
   );
-  const neighborhoodId = candidateNeighborhoodId ?? addressSignal?.neighborhoodId ?? postcardSignal?.neighborhoodId ?? 'unassigned';
+  const neighborhoodId =
+    candidateNeighborhoodId ?? addressSignal?.neighborhoodId ?? postcardSignal?.neighborhoodId ?? 'unassigned';
 
   const membership: NeighborhoodMembership = {
     userId: input.userId,

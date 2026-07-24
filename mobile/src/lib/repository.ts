@@ -42,7 +42,11 @@ export function listAllRequests(): JobRequest[] {
   return requests;
 }
 
-export function updateRequestStatus(requestId: string, status: RequestStatus, providerMessage?: string): JobRequest | undefined {
+export function updateRequestStatus(
+  requestId: string,
+  status: RequestStatus,
+  providerMessage?: string,
+): JobRequest | undefined {
   const request = requests.find((item) => item.id === requestId);
   if (!request) return undefined;
 

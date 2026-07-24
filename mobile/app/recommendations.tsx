@@ -16,7 +16,14 @@ export default function RecommendationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.xs },
+  card: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.xs,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },

@@ -83,9 +83,7 @@ export function confirmPostcardChallengeCode(code: string): PostcardChallenge | 
 
   currentChallenge = {
     ...currentChallenge,
-    status: code.trim().toUpperCase() === currentChallenge.challengeCode
-      ? 'code_confirmed'
-      : 'failed',
+    status: code.trim().toUpperCase() === currentChallenge.challengeCode ? 'code_confirmed' : 'failed',
     humanReviewRequired: true,
   };
 

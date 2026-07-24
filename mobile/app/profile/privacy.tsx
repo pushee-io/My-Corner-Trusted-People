@@ -7,17 +7,13 @@ export default function ProfilePrivacyScreen() {
     <Screen title="Map privacy">
       <View style={styles.card}>
         <Text style={styles.title}>Masked profile</Text>
-        <Text style={styles.body}>
-          Your public profile shows a name initial and verified neighborhood only.
-        </Text>
+        <Text style={styles.body}>Your public profile shows a name initial and verified neighborhood only.</Text>
         <Text style={styles.meta}>Visible area: East Legon, Accra</Text>
       </View>
 
       <View style={styles.mapBox}>
         <Text style={styles.mapText}>Approximate neighborhood area</Text>
-        <Text style={styles.meta}>
-          No exact home address or exact residential coordinates are exposed.
-        </Text>
+        <Text style={styles.meta}>No exact home address or exact residential coordinates are exposed.</Text>
       </View>
     </Screen>
   );

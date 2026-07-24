@@ -48,9 +48,7 @@ export default function PhoneVerificationScreen() {
           <Text style={styles.title}>Provider: {session.provider}</Text>
           <Text style={styles.body}>Status: {session.status}</Text>
           <Text style={styles.body}>Normalized phone: {session.phoneE164 || 'Invalid Ghana phone number'}</Text>
-          {session.status === 'code_sent' ? (
-            <Text style={styles.meta}>Use test code: {session.testCode}</Text>
-          ) : null}
+          {session.status === 'code_sent' ? <Text style={styles.meta}>Use test code: {session.testCode}</Text> : null}
         </View>
       ) : null}
 

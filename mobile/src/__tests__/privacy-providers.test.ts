@@ -1,8 +1,4 @@
-import {
-  addressProviderPolicies,
-  identityProviderPolicy,
-  manualBiometricPolicy,
-} from '@/lib/location-providers';
+import { addressProviderPolicies, identityProviderPolicy, manualBiometricPolicy } from '@/lib/location-providers';
 
 describe('privacy provider policies', () => {
   it('does not include Google Address Validation API for Ghana', () => {

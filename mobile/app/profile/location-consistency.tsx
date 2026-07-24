@@ -31,7 +31,8 @@ export default function LocationConsistencyScreen() {
     <Screen title="Location consistency">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          This is a foreground, user-triggered consistency check. It does not track you in the background and does not prove residence.
+          This is a foreground, user-triggered consistency check. It does not track you in the background and does not
+          prove residence.
         </Text>
       </View>
 
@@ -45,7 +46,9 @@ export default function LocationConsistencyScreen() {
       <TextInput value={observedAreaLabel} onChangeText={setObservedAreaLabel} style={styles.input} />
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={runCheck}>

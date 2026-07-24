@@ -28,7 +28,8 @@ export default function MapConfirmationScreen() {
     <Screen title="Map confirmation">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Confirm only your broad neighborhood area. My Corner does not show an exact home pin or public residential coordinates.
+          Confirm only your broad neighborhood area. My Corner does not show an exact home pin or public residential
+          coordinates.
         </Text>
       </View>
 
@@ -48,7 +49,9 @@ export default function MapConfirmationScreen() {
       <TextInput value={approximateAreaLabel} onChangeText={setApproximateAreaLabel} style={styles.input} />
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={confirm}>

@@ -1,8 +1,4 @@
-import {
-  confirmPostcardChallengeCode,
-  createPostcardChallenge,
-  getPostcardChallenge,
-} from '@/lib/postcard-challenge';
+import { confirmPostcardChallengeCode, createPostcardChallenge, getPostcardChallenge } from '@/lib/postcard-challenge';
 
 describe('test postcard challenge', () => {
   it('requires a broad mailing area label', () => {

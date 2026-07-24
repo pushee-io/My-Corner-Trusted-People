@@ -20,7 +20,9 @@ export default function WelcomeScreen() {
       <Text style={styles.body}>No Wahala — Hire without headache.</Text>
       <Text style={styles.body}>Find trusted local help, review visible trust signals, and send a clear request.</Text>
       <Link href="/sign-in" asChild>
-        <Pressable style={styles.button}><Text style={styles.buttonText}>Enter app</Text></Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Enter app</Text>
+        </Pressable>
       </Link>
     </Screen>
   );

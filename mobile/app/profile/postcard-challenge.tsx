@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  confirmPostcardChallengeCode,
-  createPostcardChallenge,
-  getPostcardChallenge,
-} from '@/lib/postcard-challenge';
+import { confirmPostcardChallengeCode, createPostcardChallenge, getPostcardChallenge } from '@/lib/postcard-challenge';
 import { tokens } from '@/theme/tokens';
 
 export default function PostcardChallengeScreen() {
@@ -37,7 +33,8 @@ export default function PostcardChallengeScreen() {
     <Screen title="Postcard challenge">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Test mode only. This fictional postcard challenge uses a broad mailing area and does not expose exact addresses.
+          Test mode only. This fictional postcard challenge uses a broad mailing area and does not expose exact
+          addresses.
         </Text>
       </View>
 
@@ -51,7 +48,9 @@ export default function PostcardChallengeScreen() {
       <TextInput value={mailingAreaLabel} onChangeText={setMailingAreaLabel} style={styles.input} />
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={createChallenge}>

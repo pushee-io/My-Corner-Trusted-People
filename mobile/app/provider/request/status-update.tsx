@@ -33,6 +33,12 @@ export default function ProviderStatusUpdateScreen() {
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   list: { gap: tokens.spacing.md },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
 });

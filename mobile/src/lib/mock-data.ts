@@ -12,11 +12,18 @@ export const categories: ServiceCategory[] = [
     description: 'AC servicing, cooling faults, fridge support',
   },
   { id: 'appliance-repair', name: 'Appliance repair', icon: 'Ap', description: 'Washers, cookers, small appliances' },
-  { id: 'moving-delivery', name: 'Moving and delivery', icon: 'Mv', description: 'Small moves, delivery, loading help' },
+  {
+    id: 'moving-delivery',
+    name: 'Moving and delivery',
+    icon: 'Mv',
+    description: 'Small moves, delivery, loading help',
+  },
   { id: 'painting', name: 'Painting', icon: 'Pa', description: 'Interior and exterior painting' },
 ];
 
-function signals(provider: Pick<Provider, 'phoneVerified' | 'completedJobs' | 'responseRate' | 'communityRecommendations'>) {
+function signals(
+  provider: Pick<Provider, 'phoneVerified' | 'completedJobs' | 'responseRate' | 'communityRecommendations'>,
+) {
   return [
     { id: 'phone', label: 'Phone verified', value: provider.phoneVerified ? 'Yes' : 'No' },
     { id: 'jobs', label: 'Completed jobs', value: String(provider.completedJobs) },

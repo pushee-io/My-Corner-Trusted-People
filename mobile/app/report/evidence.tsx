@@ -18,7 +18,8 @@ export default function ReportEvidenceScreen() {
     <Screen title="Report evidence">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Use this to record evidence for human review. Do not include private addresses, ID documents, or payment details.
+          Use this to record evidence for human review. Do not include private addresses, ID documents, or payment
+          details.
         </Text>
       </View>
 
@@ -32,12 +33,7 @@ export default function ReportEvidenceScreen() {
       />
 
       <Text style={styles.label}>Reason</Text>
-      <TextInput
-        value={reason}
-        onChangeText={setReason}
-        style={styles.input}
-        accessibilityLabel="Report reason"
-      />
+      <TextInput value={reason} onChangeText={setReason} style={styles.input} accessibilityLabel="Report reason" />
 
       <Text style={styles.label}>What happened?</Text>
       <TextInput

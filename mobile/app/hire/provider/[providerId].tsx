@@ -19,13 +19,17 @@ export default function ProviderProfileScreen() {
   return (
     <Screen title={provider.name}>
       <Text style={styles.headline}>{provider.headline}</Text>
-      <Text style={styles.body}>{provider.neighborhood} · {provider.areaLabel}</Text>
+      <Text style={styles.body}>
+        {provider.neighborhood} · {provider.areaLabel}
+      </Text>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Trust signals</Text>
         {provider.trustSignals.map((signal) => (
           <View key={signal.id} style={styles.badge}>
-            <Text style={styles.badgeText}>{signal.label}: {signal.value}</Text>
+            <Text style={styles.badgeText}>
+              {signal.label}: {signal.value}
+            </Text>
           </View>
         ))}
         <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
@@ -69,7 +73,14 @@ export default function ProviderProfileScreen() {
 const styles = StyleSheet.create({
   headline: { fontSize: tokens.type.card, fontWeight: '700', color: tokens.color.textPrimary },
   body: { fontSize: tokens.type.body, color: tokens.color.textPrimary },
-  section: { gap: tokens.spacing.sm, backgroundColor: tokens.color.surface, borderRadius: tokens.radius.md, borderWidth: 1, borderColor: tokens.color.border, padding: tokens.spacing.lg },
+  section: {
+    gap: tokens.spacing.sm,
+    backgroundColor: tokens.color.surface,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    padding: tokens.spacing.lg,
+  },
   sectionTitle: { fontSize: tokens.type.card, fontWeight: '700', color: tokens.color.textPrimary },
   badge: { backgroundColor: '#EEF7F4', borderRadius: tokens.radius.sm, padding: tokens.spacing.sm },
   badgeText: { fontSize: tokens.type.support, color: tokens.color.textPrimary },

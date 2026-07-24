@@ -1,10 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  addressProviderPolicies,
-  identityProviderPolicy,
-  manualBiometricPolicy,
-} from '@/lib/location-providers';
+import { addressProviderPolicies, identityProviderPolicy, manualBiometricPolicy } from '@/lib/location-providers';
 import { tokens } from '@/theme/tokens';
 
 export default function LocationPrivacyScreen() {
@@ -12,7 +8,8 @@ export default function LocationPrivacyScreen() {
     <Screen title="Location privacy">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          My Corner does not use Google Address Validation API for Ghana. Residence proof is not inferred from maps, AI, Loqate, or GhanaPost GPS.
+          My Corner does not use Google Address Validation API for Ghana. Residence proof is not inferred from maps, AI,
+          Loqate, or GhanaPost GPS.
         </Text>
       </View>
 

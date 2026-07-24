@@ -48,9 +48,7 @@ export function getNeighborhoodMembershipRecord(
   userId: string,
   neighborhoodId: string,
 ): NeighborhoodMembership | undefined {
-  return membershipStore.memberships.find(
-    (item) => item.userId === userId && item.neighborhoodId === neighborhoodId,
-  );
+  return membershipStore.memberships.find((item) => item.userId === userId && item.neighborhoodId === neighborhoodId);
 }
 
 export function listUserNeighborhoodMemberships(userId: string): NeighborhoodMembership[] {

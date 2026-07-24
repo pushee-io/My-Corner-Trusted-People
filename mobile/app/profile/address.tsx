@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  AddressProvider,
-  addressProviderOptions,
-  getGhanaAddressRecord,
-  saveGhanaAddress,
-} from '@/lib/ghana-address';
+import { AddressProvider, addressProviderOptions, getGhanaAddressRecord, saveGhanaAddress } from '@/lib/ghana-address';
 import { tokens } from '@/theme/tokens';
 
 export default function GhanaAddressScreen() {
@@ -69,7 +64,9 @@ export default function GhanaAddressScreen() {
       </View>
 
       {errors.map((error) => (
-        <Text key={error} style={styles.error}>{error}</Text>
+        <Text key={error} style={styles.error}>
+          {error}
+        </Text>
       ))}
 
       <Pressable style={styles.button} onPress={save}>

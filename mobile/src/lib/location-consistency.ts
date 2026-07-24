@@ -1,8 +1,4 @@
-export type LocationConsistencyStatus =
-  | 'not_started'
-  | 'consistent'
-  | 'inconsistent'
-  | 'needs_human_review';
+export type LocationConsistencyStatus = 'not_started' | 'consistent' | 'inconsistent' | 'needs_human_review';
 
 export type ForegroundLocationConsistencyCheck = {
   id: string;

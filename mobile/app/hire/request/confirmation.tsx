@@ -9,7 +9,10 @@ export default function ConfirmationScreen() {
 
   return (
     <Screen title="Request sent">
-      <SuccessState title="Submitted" body="The provider can now accept or decline. You can track the status from this prototype." />
+      <SuccessState
+        title="Submitted"
+        body="The provider can now accept or decline. You can track the status from this prototype."
+      />
       <Link href={{ pathname: '/hire/request/status', params: { requestId: params.requestId ?? 'req-100' } }} asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>View status</Text>
@@ -20,6 +23,12 @@ export default function ConfirmationScreen() {
 }
 
 const styles = StyleSheet.create({
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
 });
