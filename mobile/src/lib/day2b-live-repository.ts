@@ -111,6 +111,14 @@ function clientOrError(client?: SupabaseClient): LiveResult<SupabaseClient> {
   return { data: getSupabaseClient(), configured: true };
 }
 
+function passError<T>(result: LiveResult<unknown>): LiveResult<T> {
+  return {
+    configured: result.configured,
+    authRequired: result.authRequired,
+    error: result.error,
+  };
+}
+
 function messageFromError(error: unknown): string {
   if (error && typeof error === 'object' && 'message' in error) {
     return String((error as { message?: unknown }).message ?? 'Supabase request failed.');
@@ -157,7 +165,7 @@ async function requireAuth(client: SupabaseClient): Promise<LiveResult<AuthConte
 
 async function getPrimaryMembership(client: SupabaseClient): Promise<LiveResult<SafeMembershipRow | undefined>> {
   const auth = await requireAuth(client);
-  if (!auth.data) return auth;
+  if (!auth.data) return passError(auth);
 
   const { data, error } = await client
     .from('neighborhood_memberships')
@@ -179,7 +187,7 @@ export async function getLiveFeedUnlockStatus(client?: SupabaseClient): Promise<
   const clientResult = clientOrError(client);
   if (!clientResult.data) {
     return {
-      ...clientResult,
+      ...passError(clientResult),
       data: lockedResult('no_membership', 'Connect Supabase to use the live verified neighborhood feed.'),
     };
   }
@@ -187,8 +195,8 @@ export async function getLiveFeedUnlockStatus(client?: SupabaseClient): Promise<
   const membership = await getPrimaryMembership(clientResult.data);
   if (!membership.data) {
     return {
-      ...membership,
-      data: lockedResult(membership.authRequired ? 'no_membership' : 'no_membership', membership.error),
+      ...passError(membership),
+      data: lockedResult('no_membership', membership.error),
     };
   }
 
@@ -218,10 +226,10 @@ export async function getLiveFeedUnlockStatus(client?: SupabaseClient): Promise<
 
 export async function listLiveNeighborhoodPosts(client?: SupabaseClient): Promise<LiveResult<NeighborhoodFeedPost[]>> {
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return { ...clientResult, data: [] };
+  if (!clientResult.data) return { ...passError(clientResult), data: [] };
 
   const unlock = await getLiveFeedUnlockStatus(clientResult.data);
-  if (!unlock.data?.canRead) return { ...unlock, data: [] };
+  if (!unlock.data?.canRead) return { ...passError(unlock), data: [] };
 
   const { data, error } = await clientResult.data
     .from('community_posts')
@@ -270,7 +278,7 @@ export async function createLiveLocalPost(body: string, client?: SupabaseClient)
   }
 
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return clientResult;
+  if (!clientResult.data) return passError(clientResult);
 
   const title = cleanBody.length > 80 ? `${cleanBody.slice(0, 77)}...` : cleanBody;
   const { data, error } = await clientResult.data.rpc('create_private_neighborhood_post', {
@@ -297,7 +305,7 @@ export async function saveLiveLegalName(input: { givenNames: string; familyName:
   }
 
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return clientResult;
+  if (!clientResult.data) return passError(clientResult);
 
   const { data: profileId, error } = await clientResult.data.rpc('complete_test_identity_assurance', {
     legal_given_name: givenNames,
@@ -349,10 +357,10 @@ export async function saveLiveGhanaAddress(input: LiveAddressInput, client?: Sup
   }
 
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return clientResult;
+  if (!clientResult.data) return passError(clientResult);
 
   const auth = await requireAuth(clientResult.data);
-  if (!auth.data) return auth;
+  if (!auth.data) return passError(auth);
 
   await clientResult.data
     .from('private_addresses')
@@ -411,10 +419,10 @@ export async function saveLiveGhanaAddress(input: LiveAddressInput, client?: Sup
 
 export async function createLivePostcardChallenge(client?: SupabaseClient): Promise<LiveResult<TestResidenceChallengeSummary>> {
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return clientResult;
+  if (!clientResult.data) return passError(clientResult);
 
   const auth = await requireAuth(clientResult.data);
-  if (!auth.data) return auth;
+  if (!auth.data) return passError(auth);
 
   const addressResponse = await clientResult.data
     .from('private_addresses')
@@ -449,7 +457,7 @@ export async function createLivePostcardChallenge(client?: SupabaseClient): Prom
 
 export async function verifyLivePostcardCode(challengeId: string, code: string, client?: SupabaseClient): Promise<LiveResult<FeedUnlockResult>> {
   const clientResult = clientOrError(client);
-  if (!clientResult.data) return clientResult;
+  if (!clientResult.data) return passError(clientResult);
 
   const { error } = await clientResult.data.rpc('verify_test_residence_challenge', {
     target_challenge_id: challengeId,
