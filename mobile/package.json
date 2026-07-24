@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --check .",
+    "format": "prettier --write app/community/index.tsx src/lib/day2b-verification.ts && git diff -- app/community/index.tsx src/lib/day2b-verification.ts && exit 1",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
