@@ -1,11 +1,7 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  day2bNeighborhoodName,
-  getDay2BFeedUnlockStatus,
-  listDay2BNeighborhoodPosts,
-} from '@/lib/day2b-verification';
+import { day2bNeighborhoodName, getDay2BFeedUnlockStatus, listDay2BNeighborhoodPosts } from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
 
 export default function CommunityScreen() {
@@ -19,28 +15,20 @@ export default function CommunityScreen() {
           <View style={styles.lockedNotice}>
             <Text style={styles.sectionTitle}>{unlock.title}</Text>
             <Text style={styles.body}>{unlock.message}</Text>
-            <Text style={styles.meta}>
-              Server membership checks protect private posts.
-            </Text>
+            <Text style={styles.meta}>Server membership checks protect private posts.</Text>
           </View>
 
           <Link href="/profile/phone-verification" asChild>
             <Pressable style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>
-                Start resident verification
-              </Text>
+              <Text style={styles.primaryButtonText}>Start resident verification</Text>
             </Pressable>
           </Link>
         </>
       ) : (
         <>
           <View style={styles.unlockedNotice}>
-            <Text style={styles.sectionTitle}>
-              {day2bNeighborhoodName} feed unlocked
-            </Text>
-            <Text style={styles.body}>
-              Posts stay inside your verified neighborhood.
-            </Text>
+            <Text style={styles.sectionTitle}>{day2bNeighborhoodName} feed unlocked</Text>
+            <Text style={styles.body}>Posts stay inside your verified neighborhood.</Text>
           </View>
 
           <Link href="/community/new-post" asChild>
@@ -54,9 +42,7 @@ export default function CommunityScreen() {
           {posts.length === 0 ? (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>No posts yet</Text>
-              <Text style={styles.body}>
-                Create the first private post for this test slice.
-              </Text>
+              <Text style={styles.body}>Create the first private post for this test slice.</Text>
             </View>
           ) : (
             posts.map((post) => (
