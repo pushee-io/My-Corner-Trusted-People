@@ -1,0 +1,46 @@
+name: Database CI
+
+on:
+  push:
+    paths:
+      - 'supabase/**'
+      - 'scripts/db-smoke-test.sh'
+      - '.github/workflows/database-ci.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'scripts/db-smoke-test.sh'
+      - '.github/workflows/database-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-database:
+    name: Apply migrations and smoke-test Module 1 and Day 2B RLS
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply migrations and smoke-test policies
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: bash scripts/db-smoke-test.sh
