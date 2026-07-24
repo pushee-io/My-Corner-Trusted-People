@@ -20,8 +20,7 @@ export default function CommunityScreen() {
             <Text style={styles.sectionTitle}>{unlock.title}</Text>
             <Text style={styles.body}>{unlock.message}</Text>
             <Text style={styles.meta}>
-              Private neighborhood content is enforced by server-side membership
-              checks, not just hidden navigation.
+              Server membership checks protect private posts.
             </Text>
           </View>
 
@@ -40,7 +39,7 @@ export default function CommunityScreen() {
               {day2bNeighborhoodName} feed unlocked
             </Text>
             <Text style={styles.body}>
-              Ordinary posts stay inside your verified neighborhood.
+              Posts stay inside your verified neighborhood.
             </Text>
           </View>
 
@@ -56,7 +55,7 @@ export default function CommunityScreen() {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>No posts yet</Text>
               <Text style={styles.body}>
-                Create the first private neighborhood post for this test slice.
+                Create the first private post for this test slice.
               </Text>
             </View>
           ) : (
