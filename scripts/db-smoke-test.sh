@@ -16,6 +16,24 @@ done
 
 psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/seed.sql
 
+psql "$database_url" \
+  --set ON_ERROR_STOP=1 \
+  --command "grant usage on schema public to anon, authenticated;" \
+  --command "grant select, update on public.profiles to authenticated;" \
+  --command "grant select on public.neighborhoods to anon, authenticated;" \
+  --command "grant select on public.service_categories to anon, authenticated;" \
+  --command "grant select on public.provider_profiles to anon, authenticated;" \
+  --command "grant select on public.provider_services to anon, authenticated;" \
+  --command "grant select on public.provider_service_areas to anon, authenticated;" \
+  --command "grant select on public.provider_trust_signals to anon, authenticated;" \
+  --command "grant select, insert, update on public.job_requests to authenticated;" \
+  --command "grant select, insert on public.job_request_photos to authenticated;" \
+  --command "grant select, insert on public.job_request_status_events to authenticated;" \
+  --command "grant select, insert on public.provider_responses to authenticated;" \
+  --command "grant insert on public.reports to authenticated;" \
+  --command "grant select on public.notifications to authenticated;"
+
+
 if [ -f supabase/tests/module1_rls_smoke.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/module1_rls_smoke.sql
 fi
