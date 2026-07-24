@@ -13,29 +13,19 @@ export default function HomeScreen() {
   return (
     <Screen title="My Corner home">
       <Text style={styles.body}>East Legon · Accra pilot</Text>
-      <Link
-        href={{
-          pathname: '/hire/request/review',
-          params: {
-            requesterName: 'Akosua Mensah',
-            providerId: 'prov-01',
-            categoryId: 'plumbing',
-            neighborhood: 'East Legon',
-            areaLabel: 'East Legon, general area only',
-            title: 'Kitchen sink leak',
-            description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
-            originalUserText: 'Water is leaking under the kitchen sink.',
-            urgency: 'soon',
-            preferredDate: '2026-07-18',
-            preferredTime: 'Afternoon',
-            contactPreference: 'app_update',
-            photoCount: '0',
-          },
-        }}
-        asChild
-      >
-        <Pressable style={styles.button}><Text style={styles.buttonText}>Hire help</Text></Pressable>
+
+      <Link href="/hire/categories" asChild>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Hire help</Text>
+        </Pressable>
       </Link>
+
+      <Link href="/community" asChild>
+        <Pressable style={styles.secondary}>
+          <Text style={styles.secondaryText}>Community</Text>
+        </Pressable>
+      </Link>
+
       {latest ? (
         <Link href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
           <Pressable style={styles.panel}>
@@ -50,19 +40,64 @@ export default function HomeScreen() {
           <Text style={styles.body}>Start with Hire help to test the first flow.</Text>
         </View>
       )}
+
+      <Link href="/profile" asChild>
+        <Pressable style={styles.secondary}>
+          <Text style={styles.secondaryText}>Profile</Text>
+        </Pressable>
+      </Link>
+
       <Link href="/settings" asChild>
-        <Pressable style={styles.secondary}><Text style={styles.secondaryText}>Settings</Text></Pressable>
+        <Pressable style={styles.secondary}>
+          <Text style={styles.secondaryText}>Settings</Text>
+        </Pressable>
       </Link>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  panel: { minHeight: tokens.touch.min, backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
-  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondary: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
-  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
+  body: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+  },
+  title: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '700',
+  },
+  panel: {
+    minHeight: tokens.touch.min,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '700',
+  },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
+  secondaryText: {
+    color: tokens.color.primary,
+    textAlign: 'center',
+    fontWeight: '700',
+  },
 });
