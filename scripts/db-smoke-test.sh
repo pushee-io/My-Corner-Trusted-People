@@ -26,7 +26,6 @@ psql "$database_url" \
   --command "grant select on public.provider_services to anon, authenticated;" \
   --command "grant select on public.provider_service_areas to anon, authenticated;" \
   --command "grant select on public.provider_trust_signals to anon, authenticated;" \
-  --command "grant select, insert, update on public.job_requests to authenticated;" \
   --command "grant select, insert on public.job_request_photos to authenticated;" \
   --command "grant select, insert on public.job_request_status_events to authenticated;" \
   --command "grant select, insert on public.provider_responses to authenticated;" \
