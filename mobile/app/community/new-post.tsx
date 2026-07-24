@@ -2,16 +2,35 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { createLocalPost } from '@/lib/community-repository';
+import { createDay2BLocalPost, getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
 import { tokens } from '@/theme/tokens';
 
 export default function NewLocalPostScreen() {
-  const [title, setTitle] = useState('Need a good plumber recommendation');
+  const unlock = getDay2BFeedUnlockStatus();
   const [body, setBody] = useState('Looking for someone who can inspect a small leak this week.');
+  const [error, setError] = useState('');
 
   function submit() {
-    createLocalPost({ title, body });
+    const post = createDay2BLocalPost(body);
+    if (!post) {
+      setError('Verify your neighborhood before posting to the private feed.');
+      return;
+    }
+
     router.replace('/community');
+  }
+
+  if (!unlock.canPost) {
+    return (
+      <Screen title="Create local post">
+        <View style={styles.notice}>
+          <Text style={styles.noticeText}>{unlock.message}</Text>
+        </View>
+        <Pressable style={styles.button} onPress={() => router.push('/profile/phone-verification')}>
+          <Text style={styles.buttonText}>Start resident verification</Text>
+        </Pressable>
+      </Screen>
+    );
   }
 
   return (
@@ -19,7 +38,6 @@ export default function NewLocalPostScreen() {
       <View style={styles.notice}>
         <Text style={styles.noticeText}>This post stays inside East Legon. Do not include exact home addresses.</Text>
       </View>
-      <TextInput value={title} onChangeText={setTitle} style={styles.input} accessibilityLabel="Post title" />
       <TextInput
         value={body}
         onChangeText={setBody}
@@ -27,6 +45,7 @@ export default function NewLocalPostScreen() {
         style={styles.textArea}
         accessibilityLabel="Post details"
       />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
       <Pressable onPress={submit} style={styles.button}>
         <Text style={styles.buttonText}>Post to East Legon</Text>
       </Pressable>
@@ -37,14 +56,6 @@ export default function NewLocalPostScreen() {
 const styles = StyleSheet.create({
   notice: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, padding: tokens.spacing.lg },
   noticeText: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
-  input: {
-    minHeight: tokens.touch.min,
-    backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border,
-    borderWidth: 1,
-    borderRadius: tokens.radius.md,
-    padding: tokens.spacing.lg,
-  },
   textArea: {
     minHeight: 128,
     backgroundColor: tokens.color.surface,
@@ -62,4 +73,5 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
   },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
+  error: { color: tokens.color.error, fontSize: tokens.type.support, fontWeight: '700' },
 });
