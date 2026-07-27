@@ -211,3 +211,33 @@ export type CommunityReportResult = {
   accepted: boolean;
   reason?: 'not_visible' | 'already_reported';
 };
+
+export type Day5ModerationTargetType = CommunityReportTargetType;
+
+export type Day5ModerationCaseStatus = 'open' | 'resolved';
+
+export type Day5ModerationDecision = 'keep_content' | 'hide_content';
+
+export type Day5ModerationCase = {
+  id: string;
+  reportId: string;
+  targetType: Day5ModerationTargetType;
+  targetId: string;
+  targetTitle: string;
+  targetBody: string;
+  reporterProfileId: string;
+  reportReason: string;
+  status: Day5ModerationCaseStatus;
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedByProfileId?: string;
+  decision?: Day5ModerationDecision;
+};
+
+export type Day5ModerationActionResult = {
+  accepted: boolean;
+  caseId: string;
+  status?: Day5ModerationCaseStatus;
+  decision?: Day5ModerationDecision;
+  reason?: 'case_not_found' | 'already_resolved' | 'not_moderator';
+};
