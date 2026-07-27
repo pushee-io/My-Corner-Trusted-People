@@ -1,6 +1,9 @@
 export type UserRole = 'requester' | 'provider' | 'moderator' | 'admin';
+
 export type RequestUrgency = 'flexible' | 'soon' | 'urgent';
+
 export type ContactPreference = 'app_update' | 'phone_call' | 'sms';
+
 export type RequestStatus =
   | 'Draft'
   | 'Submitted'
@@ -13,6 +16,13 @@ export type RequestStatus =
   | 'Reported';
 
 export type ModerationStatus = 'not_run' | 'clean' | 'flagged' | 'blocked';
+
+export type Neighborhood = {
+  id: string;
+  name: string;
+  city: string;
+  country: string;
+};
 
 export type ServiceCategory = {
   id: string;
@@ -86,54 +96,202 @@ export type FeatureFlags = {
   ai_content_moderation: boolean;
 };
 
-export type Neighborhood = {
+export type MarketplaceAvailability = 'available' | 'reserved' | 'collected' | 'removed';
+
+export type MarketplaceListing = {
   id: string;
-  name: string;
-  city: string;
-  country: string;
-};
-
-export type NeighborhoodMembershipStatus = 'unverified' | 'pending_reverification' | 'verified' | 'rejected';
-
-export type ResidenceVerificationSignal = {
-  type: 'phone' | 'standardized_address' | 'map_confirmation' | 'location_consistency' | 'postcard_challenge';
-  neighborhoodId?: string;
-  passed: boolean;
-  checkedAt: string;
-  detail?: string;
-};
-
-export type NeighborhoodMembership = {
-  id?: string;
-  userId: string;
   neighborhoodId: string;
-  status: NeighborhoodMembershipStatus;
-  assignedBy: 'server';
-  createdAt?: string;
-  updatedAt?: string;
-  verifiedAt?: string;
-  requiresReverificationAt?: string;
-  evidenceSummary: string[];
+  sellerId: string;
+  sellerName: string;
+  title: string;
+  description: string;
+  priceGhs?: number;
+  imageUrl?: string;
+  imageUrls?: string[];
+  availability: MarketplaceAvailability;
+  pickupArea: string;
+  pickupNotes?: string;
+  moderationStatus: ModerationStatus;
+  createdAt: string;
 };
 
-export type AuditEvent = {
+export type MarketplacePickupRequest = {
   id: string;
-  actor: 'system' | 'moderator' | 'admin';
-  action: string;
-  subjectId: string;
+  listingId: string;
+  requesterId: string;
+  requesterName: string;
+  message: string;
+  status: 'open' | 'accepted' | 'declined' | 'cancelled';
   createdAt: string;
-  metadata: Record<string, string | number | boolean | undefined>;
 };
+
+export type UserImageBucket =
+  | 'profile-images'
+  | 'listing-images'
+  | 'request-images'
+  | 'report-images'
+  | 'group-images'
+  | 'group-post-images'
+  | 'feed-post-images';
+
+export type UserUploadedImage = {
+  id: string;
+  bucket: UserImageBucket;
+  path: string;
+  publicUrl?: string;
+  ownerId: string;
+  altText?: string;
+  moderationStatus: ModerationStatus;
+  createdAt: string;
+};
+
+export type NeighborhoodFeedVisibility =
+  | 'verified_neighborhood_members'
+  | 'public'
+  | 'moderator_only';
 
 export type NeighborhoodFeedPost = {
   id: string;
   neighborhoodId: string;
-  authorUserId: string;
-  authorDisplayName: string;
+  authorId?: string;
+  authorUserId?: string;
+  authorName: string;
+  authorDisplayName?: string;
   body: string;
+  imageUrls?: string[];
+  moderationStatus: ModerationStatus;
   createdAt: string;
-  visibility: 'verified_neighborhood_members';
+  comments: NeighborhoodFeedComment[];
+  likeCount: number;
+  likedByMe: boolean;
+  isReported: boolean;
+  visibility?: NeighborhoodFeedVisibility;
 };
+
+export type NeighborhoodFeedComment = {
+  id: string;
+  postId: string;
+  authorId?: string;
+  authorUserId?: string;
+  authorName: string;
+  authorDisplayName?: string;
+  body: string;
+  moderationStatus: ModerationStatus;
+  createdAt: string;
+  isReported: boolean;
+};
+
+export type CommunityVisibilityItem = {
+  id: string;
+  type: 'ordinary_post' | 'agency_broadcast' | 'regional_post';
+  neighborhoodId?: string;
+  body: string;
+  authorId: string;
+  authorName?: string;
+  isAgencyApproved?: boolean;
+  isRegionalOptIn?: boolean;
+  createdAt: string;
+};
+
+export type GroupType = 'neighborhood_club' | 'hoa' | 'school_community' | 'faith_group' | 'sports';
+
+export type GroupVisibility = 'public' | 'neighborhood_only' | 'private';
+
+export type GroupJoinPolicy = 'open' | 'request_to_join' | 'invite_only';
+
+export type GroupMembershipRole = 'owner' | 'moderator' | 'member';
+
+export type GroupMembershipStatus = 'active' | 'pending' | 'removed';
+
+export type CommunityGroup = {
+  id: string;
+  neighborhoodId: string;
+  name: string;
+  description: string;
+  type: GroupType;
+  visibility: GroupVisibility;
+  joinPolicy: GroupJoinPolicy;
+  coverImageUrl?: string;
+  memberCount: number;
+  myMembershipStatus?: GroupMembershipStatus;
+  createdAt: string;
+};
+
+export type CommunityGroupPost = {
+  id: string;
+  groupId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  imageUrls?: string[];
+  moderationStatus: ModerationStatus;
+  createdAt: string;
+};
+
+export type ModerationQueueItem = {
+  id: string;
+  sourceTable: string;
+  sourceId: string;
+  reason: string;
+  status: string;
+  createdAt: string;
+  resolutionAction?: 'keep_content' | 'hide_content' | 'resolve_case';
+  resolvedAt?: string;
+};
+
+export type ModerationCaseStatus = 'open' | 'reviewing' | 'resolved';
+
+export type ModerationCase = {
+  id: string;
+  contentType: 'marketplace_item' | 'job_request' | 'community_post';
+  contentId: string;
+  title: string;
+  summary: string;
+  reason: string;
+  status: ModerationCaseStatus;
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+};
+
+export type AuditEvent = {
+  id: string;
+  actorId?: string;
+  actor?: string;
+  action: string;
+  targetType?: string;
+  targetId?: string;
+  subjectId?: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type NeighborhoodMembershipStatus =
+  | 'unverified'
+  | 'verified'
+  | 'pending_reverification'
+  | 'rejected';
+
+export type NeighborhoodMembership = {
+  id?: string;
+  userId: string;
+  profileId?: string;
+  neighborhoodId?: string;
+  status: NeighborhoodMembershipStatus;
+  assignedBy?: 'server' | 'manual' | 'system';
+  verifiedAt?: string;
+  verificationStatus?: NeighborhoodMembershipStatus;
+  isPrimary?: boolean;
+  evidenceSummary?: string[];
+  requiresReverificationAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type FeedUnlockReason =
+  | 'verified_member'
+  | 'no_membership'
+  | 'wrong_neighborhood'
+  | 'not_verified';
 
 export type FeedUnlockStatus = 'unlocked' | 'locked';
 
@@ -141,8 +299,26 @@ export type FeedUnlockResult = {
   status: FeedUnlockStatus;
   neighborhoodId: string;
   canRead: boolean;
+  canWrite: boolean;
   canPost: boolean;
-  reason: 'verified_member' | 'no_membership' | 'wrong_neighborhood' | 'not_verified';
+  reason: FeedUnlockReason;
   title: string;
   message: string;
+};
+
+export type ResidenceVerificationSignalType =
+  | 'phone'
+  | 'standardized_address'
+  | 'map_confirmation'
+  | 'location_consistency'
+  | 'postcard_challenge'
+  | 'ghana_post_gps'
+  | 'manual_review'
+  | 'identity_provider';
+
+export type ResidenceVerificationSignal = {
+  type: ResidenceVerificationSignalType;
+  neighborhoodId?: string;
+  passed: boolean;
+  checkedAt: string;
 };

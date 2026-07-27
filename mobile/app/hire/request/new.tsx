@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { OfflineBanner } from '@/components/StateBlocks';
@@ -11,7 +11,7 @@ import { featureFlags } from '@/lib/feature-flags';
 import { validateRequestDraft } from '@/lib/request-validation';
 import { testRequester } from '@/lib/session';
 import { tokens } from '@/theme/tokens';
-import type { ContactPreference, RequestUrgency } from '@/types/contracts';
+import type { ContactPreference, Provider, RequestUrgency } from '@/types/contracts';
 
 const urgencyOptions: { label: string; value: RequestUrgency }[] = [
   { label: 'Flexible', value: 'flexible' },
@@ -27,8 +27,8 @@ const contactOptions: { label: string; value: ContactPreference }[] = [
 
 export default function NewRequestScreen() {
   const params = useLocalSearchParams<{ providerId?: string; categoryId?: string }>();
-  const provider = getProvider(params.providerId ?? 'prov-01');
-  const category = categories.find((item) => item.id === (params.categoryId ?? provider?.categoryIds[0]));
+  const [provider, setProvider] = useState<Provider>();
+  const [isProviderLoaded, setIsProviderLoaded] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [preferredDate, setPreferredDate] = useState('2026-07-18');
@@ -39,21 +39,58 @@ export default function NewRequestScreen() {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [error, setError] = useState('');
 
-  const draft = {
-    requesterName: testRequester.name,
-    providerId: provider?.id ?? 'prov-01',
-    categoryId: category?.id ?? 'plumbing',
-    neighborhood: testRequester.neighborhood,
-    areaLabel: `${testRequester.neighborhood}, general area only`,
-    title,
-    description,
-    originalUserText: description,
-    urgency,
-    preferredDate,
-    preferredTime,
-    contactPreference,
-    photoCount,
-  };
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProvider() {
+      const nextProvider = await getProvider(params.providerId ?? 'prov-01');
+
+      if (!isMounted) return;
+      setProvider(nextProvider);
+      setIsProviderLoaded(true);
+    }
+
+    loadProvider();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [params.providerId]);
+
+  const category = useMemo(
+    () => categories.find((item) => item.id === (params.categoryId ?? provider?.categoryIds[0])),
+    [params.categoryId, provider],
+  );
+
+  const draft = useMemo(
+    () => ({
+      requesterName: testRequester.name,
+      providerId: provider?.id ?? params.providerId ?? 'prov-01',
+      categoryId: category?.id ?? 'plumbing',
+      neighborhood: testRequester.neighborhood,
+      areaLabel: `${testRequester.neighborhood}, general area only`,
+      title,
+      description,
+      originalUserText: description,
+      urgency,
+      preferredDate,
+      preferredTime,
+      contactPreference,
+      photoCount,
+    }),
+    [
+      category?.id,
+      contactPreference,
+      description,
+      params.providerId,
+      photoCount,
+      preferredDate,
+      preferredTime,
+      provider?.id,
+      title,
+      urgency,
+    ],
+  );
 
   function reviewRequest() {
     const validation = validateRequestDraft(draft, consentAccepted);
@@ -62,7 +99,12 @@ export default function NewRequestScreen() {
       return;
     }
 
-    trackEvent('request_review_started', { categoryId: draft.categoryId, providerId: draft.providerId, urgency });
+    trackEvent('request_review_started', {
+      categoryId: draft.categoryId,
+      providerId: draft.providerId,
+      urgency,
+    });
+
     router.push({
       pathname: '/hire/request/review',
       params: {
@@ -77,7 +119,8 @@ export default function NewRequestScreen() {
       ...draft,
       title: title || 'Kitchen sink leak',
       description:
-        description || 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+        description ||
+        'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
     };
 
     trackEvent('request_sample_used', {
@@ -97,15 +140,18 @@ export default function NewRequestScreen() {
   }
 
   useEffect(() => {
+    if (!isProviderLoaded) return undefined;
+
     const timeout = setTimeout(useSampleRequest, 1200);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [isProviderLoaded, useSampleRequest]);
 
   async function useAiStructurer() {
     if (!featureFlags.ai_service_request_structurer) {
       setError('AI structuring is currently off. You can still submit the request manually.');
       return;
     }
+
     const result = await structureServiceRequest(description);
     setTitle(result.title ?? title);
     setDescription(result.description ?? description);
@@ -118,9 +164,11 @@ export default function NewRequestScreen() {
       <Text style={styles.summary}>
         Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.
       </Text>
+
       <Pressable onPress={useSampleRequest} style={styles.button}>
         <Text style={styles.buttonText}>Use sample request and review</Text>
       </Pressable>
+
       <Text style={styles.label}>Job title</Text>
       <TextInput
         value={title}
@@ -129,6 +177,7 @@ export default function NewRequestScreen() {
         placeholder="Example: Kitchen sink leak"
         accessibilityLabel="Job title"
       />
+
       <Text style={styles.label}>Description</Text>
       <TextInput
         value={description}
@@ -138,11 +187,14 @@ export default function NewRequestScreen() {
         placeholder="Describe what you need, where generally, and any access notes."
         accessibilityLabel="Job description"
       />
+
       <Pressable onPress={useAiStructurer} style={styles.secondaryButton}>
         <Text style={styles.secondaryText}>Structure with AI</Text>
       </Pressable>
+
       <Text style={styles.label}>General area</Text>
       <Text style={styles.readonly}>{draft.areaLabel}</Text>
+
       <Text style={styles.label}>Preferred date</Text>
       <TextInput
         value={preferredDate}
@@ -150,6 +202,7 @@ export default function NewRequestScreen() {
         style={styles.input}
         accessibilityLabel="Preferred date"
       />
+
       <Text style={styles.label}>Preferred time</Text>
       <TextInput
         value={preferredTime}
@@ -157,6 +210,7 @@ export default function NewRequestScreen() {
         style={styles.input}
         accessibilityLabel="Preferred time"
       />
+
       <Text style={styles.label}>Urgency</Text>
       <View style={styles.optionRow}>
         {urgencyOptions.map((option) => (
@@ -169,6 +223,7 @@ export default function NewRequestScreen() {
           </Pressable>
         ))}
       </View>
+
       <Text style={styles.label}>Contact preference</Text>
       <View style={styles.optionRow}>
         {contactOptions.map((option) => (
@@ -181,16 +236,19 @@ export default function NewRequestScreen() {
           </Pressable>
         ))}
       </View>
+
       <Pressable onPress={() => setPhotoCount((count) => Math.min(count + 1, 3))} style={styles.photoBox}>
         <Text style={styles.photoText}>Optional photos: {photoCount}. Add photo placeholder</Text>
       </Pressable>
+
       <Pressable onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
         <Text style={styles.noticeText}>
-          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee
-          provider conduct.
+          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee provider conduct.
         </Text>
       </Pressable>
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
+
       <Pressable onPress={reviewRequest} style={styles.button}>
         <Text style={styles.buttonText}>Review request</Text>
       </Pressable>

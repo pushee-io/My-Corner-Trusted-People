@@ -9,7 +9,7 @@ import {
   resetNeighborhoodMembershipStore,
   saveNeighborhoodMembershipRecord,
 } from '@/lib/neighborhood-membership-record';
-import type { AuditEvent, NeighborhoodMembership } from '@/types/contracts';
+import type { AuditEvent, NeighborhoodFeedPost, NeighborhoodMembership } from '@/types/contracts';
 
 const now = '2026-07-24T12:00:00.000Z';
 
@@ -36,6 +36,23 @@ function auditEvent(subjectId = 'user-001'): AuditEvent {
       assignedBy: 'server',
       neighborhoodId: 'east-legon',
     },
+  };
+}
+
+function feedPost(overrides: Partial<NeighborhoodFeedPost> = {}): NeighborhoodFeedPost {
+  return {
+    id: 'post-east-legon',
+    neighborhoodId: 'east-legon',
+    authorId: 'user-002',
+    authorName: 'Ama A.',
+    body: 'Water pressure is low this morning.',
+    moderationStatus: 'clean',
+    createdAt: now,
+    comments: [],
+    likeCount: 0,
+    likedByMe: false,
+    isReported: false,
+    ...overrides,
   };
 }
 
@@ -88,25 +105,16 @@ describe('feed unlock', () => {
       auditEvent: auditEvent(),
       now,
     });
+
     feedStore.posts.push(
-      {
-        id: 'post-east-legon',
-        neighborhoodId: 'east-legon',
-        authorUserId: 'user-002',
-        authorDisplayName: 'Ama A.',
-        body: 'Water pressure is low this morning.',
-        createdAt: now,
-        visibility: 'verified_neighborhood_members',
-      },
-      {
+      feedPost(),
+      feedPost({
         id: 'post-osu',
         neighborhoodId: 'osu',
-        authorUserId: 'user-003',
-        authorDisplayName: 'Kojo K.',
+        authorId: 'user-003',
+        authorName: 'Kojo K.',
         body: 'Osu post should not appear.',
-        createdAt: now,
-        visibility: 'verified_neighborhood_members',
-      },
+      }),
     );
 
     expect(listUnlockedNeighborhoodPosts('user-001', 'east-legon')).toHaveLength(1);
@@ -141,8 +149,8 @@ describe('feed unlock', () => {
 
     expect(post).toMatchObject({
       neighborhoodId: 'east-legon',
-      authorDisplayName: 'Akosua M.',
-      visibility: 'verified_neighborhood_members',
+      authorName: 'Akosua M.',
+      moderationStatus: 'not_run',
     });
     expect(feedStore.posts).toHaveLength(1);
   });

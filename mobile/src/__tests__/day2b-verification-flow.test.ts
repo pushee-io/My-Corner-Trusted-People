@@ -33,6 +33,7 @@ describe('Day 2B mobile verification flow', () => {
       status: 'verified',
       assignedBy: 'server',
     });
+
     expect(getDay2BFeedUnlockStatus()).toMatchObject({
       status: 'unlocked',
       canRead: true,
@@ -44,9 +45,10 @@ describe('Day 2B mobile verification flow', () => {
 
     expect(post).toMatchObject({
       neighborhoodId: day2bNeighborhoodId,
-      authorDisplayName: 'Akosua M.',
-      visibility: 'verified_neighborhood_members',
+      authorName: 'Akosua M.',
+      moderationStatus: 'not_run',
     });
+
     expect(listDay2BNeighborhoodPosts()).toHaveLength(1);
   });
 });

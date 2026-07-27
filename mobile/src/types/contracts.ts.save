@@ -1,4 +1,3 @@
-n
 export type UserRole = 'requester' | 'provider' | 'moderator' | 'admin';
 export type RequestUrgency = 'flexible' | 'soon' | 'urgent';
 export type ContactPreference = 'app_update' | 'phone_call' | 'sms';
