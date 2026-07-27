@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
@@ -22,12 +23,18 @@ function decisionLabel(decision: Day5ModerationDecision | undefined) {
 }
 
 export default function ModerationQueueScreen() {
-  const [items, setItems] = useState<Day5ModerationCase[]>(() => listDay5ModerationCases(moderatorDay5Context));
+  const [items, setItems] = useState<Day5ModerationCase[]>([]);
   const [notice, setNotice] = useState<string>();
 
-  function refreshItems() {
+  const refreshItems = useCallback(() => {
     setItems(listDay5ModerationCases(moderatorDay5Context));
-  }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshItems();
+    }, [refreshItems]),
+  );
 
   function decide(caseId: string, decision: Day5ModerationDecision) {
     const result = applyDay5ModerationDecision(caseId, moderatorDay5Context, decision);
