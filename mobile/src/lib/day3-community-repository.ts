@@ -4,6 +4,9 @@ import type {
   CommunityReportResult,
   CreateSocialGroupPostInput,
   Day3NeighborhoodContext,
+  Day5ModerationActionResult,
+  Day5ModerationCase,
+  Day5ModerationDecision,
   SocialGroup,
   SocialGroupJoinRequestResult,
   SocialGroupMembership,
@@ -20,6 +23,24 @@ export const defaultDay3NeighborhoodContext: Day3NeighborhoodContext = {
   clusterId: 'accra-east',
   regionId: 'greater-accra',
   isVerifiedNeighborhoodMember: true,
+};
+
+export const moderatorDay5Context: Day3NeighborhoodContext = {
+  profileId: 'profile-moderator',
+  neighborhoodId: 'east-legon',
+  clusterId: 'accra-east',
+  regionId: 'greater-accra',
+  isVerifiedNeighborhoodMember: true,
+};
+
+const moderatorProfileIds = new Set<string>(['profile-moderator']);
+
+type Day5ModerationDecisionRecord = {
+  caseId: string;
+  reportId: string;
+  resolvedAt: string;
+  resolvedByProfileId: string;
+  decision: Day5ModerationDecision;
 };
 
 const socialGroups: SocialGroup[] = [
@@ -122,7 +143,7 @@ const initialSocialGroupPosts: SocialGroupPost[] = [
 
 let socialGroupPosts = [...initialSocialGroupPosts];
 
-const agencyBroadcasts: AgencyBroadcast[] = [
+const initialAgencyBroadcasts: AgencyBroadcast[] = [
   {
     id: 'broadcast-road-works-approved',
     agencyName: 'Accra Roads Desk',
@@ -170,9 +191,12 @@ const agencyBroadcasts: AgencyBroadcast[] = [
   },
 ];
 
+let agencyBroadcasts = [...initialAgencyBroadcasts];
+
 const initialCommunityReports: CommunityReport[] = [];
 
 let communityReports = [...initialCommunityReports];
+let day5ModerationDecisions: Day5ModerationDecisionRecord[] = [];
 
 export type SocialGroupScreenSection = {
   group: SocialGroup;
@@ -405,6 +429,140 @@ function createCommunityReport(
   };
 }
 
+export function listDay5ModerationCases(viewer: Day3NeighborhoodContext): Day5ModerationCase[] {
+  if (!isDay5Moderator(viewer)) {
+    return [];
+  }
+
+  return communityReports.map((report) => {
+    const caseId = getDay5ModerationCaseId(report.id);
+    const target = moderationTargetDetails(report);
+    const decisionRecord = day5ModerationDecisions.find((item) => item.caseId === caseId);
+
+    return {
+      id: caseId,
+      reportId: report.id,
+      targetType: report.targetType,
+      targetId: report.targetId,
+      targetTitle: target.title,
+      targetBody: target.body,
+      reporterProfileId: report.reporterProfileId,
+      reportReason: report.reason,
+      status: decisionRecord ? 'resolved' : 'open',
+      createdAt: report.createdAt,
+      resolvedAt: decisionRecord?.resolvedAt,
+      resolvedByProfileId: decisionRecord?.resolvedByProfileId,
+      decision: decisionRecord?.decision,
+    };
+  });
+}
+
+export function applyDay5ModerationDecision(
+  caseId: string,
+  viewer: Day3NeighborhoodContext,
+  decision: Day5ModerationDecision,
+): Day5ModerationActionResult {
+  if (!isDay5Moderator(viewer)) {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'not_moderator',
+    };
+  }
+
+  const reportId = caseId.replace(/^moderation-case-/, '');
+  const report = communityReports.find((item) => item.id === reportId);
+
+  if (!report) {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'case_not_found',
+    };
+  }
+
+  const existingDecision = day5ModerationDecisions.find((item) => item.caseId === caseId);
+
+  if (existingDecision) {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'already_resolved',
+    };
+  }
+
+  if (decision === 'hide_content') {
+    hideModerationTarget(report);
+  }
+
+  day5ModerationDecisions.push({
+    caseId,
+    reportId: report.id,
+    resolvedAt: new Date().toISOString(),
+    resolvedByProfileId: viewer.profileId,
+    decision,
+  });
+
+  return {
+    accepted: true,
+    caseId,
+    status: 'resolved',
+    decision,
+  };
+}
+
+function isDay5Moderator(viewer: Day3NeighborhoodContext): boolean {
+  return moderatorProfileIds.has(viewer.profileId);
+}
+
+function getDay5ModerationCaseId(reportId: string): string {
+  return `moderation-case-${reportId}`;
+}
+
+function moderationTargetDetails(report: CommunityReport): {
+  title: string;
+  body: string;
+} {
+  if (report.targetType === 'agency_broadcast') {
+    const broadcast = agencyBroadcasts.find((item) => item.id === report.targetId);
+
+    return {
+      title: broadcast?.title ?? 'Agency broadcast unavailable',
+      body: broadcast?.body ?? 'The reported broadcast is no longer available.',
+    };
+  }
+
+  const post = socialGroupPosts.find((item) => item.id === report.targetId);
+
+  return {
+    title: 'Social group post',
+    body: post?.body ?? 'The reported group post is no longer available.',
+  };
+}
+
+function hideModerationTarget(report: CommunityReport): void {
+  if (report.targetType === 'agency_broadcast') {
+    agencyBroadcasts = agencyBroadcasts.map((broadcast) => {
+      if (broadcast.id !== report.targetId) return broadcast;
+
+      return {
+        ...broadcast,
+        moderationStatus: 'blocked',
+      };
+    });
+    return;
+  }
+
+  socialGroupPosts = socialGroupPosts.map((post) => {
+    if (post.id !== report.targetId) return post;
+
+    return {
+      ...post,
+      moderationStatus: 'blocked',
+    };
+  });
+}
+
 export function getSocialGroupScreenSections(
   viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
 ): SocialGroupScreenSection[] {
@@ -424,5 +582,7 @@ export function getAgencyBroadcastScreenItems(
 export function resetDay3CommunityRepositoryForTests() {
   socialGroupMemberships = [...initialSocialGroupMemberships];
   socialGroupPosts = [...initialSocialGroupPosts];
+  agencyBroadcasts = [...initialAgencyBroadcasts];
   communityReports = [...initialCommunityReports];
+  day5ModerationDecisions = [];
 }

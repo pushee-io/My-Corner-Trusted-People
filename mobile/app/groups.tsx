@@ -5,6 +5,7 @@ import {
   createSocialGroupPostAction,
   defaultDay3NeighborhoodContext,
   getSocialGroupScreenSections,
+  reportSocialGroupPost,
   requestSocialGroupMembership,
 } from '@/lib/day3-community-repository';
 import { tokens } from '@/theme/tokens';
@@ -52,11 +53,7 @@ export default function GroupsScreen() {
     });
 
     if (result.accepted) {
-      setDrafts((currentDrafts) => {
-        const nextDrafts = { ...currentDrafts };
-        delete nextDrafts[groupId];
-        return nextDrafts;
-      });
+      setDrafts((currentDrafts) => ({ ...currentDrafts, [groupId]: '' }));
       setPostSubmitClearKeys((currentKeys) => ({
         ...currentKeys,
         [groupId]: (currentKeys[groupId] ?? 0) + 1,
@@ -77,6 +74,23 @@ export default function GroupsScreen() {
     }
 
     setNotice('This group is not available for posting.');
+  }
+
+  function reportPost(postId: string) {
+    const result = reportSocialGroupPost(postId, defaultDay3NeighborhoodContext, 'Reported from Groups screen');
+
+    if (result.accepted) {
+      setNotice('Post reported for moderator review.');
+      return;
+    }
+
+    if (result.reason === 'already_reported') {
+      setNotice('You already reported this post.');
+      return;
+    }
+
+    setNotice('This post is no longer available to report.');
+    refreshSections();
   }
 
   return (
@@ -145,6 +159,9 @@ export default function GroupsScreen() {
                     <Text style={styles.meta}>
                       {post.moderationStatus === 'not_run' ? 'Pending moderation' : 'Visible to group members'}
                     </Text>
+                    <Pressable onPress={() => reportPost(post.id)} style={styles.reportButton}>
+                      <Text style={styles.reportButtonText}>Report post</Text>
+                    </Pressable>
                   </View>
                 ))
               )}
@@ -210,13 +227,30 @@ const styles = StyleSheet.create({
     fontSize: tokens.type.support,
     padding: tokens.spacing.md,
   },
-  post: { gap: tokens.spacing.xs },
+  post: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.xs,
+    padding: tokens.spacing.md,
+  },
   posts: {
     borderTopColor: tokens.color.border,
     borderTopWidth: 1,
     gap: tokens.spacing.sm,
     paddingTop: tokens.spacing.md,
   },
+  reportButton: {
+    alignSelf: 'flex-start',
+    borderColor: tokens.color.error,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.sm,
+  },
+  reportButtonText: { color: tokens.color.error, fontWeight: '700' },
   secondaryButton: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.primary,
