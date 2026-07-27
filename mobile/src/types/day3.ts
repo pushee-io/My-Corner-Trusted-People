@@ -111,3 +111,73 @@ export type PushProvider = {
   environment: ProviderEnvironment;
   send(notification: PushNotification): Promise<PushSendResult>;
 };
+
+export type Day3ModerationStatus = 'not_run' | 'clean' | 'flagged' | 'blocked';
+
+export type Day3NeighborhoodContext = {
+  profileId: string;
+  neighborhoodId: string;
+  clusterId: string;
+  regionId: 'greater-accra';
+  isVerifiedNeighborhoodMember: boolean;
+};
+
+export type SocialGroupVisibility = 'verified_neighborhood_members' | 'immediate_cluster_members';
+
+export type SocialGroup = {
+  id: string;
+  name: string;
+  description: string;
+  neighborhoodId: string;
+  clusterId: string;
+  visibility: SocialGroupVisibility;
+  memberCount: number;
+  createdByProfileId: string;
+  createdAt: string;
+  moderationStatus: Day3ModerationStatus;
+};
+
+export type SocialGroupMembershipRole = 'member' | 'moderator' | 'owner';
+
+export type SocialGroupMembershipStatus = 'pending' | 'accepted' | 'rejected' | 'removed';
+
+export type SocialGroupMembership = {
+  id: string;
+  groupId: string;
+  profileId: string;
+  role: SocialGroupMembershipRole;
+  status: SocialGroupMembershipStatus;
+  joinedAt?: string;
+};
+
+export type SocialGroupPost = {
+  id: string;
+  groupId: string;
+  authorProfileId: string;
+  body: string;
+  createdAt: string;
+  moderationStatus: Day3ModerationStatus;
+};
+
+export type CreateSocialGroupPostInput = {
+  groupId: string;
+  profileId: string;
+  body: string;
+};
+
+export type AgencyBroadcastScope = 'neighborhood' | 'immediate_cluster' | 'greater_accra';
+
+export type AgencyBroadcast = {
+  id: string;
+  agencyName: string;
+  title: string;
+  body: string;
+  scope: AgencyBroadcastScope;
+  neighborhoodId?: string;
+  clusterId?: string;
+  regionId: 'greater-accra';
+  isAgencyApproved: boolean;
+  moderationStatus: Day3ModerationStatus;
+  publishedAt: string;
+  expiresAt?: string;
+};
