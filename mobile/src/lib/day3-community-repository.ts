@@ -9,6 +9,14 @@ import type {
 
 const nowIso = '2026-07-26T12:00:00.000Z';
 
+export const defaultDay3NeighborhoodContext: Day3NeighborhoodContext = {
+  profileId: 'profile-akosua',
+  neighborhoodId: 'east-legon',
+  clusterId: 'accra-east',
+  regionId: 'greater-accra',
+  isVerifiedNeighborhoodMember: true,
+};
+
 const socialGroups: SocialGroup[] = [
   {
     id: 'group-east-legon-repairs',
@@ -155,6 +163,11 @@ const agencyBroadcasts: AgencyBroadcast[] = [
   },
 ];
 
+export type SocialGroupScreenSection = {
+  group: SocialGroup;
+  posts: SocialGroupPost[];
+};
+
 export function canViewSocialGroup(group: SocialGroup, viewer: Day3NeighborhoodContext): boolean {
   if (!viewer.isVerifiedNeighborhoodMember || group.moderationStatus === 'blocked') {
     return false;
@@ -230,4 +243,19 @@ export function canViewAgencyBroadcast(broadcast: AgencyBroadcast, viewer: Day3N
 
 export function listAgencyBroadcastsForViewer(viewer: Day3NeighborhoodContext): AgencyBroadcast[] {
   return agencyBroadcasts.filter((broadcast) => canViewAgencyBroadcast(broadcast, viewer));
+}
+
+export function getSocialGroupScreenSections(
+  viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
+): SocialGroupScreenSection[] {
+  return listVisibleSocialGroups(viewer).map((group) => ({
+    group,
+    posts: listSocialGroupPosts(group.id, viewer),
+  }));
+}
+
+export function getAgencyBroadcastScreenItems(
+  viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
+): AgencyBroadcast[] {
+  return listAgencyBroadcastsForViewer(viewer);
 }
