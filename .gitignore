@@ -4,3 +4,13 @@ node_modules/
 .env.local
 .DS_Store
 *.zip
+
+# Generated build output
+mobile/dist/
+
+# macOS
+.DS_Store
+mobile/app/hire/.DS_Store
+
+# Local scratch
+repo-call-audit.txt

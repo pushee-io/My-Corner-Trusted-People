@@ -36,6 +36,7 @@
     "@babel/preset-env": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
     "@types/jest": "^29.5.14",
+    "@types/node": "^26.1.1",
     "@types/react": "~19.1.0",
     "babel-jest": "30.0.5",
     "eslint": "9.35.0",

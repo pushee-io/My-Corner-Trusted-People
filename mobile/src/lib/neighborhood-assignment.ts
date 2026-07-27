@@ -21,21 +21,27 @@ export const accraNeighborhoods: Neighborhood[] = [
 
 export function assignNeighborhoodMembership(input: AssignmentInput): AssignmentResult {
   const now = input.now ?? new Date().toISOString();
+
   const phoneSignal = input.signals.find((signal) => signal.type === 'phone' && signal.passed);
+
   const addressSignal = input.signals.find(
-    (signal) => signal.type === 'standardized_address' && signal.passed && signal.neighborhoodId,
+    (signal) => signal.type === 'standardized_address' && signal.passed && Boolean(signal.neighborhoodId),
   );
+
   const postcardSignal = input.signals.find(
-    (signal) => signal.type === 'postcard_challenge' && signal.passed && signal.neighborhoodId,
+    (signal) => signal.type === 'postcard_challenge' && signal.passed && Boolean(signal.neighborhoodId),
   );
 
   const candidateNeighborhoodId = getConsensusNeighborhoodId(input.signals);
+
   const addressAndPostcardAgree = Boolean(
     addressSignal?.neighborhoodId &&
       postcardSignal?.neighborhoodId &&
       addressSignal.neighborhoodId === postcardSignal.neighborhoodId,
   );
+
   const neighborhoodExists = input.neighborhoods.some((neighborhood) => neighborhood.id === candidateNeighborhoodId);
+
   const isVerified = Boolean(
     phoneSignal &&
       addressSignal &&
@@ -44,6 +50,7 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
       candidateNeighborhoodId &&
       neighborhoodExists,
   );
+
   const neighborhoodId =
     candidateNeighborhoodId ?? addressSignal?.neighborhoodId ?? postcardSignal?.neighborhoodId ?? 'unassigned';
 
@@ -60,9 +67,10 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
     membership,
     auditEvent: {
       id: `audit-${input.userId}-${now}`,
-      actor: 'system',
+      actorId: 'system',
       action: isVerified ? 'neighborhood_membership.verified' : 'neighborhood_membership.rejected',
-      subjectId: input.userId,
+      targetType: 'neighborhood_membership',
+      targetId: input.userId,
       createdAt: now,
       metadata: {
         assignedBy: 'server',
@@ -92,9 +100,10 @@ export function markMembershipForReverification(
     membership: nextMembership,
     auditEvent: {
       id: `audit-${membership.userId}-address-change-${now}`,
-      actor: 'system',
+      actorId: 'system',
       action: 'neighborhood_membership.reverification_required',
-      subjectId: membership.userId,
+      targetType: 'neighborhood_membership',
+      targetId: membership.userId,
       createdAt: now,
       metadata: {
         assignedBy: 'server',
@@ -107,9 +116,11 @@ export function markMembershipForReverification(
 
 function getConsensusNeighborhoodId(signals: ResidenceVerificationSignal[]): string | undefined {
   const passedNeighborhoodSignals = signals.filter((signal) => signal.passed && signal.neighborhoodId);
+
   const counts = passedNeighborhoodSignals.reduce<Record<string, number>>((acc, signal) => {
     const neighborhoodId = signal.neighborhoodId;
     if (!neighborhoodId) return acc;
+
     acc[neighborhoodId] = (acc[neighborhoodId] ?? 0) + 1;
     return acc;
   }, {});

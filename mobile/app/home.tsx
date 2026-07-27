@@ -1,32 +1,82 @@
 import { Link } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { listRequesterRequests } from '@/lib/repository';
-import { testRequester } from '@/lib/session';
 import { tokens } from '@/theme/tokens';
+import type { JobRequest } from '@/types/contracts';
 
 export default function HomeScreen() {
-  const requests = listRequesterRequests(testRequester.name);
+  const [requests, setRequests] = useState<JobRequest[]>([]);
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
   const latest = requests[0];
+
+  useEffect(() => {
+    listRequesterRequests()
+      .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
+      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <Screen title="My Corner home">
       <Text style={styles.body}>East Legon · Accra pilot</Text>
 
-      <Link href="/hire/categories" asChild>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Hire help</Text>
-        </Pressable>
-      </Link>
+      <View style={styles.grid}>
+        <Link href="/hire/categories" asChild>
+          <Pressable style={styles.button}>
+            <Text style={styles.buttonText}>Hire help</Text>
+          </Pressable>
+        </Link>
 
-      <Link href="/community" asChild>
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Community</Text>
-        </Pressable>
-      </Link>
+        <Link href="/community" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Neighborhood feed</Text>
+          </Pressable>
+        </Link>
 
-      {latest ? (
+        <Link href="/groups" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Groups</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/agency-broadcasts" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Agency broadcasts</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/marketplace" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Marketplace</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/community/moderation" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Moderation queue</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/settings" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Settings</Text>
+          </Pressable>
+        </Link>
+      </View>
+
+      {error ? (
+        <EmptyState title="Could not load requests" body={error} />
+      ) : isLoading ? (
+        <View style={styles.panel}>
+          <Text style={styles.title}>Loading requests</Text>
+          <Text style={styles.body}>Checking your live Supabase request history.</Text>
+        </View>
+      ) : latest ? (
         <Link href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
           <Pressable style={styles.panel}>
             <StatusPill status={latest.status} />
@@ -40,32 +90,14 @@ export default function HomeScreen() {
           <Text style={styles.body}>Start with Hire help to test the first flow.</Text>
         </View>
       )}
-
-      <Link href="/profile" asChild>
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Profile</Text>
-        </Pressable>
-      </Link>
-
-      <Link href="/settings" asChild>
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Settings</Text>
-        </Pressable>
-      </Link>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.body,
-  },
-  title: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.card,
-    fontWeight: '700',
-  },
+  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
+  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  grid: { gap: tokens.spacing.md },
   panel: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
@@ -82,11 +114,7 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     borderRadius: tokens.radius.md,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '700',
-  },
+  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   secondary: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
@@ -94,10 +122,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: tokens.spacing.lg,
     borderRadius: tokens.radius.md,
+    backgroundColor: tokens.color.surface,
   },
-  secondaryText: {
-    color: tokens.color.primary,
-    textAlign: 'center',
-    fontWeight: '700',
-  },
+  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

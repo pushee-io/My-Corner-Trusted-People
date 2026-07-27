@@ -13,17 +13,21 @@ type CreatePostInput = {
   now?: string;
 };
 
+type FeedLockReason = NonNullable<FeedUnlockResult['reason']>;
+
 export const feedStore: FeedStore = {
   posts: [],
 };
 
 export function getFeedUnlockStatus(userId: string, neighborhoodId: string): FeedUnlockResult {
   const access = canAccessPrivateNeighborhoodFeed(userId, neighborhoodId);
+
   if (access.canReadPrivateFeed) {
     return {
       status: 'unlocked',
       neighborhoodId,
       canRead: true,
+      canWrite: true,
       canPost: true,
       reason: 'verified_member',
       title: 'Neighborhood feed unlocked',
@@ -31,14 +35,17 @@ export function getFeedUnlockStatus(userId: string, neighborhoodId: string): Fee
     };
   }
 
+  const reason = access.reason as FeedLockReason;
+
   return {
     status: 'locked',
     neighborhoodId,
     canRead: false,
+    canWrite: false,
     canPost: false,
-    reason: access.reason,
-    title: lockedCopy[access.reason].title,
-    message: lockedCopy[access.reason].message,
+    reason,
+    title: lockedCopy[reason].title,
+    message: lockedCopy[reason].message,
   };
 }
 
@@ -54,13 +61,20 @@ export function createNeighborhoodFeedPost(input: CreatePostInput): Neighborhood
   if (!unlock.canPost) return undefined;
 
   const now = input.now ?? new Date().toISOString();
+
   const post: NeighborhoodFeedPost = {
     id: `post-${feedStore.posts.length + 1}`,
     neighborhoodId: input.neighborhoodId,
-    authorUserId: input.userId,
-    authorDisplayName: input.authorDisplayName,
+    authorId: input.userId,
+    authorName: input.authorDisplayName,
     body: input.body.trim(),
+    imageUrls: [],
+    moderationStatus: 'not_run',
     createdAt: now,
+    comments: [],
+    likeCount: 0,
+    likedByMe: false,
+    isReported: false,
     visibility: 'verified_neighborhood_members',
   };
 
@@ -72,7 +86,7 @@ export function resetFeedStore() {
   feedStore.posts.length = 0;
 }
 
-const lockedCopy: Record<FeedUnlockResult['reason'], { title: string; message: string }> = {
+const lockedCopy: Record<FeedLockReason, { title: string; message: string }> = {
   verified_member: {
     title: 'Neighborhood feed unlocked',
     message: 'You can read and post with verified members in this neighborhood.',

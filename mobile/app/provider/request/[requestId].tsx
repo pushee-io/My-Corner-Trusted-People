@@ -1,25 +1,40 @@
 import { Link, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getRequest, markRequestViewed } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
+import type { JobRequest } from '@/types/contracts';
 
 export default function ProviderRequestDetailScreen() {
   const params = useLocalSearchParams<{ requestId?: string }>();
-  const requestId = params.requestId ?? 'req-100';
-  const request = getRequest(requestId);
+  const requestId = params.requestId;
+  const [request, setRequest] = useState<JobRequest>();
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(Boolean(requestId));
 
   useEffect(() => {
-    markRequestViewed(requestId);
+    if (!requestId) {
+      setError('No request ID was provided.');
+      setIsLoading(false);
+      return;
+    }
+
+    markRequestViewed(requestId)
+      .then(setRequest)
+      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load request.'))
+      .finally(() => setIsLoading(false));
   }, [requestId]);
 
-  if (!request) {
+  if (error || isLoading || !request) {
     return (
       <Screen title="Request detail">
-        <EmptyState title="Request not found" body="This test request is not available." />
+        <EmptyState
+          title={isLoading ? 'Loading request' : 'Request not found'}
+          body={error ?? 'Opening the live request.'}
+        />
       </Screen>
     );
   }
@@ -36,6 +51,7 @@ export default function ProviderRequestDetailScreen() {
         </Text>
         <Text style={styles.notice}>Exact requester address is not shown in this workflow.</Text>
       </View>
+
       <Link
         href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
         asChild
@@ -44,6 +60,7 @@ export default function ProviderRequestDetailScreen() {
           <Text style={styles.buttonText}>Accept request</Text>
         </Pressable>
       </Link>
+
       <Link
         href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
         asChild
@@ -52,6 +69,7 @@ export default function ProviderRequestDetailScreen() {
           <Text style={styles.secondaryText}>Decline request</Text>
         </Pressable>
       </Link>
+
       <Link href={{ pathname: '/provider/request/status-update', params: { requestId: request.id } }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Update status</Text>

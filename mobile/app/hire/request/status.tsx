@@ -1,20 +1,44 @@
 import { Link, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getProvider, getRequest } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
+import type { JobRequest, Provider } from '@/types/contracts';
 
 export default function RequestStatusScreen() {
   const params = useLocalSearchParams<{ requestId?: string }>();
-  const request = getRequest(params.requestId ?? 'req-100');
-  const provider = request ? getProvider(request.providerId) : undefined;
+  const requestId = params.requestId;
+  const [request, setRequest] = useState<JobRequest>();
+  const [provider, setProvider] = useState<Provider>();
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(Boolean(requestId));
 
-  if (!request) {
+  useEffect(() => {
+    if (!requestId) {
+      setError('No request ID was provided.');
+      setIsLoading(false);
+      return;
+    }
+
+    getRequest(requestId)
+      .then(async (item) => {
+        setRequest(item);
+        if (item) setProvider(await getProvider(item.providerId));
+      })
+      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load request.'))
+      .finally(() => setIsLoading(false));
+  }, [requestId]);
+
+  if (error || isLoading || !request) {
     return (
       <Screen title="Request status">
-        <EmptyState title="Request not found" body="This prototype could not find the selected request." />
+        <EmptyState
+          title={isLoading ? 'Loading request' : 'Request not found'}
+          body={error ?? 'Checking live Supabase status.'}
+        />
       </Screen>
     );
   }
@@ -29,9 +53,10 @@ export default function RequestStatusScreen() {
         </Text>
         {request.providerMessage ? <Text style={styles.message}>Provider note: {request.providerMessage}</Text> : null}
       </View>
+
       <View style={styles.panel}>
         <Text style={styles.section}>Timeline</Text>
-        {request.statusTimeline.map((event) => (
+        {(request.statusTimeline ?? []).map((event) => (
           <View key={event.id} style={styles.timelineRow}>
             <Text style={styles.body}>{event.status}</Text>
             <Text style={styles.note}>
@@ -41,6 +66,7 @@ export default function RequestStatusScreen() {
           </View>
         ))}
       </View>
+
       <Link href={{ pathname: '/hire/request/report-cancel', params: { requestId: request.id } }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Cancel or report</Text>
