@@ -11,3 +11,6 @@ mobile/dist/
 # macOS
 .DS_Store
 mobile/app/hire/.DS_Store
+
+# Local scratch
+repo-call-audit.txt
