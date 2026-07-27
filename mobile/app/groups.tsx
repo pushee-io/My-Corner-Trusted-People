@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  createSocialGroupPostAction,
-  defaultDay3NeighborhoodContext,
-  getSocialGroupScreenSections,
-  reportSocialGroupPost,
-  requestSocialGroupMembership,
-} from '@/lib/day3-community-repository';
+import { communityActionsRepository } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 import type { SocialGroupScreenSection } from '@/lib/day3-community-repository';
 
@@ -20,17 +14,19 @@ function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
 }
 
 export default function GroupsScreen() {
-  const [sections, setSections] = useState<SocialGroupScreenSection[]>(() => getSocialGroupScreenSections());
+  const [sections, setSections] = useState<SocialGroupScreenSection[]>(() =>
+    communityActionsRepository.getSocialGroupScreenSections(),
+  );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [postSubmitClearKeys, setPostSubmitClearKeys] = useState<Record<string, number>>({});
   const [notice, setNotice] = useState<string>();
 
   function refreshSections() {
-    setSections(getSocialGroupScreenSections());
+    setSections(communityActionsRepository.getSocialGroupScreenSections());
   }
 
   function requestJoin(groupId: string) {
-    const result = requestSocialGroupMembership(groupId, defaultDay3NeighborhoodContext);
+    const result = communityActionsRepository.requestSocialGroupMembership(groupId);
 
     if (result.created) {
       setNotice('Join request sent for moderator review.');
@@ -46,11 +42,7 @@ export default function GroupsScreen() {
   }
 
   function publishPost(groupId: string) {
-    const result = createSocialGroupPostAction({
-      groupId,
-      profileId: defaultDay3NeighborhoodContext.profileId,
-      body: drafts[groupId] ?? '',
-    });
+    const result = communityActionsRepository.createSocialGroupPost(groupId, drafts[groupId] ?? '');
 
     if (result.accepted) {
       setDrafts((currentDrafts) => ({ ...currentDrafts, [groupId]: '' }));
@@ -77,7 +69,7 @@ export default function GroupsScreen() {
   }
 
   function reportPost(postId: string) {
-    const result = reportSocialGroupPost(postId, defaultDay3NeighborhoodContext, 'Reported from Groups screen');
+    const result = communityActionsRepository.reportSocialGroupPost(postId);
 
     if (result.accepted) {
       setNotice('Post reported for moderator review.');
