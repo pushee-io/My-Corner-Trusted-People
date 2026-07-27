@@ -145,10 +145,7 @@ export type UserUploadedImage = {
   createdAt: string;
 };
 
-export type NeighborhoodFeedVisibility =
-  | 'verified_neighborhood_members'
-  | 'public'
-  | 'moderator_only';
+export type NeighborhoodFeedVisibility = 'verified_neighborhood_members' | 'public' | 'moderator_only';
 
 export type NeighborhoodFeedPost = {
   id: string;
@@ -265,11 +262,7 @@ export type AuditEvent = {
   createdAt: string;
 };
 
-export type NeighborhoodMembershipStatus =
-  | 'unverified'
-  | 'verified'
-  | 'pending_reverification'
-  | 'rejected';
+export type NeighborhoodMembershipStatus = 'unverified' | 'verified' | 'pending_reverification' | 'rejected';
 
 export type NeighborhoodMembership = {
   id?: string;
@@ -287,11 +280,7 @@ export type NeighborhoodMembership = {
   updatedAt?: string;
 };
 
-export type FeedUnlockReason =
-  | 'verified_member'
-  | 'no_membership'
-  | 'wrong_neighborhood'
-  | 'not_verified';
+export type FeedUnlockReason = 'verified_member' | 'no_membership' | 'wrong_neighborhood' | 'not_verified';
 
 export type FeedUnlockStatus = 'unlocked' | 'locked';
 

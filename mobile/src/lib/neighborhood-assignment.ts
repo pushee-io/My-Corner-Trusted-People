@@ -1,9 +1,4 @@
-import type {
-  AuditEvent,
-  Neighborhood,
-  NeighborhoodMembership,
-  ResidenceVerificationSignal,
-} from '@/types/contracts';
+import type { AuditEvent, Neighborhood, NeighborhoodMembership, ResidenceVerificationSignal } from '@/types/contracts';
 
 type AssignmentInput = {
   userId: string;
@@ -30,17 +25,11 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
   const phoneSignal = input.signals.find((signal) => signal.type === 'phone' && signal.passed);
 
   const addressSignal = input.signals.find(
-    (signal) =>
-      signal.type === 'standardized_address' &&
-      signal.passed &&
-      Boolean(signal.neighborhoodId),
+    (signal) => signal.type === 'standardized_address' && signal.passed && Boolean(signal.neighborhoodId),
   );
 
   const postcardSignal = input.signals.find(
-    (signal) =>
-      signal.type === 'postcard_challenge' &&
-      signal.passed &&
-      Boolean(signal.neighborhoodId),
+    (signal) => signal.type === 'postcard_challenge' && signal.passed && Boolean(signal.neighborhoodId),
   );
 
   const candidateNeighborhoodId = getConsensusNeighborhoodId(input.signals);
@@ -51,9 +40,7 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
       addressSignal.neighborhoodId === postcardSignal.neighborhoodId,
   );
 
-  const neighborhoodExists = input.neighborhoods.some(
-    (neighborhood) => neighborhood.id === candidateNeighborhoodId,
-  );
+  const neighborhoodExists = input.neighborhoods.some((neighborhood) => neighborhood.id === candidateNeighborhoodId);
 
   const isVerified = Boolean(
     phoneSignal &&
@@ -65,10 +52,7 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
   );
 
   const neighborhoodId =
-    candidateNeighborhoodId ??
-    addressSignal?.neighborhoodId ??
-    postcardSignal?.neighborhoodId ??
-    'unassigned';
+    candidateNeighborhoodId ?? addressSignal?.neighborhoodId ?? postcardSignal?.neighborhoodId ?? 'unassigned';
 
   const membership: NeighborhoodMembership = {
     userId: input.userId,
@@ -84,9 +68,7 @@ export function assignNeighborhoodMembership(input: AssignmentInput): Assignment
     auditEvent: {
       id: `audit-${input.userId}-${now}`,
       actorId: 'system',
-      action: isVerified
-        ? 'neighborhood_membership.verified'
-        : 'neighborhood_membership.rejected',
+      action: isVerified ? 'neighborhood_membership.verified' : 'neighborhood_membership.rejected',
       targetType: 'neighborhood_membership',
       targetId: input.userId,
       createdAt: now,
@@ -133,9 +115,7 @@ export function markMembershipForReverification(
 }
 
 function getConsensusNeighborhoodId(signals: ResidenceVerificationSignal[]): string | undefined {
-  const passedNeighborhoodSignals = signals.filter(
-    (signal) => signal.passed && signal.neighborhoodId,
-  );
+  const passedNeighborhoodSignals = signals.filter((signal) => signal.passed && signal.neighborhoodId);
 
   const counts = passedNeighborhoodSignals.reduce<Record<string, number>>((acc, signal) => {
     const neighborhoodId = signal.neighborhoodId;

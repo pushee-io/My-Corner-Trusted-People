@@ -3,10 +3,7 @@ import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateBlocks';
-import {
-  createMarketplacePickupRequest,
-  getMarketplaceListing,
-} from '@/lib/marketplace-repository';
+import { createMarketplacePickupRequest, getMarketplaceListing } from '@/lib/marketplace-repository';
 import { tokens } from '@/theme/tokens';
 import type { MarketplaceListing, MarketplacePickupRequest } from '@/types/contracts';
 
@@ -102,10 +99,20 @@ export default function MarketplaceListingScreen() {
             style={styles.textArea}
             textAlignVertical="top"
           />
-          <Text style={styles.note}>Use general pickup details first. Avoid exact home addresses in public spaces.</Text>
-          <Pressable disabled={isSending || listing.availability !== 'available'} onPress={sendPickupRequest} style={styles.button}>
+          <Text style={styles.note}>
+            Use general pickup details first. Avoid exact home addresses in public spaces.
+          </Text>
+          <Pressable
+            disabled={isSending || listing.availability !== 'available'}
+            onPress={sendPickupRequest}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>
-              {listing.availability !== 'available' ? 'Not available' : isSending ? 'Sending...' : 'Send pickup request'}
+              {listing.availability !== 'available'
+                ? 'Not available'
+                : isSending
+                  ? 'Sending...'
+                  : 'Send pickup request'}
             </Text>
           </Pressable>
         </View>

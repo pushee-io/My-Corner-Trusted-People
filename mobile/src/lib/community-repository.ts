@@ -188,15 +188,19 @@ export async function listNeighborhoodFeedPosts(neighborhoodId: string): Promise
 
   const commentRows = (comments ?? []) as FeedCommentRow[];
   const reactionRows = (reactions ?? []) as ReactionRow[];
-  const names = await authorNames([...postRows.map((post) => post.author_id), ...commentRows.map((comment) => comment.author_id)]);
-  const reports = await reportsForCurrentUser(postIds, commentRows.map((comment) => comment.id));
+  const names = await authorNames([
+    ...postRows.map((post) => post.author_id),
+    ...commentRows.map((comment) => comment.author_id),
+  ]);
+  const reports = await reportsForCurrentUser(
+    postIds,
+    commentRows.map((comment) => comment.id),
+  );
 
   return postRows.map((post) => {
     const postComments = commentRows
       .filter((comment) => comment.post_id === post.id)
-      .map((comment) =>
-        mapFeedComment(comment, names.get(comment.author_id), reports.commentReports.has(comment.id)),
-      );
+      .map((comment) => mapFeedComment(comment, names.get(comment.author_id), reports.commentReports.has(comment.id)));
     const postReactions = reactionRows.filter((reaction) => reaction.post_id === post.id);
 
     return mapFeedPost(
@@ -248,7 +252,9 @@ export async function createNeighborhoodFeedComment(postId: string, body: string
   return mapFeedComment(data as FeedCommentRow, profile.displayName);
 }
 
-export async function toggleNeighborhoodFeedLike(post: NeighborhoodFeedPost): Promise<{ likeCount: number; likedByMe: boolean }> {
+export async function toggleNeighborhoodFeedLike(
+  post: NeighborhoodFeedPost,
+): Promise<{ likeCount: number; likedByMe: boolean }> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
 

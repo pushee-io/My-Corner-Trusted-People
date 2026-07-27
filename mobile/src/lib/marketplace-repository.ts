@@ -88,7 +88,9 @@ export async function listMarketplaceListings(neighborhoodId: string): Promise<M
 
   const { data, error } = await supabase
     .from('marketplace_listings')
-    .select('id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at')
+    .select(
+      'id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at',
+    )
     .eq('neighborhood_id', neighborhoodId)
     .neq('moderation_status', 'blocked')
     .order('created_at', { ascending: false })
@@ -106,7 +108,9 @@ export async function getMarketplaceListing(listingId: string): Promise<Marketpl
 
   const { data, error } = await supabase
     .from('marketplace_listings')
-    .select('id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at')
+    .select(
+      'id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at',
+    )
     .eq('id', listingId)
     .neq('moderation_status', 'blocked')
     .single();
@@ -118,7 +122,10 @@ export async function getMarketplaceListing(listingId: string): Promise<Marketpl
   return mapListing(row, names.get(row.seller_id));
 }
 
-export async function createMarketplaceListing(neighborhoodId: string, draft: MarketplaceDraft): Promise<MarketplaceListing> {
+export async function createMarketplaceListing(
+  neighborhoodId: string,
+  draft: MarketplaceDraft,
+): Promise<MarketplaceListing> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
 
@@ -136,14 +143,19 @@ export async function createMarketplaceListing(neighborhoodId: string, draft: Ma
       pickup_notes: draft.pickupNotes?.trim() || null,
       moderation_status: 'not_run',
     })
-    .select('id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at')
+    .select(
+      'id, neighborhood_id, seller_id, title, description, price_ghs, image_url, availability, pickup_area, pickup_notes, moderation_status, created_at',
+    )
     .single();
 
   if (error) throw error;
   return mapListing(data as ListingRow, profile.displayName);
 }
 
-export async function createMarketplacePickupRequest(listingId: string, message: string): Promise<MarketplacePickupRequest> {
+export async function createMarketplacePickupRequest(
+  listingId: string,
+  message: string,
+): Promise<MarketplacePickupRequest> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
 

@@ -12,9 +12,7 @@ export default function ProviderRespondScreen() {
   const requestId = params.requestId ?? 'req-100';
   const decision = (params.decision === 'Declined' ? 'Declined' : 'Accepted') as RequestStatus;
   const [message, setMessage] = useState(
-    decision === 'Accepted'
-      ? 'Thanks. I can help with this request.'
-      : 'Sorry, I am not available for this request.',
+    decision === 'Accepted' ? 'Thanks. I can help with this request.' : 'Sorry, I am not available for this request.',
   );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string>();

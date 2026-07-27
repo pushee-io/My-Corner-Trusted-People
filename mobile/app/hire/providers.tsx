@@ -74,7 +74,12 @@ export default function ProvidersScreen() {
       <OfflineBanner />
       <Text style={styles.note}>Prototype note: provider results will continue to review automatically.</Text>
 
-      <TextInput editable={false} placeholder="Search providers" style={styles.search} accessibilityLabel="Search providers" />
+      <TextInput
+        editable={false}
+        placeholder="Search providers"
+        style={styles.search}
+        accessibilityLabel="Search providers"
+      />
 
       <View style={styles.chips}>
         <View style={styles.chip}>

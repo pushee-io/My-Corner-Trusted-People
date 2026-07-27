@@ -18,9 +18,11 @@ export default function RequestReviewScreen() {
 
   useEffect(() => {
     if (!params.providerId) return;
-    getProvider(params.providerId).then(setProvider).catch((caught) => {
-      setError(caught instanceof Error ? caught.message : 'Could not load provider.');
-    });
+    getProvider(params.providerId)
+      .then(setProvider)
+      .catch((caught) => {
+        setError(caught instanceof Error ? caught.message : 'Could not load provider.');
+      });
   }, [params.providerId]);
 
   async function submit() {
@@ -64,7 +66,10 @@ export default function RequestReviewScreen() {
 
   return (
     <Screen title="Review request">
-      <SuccessState title="Review before sending" body="The provider sees your general area, not your exact home address." />
+      <SuccessState
+        title="Review before sending"
+        body="The provider sees your general area, not your exact home address."
+      />
       {error ? <EmptyState title="Request not submitted" body={error} /> : null}
 
       <View style={styles.panel}>
@@ -75,10 +80,14 @@ export default function RequestReviewScreen() {
         <Text style={styles.label}>Description</Text>
         <Text style={styles.value}>{params.description ?? ''}</Text>
         <Text style={styles.label}>Timing</Text>
-        <Text style={styles.value}>{params.preferredDate} · {params.preferredTime} · {params.urgency}</Text>
+        <Text style={styles.value}>
+          {params.preferredDate} · {params.preferredTime} · {params.urgency}
+        </Text>
         <Text style={styles.label}>Area</Text>
         <Text style={styles.value}>{params.areaLabel}</Text>
-        <Text style={styles.notice}>My Corner does not guarantee provider performance. Use the trust evidence and report anything unsafe.</Text>
+        <Text style={styles.notice}>
+          My Corner does not guarantee provider performance. Use the trust evidence and report anything unsafe.
+        </Text>
       </View>
 
       <Pressable disabled={isSubmitting} onPress={submit} style={styles.button}>
@@ -89,10 +98,23 @@ export default function RequestReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
   label: { color: tokens.color.textSecondary, fontSize: tokens.type.label, fontWeight: '700' },
   value: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   notice: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
 });

@@ -69,9 +69,7 @@ type RealtimeChannelMock = {
 };
 
 const mockedGetCurrentProfile = getCurrentProfile as jest.MockedFunction<typeof getCurrentProfile>;
-const mockedAssertSupabaseConfigured = assertSupabaseConfigured as jest.MockedFunction<
-  typeof assertSupabaseConfigured
->;
+const mockedAssertSupabaseConfigured = assertSupabaseConfigured as jest.MockedFunction<typeof assertSupabaseConfigured>;
 const mockedSupabase = supabase as unknown as SupabaseMock;
 
 const currentProfile: CurrentProfile = {
@@ -464,11 +462,7 @@ describe('community repository visibility', () => {
 
     const channel: RealtimeChannelMock = {
       on: jest.fn(
-        (
-          _event: string,
-          config: RealtimeConfig,
-          callback: (payload: RealtimePayload) => void,
-        ): RealtimeChannelMock => {
+        (_event: string, config: RealtimeConfig, callback: (payload: RealtimePayload) => void): RealtimeChannelMock => {
           handlers[`${config.table}:${config.event}`] = callback;
           return channel;
         },

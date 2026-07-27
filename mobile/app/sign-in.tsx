@@ -34,7 +34,9 @@ export default function SignInScreen() {
       </Pressable>
 
       <Pressable disabled={loadingRole !== undefined} onPress={() => signIn('provider')} style={styles.secondary}>
-        <Text style={styles.secondaryText}>{loadingRole === 'provider' ? 'Signing in...' : 'Continue as provider'}</Text>
+        <Text style={styles.secondaryText}>
+          {loadingRole === 'provider' ? 'Signing in...' : 'Continue as provider'}
+        </Text>
       </Pressable>
     </Screen>
   );
@@ -46,6 +48,11 @@ const styles = StyleSheet.create({
   error: { fontSize: tokens.type.support, color: tokens.color.error },
   button: { backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
   buttonText: { color: '#fff', textAlign: 'center', fontWeight: '700' },
-  secondary: { borderColor: tokens.color.primary, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  secondary: {
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

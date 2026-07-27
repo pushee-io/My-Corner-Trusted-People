@@ -119,8 +119,7 @@ export default function NewRequestScreen() {
       ...draft,
       title: title || 'Kitchen sink leak',
       description:
-        description ||
-        'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+        description || 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
     };
 
     trackEvent('request_sample_used', {
@@ -243,7 +242,8 @@ export default function NewRequestScreen() {
 
       <Pressable onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
         <Text style={styles.noticeText}>
-          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee provider conduct.
+          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee
+          provider conduct.
         </Text>
       </Pressable>
 

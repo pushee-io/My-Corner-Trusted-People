@@ -16,13 +16,9 @@ export default function ProviderProfileScreen() {
   const rawProviderId = params.providerId;
   const rawCategoryId = params.categoryId;
 
-  const providerId = Array.isArray(rawProviderId)
-    ? rawProviderId[0]
-    : rawProviderId;
+  const providerId = Array.isArray(rawProviderId) ? rawProviderId[0] : rawProviderId;
 
-  const categoryId = Array.isArray(rawCategoryId)
-    ? rawCategoryId[0]
-    : rawCategoryId;
+  const categoryId = Array.isArray(rawCategoryId) ? rawCategoryId[0] : rawCategoryId;
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,9 +69,7 @@ export default function ProviderProfileScreen() {
   if (!providerId) {
     return (
       <Screen title="Provider unavailable">
-        <Text style={styles.body}>
-          This provider page is missing a valid provider ID.
-        </Text>
+        <Text style={styles.body}>This provider page is missing a valid provider ID.</Text>
       </Screen>
     );
   }
@@ -99,9 +93,7 @@ export default function ProviderProfileScreen() {
   if (!provider) {
     return (
       <Screen title="Provider not found">
-        <Text style={styles.body}>
-          This provider is not available in the current prototype.
-        </Text>
+        <Text style={styles.body}>This provider is not available in the current prototype.</Text>
       </Screen>
     );
   }
@@ -128,22 +120,15 @@ export default function ProviderProfileScreen() {
           </View>
         ))}
 
-        <Text style={styles.note}>
-          Trust signals help you make a decision. They are not a guarantee.
-        </Text>
+        <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Service coverage</Text>
 
-        <Text style={styles.body}>
-          General area: {provider.areaLabel}
-        </Text>
+        <Text style={styles.body}>General area: {provider.areaLabel}</Text>
 
-        <Text style={styles.note}>
-          General area only — your exact address stays private until later
-          steps.
-        </Text>
+        <Text style={styles.note}>General area only — your exact address stays private until later steps.</Text>
       </View>
 
       {canStartRequest && selectedCategoryId ? (
@@ -157,8 +142,7 @@ export default function ProviderProfileScreen() {
               neighborhood: 'East Legon',
               areaLabel: 'East Legon, general area only',
               title: 'Kitchen sink leak',
-              description:
-                'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
+              description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
               originalUserText: 'Water is leaking under the kitchen sink.',
               urgency: 'soon',
               preferredDate: '2026-07-18',
@@ -175,10 +159,7 @@ export default function ProviderProfileScreen() {
         </Link>
       ) : (
         <View style={styles.unavailableBox}>
-          <Text style={styles.note}>
-            This provider does not currently have an available service
-            category.
-          </Text>
+          <Text style={styles.note}>This provider does not currently have an available service category.</Text>
         </View>
       )}
     </Screen>

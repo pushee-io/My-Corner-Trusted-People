@@ -1,7 +1,4 @@
-import {
-  getAgencyBroadcastScreenItems,
-  getSocialGroupScreenSections,
-} from '@/lib/day3-community-repository';
+import { getAgencyBroadcastScreenItems, getSocialGroupScreenSections } from '@/lib/day3-community-repository';
 import type { Day3NeighborhoodContext } from '@/types/day3';
 
 const eastLegonViewer: Day3NeighborhoodContext = {
@@ -16,13 +13,8 @@ describe('Day 3 community screen data', () => {
   it('feeds the Groups screen only visible groups and visible group posts', () => {
     const sections = getSocialGroupScreenSections(eastLegonViewer);
 
-    expect(sections.map((section) => section.group.id)).toEqual([
-      'group-east-legon-repairs',
-      'group-accra-east-water',
-    ]);
-    expect(sections.flatMap((section) => section.posts).map((post) => post.id)).toEqual([
-      'group-post-repair-tip',
-    ]);
+    expect(sections.map((section) => section.group.id)).toEqual(['group-east-legon-repairs', 'group-accra-east-water']);
+    expect(sections.flatMap((section) => section.posts).map((post) => post.id)).toEqual(['group-post-repair-tip']);
     expect(sections.flatMap((section) => section.posts).every((post) => post.moderationStatus !== 'blocked')).toBe(
       true,
     );

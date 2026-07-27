@@ -18,7 +18,9 @@ export default function ProviderProfilePreviewScreen() {
         <Text style={styles.body}>Community recommendations: shown as evidence, not a guarantee</Text>
       </View>
 
-      <Text style={styles.note}>This is what requesters see. Trust signals are evidence, not a My Corner guarantee.</Text>
+      <Text style={styles.note}>
+        This is what requesters see. Trust signals are evidence, not a My Corner guarantee.
+      </Text>
     </Screen>
   );
 }

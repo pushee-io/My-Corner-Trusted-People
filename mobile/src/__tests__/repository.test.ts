@@ -34,9 +34,7 @@ type SupabaseMock = {
 };
 
 const mockedGetCurrentProfile = getCurrentProfile as jest.MockedFunction<typeof getCurrentProfile>;
-const mockedAssertSupabaseConfigured = assertSupabaseConfigured as jest.MockedFunction<
-  typeof assertSupabaseConfigured
->;
+const mockedAssertSupabaseConfigured = assertSupabaseConfigured as jest.MockedFunction<typeof assertSupabaseConfigured>;
 const mockedSupabase = supabase as unknown as SupabaseMock;
 
 const createdAt = '2026-07-24T12:00:00.000Z';
@@ -125,11 +123,7 @@ describe('Module 1 repository', () => {
     useTableQueries({
       provider_services: [
         createQuery({
-          data: [
-            { provider_id: 'prov-01' },
-            { provider_id: 'prov-02' },
-            { provider_id: 'prov-03' },
-          ],
+          data: [{ provider_id: 'prov-01' }, { provider_id: 'prov-02' }, { provider_id: 'prov-03' }],
           error: null,
         }),
         createQuery({

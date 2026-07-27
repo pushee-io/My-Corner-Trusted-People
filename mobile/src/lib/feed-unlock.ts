@@ -49,10 +49,7 @@ export function getFeedUnlockStatus(userId: string, neighborhoodId: string): Fee
   };
 }
 
-export function listUnlockedNeighborhoodPosts(
-  userId: string,
-  neighborhoodId: string,
-): NeighborhoodFeedPost[] {
+export function listUnlockedNeighborhoodPosts(userId: string, neighborhoodId: string): NeighborhoodFeedPost[] {
   const unlock = getFeedUnlockStatus(userId, neighborhoodId);
   if (!unlock.canRead) return [];
 

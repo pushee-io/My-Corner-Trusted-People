@@ -137,9 +137,7 @@ export default function CommunityFeedScreen() {
 
     try {
       const next = await toggleNeighborhoodFeedLike(post);
-      setPosts((currentPosts) =>
-        currentPosts.map((item) => (item.id === post.id ? { ...item, ...next } : item)),
-      );
+      setPosts((currentPosts) => currentPosts.map((item) => (item.id === post.id ? { ...item, ...next } : item)));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not update like.');
     } finally {
@@ -174,9 +172,7 @@ export default function CommunityFeedScreen() {
           post.id === comment.postId
             ? {
                 ...post,
-                comments: post.comments.map((item) =>
-                  item.id === comment.id ? { ...item, isReported: true } : item,
-                ),
+                comments: post.comments.map((item) => (item.id === comment.id ? { ...item, isReported: true } : item)),
               }
             : post,
         ),
@@ -246,10 +242,20 @@ export default function CommunityFeedScreen() {
               <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
 
               <View style={styles.actions}>
-                <Pressable disabled={busyId === `like-${post.id}`} onPress={() => toggleLike(post)} style={styles.actionButton}>
-                  <Text style={styles.actionText}>{post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}</Text>
+                <Pressable
+                  disabled={busyId === `like-${post.id}`}
+                  onPress={() => toggleLike(post)}
+                  style={styles.actionButton}
+                >
+                  <Text style={styles.actionText}>
+                    {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
+                  </Text>
                 </Pressable>
-                <Pressable disabled={post.isReported || busyId === `report-${post.id}`} onPress={() => reportPost(post.id)} style={styles.reportButton}>
+                <Pressable
+                  disabled={post.isReported || busyId === `report-${post.id}`}
+                  onPress={() => reportPost(post.id)}
+                  style={styles.reportButton}
+                >
                   <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
                 </Pressable>
               </View>
@@ -260,7 +266,10 @@ export default function CommunityFeedScreen() {
                     <View key={comment.id} style={styles.reply}>
                       <Text style={styles.author}>{comment.authorName}</Text>
                       <Text style={styles.body}>{comment.body}</Text>
-                      <Pressable disabled={comment.isReported || busyId === `report-${comment.id}`} onPress={() => reportComment(comment)}>
+                      <Pressable
+                        disabled={comment.isReported || busyId === `report-${comment.id}`}
+                        onPress={() => reportComment(comment)}
+                      >
                         <Text style={styles.reportText}>{comment.isReported ? 'Reply reported' : 'Report reply'}</Text>
                       </Pressable>
                     </View>
@@ -276,7 +285,11 @@ export default function CommunityFeedScreen() {
                   style={styles.replyInput}
                   accessibilityLabel="Reply to feed post"
                 />
-                <Pressable disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()} onPress={() => publishReply(post.id)} style={styles.replyButton}>
+                <Pressable
+                  disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
+                  onPress={() => publishReply(post.id)}
+                  style={styles.replyButton}
+                >
                   <Text style={styles.replyButtonText}>{busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}</Text>
                 </Pressable>
               </View>
@@ -336,16 +349,44 @@ const styles = StyleSheet.create({
   liveStatus: { backgroundColor: '#EEF7F4', borderColor: tokens.color.success },
   pausedDot: { backgroundColor: tokens.color.error },
   pausedStatus: { backgroundColor: '#FDECEC', borderColor: tokens.color.error },
-  queueButton: { borderColor: tokens.color.primary, borderRadius: tokens.radius.pill, borderWidth: 1, minHeight: 32, justifyContent: 'center', paddingHorizontal: tokens.spacing.md },
+  queueButton: {
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.pill,
+    borderWidth: 1,
+    minHeight: 32,
+    justifyContent: 'center',
+    paddingHorizontal: tokens.spacing.md,
+  },
   queueText: { color: tokens.color.primary, fontSize: tokens.type.support, fontWeight: '700' },
   reconnectingDot: { backgroundColor: tokens.color.warning },
   reconnectingStatus: { backgroundColor: '#FFF4D6', borderColor: tokens.color.warning },
-  replies: { borderLeftColor: tokens.color.border, borderLeftWidth: 2, gap: tokens.spacing.sm, paddingLeft: tokens.spacing.md },
+  replies: {
+    borderLeftColor: tokens.color.border,
+    borderLeftWidth: 2,
+    gap: tokens.spacing.sm,
+    paddingLeft: tokens.spacing.md,
+  },
   reply: { gap: tokens.spacing.xs },
   replyBox: { flexDirection: 'row', gap: tokens.spacing.sm },
-  replyButton: { backgroundColor: tokens.color.primary, borderRadius: tokens.radius.md, justifyContent: 'center', minHeight: tokens.touch.min, paddingHorizontal: tokens.spacing.md },
+  replyButton: {
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.md,
+  },
   replyButtonText: { color: '#FFFFFF', fontWeight: '700' },
-  replyInput: { backgroundColor: '#FFFFFF', borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, color: tokens.color.textPrimary, flex: 1, fontSize: tokens.type.body, minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  replyInput: {
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    color: tokens.color.textPrimary,
+    flex: 1,
+    fontSize: tokens.type.body,
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   reportButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: tokens.spacing.sm },
   reportText: { color: tokens.color.error, fontSize: tokens.type.support, fontWeight: '700' },
   statusDot: { borderRadius: 5, height: 10, width: 10 },
@@ -362,5 +403,11 @@ const styles = StyleSheet.create({
   },
   statusText: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
   time: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-  topRow: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm, justifyContent: 'space-between' },
+  topRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: tokens.spacing.sm,
+    justifyContent: 'space-between',
+  },
 });

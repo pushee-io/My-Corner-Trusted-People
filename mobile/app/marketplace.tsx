@@ -77,10 +77,7 @@ export default function MarketplaceScreen() {
     setError(undefined);
 
     try {
-      await createMarketplacePickupRequest(
-        listing.id,
-        'Hi, I am interested. When would be a good pickup time?',
-      );
+      await createMarketplacePickupRequest(listing.id, 'Hi, I am interested. When would be a good pickup time?');
       setSent((current) => ({ ...current, [listing.id]: true }));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not send pickup request.');
@@ -114,7 +111,13 @@ export default function MarketplaceScreen() {
           style={[styles.input, styles.textArea]}
           textAlignVertical="top"
         />
-        <TextInput value={price} onChangeText={setPrice} placeholder="Price in GHS" keyboardType="numeric" style={styles.input} />
+        <TextInput
+          value={price}
+          onChangeText={setPrice}
+          placeholder="Price in GHS"
+          keyboardType="numeric"
+          style={styles.input}
+        />
         <TextInput
           value={pickupNotes}
           onChangeText={setPickupNotes}
@@ -136,7 +139,9 @@ export default function MarketplaceScreen() {
             <Text style={styles.title}>{listing.title}</Text>
             <Text style={styles.body}>{listing.description}</Text>
             <Text style={styles.price}>{priceLabel(listing)}</Text>
-            <Text style={styles.note}>{listing.availability} · {listing.sellerName}</Text>
+            <Text style={styles.note}>
+              {listing.availability} · {listing.sellerName}
+            </Text>
             <Text style={styles.note}>Pickup: {listing.pickupArea}</Text>
 
             <Pressable
@@ -145,7 +150,11 @@ export default function MarketplaceScreen() {
               style={styles.button}
             >
               <Text style={styles.buttonText}>
-                {sent[listing.id] ? 'Pickup request sent' : busyId === listing.id ? 'Sending...' : 'Send pickup request'}
+                {sent[listing.id]
+                  ? 'Pickup request sent'
+                  : busyId === listing.id
+                    ? 'Sending...'
+                    : 'Send pickup request'}
               </Text>
             </Pressable>
           </View>

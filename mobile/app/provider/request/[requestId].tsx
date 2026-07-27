@@ -31,7 +31,10 @@ export default function ProviderRequestDetailScreen() {
   if (error || isLoading || !request) {
     return (
       <Screen title="Request detail">
-        <EmptyState title={isLoading ? 'Loading request' : 'Request not found'} body={error ?? 'Opening the live request.'} />
+        <EmptyState
+          title={isLoading ? 'Loading request' : 'Request not found'}
+          body={error ?? 'Opening the live request.'}
+        />
       </Screen>
     );
   }
@@ -43,17 +46,25 @@ export default function ProviderRequestDetailScreen() {
         <Text style={styles.title}>{request.title}</Text>
         <Text style={styles.body}>{request.description}</Text>
         <Text style={styles.note}>General area: {request.areaLabel}</Text>
-        <Text style={styles.note}>Preferred: {request.preferredDate} · {request.preferredTime}</Text>
+        <Text style={styles.note}>
+          Preferred: {request.preferredDate} · {request.preferredTime}
+        </Text>
         <Text style={styles.notice}>Exact requester address is not shown in this workflow.</Text>
       </View>
 
-      <Link href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }} asChild>
+      <Link
+        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
+        asChild
+      >
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Accept request</Text>
         </Pressable>
       </Link>
 
-      <Link href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }} asChild>
+      <Link
+        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
+        asChild
+      >
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Decline request</Text>
         </Pressable>
@@ -69,13 +80,38 @@ export default function ProviderRequestDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   note: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-  notice: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, padding: tokens.spacing.md, color: tokens.color.textPrimary },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  notice: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    color: tokens.color.textPrimary,
+  },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondary: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
   secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

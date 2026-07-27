@@ -66,7 +66,9 @@ export default function ModerationQueueScreen() {
     <Screen title="Moderation queue">
       <Text style={styles.note}>Signed in: {signedInEmail ?? 'unknown'}</Text>
       {error ? <EmptyState title="Moderator access required" body={error} /> : null}
-      {!error && items.length === 0 ? <EmptyState title="No open cases" body="Reported feed content will appear here." /> : null}
+      {!error && items.length === 0 ? (
+        <EmptyState title="No open cases" body="Reported feed content will appear here." />
+      ) : null}
 
       <View style={styles.list}>
         {items.map((item) => {
