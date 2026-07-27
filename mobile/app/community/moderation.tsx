@@ -3,11 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
-import {
-  applyDay5ModerationDecision,
-  listDay5ModerationCases,
-  moderatorDay5Context,
-} from '@/lib/day3-community-repository';
+import { communityActionsRepository } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 import type { Day5ModerationCase, Day5ModerationDecision } from '@/types/day3';
 
@@ -27,7 +23,7 @@ export default function ModerationQueueScreen() {
   const [notice, setNotice] = useState<string>();
 
   const refreshItems = useCallback(() => {
-    setItems(listDay5ModerationCases(moderatorDay5Context));
+    setItems(communityActionsRepository.listModerationCases());
   }, []);
 
   useFocusEffect(
@@ -37,7 +33,7 @@ export default function ModerationQueueScreen() {
   );
 
   function decide(caseId: string, decision: Day5ModerationDecision) {
-    const result = applyDay5ModerationDecision(caseId, moderatorDay5Context, decision);
+    const result = communityActionsRepository.applyModerationDecision(caseId, decision);
 
     if (result.accepted) {
       setNotice(decision === 'hide_content' ? 'Content hidden from resident screens.' : 'Content kept visible.');

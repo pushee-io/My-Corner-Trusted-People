@@ -1,30 +1,31 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  defaultDay3NeighborhoodContext,
-  getAgencyBroadcastScreenItems,
-  reportAgencyBroadcast,
-} from '@/lib/day3-community-repository';
+import { communityActionsRepository } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
+import type { AgencyBroadcast } from '@/types/day3';
 
-function scopeLabel(scope: 'neighborhood' | 'immediate_cluster' | 'greater_accra') {
-  if (scope === 'greater_accra') return 'Approved Greater Accra broadcast';
-  if (scope === 'immediate_cluster') return 'Approved local cluster broadcast';
-  return 'Approved neighborhood broadcast';
+function scopeLabel(broadcast: AgencyBroadcast) {
+  if (broadcast.scope === 'greater_accra') return 'Greater Accra';
+  if (broadcast.scope === 'immediate_cluster') return 'Immediate cluster';
+  return 'Verified neighborhood';
 }
 
 export default function AgencyBroadcastsScreen() {
-  const [reportedIds, setReportedIds] = useState<string[]>([]);
+  const [broadcasts, setBroadcasts] = useState<AgencyBroadcast[]>(() =>
+    communityActionsRepository.getAgencyBroadcastScreenItems(),
+  );
   const [notice, setNotice] = useState<string>();
-  const broadcasts = getAgencyBroadcastScreenItems();
+
+  function refreshBroadcasts() {
+    setBroadcasts(communityActionsRepository.getAgencyBroadcastScreenItems());
+  }
 
   function reportBroadcast(broadcastId: string) {
-    const result = reportAgencyBroadcast(broadcastId, defaultDay3NeighborhoodContext);
+    const result = communityActionsRepository.reportAgencyBroadcast(broadcastId);
 
     if (result.accepted) {
-      setReportedIds((currentIds) => [...currentIds, broadcastId]);
-      setNotice('Broadcast report sent for review.');
+      setNotice('Broadcast reported for moderator review.');
       return;
     }
 
@@ -34,56 +35,61 @@ export default function AgencyBroadcastsScreen() {
     }
 
     setNotice('This broadcast is no longer available to report.');
+    refreshBroadcasts();
   }
 
   return (
     <Screen title="Agency broadcasts">
-      <Text style={styles.meta}>
-        Greater Accra feed does not automatically expose ordinary private neighborhood posts.
-      </Text>
-
       {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
       {broadcasts.length === 0 ? (
-        <Text style={styles.meta}>No approved agency broadcasts are visible for your area right now.</Text>
+        <Text style={styles.meta}>No approved agency broadcasts are visible for your area.</Text>
       ) : (
-        broadcasts.map((broadcast) => {
-          const isReported = reportedIds.includes(broadcast.id);
-
-          return (
+        <View style={styles.list}>
+          {broadcasts.map((broadcast) => (
             <View key={broadcast.id} style={styles.card}>
+              <Text style={styles.eyebrow}>{scopeLabel(broadcast)}</Text>
               <Text style={styles.title}>{broadcast.title}</Text>
               <Text style={styles.body}>{broadcast.body}</Text>
               <Text style={styles.meta}>
-                {broadcast.agencyName} · {scopeLabel(broadcast.scope)}
+                {broadcast.agencyName} · {new Date(broadcast.publishedAt).toLocaleString('en-GH')}
               </Text>
-              <Pressable
-                disabled={isReported}
-                onPress={() => reportBroadcast(broadcast.id)}
-                style={[styles.reportButton, isReported ? styles.disabledButton : null]}
-              >
-                <Text style={styles.reportText}>{isReported ? 'Reported' : 'Report broadcast'}</Text>
+              <Pressable onPress={() => reportBroadcast(broadcast.id)} style={styles.reportButton}>
+                <Text style={styles.reportButtonText}>Report broadcast</Text>
               </Pressable>
             </View>
-          );
-        })
+          ))}
+        </View>
       )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
+  body: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+  },
   card: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderRadius: tokens.radius.md,
     borderWidth: 1,
-    gap: tokens.spacing.xs,
+    gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
-  disabledButton: { borderColor: tokens.color.disabled },
-  meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
+  eyebrow: {
+    color: tokens.color.textSecondary,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
+  },
+  list: {
+    gap: tokens.spacing.md,
+  },
+  meta: {
+    color: tokens.color.textSecondary,
+    fontSize: tokens.type.support,
+  },
   notice: {
     backgroundColor: '#EEF7F4',
     borderColor: tokens.color.success,
@@ -99,10 +105,17 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radius.md,
     borderWidth: 1,
     justifyContent: 'center',
-    marginTop: tokens.spacing.sm,
     minHeight: tokens.touch.min,
-    paddingHorizontal: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.sm,
   },
-  reportText: { color: tokens.color.error, fontWeight: '700' },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  reportButtonText: {
+    color: tokens.color.error,
+    fontWeight: '700',
+  },
+  title: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '700',
+  },
 });
