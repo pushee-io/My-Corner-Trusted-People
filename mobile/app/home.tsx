@@ -38,15 +38,27 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
+        <Link href="/groups" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Groups</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/agency-broadcasts" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Agency broadcasts</Text>
+          </Pressable>
+        </Link>
+
         <Link href="/marketplace" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Marketplace</Text>
           </Pressable>
         </Link>
 
-        <Link href="/profile" asChild>
+        <Link href="/community/moderation" asChild>
           <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Profile</Text>
+            <Text style={styles.secondaryText}>Moderation queue</Text>
           </Pressable>
         </Link>
 
