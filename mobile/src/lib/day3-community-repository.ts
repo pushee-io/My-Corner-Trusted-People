@@ -1,10 +1,15 @@
 import type {
   AgencyBroadcast,
+  CommunityReport,
+  CommunityReportResult,
   CreateSocialGroupPostInput,
   Day3NeighborhoodContext,
   SocialGroup,
+  SocialGroupJoinRequestResult,
   SocialGroupMembership,
+  SocialGroupMembershipStatus,
   SocialGroupPost,
+  SocialGroupPostActionResult,
 } from '@/types/day3';
 
 const nowIso = '2026-07-26T12:00:00.000Z';
@@ -68,7 +73,7 @@ const socialGroups: SocialGroup[] = [
   },
 ];
 
-const socialGroupMemberships: SocialGroupMembership[] = [
+const initialSocialGroupMemberships: SocialGroupMembership[] = [
   {
     id: 'membership-east-legon-repairs-akosua',
     groupId: 'group-east-legon-repairs',
@@ -93,6 +98,8 @@ const socialGroupMemberships: SocialGroupMembership[] = [
     status: 'pending',
   },
 ];
+
+let socialGroupMemberships = [...initialSocialGroupMemberships];
 
 const initialSocialGroupPosts: SocialGroupPost[] = [
   {
@@ -163,9 +170,14 @@ const agencyBroadcasts: AgencyBroadcast[] = [
   },
 ];
 
+const initialCommunityReports: CommunityReport[] = [];
+
+let communityReports = [...initialCommunityReports];
+
 export type SocialGroupScreenSection = {
   group: SocialGroup;
   posts: SocialGroupPost[];
+  membershipStatus: SocialGroupMembershipStatus;
 };
 
 export function canViewSocialGroup(group: SocialGroup, viewer: Day3NeighborhoodContext): boolean {
@@ -180,11 +192,59 @@ export function canViewSocialGroup(group: SocialGroup, viewer: Day3NeighborhoodC
   return group.clusterId === viewer.clusterId;
 }
 
-export function isAcceptedSocialGroupMember(groupId: string, profileId: string): boolean {
-  return socialGroupMemberships.some(
-    (membership) =>
-      membership.groupId === groupId && membership.profileId === profileId && membership.status === 'accepted',
+export function getSocialGroupMembershipStatus(groupId: string, profileId: string): SocialGroupMembershipStatus {
+  return (
+    socialGroupMemberships.find((membership) => membership.groupId === groupId && membership.profileId === profileId)
+      ?.status ?? 'none'
   );
+}
+
+export function isAcceptedSocialGroupMember(groupId: string, profileId: string): boolean {
+  return getSocialGroupMembershipStatus(groupId, profileId) === 'accepted';
+}
+
+export function requestSocialGroupMembership(
+  groupId: string,
+  viewer: Day3NeighborhoodContext,
+): SocialGroupJoinRequestResult {
+  const group = socialGroups.find((item) => item.id === groupId);
+
+  if (!group || !canViewSocialGroup(group, viewer)) {
+    return {
+      groupId,
+      profileId: viewer.profileId,
+      status: 'none',
+      created: false,
+    };
+  }
+
+  const existingStatus = getSocialGroupMembershipStatus(groupId, viewer.profileId);
+
+  if (existingStatus !== 'none') {
+    return {
+      groupId,
+      profileId: viewer.profileId,
+      status: existingStatus,
+      created: false,
+    };
+  }
+
+  const membership: SocialGroupMembership = {
+    id: `membership-${groupId}-${viewer.profileId}`,
+    groupId,
+    profileId: viewer.profileId,
+    role: 'member',
+    status: 'pending',
+  };
+
+  socialGroupMemberships.push(membership);
+
+  return {
+    groupId,
+    profileId: viewer.profileId,
+    status: 'pending',
+    created: true,
+  };
 }
 
 export function listVisibleSocialGroups(viewer: Day3NeighborhoodContext): SocialGroup[] {
@@ -202,27 +262,49 @@ export function listSocialGroupPosts(groupId: string, viewer: Day3NeighborhoodCo
 }
 
 export function createSocialGroupPost(input: CreateSocialGroupPostInput): SocialGroupPost | undefined {
+  return createSocialGroupPostAction(input).post;
+}
+
+export function createSocialGroupPostAction(input: CreateSocialGroupPostInput): SocialGroupPostActionResult {
+  const body = input.body.trim();
   const group = socialGroups.find((item) => item.id === input.groupId);
 
-  if (!group || group.moderationStatus === 'blocked' || !isAcceptedSocialGroupMember(input.groupId, input.profileId)) {
-    return undefined;
+  if (!body) {
+    return {
+      accepted: false,
+      reason: 'empty_body',
+    };
+  }
+
+  if (!group || group.moderationStatus === 'blocked') {
+    return {
+      accepted: false,
+      reason: 'not_visible',
+    };
+  }
+
+  if (!isAcceptedSocialGroupMember(input.groupId, input.profileId)) {
+    return {
+      accepted: false,
+      reason: 'not_accepted_member',
+    };
   }
 
   const post: SocialGroupPost = {
     id: `group-post-${socialGroupPosts.length + 1}`,
     groupId: input.groupId,
     authorProfileId: input.profileId,
-    body: input.body.trim(),
+    body,
     createdAt: new Date().toISOString(),
     moderationStatus: 'not_run',
   };
 
   socialGroupPosts.unshift(post);
-  return post;
-}
 
-export function resetDay3CommunityRepositoryForTests() {
-  socialGroupPosts = [...initialSocialGroupPosts];
+  return {
+    post,
+    accepted: true,
+  };
 }
 
 export function canViewAgencyBroadcast(broadcast: AgencyBroadcast, viewer: Day3NeighborhoodContext): boolean {
@@ -245,12 +327,91 @@ export function listAgencyBroadcastsForViewer(viewer: Day3NeighborhoodContext): 
   return agencyBroadcasts.filter((broadcast) => canViewAgencyBroadcast(broadcast, viewer));
 }
 
+export function reportAgencyBroadcast(
+  broadcastId: string,
+  viewer: Day3NeighborhoodContext,
+  reason = 'Agency broadcast report',
+): CommunityReportResult {
+  const broadcast = agencyBroadcasts.find((item) => item.id === broadcastId);
+
+  if (!broadcast || !canViewAgencyBroadcast(broadcast, viewer)) {
+    return {
+      accepted: false,
+      reason: 'not_visible',
+    };
+  }
+
+  return createCommunityReport('agency_broadcast', broadcastId, viewer.profileId, reason);
+}
+
+export function reportSocialGroupPost(
+  postId: string,
+  viewer: Day3NeighborhoodContext,
+  reason = 'Social group post report',
+): CommunityReportResult {
+  const post = socialGroupPosts.find((item) => item.id === postId);
+
+  if (!post || post.moderationStatus === 'blocked') {
+    return {
+      accepted: false,
+      reason: 'not_visible',
+    };
+  }
+
+  if (!listSocialGroupPosts(post.groupId, viewer).some((visiblePost) => visiblePost.id === postId)) {
+    return {
+      accepted: false,
+      reason: 'not_visible',
+    };
+  }
+
+  return createCommunityReport('social_group_post', postId, viewer.profileId, reason);
+}
+
+function createCommunityReport(
+  targetType: CommunityReport['targetType'],
+  targetId: string,
+  reporterProfileId: string,
+  reason: string,
+): CommunityReportResult {
+  const alreadyReported = communityReports.some(
+    (report) =>
+      report.targetType === targetType &&
+      report.targetId === targetId &&
+      report.reporterProfileId === reporterProfileId,
+  );
+
+  if (alreadyReported) {
+    return {
+      accepted: false,
+      reason: 'already_reported',
+    };
+  }
+
+  const report: CommunityReport = {
+    id: `community-report-${communityReports.length + 1}`,
+    targetType,
+    targetId,
+    reporterProfileId,
+    reason,
+    createdAt: new Date().toISOString(),
+  };
+
+  communityReports.push(report);
+
+  return {
+    report,
+    accepted: true,
+  };
+}
+
 export function getSocialGroupScreenSections(
   viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
 ): SocialGroupScreenSection[] {
   return listVisibleSocialGroups(viewer).map((group) => ({
     group,
     posts: listSocialGroupPosts(group.id, viewer),
+    membershipStatus: getSocialGroupMembershipStatus(group.id, viewer.profileId),
   }));
 }
 
@@ -258,4 +419,10 @@ export function getAgencyBroadcastScreenItems(
   viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
 ): AgencyBroadcast[] {
   return listAgencyBroadcastsForViewer(viewer);
+}
+
+export function resetDay3CommunityRepositoryForTests() {
+  socialGroupMemberships = [...initialSocialGroupMemberships];
+  socialGroupPosts = [...initialSocialGroupPosts];
+  communityReports = [...initialCommunityReports];
 }

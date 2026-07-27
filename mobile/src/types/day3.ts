@@ -139,14 +139,14 @@ export type SocialGroup = {
 
 export type SocialGroupMembershipRole = 'member' | 'moderator' | 'owner';
 
-export type SocialGroupMembershipStatus = 'pending' | 'accepted' | 'rejected' | 'removed';
+export type SocialGroupMembershipStatus = 'none' | 'pending' | 'accepted' | 'rejected' | 'removed';
 
 export type SocialGroupMembership = {
   id: string;
   groupId: string;
   profileId: string;
   role: SocialGroupMembershipRole;
-  status: SocialGroupMembershipStatus;
+  status: Exclude<SocialGroupMembershipStatus, 'none'>;
   joinedAt?: string;
 };
 
@@ -165,6 +165,19 @@ export type CreateSocialGroupPostInput = {
   body: string;
 };
 
+export type SocialGroupJoinRequestResult = {
+  groupId: string;
+  profileId: string;
+  status: SocialGroupMembershipStatus;
+  created: boolean;
+};
+
+export type SocialGroupPostActionResult = {
+  post?: SocialGroupPost;
+  accepted: boolean;
+  reason?: 'not_visible' | 'not_accepted_member' | 'empty_body';
+};
+
 export type AgencyBroadcastScope = 'neighborhood' | 'immediate_cluster' | 'greater_accra';
 
 export type AgencyBroadcast = {
@@ -180,4 +193,21 @@ export type AgencyBroadcast = {
   moderationStatus: Day3ModerationStatus;
   publishedAt: string;
   expiresAt?: string;
+};
+
+export type CommunityReportTargetType = 'agency_broadcast' | 'social_group_post';
+
+export type CommunityReport = {
+  id: string;
+  targetType: CommunityReportTargetType;
+  targetId: string;
+  reporterProfileId: string;
+  reason: string;
+  createdAt: string;
+};
+
+export type CommunityReportResult = {
+  report?: CommunityReport;
+  accepted: boolean;
+  reason?: 'not_visible' | 'already_reported';
 };
