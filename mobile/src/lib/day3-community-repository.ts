@@ -4,6 +4,9 @@ import type {
   CommunityReportResult,
   CreateSocialGroupPostInput,
   Day3NeighborhoodContext,
+  Day5ModerationActionResult,
+  Day5ModerationCase,
+  Day5ModerationDecision,
   SocialGroup,
   SocialGroupJoinRequestResult,
   SocialGroupMembership,
@@ -21,6 +24,16 @@ export const defaultDay3NeighborhoodContext: Day3NeighborhoodContext = {
   regionId: 'greater-accra',
   isVerifiedNeighborhoodMember: true,
 };
+
+export const moderatorDay5Context: Day3NeighborhoodContext = {
+  profileId: 'profile-moderator',
+  neighborhoodId: 'east-legon',
+  clusterId: 'accra-east',
+  regionId: 'greater-accra',
+  isVerifiedNeighborhoodMember: true,
+};
+
+const moderatorProfileIds = new Set<string>(['profile-moderator']);
 
 const socialGroups: SocialGroup[] = [
   {
@@ -122,7 +135,7 @@ const initialSocialGroupPosts: SocialGroupPost[] = [
 
 let socialGroupPosts = [...initialSocialGroupPosts];
 
-const agencyBroadcasts: AgencyBroadcast[] = [
+const initialAgencyBroadcasts: AgencyBroadcast[] = [
   {
     id: 'broadcast-road-works-approved',
     agencyName: 'Accra Roads Desk',
@@ -169,6 +182,8 @@ const agencyBroadcasts: AgencyBroadcast[] = [
     publishedAt: nowIso,
   },
 ];
+
+let agencyBroadcasts = [...initialAgencyBroadcasts];
 
 const initialCommunityReports: CommunityReport[] = [];
 
@@ -405,6 +420,142 @@ function createCommunityReport(
   };
 }
 
+export function listDay5ModerationCases(viewer: Day3NeighborhoodContext): Day5ModerationCase[] {
+  if (!isDay5Moderator(viewer)) {
+    return [];
+  }
+
+  return communityReports.map((report) => {
+    const target = moderationTargetDetails(report);
+
+    return {
+      id: `moderation-case-${report.id}`,
+      reportId: report.id,
+      targetType: report.targetType,
+      targetId: report.targetId,
+      targetTitle: target.title,
+      targetBody: target.body,
+      reporterProfileId: report.reporterProfileId,
+      reportReason: report.reason,
+      status: target.status,
+      createdAt: report.createdAt,
+      resolvedAt: target.resolvedAt,
+      resolvedByProfileId: target.resolvedByProfileId,
+      decision: target.decision,
+    };
+  });
+}
+
+export function applyDay5ModerationDecision(
+  caseId: string,
+  viewer: Day3NeighborhoodContext,
+  decision: Day5ModerationDecision,
+): Day5ModerationActionResult {
+  if (!isDay5Moderator(viewer)) {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'not_moderator',
+    };
+  }
+
+  const reportId = caseId.replace(/^moderation-case-/, '');
+  const report = communityReports.find((item) => item.id === reportId);
+
+  if (!report) {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'case_not_found',
+    };
+  }
+
+  const currentCase = listDay5ModerationCases(viewer).find((item) => item.id === caseId);
+
+  if (currentCase?.status === 'resolved') {
+    return {
+      accepted: false,
+      caseId,
+      reason: 'already_resolved',
+    };
+  }
+
+  resolveModerationTarget(report, viewer.profileId, decision);
+
+  return {
+    accepted: true,
+    caseId,
+    status: 'resolved',
+    decision,
+  };
+}
+
+function isDay5Moderator(viewer: Day3NeighborhoodContext) {
+  return moderatorProfileIds.has(viewer.profileId);
+}
+
+function moderationTargetDetails(report: CommunityReport): {
+  title: string;
+  body: string;
+  status: 'open' | 'resolved';
+  resolvedAt?: string;
+  resolvedByProfileId?: string;
+  decision?: Day5ModerationDecision;
+} {
+  if (report.targetType === 'agency_broadcast') {
+    const broadcast = agencyBroadcasts.find((item) => item.id === report.targetId);
+
+    return {
+      title: broadcast?.title ?? 'Agency broadcast unavailable',
+      body: broadcast?.body ?? 'The reported broadcast is no longer available.',
+      status: broadcast?.moderationStatus === 'flagged' ? 'resolved' : 'open',
+      resolvedAt: broadcast?.moderationStatus === 'flagged' ? nowIso : undefined,
+      resolvedByProfileId: broadcast?.moderationStatus === 'flagged' ? 'profile-moderator' : undefined,
+      decision: broadcast?.moderationStatus === 'flagged' ? 'keep_content' : undefined,
+    };
+  }
+
+  const post = socialGroupPosts.find((item) => item.id === report.targetId);
+
+  return {
+    title: 'Social group post',
+    body: post?.body ?? 'The reported group post is no longer available.',
+    status: post?.moderationStatus === 'flagged' ? 'resolved' : 'open',
+    resolvedAt: post?.moderationStatus === 'flagged' ? nowIso : undefined,
+    resolvedByProfileId: post?.moderationStatus === 'flagged' ? 'profile-moderator' : undefined,
+    decision: post?.moderationStatus === 'flagged' ? 'keep_content' : undefined,
+  };
+}
+
+function resolveModerationTarget(
+  report: CommunityReport,
+  moderatorProfileId: string,
+  decision: Day5ModerationDecision,
+) {
+  if (report.targetType === 'agency_broadcast') {
+    agencyBroadcasts = agencyBroadcasts.map((broadcast) => {
+      if (broadcast.id !== report.targetId) return broadcast;
+
+      return {
+        ...broadcast,
+        moderationStatus: decision === 'hide_content' ? 'blocked' : 'flagged',
+      };
+    });
+    return;
+  }
+
+  socialGroupPosts = socialGroupPosts.map((post) => {
+    if (post.id !== report.targetId) return post;
+
+    return {
+      ...post,
+      moderationStatus: decision === 'hide_content' ? 'blocked' : 'flagged',
+    };
+  });
+
+  void moderatorProfileId;
+}
+
 export function getSocialGroupScreenSections(
   viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
 ): SocialGroupScreenSection[] {
@@ -424,5 +575,6 @@ export function getAgencyBroadcastScreenItems(
 export function resetDay3CommunityRepositoryForTests() {
   socialGroupMemberships = [...initialSocialGroupMemberships];
   socialGroupPosts = [...initialSocialGroupPosts];
+  agencyBroadcasts = [...initialAgencyBroadcasts];
   communityReports = [...initialCommunityReports];
 }
