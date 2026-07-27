@@ -32,11 +32,14 @@ psql "$database_url" \
   --command "grant insert on public.reports to authenticated;" \
   --command "grant select on public.notifications to authenticated;"
 
-
 if [ -f supabase/tests/module1_rls_smoke.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/module1_rls_smoke.sql
 fi
 
 if [ -f supabase/tests/day2b_verified_neighborhood_access.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day2b_verified_neighborhood_access.sql
+fi
+
+if [ -f supabase/tests/day3_social_groups_broadcasts.sql ]; then
+  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day3_social_groups_broadcasts.sql
 fi
