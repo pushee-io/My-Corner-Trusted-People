@@ -45,7 +45,7 @@ export type SupabaseAgencyBroadcastRow = {
   scope: AgencyBroadcast['scope'];
   neighborhood_id?: string;
   cluster_id?: string;
-  region_id: string;
+  region_id: 'greater-accra';
   is_agency_approved: boolean;
   moderation_status: AgencyBroadcast['moderationStatus'];
   published_at: string;
