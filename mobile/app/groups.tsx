@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { communityActionsRepository, type SocialGroupScreenSection } from '@/lib/community-actions-repository';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import {
+  communityActionsRepository,
+  getCommunityActionsReadRepository,
+  type SocialGroupScreenSection,
+} from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 
 function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
@@ -13,16 +19,51 @@ function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
 }
 
 export default function GroupsScreen() {
-  const [sections, setSections] = useState<SocialGroupScreenSection[]>(() =>
-    communityActionsRepository.getSocialGroupScreenSections(),
-  );
+  const [sections, setSections] = useState<SocialGroupScreenSection[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [postSubmitClearKeys, setPostSubmitClearKeys] = useState<Record<string, number>>({});
   const [notice, setNotice] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
 
-  function refreshSections() {
-    setSections(communityActionsRepository.getSocialGroupScreenSections());
-  }
+  const refreshSections = useCallback(async (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
+    setError(undefined);
+
+    try {
+      const nextSections = await getCommunityActionsReadRepository().listSocialGroupScreenSections();
+      setSections(nextSections);
+    } catch {
+      setError('Could not load groups. Try again later.');
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      setIsLoading(true);
+      setError(undefined);
+
+      getCommunityActionsReadRepository()
+        .listSocialGroupScreenSections()
+        .then((nextSections) => {
+          if (isActive) setSections(nextSections);
+        })
+        .catch(() => {
+          if (isActive) setError('Could not load groups. Try again later.');
+        })
+        .finally(() => {
+          if (isActive) setIsLoading(false);
+        });
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   function requestJoin(groupId: string) {
     const result = communityActionsRepository.requestSocialGroupMembership(groupId);
@@ -37,7 +78,7 @@ export default function GroupsScreen() {
       setNotice('This group is not available for your verified neighborhood.');
     }
 
-    refreshSections();
+    void refreshSections();
   }
 
   function publishPost(groupId: string) {
@@ -50,7 +91,7 @@ export default function GroupsScreen() {
         [groupId]: (currentKeys[groupId] ?? 0) + 1,
       }));
       setNotice('Group post submitted for moderation.');
-      refreshSections();
+      void refreshSections();
       return;
     }
 
@@ -81,7 +122,23 @@ export default function GroupsScreen() {
     }
 
     setNotice('This post is no longer available to report.');
-    refreshSections();
+    void refreshSections();
+  }
+
+  if (isLoading) {
+    return (
+      <Screen title="Groups">
+        <LoadingState title="Loading groups" />
+      </Screen>
+    );
+  }
+
+  if (error) {
+    return (
+      <Screen title="Groups">
+        <ErrorState title="Groups unavailable" body={error} onRetry={() => void refreshSections(true)} />
+      </Screen>
+    );
   }
 
   return (
@@ -89,7 +146,7 @@ export default function GroupsScreen() {
       {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
       {sections.length === 0 ? (
-        <Text style={styles.meta}>No groups are visible for your verified neighborhood yet.</Text>
+        <EmptyState title="No groups yet" body="No groups are visible for your verified neighborhood yet." />
       ) : (
         sections.map((section) => (
           <View key={section.group.id} style={styles.card}>

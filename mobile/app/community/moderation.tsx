@@ -2,8 +2,8 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { EmptyState } from '@/components/StateBlocks';
-import { communityActionsRepository } from '@/lib/community-actions-repository';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { communityActionsRepository, getCommunityActionsReadRepository } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 import type { Day5ModerationCase, Day5ModerationDecision } from '@/types/day3';
 
@@ -21,15 +21,46 @@ function decisionLabel(decision: Day5ModerationDecision | undefined) {
 export default function ModerationQueueScreen() {
   const [items, setItems] = useState<Day5ModerationCase[]>([]);
   const [notice, setNotice] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const refreshItems = useCallback(() => {
-    setItems(communityActionsRepository.listModerationCases());
+  const refreshItems = useCallback(async (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
+    setError(undefined);
+
+    try {
+      const nextItems = await getCommunityActionsReadRepository().listModerationCases();
+      setItems(nextItems);
+    } catch {
+      setError('Could not load moderation queue. Try again later.');
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      refreshItems();
-    }, [refreshItems]),
+      let isActive = true;
+
+      setIsLoading(true);
+      setError(undefined);
+
+      getCommunityActionsReadRepository()
+        .listModerationCases()
+        .then((nextItems) => {
+          if (isActive) setItems(nextItems);
+        })
+        .catch(() => {
+          if (isActive) setError('Could not load moderation queue. Try again later.');
+        })
+        .finally(() => {
+          if (isActive) setIsLoading(false);
+        });
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
   );
 
   function decide(caseId: string, decision: Day5ModerationDecision) {
@@ -37,13 +68,13 @@ export default function ModerationQueueScreen() {
 
     if (result.accepted) {
       setNotice(decision === 'hide_content' ? 'Content hidden from resident screens.' : 'Content kept visible.');
-      refreshItems();
+      void refreshItems();
       return;
     }
 
     if (result.reason === 'already_resolved') {
       setNotice('This case has already been resolved.');
-      refreshItems();
+      void refreshItems();
       return;
     }
 
@@ -53,7 +84,23 @@ export default function ModerationQueueScreen() {
     }
 
     setNotice('This moderation case is no longer available.');
-    refreshItems();
+    void refreshItems();
+  }
+
+  if (isLoading) {
+    return (
+      <Screen title="Moderation queue">
+        <LoadingState title="Loading moderation queue" />
+      </Screen>
+    );
+  }
+
+  if (error) {
+    return (
+      <Screen title="Moderation queue">
+        <ErrorState title="Moderation queue unavailable" body={error} onRetry={() => void refreshItems(true)} />
+      </Screen>
+    );
   }
 
   return (
