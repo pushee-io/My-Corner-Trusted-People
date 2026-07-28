@@ -29,7 +29,7 @@ export default function SettingsScreen() {
       </View>
       <View style={styles.panel}>
         <Text style={styles.label}>Developer diagnostics</Text>
-        <Text style={styles.item}>{readDiagnostics.label}</Text>
+        <Text style={styles.item}>Community reads: {readDiagnostics.activeMode}</Text>
         <Text style={styles.note}>Configured: {readDiagnostics.configuredMode}</Text>
         <Text style={styles.note}>Fallback reason: {readDiagnostics.fallbackReason}</Text>
         <Text style={styles.note}>
