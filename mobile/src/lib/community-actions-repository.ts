@@ -23,6 +23,7 @@ import {
   createSupabaseCommunityActionsReadRepository,
   type SupabaseCommunityReadClient,
 } from '@/lib/community-actions-supabase-read-adapter';
+import { getSupabaseCommunityReadClient } from '@/lib/community-actions-supabase-live-client';
 import type { SocialGroupScreenSection } from '@/lib/day3-community-repository';
 import type {
   AgencyBroadcast,
@@ -215,7 +216,11 @@ export function createCommunityActionsReadRepository(
 ): CommunityActionsReadRepository {
   const mode = options.mode ?? getConfiguredRepositoryMode();
 
-  if (mode === 'supabase' && options.supabaseReadClient) {
+  if (mode === 'supabase') {
+    if (!options.supabaseReadClient) {
+      return seededCommunityActionsReadRepository;
+    }
+
     const supabaseReads = createSupabaseCommunityActionsReadRepository(options.supabaseReadClient);
 
     return {
@@ -242,5 +247,19 @@ function getConfiguredRepositoryMode(): CommunityActionsRepositoryMode {
   return process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY === 'supabase' ? 'supabase' : 'seeded';
 }
 
+let cachedCommunityActionsReadRepository: CommunityActionsReadRepository | undefined;
+
+export function getCommunityActionsReadRepository(): CommunityActionsReadRepository {
+  if (!cachedCommunityActionsReadRepository) {
+    cachedCommunityActionsReadRepository = createCommunityActionsReadRepository();
+  }
+
+  return cachedCommunityActionsReadRepository;
+}
+
+export function resetCommunityActionsReadRepositoryForTests() {
+  cachedCommunityActionsReadRepository = undefined;
+}
+
 export const communityActionsRepository = createCommunityActionsRepository();
-export const communityActionsReadRepository = createCommunityActionsReadRepository();
+export const communityActionsReadRepository = getCommunityActionsReadRepository();
