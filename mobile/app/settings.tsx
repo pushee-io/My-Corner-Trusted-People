@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { getCommunityActionsReadDiagnostics } from '@/lib/community-actions-repository';
+import { getSupabaseCommunityReadFailureDiagnostics } from '@/lib/community-actions-supabase-read-adapter';
 import { getSupabaseCommunityReadClientDiagnostics } from '@/lib/community-actions-supabase-live-client';
 import { tokens } from '@/theme/tokens';
 
@@ -16,6 +17,7 @@ const settings = [
 export default function SettingsScreen() {
   const readDiagnostics = getCommunityActionsReadDiagnostics();
   const supabaseDiagnostics = getSupabaseCommunityReadClientDiagnostics();
+  const readFailureDiagnostics = getSupabaseCommunityReadFailureDiagnostics();
 
   return (
     <Screen title="Settings">
@@ -41,6 +43,9 @@ export default function SettingsScreen() {
         <Text style={styles.note}>Has Supabase URL: {String(supabaseDiagnostics.hasSupabaseUrl)}</Text>
         <Text style={styles.note}>Has Supabase anon key: {String(supabaseDiagnostics.hasSupabaseAnonKey)}</Text>
         <Text style={styles.note}>Supabase client failure: {supabaseDiagnostics.failureCode}</Text>
+        <Text style={styles.note}>Last read table: {readFailureDiagnostics.tableName}</Text>
+        <Text style={styles.note}>Last read failure: {readFailureDiagnostics.failureCode}</Text>
+        <Text style={styles.note}>Last read message: {readFailureDiagnostics.sanitizedMessage}</Text>
       </View>
     </Screen>
   );
