@@ -41,20 +41,13 @@ export type CommunityActionsRepository = {
   mode: CommunityActionsRepositoryMode;
   getSocialGroupScreenSections: (viewer?: Day3NeighborhoodContext) => SocialGroupScreenSection[];
   getAgencyBroadcastScreenItems: (viewer?: Day3NeighborhoodContext) => AgencyBroadcast[];
-  requestSocialGroupMembership: (
-    groupId: string,
-    viewer?: Day3NeighborhoodContext,
-  ) => SocialGroupJoinRequestResult;
+  requestSocialGroupMembership: (groupId: string, viewer?: Day3NeighborhoodContext) => SocialGroupJoinRequestResult;
   createSocialGroupPost: (
     groupId: string,
     body: string,
     viewer?: Day3NeighborhoodContext,
   ) => SocialGroupPostActionResult;
-  reportSocialGroupPost: (
-    postId: string,
-    viewer?: Day3NeighborhoodContext,
-    reason?: string,
-  ) => CommunityReportResult;
+  reportSocialGroupPost: (postId: string, viewer?: Day3NeighborhoodContext, reason?: string) => CommunityReportResult;
   reportAgencyBroadcast: (
     broadcastId: string,
     viewer?: Day3NeighborhoodContext,
@@ -96,11 +89,7 @@ export const seededCommunityActionsRepository: CommunityActionsRepository = {
     });
   },
 
-  reportSocialGroupPost(
-    postId,
-    viewer = defaultDay3NeighborhoodContext,
-    reason = 'Reported from Groups screen',
-  ) {
+  reportSocialGroupPost(postId, viewer = defaultDay3NeighborhoodContext, reason = 'Reported from Groups screen') {
     return reportSocialGroupPost(postId, viewer, reason);
   },
 
@@ -151,11 +140,7 @@ export const supabaseCommunityActionsRepository: CommunityActionsRepository = {
     return seededCommunityActionsRepository.createSocialGroupPost(groupId, body, viewer);
   },
 
-  reportSocialGroupPost(
-    postId,
-    viewer = defaultDay3NeighborhoodContext,
-    reason = 'Reported from Groups screen',
-  ) {
+  reportSocialGroupPost(postId, viewer = defaultDay3NeighborhoodContext, reason = 'Reported from Groups screen') {
     toSupabaseCommunityReportInsert('social_group_post', postId, viewer, reason);
     return seededCommunityActionsRepository.reportSocialGroupPost(postId, viewer, reason);
   },
