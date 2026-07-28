@@ -6,8 +6,7 @@ import {
 } from '@/lib/community-actions-repository';
 import type { SupabaseAgencyBroadcastRow, SupabaseSocialGroupRow } from '@/lib/community-actions-supabase-adapter';
 import type {
-  SupabaseCommunityReportRow,
-  SupabaseModerationDecisionRow,
+  SupabaseModerationCaseRow,
   SupabaseSocialGroupMembershipRow,
   SupabaseSocialGroupPostRow,
 } from '@/lib/community-actions-supabase-read-model';
@@ -81,18 +80,16 @@ const agencyBroadcasts: SupabaseAgencyBroadcastRow[] = [
   },
 ];
 
-const communityReports: SupabaseCommunityReportRow[] = [
+const moderationCases: SupabaseModerationCaseRow[] = [
   {
-    id: 'community-report-1',
-    target_type: 'agency_broadcast',
-    target_id: 'broadcast-road-works-approved',
-    reporter_profile_id: 'profile-akosua',
+    id: 'moderation-case-community-report-1',
+    source_table: 'agency_broadcasts',
+    source_id: 'broadcast-road-works-approved',
     reason: 'Wrong timing',
+    status: 'open',
     created_at: '2026-07-27T12:05:00.000Z',
   },
 ];
-
-const moderationDecisions: SupabaseModerationDecisionRow[] = [];
 
 type MockRows = Partial<Record<SupabaseCommunityReadTableName, unknown[]>>;
 
@@ -151,8 +148,7 @@ describe('Day 10 community actions read mode integration', () => {
       social_group_memberships: socialGroupMemberships,
       social_group_posts: socialGroupPosts,
       agency_broadcasts: agencyBroadcasts,
-      community_reports: communityReports,
-      moderation_decisions: moderationDecisions,
+      moderation_cases: moderationCases,
     });
     const repository = createCommunityActionsReadRepository({
       mode: 'supabase',
@@ -173,8 +169,7 @@ describe('Day 10 community actions read mode integration', () => {
       'social_group_memberships',
       'social_group_posts',
       'agency_broadcasts',
-      'community_reports',
-      'moderation_decisions',
+      'moderation_cases',
       'social_group_posts',
       'agency_broadcasts',
     ]);
