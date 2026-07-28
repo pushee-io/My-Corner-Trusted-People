@@ -248,7 +248,9 @@ function getModerationTargetSummary(
 }
 
 function getModerationCaseTargetType(sourceTable: string): Day5ModerationCase['targetType'] {
-  return sourceTable === 'agency_broadcasts' || sourceTable === 'agency_broadcast' ? 'agency_broadcast' : 'social_group_post';
+  return sourceTable === 'agency_broadcasts' || sourceTable === 'agency_broadcast'
+    ? 'agency_broadcast'
+    : 'social_group_post';
 }
 
 function getModerationCaseDecision(resolutionAction: string | undefined): Day5ModerationDecision | undefined {
