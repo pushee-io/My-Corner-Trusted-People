@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import {
-  communityActionsRepository,
-  type SocialGroupScreenSection,
-} from '@/lib/community-actions-repository';
+import { communityActionsRepository, type SocialGroupScreenSection } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 
 function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
