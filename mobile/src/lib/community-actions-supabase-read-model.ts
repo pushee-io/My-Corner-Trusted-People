@@ -105,11 +105,9 @@ export function canViewSupabaseSocialGroup(group: SocialGroup, viewer: Day3Neigh
     return false;
   }
 
-  if (group.visibility === 'verified_neighborhood_members') {
-    return group.neighborhoodId === viewer.neighborhoodId;
-  }
-
-  return group.clusterId === viewer.clusterId;
+  // Supabase read mode receives rows after RLS has already applied neighborhood/cluster visibility.
+  // Do not compare live UUID area ids with the seeded prototype slug ids on the client.
+  return true;
 }
 
 export function canViewSupabaseAgencyBroadcast(broadcast: AgencyBroadcast, viewer: Day3NeighborhoodContext): boolean {
