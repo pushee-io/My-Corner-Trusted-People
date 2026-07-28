@@ -1,237 +1,287 @@
 import {
-  completeResidenceVerificationFromPostcard,
-  createDay2BLocalPost,
-  day2bNeighborhoodId,
-  getDay2BFeedUnlockStatus,
-  listDay2BNeighborhoodPosts,
-} from '@/lib/day2b-verification';
-import type { FeedUnlockResult, NeighborhoodFeedPost, NeighborhoodMembership } from '@/types/contracts';
+  createJobRequest as createSeededJobRequest,
+  getProvider as getSeededProvider,
+  listProviderRequests as listSeededProviderRequests,
+  listProvidersByCategory as listSeededProvidersByCategory,
+  updateRequestStatus as updateSeededRequestStatus,
+} from '@/lib/repository';
+import type { JobRequest, JobRequestDraftInput, Provider, RequestStatus, TrustSignal } from '@/types/contracts';
 
-export type Day2BLiveRepositoryMode = 'seeded' | 'supabase';
+export type Day2BLiveRepositoryMode = 'seeded' | 'live-disabled' | 'live-readonly';
 
-export type Day2BLiveFailureCode =
-  | 'none'
-  | 'supabase_not_configured'
-  | 'client_missing'
-  | 'supabase_read_failed'
-  | 'live_writes_disabled';
-
-export type Day2BLiveDiagnostics = {
-  configuredMode: Day2BLiveRepositoryMode;
-  activeMode: Day2BLiveRepositoryMode;
-  clientAvailable: boolean;
-  hasSupabaseUrl: boolean;
-  hasSupabaseAnonKey: boolean;
-  failureCode: Day2BLiveFailureCode;
+export type Day2BLiveRepositoryConfig = {
+  liveSupabaseEnabled?: boolean;
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
 };
 
-export type Day2BSafeMembershipSummary = {
-  profileId: string;
-  neighborhoodId: string;
-  status: NeighborhoodMembership['status'];
-  isPrimary: boolean;
-  verifiedAt?: string;
+export type Day2BQueryResult<T> = {
+  data: T[] | null;
+  error: Error | null;
 };
 
-export type Day2BSafeLocalPostInput = {
-  neighborhoodId: string;
-  profileId: string;
-  body: string;
+export type Day2BSupabaseReadClient = {
+  listProvidersByCategory?: (categoryId: string) => Promise<Day2BQueryResult<Day2BLiveProviderRow>>;
+  getProvider?: (providerId: string) => Promise<{ data: Day2BLiveProviderRow | null; error: Error | null }>;
+  listProviderRequests?: (providerId: string) => Promise<Day2BQueryResult<Day2BLiveJobRequestRow>>;
 };
 
-export type Day2BCreatePostResult =
-  | { accepted: true; post: NeighborhoodFeedPost }
-  | { accepted: false; reason: 'empty_body' | 'feed_locked' | 'live_writes_disabled' };
-
-export type Day2BLiveClient = {
-  getPrimaryMembership: () => Promise<Day2BSafeMembershipSummary | undefined>;
-  listNeighborhoodPosts: (neighborhoodId: string) => Promise<NeighborhoodFeedPost[]>;
-};
-
-export type Day2BLiveRepositoryOptions = {
-  mode?: Day2BLiveRepositoryMode;
-  client?: Day2BLiveClient;
-  hasSupabaseUrl?: boolean;
-  hasSupabaseAnonKey?: boolean;
-};
-
-export type Day2BLiveRepository = {
+export type Day2BRepository = {
   mode: Day2BLiveRepositoryMode;
-  completeResidenceVerificationFromPostcard: () => Promise<NeighborhoodMembership>;
-  getFeedUnlockStatus: () => Promise<FeedUnlockResult>;
-  listNeighborhoodPosts: () => Promise<NeighborhoodFeedPost[]>;
-  createLocalPost: (body: string) => Promise<Day2BCreatePostResult>;
-  getDiagnostics: () => Day2BLiveDiagnostics;
+  listProvidersByCategory: (categoryId: string) => Promise<Provider[]>;
+  getProvider: (providerId: string) => Promise<Provider | undefined>;
+  listProviderRequests: (providerId: string) => Promise<JobRequest[]>;
+  createJobRequest: (input: JobRequestDraftInput) => Promise<JobRequest>;
+  updateRequestStatus: (
+    requestId: string,
+    status: RequestStatus,
+    providerMessage?: string,
+  ) => Promise<JobRequest | undefined>;
 };
 
-const lockedLiveFeedStatus: FeedUnlockResult = {
-  status: 'locked',
-  neighborhoodId: day2bNeighborhoodId,
-  canRead: false,
-  canWrite: false,
-  canPost: false,
-  reason: 'no_membership',
-  title: 'Verify your neighborhood',
-  message: 'Connect Supabase and sign in before using the live verified neighborhood feed.',
+export type Day2BLiveProviderRow = Record<string, unknown> & {
+  id?: string;
+  business_name?: string;
+  display_name?: string;
+  headline?: string;
+  service_label?: string;
+  neighborhood?: string;
+  general_area?: string;
+  area_label?: string;
+  category_ids?: string[];
+  trust_signals?: TrustSignal[];
+  completed_jobs?: number;
+  response_rate?: number | string;
+  account_age?: string;
+  accepting_requests?: boolean;
+  rating?: number | string;
+  review_count?: number;
+  community_recommendations?: number;
+  phone_verified?: boolean;
+  availability?: string;
 };
 
-export function createDay2BLiveRepository(options: Day2BLiveRepositoryOptions = {}): Day2BLiveRepository {
-  const configuredMode = options.mode ?? getConfiguredDay2BRepositoryMode();
-  const hasSupabaseUrl = options.hasSupabaseUrl ?? Boolean(process.env.EXPO_PUBLIC_SUPABASE_URL);
-  const hasSupabaseAnonKey = options.hasSupabaseAnonKey ?? Boolean(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
-  const clientAvailable = Boolean(options.client);
-  let failureCode: Day2BLiveFailureCode = 'none';
+export type Day2BLiveJobRequestRow = Record<string, unknown> & {
+  id?: string;
+  requester_name?: string;
+  provider_id?: string;
+  category_id?: string;
+  neighborhood?: string;
+  general_area_label?: string;
+  title?: string;
+  description?: string;
+  original_user_text?: string;
+  urgency?: JobRequest['urgency'];
+  preferred_date?: string;
+  preferred_time?: string;
+  contact_preference?: JobRequest['contactPreference'];
+  photo_count?: number;
+  status?: RequestStatus;
+  moderation_status?: JobRequest['moderationStatus'];
+  provider_message?: string | null;
+  created_at?: string;
+};
 
-  function getDiagnostics(): Day2BLiveDiagnostics {
-    return {
-      configuredMode,
-      activeMode: configuredMode,
-      clientAvailable,
-      hasSupabaseUrl,
-      hasSupabaseAnonKey,
-      failureCode,
-    };
+const liveOptInValue = 'enabled';
+
+const sensitiveFieldPattern =
+  /(phone_number|email|ghana.*post|ghana_post|gps|exact.*address|address_line|street_address|coordinates?|latitude|longitude|legal.*name|legal_name|challenge.*hash|challenge_hash|hash)/i;
+
+function envValue(key: string): string | undefined {
+  const maybeProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+  return maybeProcess?.env?.[key];
+}
+
+function readEnvironmentConfig(): Day2BLiveRepositoryConfig {
+  return {
+    liveSupabaseEnabled: envValue('EXPO_PUBLIC_MY_CORNER_DAY2B_LIVE_SUPABASE') === liveOptInValue,
+    supabaseUrl: envValue('EXPO_PUBLIC_SUPABASE_URL'),
+    supabaseAnonKey: envValue('EXPO_PUBLIC_SUPABASE_ANON_KEY'),
+  };
+}
+
+function hasSupabaseConfig(config: Day2BLiveRepositoryConfig): boolean {
+  return Boolean(config.supabaseUrl && config.supabaseAnonKey);
+}
+
+function assertNoSensitiveFields(row: Record<string, unknown>): void {
+  const sensitiveKey = Object.keys(row).find((key) => sensitiveFieldPattern.test(key));
+  if (sensitiveKey) {
+    throw new Day2BLiveRepositoryError(`Live Day 2b payload included blocked private field: ${sensitiveKey}`);
   }
+}
 
-  if (configuredMode === 'seeded') {
-    return createSeededRepository(getDiagnostics);
+function asString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' && value.trim().length > 0 ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
   }
+  return fallback;
+}
 
-  if (!hasSupabaseUrl || !hasSupabaseAnonKey) {
-    failureCode = 'supabase_not_configured';
-    return createFailClosedSupabaseRepository(getDiagnostics);
-  }
-
-  if (!options.client) {
-    failureCode = 'client_missing';
-    return createFailClosedSupabaseRepository(getDiagnostics);
-  }
-
-  return createSupabaseReadOnlyRepository(options.client, getDiagnostics, (code) => {
-    failureCode = code;
+function asTrustSignals(value: unknown): TrustSignal[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((signal): signal is TrustSignal => {
+    if (!signal || typeof signal !== 'object') return false;
+    const candidate = signal as Partial<TrustSignal>;
+    return (
+      typeof candidate.id === 'string' &&
+      typeof candidate.label === 'string' &&
+      typeof candidate.value === 'string'
+    );
   });
 }
 
-export const day2bLiveRepository = createDay2BLiveRepository();
+function statusTimelineFor(row: Day2BLiveJobRequestRow): JobRequest['statusTimeline'] {
+  return [
+    {
+      id: `${asString(row.id, 'live-request')}-status`,
+      status: row.status ?? 'Submitted',
+      actor: 'system',
+      createdAt: asString(row.created_at, new Date(0).toISOString()),
+    },
+  ];
+}
 
-function createSeededRepository(getDiagnostics: () => Day2BLiveDiagnostics): Day2BLiveRepository {
+export class Day2BLiveRepositoryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Day2BLiveRepositoryError';
+  }
+}
+
+export function resolveDay2BLiveRepositoryMode(config: Day2BLiveRepositoryConfig = readEnvironmentConfig()) {
+  if (!config.liveSupabaseEnabled) return 'seeded' satisfies Day2BLiveRepositoryMode;
+  if (!hasSupabaseConfig(config)) return 'live-disabled' satisfies Day2BLiveRepositoryMode;
+  return 'live-readonly' satisfies Day2BLiveRepositoryMode;
+}
+
+export function sanitizeLiveProviderRow(row: Day2BLiveProviderRow): Provider {
+  assertNoSensitiveFields(row);
+
+  const responseRate = row.response_rate === undefined ? '0%' : `${asNumber(row.response_rate)}%`;
+  const areaLabel = asString(row.general_area, asString(row.area_label, 'General service area'));
+  const trustSignals = asTrustSignals(row.trust_signals);
+
+  return {
+    id: asString(row.id, 'live-provider'),
+    name: asString(row.business_name, asString(row.display_name, 'Local provider')),
+    headline: asString(row.headline, 'Local service provider'),
+    serviceLabel: asString(row.service_label, 'Local service'),
+    neighborhood: asString(row.neighborhood, areaLabel.split(' and ')[0] ?? areaLabel),
+    areaLabel,
+    categoryIds: Array.isArray(row.category_ids) ? row.category_ids.filter((item) => typeof item === 'string') : [],
+    imageKind: 'initials',
+    rating: asNumber(row.rating),
+    reviewCount: asNumber(row.review_count),
+    communityRecommendations: asNumber(row.community_recommendations),
+    phoneVerified: row.phone_verified === true || trustSignals.some((signal) => signal.label === 'Phone verified'),
+    availability: asString(row.availability, 'Availability not set'),
+    trustSignals,
+    completedJobs: asNumber(row.completed_jobs),
+    responseRate,
+    accountAge: asString(row.account_age, 'Pilot profile'),
+    isAcceptingRequests: row.accepting_requests !== false,
+  };
+}
+
+export function sanitizeLiveJobRequestRow(row: Day2BLiveJobRequestRow): JobRequest {
+  assertNoSensitiveFields(row);
+
+  return {
+    requesterName: asString(row.requester_name, 'Requester'),
+    providerId: asString(row.provider_id),
+    categoryId: asString(row.category_id),
+    neighborhood: asString(row.neighborhood, 'Selected neighborhood'),
+    areaLabel: asString(row.general_area_label, 'General service area'),
+    title: asString(row.title, 'Service request'),
+    description: asString(row.description),
+    originalUserText: asString(row.original_user_text, asString(row.description)),
+    urgency: row.urgency ?? 'flexible',
+    preferredDate: asString(row.preferred_date, ''),
+    preferredTime: asString(row.preferred_time, 'Flexible'),
+    contactPreference: row.contact_preference ?? 'app_update',
+    photoCount: asNumber(row.photo_count),
+    id: asString(row.id, 'live-request'),
+    status: row.status ?? 'Submitted',
+    moderationStatus: row.moderation_status ?? 'not_run',
+    providerMessage: row.provider_message ?? undefined,
+    createdAt: asString(row.created_at, new Date(0).toISOString()),
+    statusTimeline: statusTimelineFor(row),
+  };
+}
+
+function seededRepository(): Day2BRepository {
   return {
     mode: 'seeded',
-
-    async completeResidenceVerificationFromPostcard() {
-      return completeResidenceVerificationFromPostcard();
-    },
-
-    async getFeedUnlockStatus() {
-      return getDay2BFeedUnlockStatus();
-    },
-
-    async listNeighborhoodPosts() {
-      return listDay2BNeighborhoodPosts();
-    },
-
-    async createLocalPost(body) {
-      if (!body.trim()) {
-        return { accepted: false, reason: 'empty_body' };
-      }
-
-      const post = createDay2BLocalPost(body);
-
-      if (!post) {
-        return { accepted: false, reason: 'feed_locked' };
-      }
-
-      return { accepted: true, post };
-    },
-
-    getDiagnostics,
+    listProvidersByCategory: async (categoryId) => listSeededProvidersByCategory(categoryId),
+    getProvider: async (providerId) => getSeededProvider(providerId),
+    listProviderRequests: async () => listSeededProviderRequests(),
+    createJobRequest: async (input) => createSeededJobRequest(input),
+    updateRequestStatus: async (requestId, status, providerMessage) =>
+      updateSeededRequestStatus(requestId, status, providerMessage),
   };
 }
 
-function createFailClosedSupabaseRepository(getDiagnostics: () => Day2BLiveDiagnostics): Day2BLiveRepository {
+function closedRepository(mode: Day2BLiveRepositoryMode): Day2BRepository {
+  const failClosed = async () => {
+    throw new Day2BLiveRepositoryError(
+      'Live Day 2b Supabase access is disabled until explicit configuration and screen wiring are approved.',
+    );
+  };
+
   return {
-    mode: 'supabase',
-
-    async completeResidenceVerificationFromPostcard() {
-      return completeResidenceVerificationFromPostcard();
-    },
-
-    async getFeedUnlockStatus() {
-      return lockedLiveFeedStatus;
-    },
-
-    async listNeighborhoodPosts() {
-      return [];
-    },
-
-    async createLocalPost() {
-      return { accepted: false, reason: 'live_writes_disabled' };
-    },
-
-    getDiagnostics,
+    mode,
+    listProvidersByCategory: failClosed,
+    getProvider: failClosed,
+    listProviderRequests: failClosed,
+    createJobRequest: failClosed,
+    updateRequestStatus: failClosed,
   };
 }
 
-function createSupabaseReadOnlyRepository(
-  client: Day2BLiveClient,
-  getDiagnostics: () => Day2BLiveDiagnostics,
-  setFailureCode: (code: Day2BLiveFailureCode) => void,
-): Day2BLiveRepository {
+function liveReadOnlyRepository(client: Day2BSupabaseReadClient): Day2BRepository {
+  const writesDisabled = async () => {
+    throw new Day2BLiveRepositoryError('Live Day 2b writes are not enabled from Expo Go.');
+  };
+
   return {
-    mode: 'supabase',
-
-    async completeResidenceVerificationFromPostcard() {
-      return completeResidenceVerificationFromPostcard();
+    mode: 'live-readonly',
+    listProvidersByCategory: async (categoryId) => {
+      if (!client.listProvidersByCategory) return [];
+      const { data, error } = await client.listProvidersByCategory(categoryId);
+      if (error) throw error;
+      return (data ?? []).map(sanitizeLiveProviderRow);
     },
-
-    async getFeedUnlockStatus() {
-      try {
-        const membership = await client.getPrimaryMembership();
-
-        if (!membership || membership.status !== 'verified') {
-          return lockedLiveFeedStatus;
-        }
-
-        return {
-          status: 'unlocked',
-          neighborhoodId: membership.neighborhoodId,
-          canRead: true,
-          canWrite: false,
-          canPost: false,
-          reason: 'verified_member',
-          title: 'Neighborhood feed unlocked',
-          message: 'Live Supabase reads are enabled. Posting remains disabled for this recovery slice.',
-        };
-      } catch {
-        setFailureCode('supabase_read_failed');
-        return lockedLiveFeedStatus;
-      }
+    getProvider: async (providerId) => {
+      if (!client.getProvider) return undefined;
+      const { data, error } = await client.getProvider(providerId);
+      if (error) throw error;
+      return data ? sanitizeLiveProviderRow(data) : undefined;
     },
-
-    async listNeighborhoodPosts() {
-      try {
-        const membership = await client.getPrimaryMembership();
-
-        if (!membership || membership.status !== 'verified') {
-          return [];
-        }
-
-        return client.listNeighborhoodPosts(membership.neighborhoodId);
-      } catch {
-        setFailureCode('supabase_read_failed');
-        return [];
-      }
+    listProviderRequests: async (providerId) => {
+      if (!client.listProviderRequests) return [];
+      const { data, error } = await client.listProviderRequests(providerId);
+      if (error) throw error;
+      return (data ?? []).map(sanitizeLiveJobRequestRow);
     },
-
-    async createLocalPost() {
-      setFailureCode('live_writes_disabled');
-      return { accepted: false, reason: 'live_writes_disabled' };
-    },
-
-    getDiagnostics,
+    createJobRequest: writesDisabled,
+    updateRequestStatus: writesDisabled,
   };
 }
 
-function getConfiguredDay2BRepositoryMode(): Day2BLiveRepositoryMode {
-  return process.env.EXPO_PUBLIC_DAY2B_REPOSITORY === 'supabase' ? 'supabase' : 'seeded';
+export function getDay2BLiveRepository(
+  config: Day2BLiveRepositoryConfig = readEnvironmentConfig(),
+  client?: Day2BSupabaseReadClient,
+): Day2BRepository {
+  const mode = resolveDay2BLiveRepositoryMode(config);
+
+  if (mode === 'seeded') return seededRepository();
+  if (mode === 'live-disabled' || !client) return closedRepository(mode);
+  return liveReadOnlyRepository(client);
 }
