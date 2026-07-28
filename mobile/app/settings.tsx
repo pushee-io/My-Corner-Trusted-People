@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { getCommunityActionsReadDiagnostics } from '@/lib/community-actions-repository';
+import { getSupabaseCommunityReadClientDiagnostics } from '@/lib/community-actions-supabase-live-client';
 import { tokens } from '@/theme/tokens';
 
 const settings = [
@@ -14,6 +15,7 @@ const settings = [
 
 export default function SettingsScreen() {
   const readDiagnostics = getCommunityActionsReadDiagnostics();
+  const supabaseDiagnostics = getSupabaseCommunityReadClientDiagnostics();
 
   return (
     <Screen title="Settings">
@@ -35,6 +37,10 @@ export default function SettingsScreen() {
         <Text style={styles.note}>
           Live Supabase reads: {readDiagnostics.isLiveSupabaseReadEnabled ? 'enabled' : 'disabled'}
         </Text>
+        <Text style={styles.note}>Supabase client available: {String(supabaseDiagnostics.clientAvailable)}</Text>
+        <Text style={styles.note}>Has Supabase URL: {String(supabaseDiagnostics.hasSupabaseUrl)}</Text>
+        <Text style={styles.note}>Has Supabase anon key: {String(supabaseDiagnostics.hasSupabaseAnonKey)}</Text>
+        <Text style={styles.note}>Supabase client failure: {supabaseDiagnostics.failureCode}</Text>
       </View>
     </Screen>
   );
