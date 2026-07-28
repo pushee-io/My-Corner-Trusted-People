@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { communityActionsRepository } from '@/lib/community-actions-repository';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { communityActionsRepository, getCommunityActionsReadRepository } from '@/lib/community-actions-repository';
 import { tokens } from '@/theme/tokens';
 import type { AgencyBroadcast } from '@/types/day3';
 
@@ -12,14 +14,49 @@ function scopeLabel(broadcast: AgencyBroadcast) {
 }
 
 export default function AgencyBroadcastsScreen() {
-  const [broadcasts, setBroadcasts] = useState<AgencyBroadcast[]>(() =>
-    communityActionsRepository.getAgencyBroadcastScreenItems(),
-  );
+  const [broadcasts, setBroadcasts] = useState<AgencyBroadcast[]>([]);
   const [notice, setNotice] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
 
-  function refreshBroadcasts() {
-    setBroadcasts(communityActionsRepository.getAgencyBroadcastScreenItems());
-  }
+  const refreshBroadcasts = useCallback(async (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
+    setError(undefined);
+
+    try {
+      const nextBroadcasts = await getCommunityActionsReadRepository().listAgencyBroadcasts();
+      setBroadcasts(nextBroadcasts);
+    } catch {
+      setError('Could not load agency broadcasts. Try again later.');
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      setIsLoading(true);
+      setError(undefined);
+
+      getCommunityActionsReadRepository()
+        .listAgencyBroadcasts()
+        .then((nextBroadcasts) => {
+          if (isActive) setBroadcasts(nextBroadcasts);
+        })
+        .catch(() => {
+          if (isActive) setError('Could not load agency broadcasts. Try again later.');
+        })
+        .finally(() => {
+          if (isActive) setIsLoading(false);
+        });
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   function reportBroadcast(broadcastId: string) {
     const result = communityActionsRepository.reportAgencyBroadcast(broadcastId);
@@ -35,7 +72,23 @@ export default function AgencyBroadcastsScreen() {
     }
 
     setNotice('This broadcast is no longer available to report.');
-    refreshBroadcasts();
+    void refreshBroadcasts();
+  }
+
+  if (isLoading) {
+    return (
+      <Screen title="Agency broadcasts">
+        <LoadingState title="Loading agency broadcasts" />
+      </Screen>
+    );
+  }
+
+  if (error) {
+    return (
+      <Screen title="Agency broadcasts">
+        <ErrorState title="Agency broadcasts unavailable" body={error} onRetry={() => void refreshBroadcasts(true)} />
+      </Screen>
+    );
   }
 
   return (
@@ -43,7 +96,7 @@ export default function AgencyBroadcastsScreen() {
       {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
       {broadcasts.length === 0 ? (
-        <Text style={styles.meta}>No approved agency broadcasts are visible for your area.</Text>
+        <EmptyState title="No broadcasts" body="No approved agency broadcasts are visible for your area." />
       ) : (
         <View style={styles.list}>
           {broadcasts.map((broadcast) => (
