@@ -19,6 +19,14 @@ export type SupabaseCommunityReadTableName =
   | 'community_reports'
   | 'moderation_decisions';
 
+export type SupabaseCommunityReadFailureCode = 'none' | 'supabase_read_error';
+
+export type SupabaseCommunityReadFailureDiagnostics = {
+  tableName: SupabaseCommunityReadTableName | 'none';
+  failureCode: SupabaseCommunityReadFailureCode;
+  sanitizedMessage: string;
+};
+
 export type SupabaseCommunityReadError = {
   message: string;
 };
@@ -57,11 +65,19 @@ const communityReportColumns = 'id,target_type,target_id,reporter_profile_id,rea
 const moderationDecisionColumns =
   'moderation_case_id,report_id,target_type,target_id,decision,resolved_by_profile_id,resolved_at';
 
+let lastSupabaseCommunityReadFailure: SupabaseCommunityReadFailureDiagnostics = {
+  tableName: 'none',
+  failureCode: 'none',
+  sanitizedMessage: 'none',
+};
+
 export function createSupabaseCommunityActionsReadRepository(
   client: SupabaseCommunityReadClient,
 ): SupabaseCommunityActionsReadRepository {
   return {
     async listSocialGroupScreenSections(viewer) {
+      resetSupabaseCommunityReadFailureDiagnostics();
+
       const [groups, memberships, posts] = await Promise.all([
         selectRows<SupabaseSocialGroupRow>(client, 'social_groups', socialGroupColumns),
         selectRows<SupabaseSocialGroupMembershipRow>(client, 'social_group_memberships', socialGroupMembershipColumns),
@@ -72,6 +88,8 @@ export function createSupabaseCommunityActionsReadRepository(
     },
 
     async listAgencyBroadcasts(viewer) {
+      resetSupabaseCommunityReadFailureDiagnostics();
+
       const broadcasts = await selectRows<SupabaseAgencyBroadcastRow>(
         client,
         'agency_broadcasts',
@@ -82,6 +100,8 @@ export function createSupabaseCommunityActionsReadRepository(
     },
 
     async listModerationCases(viewer) {
+      resetSupabaseCommunityReadFailureDiagnostics();
+
       const [reports, decisions, groupPosts, agencyBroadcasts] = await Promise.all([
         selectRows<SupabaseCommunityReportRow>(client, 'community_reports', communityReportColumns),
         selectRows<SupabaseModerationDecisionRow>(client, 'moderation_decisions', moderationDecisionColumns),
@@ -94,6 +114,18 @@ export function createSupabaseCommunityActionsReadRepository(
   };
 }
 
+export function getSupabaseCommunityReadFailureDiagnostics(): SupabaseCommunityReadFailureDiagnostics {
+  return lastSupabaseCommunityReadFailure;
+}
+
+export function resetSupabaseCommunityReadFailureDiagnostics() {
+  lastSupabaseCommunityReadFailure = {
+    tableName: 'none',
+    failureCode: 'none',
+    sanitizedMessage: 'none',
+  };
+}
+
 async function selectRows<Row>(
   client: SupabaseCommunityReadClient,
   table: SupabaseCommunityReadTableName,
@@ -102,8 +134,20 @@ async function selectRows<Row>(
   const result = await client.from(table).select(columns);
 
   if (result.error) {
-    throw new Error(`Could not read ${table}: ${result.error.message}`);
+    const sanitizedMessage = sanitizeSupabaseReadErrorMessage(result.error.message);
+
+    lastSupabaseCommunityReadFailure = {
+      tableName: table,
+      failureCode: 'supabase_read_error',
+      sanitizedMessage,
+    };
+
+    throw new Error(`Could not read ${table}: ${sanitizedMessage}`);
   }
 
   return (result.data ?? []) as Row[];
+}
+
+function sanitizeSupabaseReadErrorMessage(message: string): string {
+  return message.replace(/https?:\/\/\S+/gi, '[redacted-url]').replace(/eyJ[\w.-]+/g, '[redacted-token]').slice(0, 180);
 }
