@@ -149,5 +149,8 @@ async function selectRows<Row>(
 }
 
 function sanitizeSupabaseReadErrorMessage(message: string): string {
-  return message.replace(/https?:\/\/\S+/gi, '[redacted-url]').replace(/eyJ[\w.-]+/g, '[redacted-token]').slice(0, 180);
+  return message
+    .replace(/https?:\/\/\S+/gi, '[redacted-url]')
+    .replace(/eyJ[\w.-]+/g, '[redacted-token]')
+    .slice(0, 180);
 }
