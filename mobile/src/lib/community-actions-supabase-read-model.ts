@@ -105,9 +105,15 @@ export function canViewSupabaseSocialGroup(group: SocialGroup, viewer: Day3Neigh
     return false;
   }
 
-  // Supabase read mode receives rows after RLS has already applied neighborhood/cluster visibility.
-  // Do not compare live UUID area ids with the seeded prototype slug ids on the client.
-  return true;
+  if (usesLiveSupabaseAreaIds(group)) {
+    return true;
+  }
+
+  if (group.visibility === 'verified_neighborhood_members') {
+    return group.neighborhoodId === viewer.neighborhoodId;
+  }
+
+  return group.clusterId === viewer.clusterId;
 }
 
 export function canViewSupabaseAgencyBroadcast(broadcast: AgencyBroadcast, viewer: Day3NeighborhoodContext): boolean {
@@ -230,4 +236,12 @@ function getModerationTargetSummary(
     title: 'Social group post',
     body: post?.body ?? 'The reported group post is no longer available.',
   };
+}
+
+function usesLiveSupabaseAreaIds(group: SocialGroup): boolean {
+  return isUuid(group.neighborhoodId) || (group.clusterId ? isUuid(group.clusterId) : false);
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
