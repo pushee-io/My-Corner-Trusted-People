@@ -31,6 +31,7 @@ export default function SettingsScreen() {
         <Text style={styles.label}>Developer diagnostics</Text>
         <Text style={styles.item}>{readDiagnostics.label}</Text>
         <Text style={styles.note}>Configured: {readDiagnostics.configuredMode}</Text>
+        <Text style={styles.note}>Fallback reason: {readDiagnostics.fallbackReason}</Text>
         <Text style={styles.note}>
           Live Supabase reads: {readDiagnostics.isLiveSupabaseReadEnabled ? 'enabled' : 'disabled'}
         </Text>
