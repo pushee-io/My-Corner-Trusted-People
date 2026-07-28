@@ -40,6 +40,7 @@ describe('Day 13 live read validation', () => {
     expect(diagnostics).toEqual({
       configuredMode: 'seeded',
       activeMode: 'seeded',
+      fallbackReason: 'not_configured',
       isLiveSupabaseReadEnabled: false,
       label: 'Community reads: seeded',
     });
@@ -59,6 +60,7 @@ describe('Day 13 live read validation', () => {
     expect(diagnostics).toEqual({
       configuredMode: 'supabase',
       activeMode: 'supabase',
+      fallbackReason: 'none',
       isLiveSupabaseReadEnabled: true,
       label: 'Community reads: supabase',
     });
@@ -76,6 +78,7 @@ describe('Day 13 live read validation', () => {
     expect(diagnostics).toEqual({
       configuredMode: 'supabase',
       activeMode: 'seeded',
+      fallbackReason: 'live_client_unavailable',
       isLiveSupabaseReadEnabled: false,
       label: 'Community reads: seeded',
     });
@@ -89,6 +92,7 @@ describe('Day 13 live read validation', () => {
     expect(settingsSource).toContain('getCommunityActionsReadDiagnostics');
     expect(settingsSource).toContain('Developer diagnostics');
     expect(settingsSource).toContain('Community reads:');
+    expect(settingsSource).toContain('Fallback reason:');
     expect(settingsSource).toContain('Live Supabase reads:');
     expect(settingsSource.toLowerCase()).not.toContain('phone');
     expect(settingsSource.toLowerCase()).not.toContain('email');
