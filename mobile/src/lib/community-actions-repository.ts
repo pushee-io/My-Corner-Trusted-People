@@ -19,6 +19,10 @@ import {
   toSupabaseSocialGroupMembershipRequestInsert,
   toSupabaseSocialGroupPostInsert,
 } from '@/lib/community-actions-supabase-adapter';
+import {
+  createSupabaseCommunityActionsReadRepository,
+  type SupabaseCommunityReadClient,
+} from '@/lib/community-actions-supabase-read-adapter';
 import type { SocialGroupScreenSection } from '@/lib/day3-community-repository';
 import type {
   AgencyBroadcast,
@@ -33,6 +37,7 @@ import type {
 } from '@/types/day3';
 
 export type { SocialGroupScreenSection } from '@/lib/day3-community-repository';
+
 export type CommunityActionsRepositoryMode = 'seeded' | 'supabase';
 
 export type CommunityActionsRepository = {
@@ -62,6 +67,18 @@ export type CommunityActionsRepository = {
     viewer?: Day3NeighborhoodContext,
   ) => Day5ModerationActionResult;
   resetForTests: () => void;
+};
+
+export type CommunityActionsReadRepository = {
+  mode: CommunityActionsRepositoryMode;
+  listSocialGroupScreenSections: (viewer?: Day3NeighborhoodContext) => Promise<SocialGroupScreenSection[]>;
+  listAgencyBroadcasts: (viewer?: Day3NeighborhoodContext) => Promise<AgencyBroadcast[]>;
+  listModerationCases: (viewer?: Day3NeighborhoodContext) => Promise<Day5ModerationCase[]>;
+};
+
+export type CommunityActionsReadRepositoryOptions = {
+  mode?: CommunityActionsRepositoryMode;
+  supabaseReadClient?: SupabaseCommunityReadClient;
 };
 
 export const seededCommunityActionsRepository: CommunityActionsRepository = {
@@ -167,6 +184,22 @@ export const supabaseCommunityActionsRepository: CommunityActionsRepository = {
   },
 };
 
+export const seededCommunityActionsReadRepository: CommunityActionsReadRepository = {
+  mode: 'seeded',
+
+  async listSocialGroupScreenSections(viewer = defaultDay3NeighborhoodContext) {
+    return seededCommunityActionsRepository.getSocialGroupScreenSections(viewer);
+  },
+
+  async listAgencyBroadcasts(viewer = defaultDay3NeighborhoodContext) {
+    return seededCommunityActionsRepository.listAgencyBroadcastsForViewer(viewer);
+  },
+
+  async listModerationCases(viewer = moderatorDay5Context) {
+    return seededCommunityActionsRepository.listModerationCases(viewer);
+  },
+};
+
 export function createCommunityActionsRepository(
   mode: CommunityActionsRepositoryMode = getConfiguredRepositoryMode(),
 ): CommunityActionsRepository {
@@ -177,8 +210,37 @@ export function createCommunityActionsRepository(
   return seededCommunityActionsRepository;
 }
 
+export function createCommunityActionsReadRepository(
+  options: CommunityActionsReadRepositoryOptions = {},
+): CommunityActionsReadRepository {
+  const mode = options.mode ?? getConfiguredRepositoryMode();
+
+  if (mode === 'supabase' && options.supabaseReadClient) {
+    const supabaseReads = createSupabaseCommunityActionsReadRepository(options.supabaseReadClient);
+
+    return {
+      mode: 'supabase',
+
+      listSocialGroupScreenSections(viewer = defaultDay3NeighborhoodContext) {
+        return supabaseReads.listSocialGroupScreenSections(viewer);
+      },
+
+      listAgencyBroadcasts(viewer = defaultDay3NeighborhoodContext) {
+        return supabaseReads.listAgencyBroadcasts(viewer);
+      },
+
+      listModerationCases(viewer = moderatorDay5Context) {
+        return supabaseReads.listModerationCases(viewer);
+      },
+    };
+  }
+
+  return seededCommunityActionsReadRepository;
+}
+
 function getConfiguredRepositoryMode(): CommunityActionsRepositoryMode {
   return process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY === 'supabase' ? 'supabase' : 'seeded';
 }
 
 export const communityActionsRepository = createCommunityActionsRepository();
+export const communityActionsReadRepository = createCommunityActionsReadRepository();
