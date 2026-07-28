@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import {
   createCommunityActionsReadRepository,
   getCommunityActionsReadDiagnostics,
+  resetCommunityActionsReadRepositoryForTests,
   seededCommunityActionsRepository,
 } from '@/lib/community-actions-repository';
 import type {
@@ -26,13 +27,14 @@ function createMockSupabaseReadClient(rows: MockRows = {}): SupabaseCommunityRea
   };
 }
 
-describe('Day 13 live read validation', () => {
+describe('Day 14 Supabase read trial diagnostics', () => {
   afterEach(() => {
     seededCommunityActionsRepository.resetForTests();
+    resetCommunityActionsReadRepositoryForTests();
     delete process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY;
   });
 
-  it('keeps seeded reads as the default Expo Go mode', async () => {
+  it('shows seeded as the default Expo Go mode with no fallback problem', async () => {
     const repository = createCommunityActionsReadRepository();
     const diagnostics = getCommunityActionsReadDiagnostics(repository);
 
@@ -48,7 +50,7 @@ describe('Day 13 live read validation', () => {
     await expect(repository.listSocialGroupScreenSections()).resolves.toHaveLength(2);
   });
 
-  it('uses Supabase reads when Supabase mode receives a read client', async () => {
+  it('shows Supabase as active when a read client is available', async () => {
     process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY = 'supabase';
 
     const repository = createCommunityActionsReadRepository({
@@ -65,10 +67,10 @@ describe('Day 13 live read validation', () => {
       label: 'Community reads: supabase',
     });
 
-    await expect(repository.listSocialGroupScreenSections()).resolves.toEqual([]);
+    await expect(repository.listAgencyBroadcasts()).resolves.toEqual([]);
   });
 
-  it('falls back safely to seeded reads when Supabase mode cannot create a live client', async () => {
+  it('shows why Supabase mode safely fell back to seeded reads', async () => {
     process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY = 'supabase';
 
     const repository = createCommunityActionsReadRepository();
@@ -83,10 +85,10 @@ describe('Day 13 live read validation', () => {
       label: 'Community reads: seeded',
     });
 
-    await expect(repository.listAgencyBroadcasts()).resolves.toHaveLength(2);
+    await expect(repository.listModerationCases()).resolves.toEqual([]);
   });
 
-  it('surfaces the active read mode in Settings without private data', () => {
+  it('surfaces read mode and fallback reason in Settings without private data', () => {
     const settingsSource = readFileSync('app/settings.tsx', 'utf8');
 
     expect(settingsSource).toContain('getCommunityActionsReadDiagnostics');

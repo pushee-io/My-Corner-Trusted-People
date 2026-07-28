@@ -41,6 +41,8 @@ export type { SocialGroupScreenSection } from '@/lib/day3-community-repository';
 
 export type CommunityActionsRepositoryMode = 'seeded' | 'supabase';
 
+export type CommunityActionsReadFallbackReason = 'not_configured' | 'live_client_unavailable' | 'none';
+
 export type CommunityActionsRepository = {
   defaultViewer: Day3NeighborhoodContext;
   moderatorViewer: Day3NeighborhoodContext;
@@ -85,9 +87,12 @@ export type CommunityActionsReadRepositoryOptions = {
 export type CommunityActionsReadDiagnostics = {
   configuredMode: CommunityActionsRepositoryMode;
   activeMode: CommunityActionsRepositoryMode;
+  fallbackReason: CommunityActionsReadFallbackReason;
   isLiveSupabaseReadEnabled: boolean;
   label: string;
 };
+
+let lastReadFallbackReason: CommunityActionsReadFallbackReason = 'not_configured';
 
 export const seededCommunityActionsRepository: CommunityActionsRepository = {
   defaultViewer: defaultDay3NeighborhoodContext,
@@ -227,9 +232,11 @@ export function createCommunityActionsReadRepository(
     const supabaseReadClient = options.supabaseReadClient ?? getConfiguredSupabaseReadClient();
 
     if (!supabaseReadClient) {
+      lastReadFallbackReason = 'live_client_unavailable';
       return seededCommunityActionsReadRepository;
     }
 
+    lastReadFallbackReason = 'none';
     const supabaseReads = createSupabaseCommunityActionsReadRepository(supabaseReadClient);
 
     return {
@@ -249,6 +256,7 @@ export function createCommunityActionsReadRepository(
     };
   }
 
+  lastReadFallbackReason = 'not_configured';
   return seededCommunityActionsReadRepository;
 }
 
@@ -257,10 +265,12 @@ export function getCommunityActionsReadDiagnostics(
 ): CommunityActionsReadDiagnostics {
   const configuredMode = getConfiguredRepositoryMode();
   const activeMode = repository.mode;
+  const fallbackReason = activeMode === 'supabase' ? 'none' : lastReadFallbackReason;
 
   return {
     configuredMode,
     activeMode,
+    fallbackReason,
     isLiveSupabaseReadEnabled: configuredMode === 'supabase' && activeMode === 'supabase',
     label: `Community reads: ${activeMode}`,
   };
@@ -290,6 +300,7 @@ export function getCommunityActionsReadRepository(): CommunityActionsReadReposit
 
 export function resetCommunityActionsReadRepositoryForTests() {
   cachedCommunityActionsReadRepository = undefined;
+  lastReadFallbackReason = 'not_configured';
 }
 
 export const communityActionsRepository = createCommunityActionsRepository();
