@@ -105,7 +105,7 @@ describe('Day 11A Supabase live read client wrapper', () => {
   it('passes Supabase read errors through for the read adapter to handle', async () => {
     const readClient = createSupabaseCommunityReadClient(createFailingSupabaseClient('database unavailable'));
 
-    await expect(readClient.from('community_reports').select('*')).resolves.toEqual({
+    await expect(readClient.from('moderation_cases').select('*')).resolves.toEqual({
       data: [],
       error: { message: 'database unavailable' },
     });
