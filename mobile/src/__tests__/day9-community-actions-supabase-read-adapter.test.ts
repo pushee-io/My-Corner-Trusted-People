@@ -6,8 +6,7 @@ import {
 } from '@/lib/community-actions-supabase-read-adapter';
 import type { SupabaseAgencyBroadcastRow, SupabaseSocialGroupRow } from '@/lib/community-actions-supabase-adapter';
 import type {
-  SupabaseCommunityReportRow,
-  SupabaseModerationDecisionRow,
+  SupabaseModerationCaseRow,
   SupabaseSocialGroupMembershipRow,
   SupabaseSocialGroupPostRow,
 } from '@/lib/community-actions-supabase-read-model';
@@ -108,33 +107,24 @@ const agencyBroadcasts: SupabaseAgencyBroadcastRow[] = [
   },
 ];
 
-const communityReports: SupabaseCommunityReportRow[] = [
+const moderationCases: SupabaseModerationCaseRow[] = [
   {
-    id: 'community-report-1',
-    target_type: 'social_group_post',
-    target_id: 'group-post-repair-tip',
-    reporter_profile_id: 'profile-akosua',
+    id: 'moderation-case-community-report-1',
+    source_table: 'social_group_posts',
+    source_id: 'group-post-repair-tip',
     reason: 'Needs moderator review',
+    status: 'open',
     created_at: '2026-07-27T12:00:00.000Z',
   },
   {
-    id: 'community-report-2',
-    target_type: 'agency_broadcast',
-    target_id: 'broadcast-road-works-approved',
-    reporter_profile_id: 'profile-akosua',
+    id: 'moderation-case-community-report-2',
+    source_table: 'agency_broadcasts',
+    source_id: 'broadcast-road-works-approved',
     reason: 'Wrong timing',
+    status: 'resolved',
     created_at: '2026-07-27T12:05:00.000Z',
-  },
-];
-
-const moderationDecisions: SupabaseModerationDecisionRow[] = [
-  {
-    moderation_case_id: 'moderation-case-community-report-2',
-    report_id: 'community-report-2',
-    target_type: 'agency_broadcast',
-    target_id: 'broadcast-road-works-approved',
-    decision: 'hide_content',
-    resolved_by_profile_id: 'profile-moderator',
+    resolved_by: 'profile-moderator',
+    resolution_action: 'hide_content',
     resolved_at: '2026-07-27T12:10:00.000Z',
   },
 ];
@@ -208,8 +198,7 @@ describe('Day 9 Supabase community read adapter', () => {
 
   it('reads moderation cases through a mocked Supabase client', async () => {
     const { client, calls } = createMockSupabaseReadClient({
-      community_reports: communityReports,
-      moderation_decisions: moderationDecisions,
+      moderation_cases: moderationCases,
       social_group_posts: socialGroupPosts,
       agency_broadcasts: agencyBroadcasts,
     });
@@ -231,24 +220,29 @@ describe('Day 9 Supabase community read adapter', () => {
       status: 'resolved',
       decision: 'hide_content',
     });
-    expect(calls.map((call) => call.table)).toEqual([
-      'community_reports',
-      'moderation_decisions',
-      'social_group_posts',
-      'agency_broadcasts',
-    ]);
+    expect(calls.map((call) => call.table)).toEqual(['moderation_cases', 'social_group_posts', 'agency_broadcasts']);
   });
 
   it('does not expose moderation cases to non-moderators', async () => {
     const { client } = createMockSupabaseReadClient({
-      community_reports: communityReports,
-      moderation_decisions: moderationDecisions,
+      moderation_cases: moderationCases,
       social_group_posts: socialGroupPosts,
       agency_broadcasts: agencyBroadcasts,
     });
     const repository = createSupabaseCommunityActionsReadRepository(client);
 
     await expect(repository.listModerationCases(viewer)).resolves.toEqual([]);
+  });
+
+  it('returns an empty moderation queue when live moderation_cases has no rows', async () => {
+    const { client } = createMockSupabaseReadClient({
+      moderation_cases: [],
+      social_group_posts: socialGroupPosts,
+      agency_broadcasts: agencyBroadcasts,
+    });
+    const repository = createSupabaseCommunityActionsReadRepository(client);
+
+    await expect(repository.listModerationCases(moderator)).resolves.toEqual([]);
   });
 
   it('fails closed with a useful read error when Supabase returns an error', async () => {
