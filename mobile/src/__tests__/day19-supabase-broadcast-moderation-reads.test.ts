@@ -125,9 +125,9 @@ describe('Day 19 Supabase broadcast and moderation read mapping', () => {
     });
     const repository = createSupabaseCommunityActionsReadRepository(client);
 
-    await expect(repository.listModerationCases({ ...viewerWithSeededAreaSlugs, profileId: 'profile-moderator' })).resolves.toEqual(
-      [],
-    );
+    await expect(
+      repository.listModerationCases({ ...viewerWithSeededAreaSlugs, profileId: 'profile-moderator' }),
+    ).resolves.toEqual([]);
     expect(calls).toEqual(['moderation_cases', 'social_group_posts', 'agency_broadcasts']);
     expect(calls).not.toContain('moderation_decisions');
   });
