@@ -2,8 +2,7 @@ import {
   buildAgencyBroadcastsFromSupabaseRows,
   buildDay5ModerationCasesFromSupabaseRows,
   buildSocialGroupScreenSectionsFromSupabaseRows,
-  type SupabaseCommunityReportRow,
-  type SupabaseModerationDecisionRow,
+  type SupabaseModerationCaseRow,
   type SupabaseSocialGroupMembershipRow,
   type SupabaseSocialGroupPostRow,
 } from '@/lib/community-actions-supabase-read-model';
@@ -16,8 +15,7 @@ export type SupabaseCommunityReadTableName =
   | 'social_group_memberships'
   | 'social_group_posts'
   | 'agency_broadcasts'
-  | 'community_reports'
-  | 'moderation_decisions';
+  | 'moderation_cases';
 
 export type SupabaseCommunityReadFailureCode = 'none' | 'supabase_read_error';
 
@@ -60,10 +58,8 @@ const socialGroupPostColumns = 'id,group_id,author_profile_id,body,created_at,mo
 const agencyBroadcastColumns =
   'id,agency_name,title,body,scope,neighborhood_id,cluster_id,region_id,is_agency_approved,moderation_status,published_at';
 
-const communityReportColumns = 'id,target_type,target_id,reporter_profile_id,reason,created_at';
-
-const moderationDecisionColumns =
-  'moderation_case_id,report_id,target_type,target_id,decision,resolved_by_profile_id,resolved_at';
+const moderationCaseColumns =
+  'id,source_table,source_id,reason,status,created_at,resolved_by,resolution_action,resolved_at';
 
 let lastSupabaseCommunityReadFailure: SupabaseCommunityReadFailureDiagnostics = {
   tableName: 'none',
@@ -102,14 +98,13 @@ export function createSupabaseCommunityActionsReadRepository(
     async listModerationCases(viewer) {
       resetSupabaseCommunityReadFailureDiagnostics();
 
-      const [reports, decisions, groupPosts, agencyBroadcasts] = await Promise.all([
-        selectRows<SupabaseCommunityReportRow>(client, 'community_reports', communityReportColumns),
-        selectRows<SupabaseModerationDecisionRow>(client, 'moderation_decisions', moderationDecisionColumns),
+      const [moderationCases, groupPosts, agencyBroadcasts] = await Promise.all([
+        selectRows<SupabaseModerationCaseRow>(client, 'moderation_cases', moderationCaseColumns),
         selectRows<SupabaseSocialGroupPostRow>(client, 'social_group_posts', socialGroupPostColumns),
         selectRows<SupabaseAgencyBroadcastRow>(client, 'agency_broadcasts', agencyBroadcastColumns),
       ]);
 
-      return buildDay5ModerationCasesFromSupabaseRows({ reports, decisions, groupPosts, agencyBroadcasts }, viewer);
+      return buildDay5ModerationCasesFromSupabaseRows({ moderationCases, groupPosts, agencyBroadcasts }, viewer);
     },
   };
 }

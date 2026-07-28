@@ -9,7 +9,7 @@ import {
 import type { SupabaseAgencyBroadcastRow, SupabaseSocialGroupRow } from '@/lib/community-actions-supabase-adapter';
 import type {
   SupabaseCommunityReportRow,
-  SupabaseModerationDecisionRow,
+  SupabaseModerationCaseRow,
   SupabaseSocialGroupMembershipRow,
   SupabaseSocialGroupPostRow,
 } from '@/lib/community-actions-supabase-read-model';
@@ -181,13 +181,27 @@ const reports: SupabaseCommunityReportRow[] = [
     reason: 'Needs moderator review',
     created_at: '2026-07-27T12:00:00.000Z',
   },
+];
+
+const moderationCases: SupabaseModerationCaseRow[] = [
   {
-    id: 'community-report-2',
-    target_type: 'agency_broadcast',
-    target_id: 'broadcast-road-works-approved',
-    reporter_profile_id: 'profile-akosua',
+    id: 'moderation-case-community-report-1',
+    source_table: 'social_group_posts',
+    source_id: 'group-post-repair-tip',
+    reason: 'Needs moderator review',
+    status: 'open',
+    created_at: '2026-07-27T12:00:00.000Z',
+  },
+  {
+    id: 'moderation-case-community-report-2',
+    source_table: 'agency_broadcasts',
+    source_id: 'broadcast-road-works-approved',
     reason: 'Wrong timing',
+    status: 'resolved',
     created_at: '2026-07-27T12:05:00.000Z',
+    resolved_by: 'profile-moderator',
+    resolution_action: 'hide_content',
+    resolved_at: '2026-07-27T12:10:00.000Z',
   },
 ];
 
@@ -246,28 +260,16 @@ describe('Day 8 community actions Supabase reads', () => {
     ]);
   });
 
-  it('builds moderation cases from report and decision rows for moderators only', () => {
-    const decisions: SupabaseModerationDecisionRow[] = [
-      {
-        moderation_case_id: 'moderation-case-community-report-2',
-        report_id: 'community-report-2',
-        target_type: 'agency_broadcast',
-        target_id: 'broadcast-road-works-approved',
-        decision: 'hide_content',
-        resolved_by_profile_id: 'profile-moderator',
-        resolved_at: '2026-07-27T12:10:00.000Z',
-      },
-    ];
-
+  it('builds moderation cases from live moderation case rows for moderators only', () => {
     expect(
       buildDay5ModerationCasesFromSupabaseRows(
-        { reports, decisions, groupPosts: posts, agencyBroadcasts: broadcasts },
+        { moderationCases, groupPosts: posts, agencyBroadcasts: broadcasts },
         viewer,
       ),
     ).toEqual([]);
 
     const cases = buildDay5ModerationCasesFromSupabaseRows(
-      { reports, decisions, groupPosts: posts, agencyBroadcasts: broadcasts },
+      { moderationCases, groupPosts: posts, agencyBroadcasts: broadcasts },
       moderator,
     );
 
@@ -295,7 +297,7 @@ describe('Day 8 community actions Supabase reads', () => {
     const sections = buildSocialGroupScreenSectionsFromSupabaseRows({ groups, memberships, posts }, viewer);
     const agencyItems = buildAgencyBroadcastsFromSupabaseRows(broadcasts, viewer);
     const cases = buildDay5ModerationCasesFromSupabaseRows(
-      { reports, decisions: [], groupPosts: posts, agencyBroadcasts: broadcasts },
+      { moderationCases: [], groupPosts: posts, agencyBroadcasts: broadcasts },
       moderator,
     );
     const payload = JSON.stringify({ sections, agencyItems, cases }).toLowerCase();

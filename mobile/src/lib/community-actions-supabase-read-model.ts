@@ -44,14 +44,16 @@ export type SupabaseCommunityReportRow = {
   created_at: string;
 };
 
-export type SupabaseModerationDecisionRow = {
-  moderation_case_id: string;
-  report_id: string;
-  target_type: Day5ModerationCase['targetType'];
-  target_id: string;
-  decision: Day5ModerationDecision;
-  resolved_by_profile_id: string;
-  resolved_at: string;
+export type SupabaseModerationCaseRow = {
+  id: string;
+  source_table: string;
+  source_id: string;
+  reason: string;
+  status: string;
+  created_at: string;
+  resolved_by?: string;
+  resolution_action?: string;
+  resolved_at?: string;
 };
 
 export type SupabaseSocialGroupScreenRows = {
@@ -61,8 +63,7 @@ export type SupabaseSocialGroupScreenRows = {
 };
 
 export type SupabaseModerationCaseRows = {
-  reports: SupabaseCommunityReportRow[];
-  decisions: SupabaseModerationDecisionRow[];
+  moderationCases: SupabaseModerationCaseRow[];
   groupPosts: SupabaseSocialGroupPostRow[];
   agencyBroadcasts: SupabaseAgencyBroadcastRow[];
 };
@@ -105,7 +106,7 @@ export function canViewSupabaseSocialGroup(group: SocialGroup, viewer: Day3Neigh
     return false;
   }
 
-  if (usesLiveSupabaseAreaIds(group)) {
+  if (usesLiveSupabaseAreaIds(group.neighborhoodId, group.clusterId)) {
     return true;
   }
 
@@ -126,7 +127,15 @@ export function canViewSupabaseAgencyBroadcast(broadcast: AgencyBroadcast, viewe
   }
 
   if (broadcast.scope === 'immediate_cluster') {
+    if (usesLiveSupabaseAreaIds(broadcast.neighborhoodId, broadcast.clusterId)) {
+      return true;
+    }
+
     return broadcast.clusterId === viewer.clusterId;
+  }
+
+  if (usesLiveSupabaseAreaIds(broadcast.neighborhoodId, broadcast.clusterId)) {
+    return true;
   }
 
   return broadcast.neighborhoodId === viewer.neighborhoodId;
@@ -181,26 +190,25 @@ export function buildDay5ModerationCasesFromSupabaseRows(
   const groupPosts = rows.groupPosts.map(fromSupabaseSocialGroupPostRow);
   const agencyBroadcasts = rows.agencyBroadcasts.map(fromSupabaseAgencyBroadcastRow);
 
-  return rows.reports.map((reportRow) => {
-    const report = fromSupabaseCommunityReportRow(reportRow);
-    const caseId = `moderation-case-${report.id}`;
-    const decision = rows.decisions.find((item) => item.moderation_case_id === caseId || item.report_id === report.id);
-    const target = getModerationTargetSummary(report, groupPosts, agencyBroadcasts);
+  return rows.moderationCases.map((moderationCase) => {
+    const targetType = getModerationCaseTargetType(moderationCase.source_table);
+    const target = getModerationTargetSummary(targetType, moderationCase.source_id, groupPosts, agencyBroadcasts);
+    const decision = getModerationCaseDecision(moderationCase.resolution_action);
 
     return {
-      id: caseId,
-      reportId: report.id,
-      targetType: report.targetType,
-      targetId: report.targetId,
+      id: moderationCase.id,
+      reportId: moderationCase.id,
+      targetType,
+      targetId: moderationCase.source_id,
       targetTitle: target.title,
       targetBody: target.body,
-      reporterProfileId: report.reporterProfileId,
-      reportReason: report.reason,
-      status: decision ? 'resolved' : 'open',
-      createdAt: report.createdAt,
-      resolvedAt: decision?.resolved_at,
-      resolvedByProfileId: decision?.resolved_by_profile_id,
-      decision: decision?.decision,
+      reporterProfileId: 'unknown',
+      reportReason: moderationCase.reason,
+      status: moderationCase.status === 'resolved' || moderationCase.resolved_at ? 'resolved' : 'open',
+      createdAt: moderationCase.created_at,
+      resolvedAt: moderationCase.resolved_at,
+      resolvedByProfileId: moderationCase.resolved_by,
+      decision,
     };
   });
 }
@@ -217,12 +225,13 @@ function getSupabaseMembershipStatus(
 }
 
 function getModerationTargetSummary(
-  report: CommunityReport,
+  targetType: Day5ModerationCase['targetType'],
+  targetId: string,
   groupPosts: SocialGroupPost[],
   agencyBroadcasts: AgencyBroadcast[],
 ): { title: string; body: string } {
-  if (report.targetType === 'agency_broadcast') {
-    const broadcast = agencyBroadcasts.find((item) => item.id === report.targetId);
+  if (targetType === 'agency_broadcast') {
+    const broadcast = agencyBroadcasts.find((item) => item.id === targetId);
 
     return {
       title: broadcast?.title ?? 'Agency broadcast unavailable',
@@ -230,7 +239,7 @@ function getModerationTargetSummary(
     };
   }
 
-  const post = groupPosts.find((item) => item.id === report.targetId);
+  const post = groupPosts.find((item) => item.id === targetId);
 
   return {
     title: 'Social group post',
@@ -238,8 +247,22 @@ function getModerationTargetSummary(
   };
 }
 
-function usesLiveSupabaseAreaIds(group: SocialGroup): boolean {
-  return isUuid(group.neighborhoodId) || (group.clusterId ? isUuid(group.clusterId) : false);
+function getModerationCaseTargetType(sourceTable: string): Day5ModerationCase['targetType'] {
+  return sourceTable === 'agency_broadcasts' || sourceTable === 'agency_broadcast'
+    ? 'agency_broadcast'
+    : 'social_group_post';
+}
+
+function getModerationCaseDecision(resolutionAction: string | undefined): Day5ModerationDecision | undefined {
+  if (resolutionAction === 'hide_content' || resolutionAction === 'keep_content') {
+    return resolutionAction;
+  }
+
+  return undefined;
+}
+
+function usesLiveSupabaseAreaIds(neighborhoodId: string | undefined, clusterId: string | undefined): boolean {
+  return Boolean((neighborhoodId && isUuid(neighborhoodId)) || (clusterId && isUuid(clusterId)));
 }
 
 function isUuid(value: string): boolean {
