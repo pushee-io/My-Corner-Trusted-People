@@ -130,9 +130,7 @@ function asTrustSignals(value: unknown): TrustSignal[] {
     if (!signal || typeof signal !== 'object') return false;
     const candidate = signal as Partial<TrustSignal>;
     return (
-      typeof candidate.id === 'string' &&
-      typeof candidate.label === 'string' &&
-      typeof candidate.value === 'string'
+      typeof candidate.id === 'string' && typeof candidate.label === 'string' && typeof candidate.value === 'string'
     );
   });
 }
