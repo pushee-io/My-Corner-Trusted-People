@@ -58,7 +58,8 @@ const socialGroupPostColumns = 'id,group_id,author_profile_id,body,created_at,mo
 const agencyBroadcastColumns =
   'id,agency_name,title,body,scope,neighborhood_id,cluster_id,region_id,is_agency_approved,moderation_status,published_at';
 
-const moderationCaseColumns = 'id,source_table,source_id,reason,status,created_at,resolved_by,resolution_action,resolved_at';
+const moderationCaseColumns =
+  'id,source_table,source_id,reason,status,created_at,resolved_by,resolution_action,resolved_at';
 
 let lastSupabaseCommunityReadFailure: SupabaseCommunityReadFailureDiagnostics = {
   tableName: 'none',
