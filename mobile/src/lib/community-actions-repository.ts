@@ -82,6 +82,13 @@ export type CommunityActionsReadRepositoryOptions = {
   supabaseReadClient?: SupabaseCommunityReadClient;
 };
 
+export type CommunityActionsReadDiagnostics = {
+  configuredMode: CommunityActionsRepositoryMode;
+  activeMode: CommunityActionsRepositoryMode;
+  isLiveSupabaseReadEnabled: boolean;
+  label: string;
+};
+
 export const seededCommunityActionsRepository: CommunityActionsRepository = {
   defaultViewer: defaultDay3NeighborhoodContext,
   moderatorViewer: moderatorDay5Context,
@@ -217,11 +224,13 @@ export function createCommunityActionsReadRepository(
   const mode = options.mode ?? getConfiguredRepositoryMode();
 
   if (mode === 'supabase') {
-    if (!options.supabaseReadClient) {
+    const supabaseReadClient = options.supabaseReadClient ?? getConfiguredSupabaseReadClient();
+
+    if (!supabaseReadClient) {
       return seededCommunityActionsReadRepository;
     }
 
-    const supabaseReads = createSupabaseCommunityActionsReadRepository(options.supabaseReadClient);
+    const supabaseReads = createSupabaseCommunityActionsReadRepository(supabaseReadClient);
 
     return {
       mode: 'supabase',
@@ -243,8 +252,30 @@ export function createCommunityActionsReadRepository(
   return seededCommunityActionsReadRepository;
 }
 
+export function getCommunityActionsReadDiagnostics(
+  repository = getCommunityActionsReadRepository(),
+): CommunityActionsReadDiagnostics {
+  const configuredMode = getConfiguredRepositoryMode();
+  const activeMode = repository.mode;
+
+  return {
+    configuredMode,
+    activeMode,
+    isLiveSupabaseReadEnabled: configuredMode === 'supabase' && activeMode === 'supabase',
+    label: `Community reads: ${activeMode}`,
+  };
+}
+
 function getConfiguredRepositoryMode(): CommunityActionsRepositoryMode {
   return process.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY === 'supabase' ? 'supabase' : 'seeded';
+}
+
+function getConfiguredSupabaseReadClient(): SupabaseCommunityReadClient | undefined {
+  try {
+    return getSupabaseCommunityReadClient();
+  } catch {
+    return undefined;
+  }
 }
 
 let cachedCommunityActionsReadRepository: CommunityActionsReadRepository | undefined;
