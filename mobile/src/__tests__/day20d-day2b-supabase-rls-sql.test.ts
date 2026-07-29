@@ -13,8 +13,7 @@ import {
   hasPrivateDay2BReadColumn,
 } from '@/lib/day2b-supabase-read-policy';
 
-const migrationFile =
-  'supabase/migrations/20260729005000_day2b_live_read_rls.sql';
+const migrationFile = 'supabase/migrations/20260729005000_day2b_live_read_rls.sql';
 const migrationPath = path.resolve(__dirname, '../../..', migrationFile);
 const migrationSql = readFileSync(migrationPath, 'utf8');
 const normalizedSql = migrationSql.toLowerCase();
@@ -57,9 +56,12 @@ function grantColumnsFor(table: string): string[] {
 }
 
 describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
-  it('creates the migration in the standard Supabase migrations directory', () => {
-    expect(migrationPath.endsWith(migrationFile)).toBe(true);
-  });
+  it(
+    'creates the migration in the standard Supabase migrations directory',
+    () => {
+      expect(migrationPath.endsWith(migrationFile)).toBe(true);
+    },
+  );
 
   it('enables RLS for every Day 2b live read table', () => {
     for (const table of day2bReadTables) {
@@ -98,14 +100,17 @@ describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
     }
   });
 
-  it('creates authenticated SELECT policies for every Day 2b read table', () => {
-    for (const contract of day2bReadPolicyContracts) {
-      expectSql(`create policy day2b_${contract.table}_authenticated_read`);
-      expectSql(`on public.${contract.table}`);
-      expectSql('for select');
-      expectSql('to authenticated');
-    }
-  });
+  it(
+    'creates authenticated SELECT policies for every Day 2b read table',
+    () => {
+      for (const contract of day2bReadPolicyContracts) {
+        expectSql(`create policy day2b_${contract.table}_authenticated_read`);
+        expectSql(`on public.${contract.table}`);
+        expectSql('for select');
+        expectSql('to authenticated');
+      }
+    },
+  );
 
   it(
     'scopes provider discovery to accepting providers and request reads to authenticated participants',
