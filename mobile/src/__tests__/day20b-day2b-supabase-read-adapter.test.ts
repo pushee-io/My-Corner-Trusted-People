@@ -188,99 +188,109 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
     );
   });
 
-  it('uses narrow safe request read columns and maps provider responses without addresses or coordinates', async () => {
-    const { client, calls } = createFakeSupabaseClient({
-      job_requests: [
-        {
-          id: 'req-live-01',
-          requester_id: 'profile-requester',
-          provider_id: 'prov-live-01',
-          category_id: 'plumbing',
-          title: 'Sink repair',
-          description: 'Leak under cabinet',
-          original_user_text: 'Sink leaking under cabinet',
-          urgency: 'soon',
-          preferred_date: '2026-07-28',
-          preferred_time: 'Afternoon',
-          contact_preference: 'app_update',
-          general_area_label: 'East Legon, general area only',
-          status: 'Accepted',
-          moderation_status: 'not_run',
-          created_at: '2026-07-28T12:00:00.000Z',
-        },
-      ],
-      provider_responses: [
-        {
-          job_request_id: 'req-live-01',
-          message: 'I can come this afternoon.',
-          created_at: '2026-07-28T13:00:00.000Z',
-        },
-      ],
-    });
-    const readClient = createDay2BSupabaseReadClient(client as never);
-
-    const result = await readClient.listProviderRequests?.('prov-live-01');
-
-    expect(result?.error).toBeNull();
-    expect(result?.data?.[0]).toMatchObject({
-      id: 'req-live-01',
-      provider_id: 'prov-live-01',
-      general_area_label: 'East Legon, general area only',
-      provider_message: 'I can come this afternoon.',
-    });
-    expect(calls).toEqual([
-      {
-        table: 'job_requests',
-        columns: day2bJobRequestColumns,
-        filters: [{ kind: 'eq', column: 'provider_id', value: 'prov-live-01' }],
-        order: { column: 'created_at', ascending: false },
-      },
-      {
-        table: 'provider_responses',
-        columns: day2bProviderResponseColumns,
-        filters: [
-          { kind: 'in', column: 'job_request_id', value: ['req-live-01'] },
-        ],
-        order: { column: 'created_at', ascending: false },
-      },
-    ]);
-    expect(calls.map((call) => call.columns).join(',')).not.toMatch(
-      sensitiveColumnPattern,
-    );
-  });
-
-  it('returns null for missing provider rows without surfacing Supabase not-found errors', async () => {
-    const client = {
-      from(table: Day2BSupabaseReadTableName) {
-        return {
-          select(columns: string) {
-            void table;
-            void columns;
-
-            const query = {
-              eq() {
-                return query;
-              },
-              single() {
-                return Promise.resolve({
-                  data: null,
-                  error: { message: 'not found', code: 'PGRST116' },
-                });
-              },
-            };
-
-            return query;
+  it(
+    'uses narrow safe request read columns and maps provider responses without addresses or coordinates',
+    async () => {
+      const { client, calls } = createFakeSupabaseClient({
+        job_requests: [
+          {
+            id: 'req-live-01',
+            requester_id: 'profile-requester',
+            provider_id: 'prov-live-01',
+            category_id: 'plumbing',
+            title: 'Sink repair',
+            description: 'Leak under cabinet',
+            original_user_text: 'Sink leaking under cabinet',
+            urgency: 'soon',
+            preferred_date: '2026-07-28',
+            preferred_time: 'Afternoon',
+            contact_preference: 'app_update',
+            general_area_label: 'East Legon, general area only',
+            status: 'Accepted',
+            moderation_status: 'not_run',
+            created_at: '2026-07-28T12:00:00.000Z',
           },
-        };
-      },
-    };
-    const readClient = createDay2BSupabaseReadClient(client as never);
+        ],
+        provider_responses: [
+          {
+            job_request_id: 'req-live-01',
+            message: 'I can come this afternoon.',
+            created_at: '2026-07-28T13:00:00.000Z',
+          },
+        ],
+      });
+      const readClient = createDay2BSupabaseReadClient(client as never);
 
-    await expect(readClient.getProvider?.('missing-provider')).resolves.toEqual({
-      data: null,
-      error: null,
-    });
-  });
+      const result = await readClient.listProviderRequests?.('prov-live-01');
+
+      expect(result?.error).toBeNull();
+      expect(result?.data?.[0]).toMatchObject({
+        id: 'req-live-01',
+        provider_id: 'prov-live-01',
+        general_area_label: 'East Legon, general area only',
+        provider_message: 'I can come this afternoon.',
+      });
+      expect(calls).toEqual([
+        {
+          table: 'job_requests',
+          columns: day2bJobRequestColumns,
+          filters: [
+            { kind: 'eq', column: 'provider_id', value: 'prov-live-01' },
+          ],
+          order: { column: 'created_at', ascending: false },
+        },
+        {
+          table: 'provider_responses',
+          columns: day2bProviderResponseColumns,
+          filters: [
+            { kind: 'in', column: 'job_request_id', value: ['req-live-01'] },
+          ],
+          order: { column: 'created_at', ascending: false },
+        },
+      ]);
+      expect(calls.map((call) => call.columns).join(',')).not.toMatch(
+        sensitiveColumnPattern,
+      );
+    },
+  );
+
+  it(
+    'returns null for missing provider rows without surfacing Supabase not-found errors',
+    async () => {
+      const client = {
+        from(table: Day2BSupabaseReadTableName) {
+          return {
+            select(columns: string) {
+              void table;
+              void columns;
+
+              const query = {
+                eq() {
+                  return query;
+                },
+                single() {
+                  return Promise.resolve({
+                    data: null,
+                    error: { message: 'not found', code: 'PGRST116' },
+                  });
+                },
+              };
+
+              return query;
+            },
+          };
+        },
+      };
+      const readClient = createDay2BSupabaseReadClient(client as never);
+
+      await expect(
+        readClient.getProvider?.('missing-provider'),
+      ).resolves.toEqual({
+        data: null,
+        error: null,
+      });
+    },
+  );
 
   it('does not expose write methods from the live read adapter', () => {
     const { client } = createFakeSupabaseClient({});
