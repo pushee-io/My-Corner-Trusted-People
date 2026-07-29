@@ -1,7 +1,10 @@
 import { getDay2BLiveRepository, type Day2BRepository } from '@/lib/day2b-live-repository';
 import type { JobRequest, Provider } from '@/types/contracts';
 
-export type Day2BReadRepository = Pick<Day2BRepository, 'mode' | 'listProvidersByCategory' | 'getProvider' | 'listProviderRequests'>;
+export type Day2BReadRepository = Pick<
+  Day2BRepository,
+  'mode' | 'listProvidersByCategory' | 'getProvider' | 'listProviderRequests'
+>;
 
 const previewProviderIdEnvKey = 'EXPO_PUBLIC_MY_CORNER_DAY2B_PROVIDER_PREVIEW_ID';
 const fallbackPreviewProviderId = 'prov-01';
