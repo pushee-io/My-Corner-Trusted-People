@@ -38,7 +38,7 @@ const explicitLiveConfig = {
 };
 
 const privatePayloadPattern =
-  /phone|email|ghana.*post|ghana_post|gps|exact.*address|address_line|street_address|coordinates?|latitude|longitude|legal.*name|legal_name|challenge.*hash|challenge_hash|hash/i;
+  /phone_number|email|ghana.*post|ghana_post|gps|exact.*address|exact_address|address_line|street_address|coordinates?|latitude|longitude|legal.*name|legal_name|challenge.*hash|challenge_hash|hash/i;
 
 function applyFilters(rows: Record<string, unknown>[], call: Call) {
   return call.filters.reduce((currentRows, filter) => {
