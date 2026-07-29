@@ -10,7 +10,7 @@ export type ActiveLocationContext = {
   city: string;
   country: string;
   countryCode: 'GH';
-  regionId: string;
+  regionId: Day3NeighborhoodContext['regionId'];
   regionName: string;
   clusterId: string;
   areaLabel: string;
@@ -38,7 +38,7 @@ const activeRegionNameEnvKey = 'EXPO_PUBLIC_MY_CORNER_ACTIVE_REGION_NAME';
 
 const fallbackNeighborhoodId = 'east-legon';
 const fallbackClusterId = 'accra-east';
-const fallbackRegionId = 'greater-accra';
+const fallbackRegionId: Day3NeighborhoodContext['regionId'] = 'greater-accra';
 const fallbackRegionName = 'Greater Accra';
 
 export const defaultActiveLocationContext = createActiveLocationContext({
@@ -71,7 +71,7 @@ export function createActiveLocationContext(options: ActiveLocationContextOption
   const city = neighborhood?.city ?? 'Accra';
   const country = neighborhood?.country ?? 'Ghana';
   const clusterId = normalizeOptional(options.clusterId) ?? fallbackClusterId;
-  const regionId = normalizeOptional(options.regionId) ?? fallbackRegionId;
+  const regionId = normalizeRegionId(options.regionId);
   const regionName = normalizeOptional(options.regionName) ?? fallbackRegionName;
   const areaLabel = normalizeOptional(options.areaLabel) ?? `${neighborhoodName} · ${city}`;
 
@@ -119,6 +119,10 @@ export function getActiveDay3NeighborhoodContext(
 
 function findNeighborhood(neighborhoods: Neighborhood[], neighborhoodId: string): Neighborhood | undefined {
   return neighborhoods.find((neighborhood) => neighborhood.id === neighborhoodId);
+}
+
+function normalizeRegionId(value: string | undefined): Day3NeighborhoodContext['regionId'] {
+  return value === fallbackRegionId ? value : fallbackRegionId;
 }
 
 function normalizeOptional(value: string | undefined): string | undefined {
