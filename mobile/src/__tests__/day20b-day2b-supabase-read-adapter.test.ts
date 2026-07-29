@@ -11,12 +11,18 @@ import {
 type Call = {
   table: string;
   columns: string;
-  filters: { kind: 'eq' | 'in'; column: string; value: unknown }[];
+  filters: {
+    kind: 'eq' | 'in';
+    column: string;
+    value: unknown;
+  }[];
   order?: { column: string; ascending?: boolean };
   single?: boolean;
 };
 
-type RowsByTable = Partial<Record<Day2BSupabaseReadTableName, Record<string, unknown>[]>>;
+type RowsByTable = Partial<
+  Record<Day2BSupabaseReadTableName, Record<string, unknown>[]>
+>;
 
 const sensitiveColumnPattern =
   /phone_number|email|ghana.*post|ghana_post|gps|exact.*address|address_line|street_address|coordinates?|latitude|longitude|legal.*name|legal_name|challenge.*hash|challenge_hash|hash/i;
@@ -34,7 +40,10 @@ function applyFilters(rows: Record<string, unknown>[], call: Call) {
       return currentRows.filter((row) => row[filter.column] === filter.value);
     }
 
-    return currentRows.filter((row) => Array.isArray(filter.value) && filter.value.includes(row[filter.column]));
+    return currentRows.filter(
+      (row) =>
+        Array.isArray(filter.value) && filter.value.includes(row[filter.column]),
+    );
   }, rows);
 }
 
@@ -69,13 +78,17 @@ function createFakeSupabaseClient(rowsByTable: RowsByTable) {
               },
               single() {
                 call.single = true;
-                return Promise.resolve(createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call));
-              },
-              then(resolve: (value: unknown) => unknown, reject: (reason?: unknown) => unknown) {
-                return Promise.resolve(createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call)).then(
-                  resolve,
-                  reject,
+                return Promise.resolve(
+                  createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call),
                 );
+              },
+              then(
+                resolve: (value: unknown) => unknown,
+                reject: (reason?: unknown) => unknown,
+              ) {
+                return Promise.resolve(
+                  createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call),
+                ).then(resolve, reject);
               },
             };
 
@@ -160,7 +173,9 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
         filters: [{ kind: 'in', column: 'provider_id', value: ['prov-live-01'] }],
       },
     ]);
-    expect(calls.map((call) => call.columns).join(',')).not.toMatch(sensitiveColumnPattern);
+    expect(calls.map((call) => call.columns).join(',')).not.toMatch(
+      sensitiveColumnPattern,
+    );
   });
 
   it('uses narrow safe request read columns and maps provider responses without addresses or coordinates', async () => {
@@ -217,7 +232,9 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
         order: { column: 'created_at', ascending: false },
       },
     ]);
-    expect(calls.map((call) => call.columns).join(',')).not.toMatch(sensitiveColumnPattern);
+    expect(calls.map((call) => call.columns).join(',')).not.toMatch(
+      sensitiveColumnPattern,
+    );
   });
 
   it('returns null for missing provider rows without surfacing Supabase not-found errors', async () => {
@@ -233,7 +250,10 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
                 return query;
               },
               single() {
-                return Promise.resolve({ data: null, error: { message: 'not found', code: 'PGRST116' } });
+                return Promise.resolve({
+                  data: null,
+                  error: { message: 'not found', code: 'PGRST116' },
+                });
               },
             };
 
@@ -244,16 +264,22 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
     };
     const readClient = createDay2BSupabaseReadClient(client as never);
 
-    await expect(readClient.getProvider?.('missing-provider')).resolves.toEqual({ data: null, error: null });
+    await expect(readClient.getProvider?.('missing-provider')).resolves.toEqual({
+      data: null,
+      error: null,
+    });
   });
 
   it('does not expose write methods from the live read adapter', () => {
     const { client } = createFakeSupabaseClient({});
     const readClient = createDay2BSupabaseReadClient(client as never);
 
-    expect(Object.keys(readClient).sort()).toEqual(['getProvider', 'listProviderRequests', 'listProvidersByCategory']);
+    expect(Object.keys(readClient).sort()).toEqual([
+      'getProvider',
+      'listProviderRequests',
+      'listProvidersByCategory',
+    ]);
     expect('createJobRequest' in readClient).toBe(false);
     expect('updateRequestStatus' in readClient).toBe(false);
   });
 });
-EOF
