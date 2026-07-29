@@ -65,7 +65,8 @@ export function getActiveLocationContext(options: ActiveLocationContextOptions =
 export function createActiveLocationContext(options: ActiveLocationContextOptions = {}): ActiveLocationContext {
   const neighborhoods = options.neighborhoods ?? accraNeighborhoods;
   const requestedNeighborhoodId = options.neighborhoodId ?? fallbackNeighborhoodId;
-  const neighborhood = findNeighborhood(neighborhoods, requestedNeighborhoodId) ?? findNeighborhood(neighborhoods, fallbackNeighborhoodId);
+  const neighborhood =
+    findNeighborhood(neighborhoods, requestedNeighborhoodId) ?? findNeighborhood(neighborhoods, fallbackNeighborhoodId);
   const neighborhoodId = neighborhood?.id ?? fallbackNeighborhoodId;
   const neighborhoodName = neighborhood?.name ?? 'East Legon';
   const city = neighborhood?.city ?? 'Accra';
