@@ -1,8 +1,9 @@
 import type { CommunityActionsReadRepository } from '@/lib/community-actions-repository';
 import type { Day2BReadRepository } from '@/lib/day2b-read-repository';
+import { getActiveDay3NeighborhoodContext } from '@/lib/location-context';
 import { categories } from '@/lib/mock-data';
 import type { MarketplaceListing, ServiceCategory } from '@/types/contracts';
-import type { AgencyBroadcast } from '@/types/day3';
+import type { AgencyBroadcast, Day3NeighborhoodContext } from '@/types/day3';
 
 export type SearchResultKind = 'provider' | 'request' | 'group' | 'agency_broadcast' | 'marketplace_listing';
 
@@ -30,6 +31,7 @@ export type SearchRepositoryOptions = {
   marketplaceReadSource?: MarketplaceReadSource;
   categories?: ServiceCategory[];
   providerRequestPreviewId?: string;
+  communityViewer?: Day3NeighborhoodContext;
   limit?: number;
 };
 
@@ -41,6 +43,7 @@ const fallbackPreviewProviderId = 'prov-01';
 export function createSearchRepository(options: SearchRepositoryOptions = {}): SearchRepository {
   const sourceCategories = options.categories ?? categories;
   const providerRequestPreviewId = options.providerRequestPreviewId ?? getProviderRequestPreviewId();
+  const communityViewer = options.communityViewer ?? getActiveDay3NeighborhoodContext();
   const limit = options.limit ?? defaultLimit;
 
   return {
@@ -54,7 +57,7 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
       const [providers, requests, community, marketplace] = await Promise.all([
         safeRead(() => providerResults(day2bRepository, sourceCategories)),
         safeRead(() => requestResults(day2bRepository, providerRequestPreviewId)),
-        safeRead(() => communityResults(communityRepository)),
+        safeRead(() => communityResults(communityRepository, communityViewer)),
         safeRead(() => marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource)),
       ]);
 
@@ -101,10 +104,13 @@ async function requestResults(repository: Day2BReadRepository, providerId: strin
   }));
 }
 
-async function communityResults(repository: CommunityActionsReadRepository): Promise<SearchResult[]> {
+async function communityResults(
+  repository: CommunityActionsReadRepository,
+  viewer: Day3NeighborhoodContext,
+): Promise<SearchResult[]> {
   const [groupSections, broadcasts] = await Promise.all([
-    repository.listSocialGroupScreenSections(),
-    repository.listAgencyBroadcasts(),
+    repository.listSocialGroupScreenSections(viewer),
+    repository.listAgencyBroadcasts(viewer),
   ]);
 
   const groups: SearchResult[] = groupSections.map(({ group, membershipStatus }) => ({
