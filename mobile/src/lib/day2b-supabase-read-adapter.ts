@@ -94,7 +94,7 @@ type ProviderResponseRow = {
 };
 
 export const day2bProviderProfileColumns =
-  'id,business_name,headline,general_area,rating,review_count,completed_jobs,response_rate,community_recommendations,availability,accepting_requests,account_age';
+  'id,business_name,headline,general_area,rating,review_count,completed_jobs,response_rate,community_recommendations,availability,accepting_requests';
 
 export const day2bProviderServiceColumns = 'provider_id,category_id,service_label';
 
