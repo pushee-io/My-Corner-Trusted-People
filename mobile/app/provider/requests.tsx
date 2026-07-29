@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { StatusPill } from '@/components/StatusPill';
-import { listProviderRequests } from '@/lib/repository';
+import { listDay2BProviderRequests } from '@/lib/day2b-read-repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
@@ -14,7 +14,7 @@ export default function ProviderRequestsScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    listProviderRequests()
+    listDay2BProviderRequests()
       .then(setRequests)
       .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load incoming requests.'))
       .finally(() => setIsLoading(false));
