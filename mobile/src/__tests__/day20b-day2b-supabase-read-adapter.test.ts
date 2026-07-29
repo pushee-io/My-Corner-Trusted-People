@@ -79,7 +79,10 @@ function createFakeSupabaseClient(rowsByTable: RowsByTable) {
               single() {
                 call.single = true;
                 return Promise.resolve(
-                  createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call),
+                  createQueryResult(
+                    applyFilters(rowsByTable[table] ?? [], call),
+                    call,
+                  ),
                 );
               },
               then(
@@ -87,7 +90,10 @@ function createFakeSupabaseClient(rowsByTable: RowsByTable) {
                 reject: (reason?: unknown) => unknown,
               ) {
                 return Promise.resolve(
-                  createQueryResult(applyFilters(rowsByTable[table] ?? [], call), call),
+                  createQueryResult(
+                    applyFilters(rowsByTable[table] ?? [], call),
+                    call,
+                  ),
                 ).then(resolve, reject);
               },
             };
@@ -165,12 +171,16 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
       {
         table: 'provider_services',
         columns: day2bProviderServiceColumns,
-        filters: [{ kind: 'in', column: 'provider_id', value: ['prov-live-01'] }],
+        filters: [
+          { kind: 'in', column: 'provider_id', value: ['prov-live-01'] },
+        ],
       },
       {
         table: 'provider_trust_signals',
         columns: day2bProviderTrustSignalColumns,
-        filters: [{ kind: 'in', column: 'provider_id', value: ['prov-live-01'] }],
+        filters: [
+          { kind: 'in', column: 'provider_id', value: ['prov-live-01'] },
+        ],
       },
     ]);
     expect(calls.map((call) => call.columns).join(',')).not.toMatch(
@@ -228,7 +238,9 @@ describe('Day 20B Day 2b Supabase read adapter', () => {
       {
         table: 'provider_responses',
         columns: day2bProviderResponseColumns,
-        filters: [{ kind: 'in', column: 'job_request_id', value: ['req-live-01'] }],
+        filters: [
+          { kind: 'in', column: 'job_request_id', value: ['req-live-01'] },
+        ],
         order: { column: 'created_at', ascending: false },
       },
     ]);
