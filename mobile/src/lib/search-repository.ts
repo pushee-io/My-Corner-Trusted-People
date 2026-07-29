@@ -2,10 +2,14 @@ import {
   createCommunityActionsReadRepository,
   type CommunityActionsReadRepository,
 } from '@/lib/community-actions-repository';
-import { getDay2BReadRepository, type Day2BReadRepository } from '@/lib/day2b-read-repository';
+import {
+  getDay2BPreviewProviderId,
+  getDay2BReadRepository,
+  type Day2BReadRepository,
+} from '@/lib/day2b-read-repository';
 import { getMarketplaceNeighborhood, listMarketplaceListings } from '@/lib/marketplace-repository';
 import { categories } from '@/lib/mock-data';
-import type { JobRequest, MarketplaceListing, Provider, ServiceCategory } from '@/types/contracts';
+import type { MarketplaceListing, ServiceCategory } from '@/types/contracts';
 import type { AgencyBroadcast } from '@/types/day3';
 
 export type SearchResultKind = 'provider' | 'request' | 'group' | 'agency_broadcast' | 'marketplace_listing';
@@ -33,6 +37,7 @@ export type SearchRepositoryOptions = {
   communityReadRepository?: CommunityActionsReadRepository;
   marketplaceReadSource?: MarketplaceReadSource;
   categories?: ServiceCategory[];
+  providerRequestPreviewId?: string;
   limit?: number;
 };
 
@@ -41,6 +46,7 @@ const minimumQueryLength = 2;
 
 export function createSearchRepository(options: SearchRepositoryOptions = {}): SearchRepository {
   const sourceCategories = options.categories ?? categories;
+  const providerRequestPreviewId = options.providerRequestPreviewId ?? getDay2BPreviewProviderId();
   const limit = options.limit ?? defaultLimit;
 
   return {
@@ -50,7 +56,7 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
 
       const [providers, requests, community, marketplace] = await Promise.all([
         safeRead(() => providerResults(options.day2bReadRepository ?? getDay2BReadRepository(), sourceCategories)),
-        safeRead(() => requestResults(options.day2bReadRepository ?? getDay2BReadRepository())),
+        safeRead(() => requestResults(options.day2bReadRepository ?? getDay2BReadRepository(), providerRequestPreviewId)),
         safeRead(() => communityResults(options.communityReadRepository ?? createCommunityActionsReadRepository())),
         safeRead(() => marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource)),
       ]);
@@ -84,8 +90,8 @@ async function providerResults(
   }));
 }
 
-async function requestResults(repository: Day2BReadRepository): Promise<SearchResult[]> {
-  const requests = await repository.listProviderRequests();
+async function requestResults(repository: Day2BReadRepository, providerId: string): Promise<SearchResult[]> {
+  const requests = await repository.listProviderRequests(providerId);
 
   return requests.map((request) => ({
     id: `request-${request.id}`,
