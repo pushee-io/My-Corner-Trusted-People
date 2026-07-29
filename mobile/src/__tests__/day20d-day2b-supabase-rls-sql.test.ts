@@ -13,12 +13,10 @@ import {
   hasPrivateDay2BReadColumn,
 } from '@/lib/day2b-supabase-read-policy';
 
-const migrationPath = path.resolve(
-  __dirname,
-  '../../..',
-  'supabase/migrations/20260729005000_day2b_live_read_rls.sql',
-);
+const migrationFile = 'supabase/migrations/20260729005000_day2b_live_read_rls.sql';
+const migrationPath = path.resolve(__dirname, '../../..', migrationFile);
 const migrationSql = readFileSync(migrationPath, 'utf8');
+const normalizedSql = migrationSql.toLowerCase();
 
 const expectedColumnsByTable = {
   provider_profiles: columnsFrom(day2bProviderProfileColumns),
@@ -32,6 +30,10 @@ function columnsFrom(columnList: string): string[] {
   return columnList.split(',').map((column) => column.trim());
 }
 
+function expectSql(fragment: string) {
+  expect(migrationSql).toContain(fragment);
+}
+
 function grantColumnsFor(table: string): string[] {
   const grantStart = 'grant select (';
   const grantEnd = `) on table public.${table} to authenticated;`;
@@ -42,27 +44,26 @@ function grantColumnsFor(table: string): string[] {
   const grantStartIndex = migrationSql.lastIndexOf(grantStart, grantEndIndex);
   if (grantStartIndex === -1) throw new Error(`Missing column grant for ${table}.`);
 
-  return migrationSql
-    .slice(grantStartIndex + grantStart.length, grantEndIndex)
-    .split(',')
-    .map((column) => column.trim())
-    .filter(Boolean);
+  const grantBody = migrationSql.slice(grantStartIndex + grantStart.length, grantEndIndex);
+  const grantColumns = grantBody.split(',');
+
+  return grantColumns.map((column) => column.trim()).filter(Boolean);
 }
 
 describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
   it('creates the migration in the standard Supabase migrations directory', () => {
-    expect(migrationPath).toMatch(/supabase\/migrations\/20260729005000_day2b_live_read_rls\.sql$/);
+    expect(migrationPath.endsWith(migrationFile)).toBe(true);
   });
 
   it('enables RLS for every Day 2b live read table', () => {
     for (const table of day2bReadTables) {
-      expect(migrationSql).toContain(`alter table if exists public.${table} enable row level security;`);
+      expectSql(`alter table if exists public.${table} enable row level security;`);
     }
   });
 
   it('revokes broad anon and authenticated SELECT access before granting narrow reads', () => {
     for (const table of day2bReadTables) {
-      expect(migrationSql).toContain(`revoke select on table public.${table} from anon, authenticated;`);
+      expectSql(`revoke select on table public.${table} from anon, authenticated;`);
     }
   });
 
@@ -73,8 +74,8 @@ describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
   });
 
   it('does not grant private Day 2b columns or wildcard table selects', () => {
-    expect(migrationSql.toLowerCase()).not.toMatch(/grant\s+(insert|update|delete|all)\b/);
-    expect(migrationSql.toLowerCase()).not.toMatch(/grant\s+select\s+on\s+table/);
+    expect(normalizedSql).not.toMatch(/grant\s+(insert|update|delete|all)\b/);
+    expect(normalizedSql).not.toMatch(/grant\s+select\s+on\s+table/);
 
     for (const table of day2bReadTables) {
       for (const column of grantColumnsFor(table)) {
@@ -86,21 +87,21 @@ describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
 
   it('creates authenticated SELECT policies for every Day 2b read table', () => {
     for (const contract of day2bReadPolicyContracts) {
-      expect(migrationSql).toContain(`create policy day2b_${contract.table}_authenticated_read`);
-      expect(migrationSql).toContain(`on public.${contract.table}`);
-      expect(migrationSql).toContain('for select');
-      expect(migrationSql).toContain('to authenticated');
+      expectSql(`create policy day2b_${contract.table}_authenticated_read`);
+      expectSql(`on public.${contract.table}`);
+      expectSql('for select');
+      expectSql('to authenticated');
     }
   });
 
   it('scopes provider discovery to accepting providers and request reads to authenticated participants', () => {
-    expect(migrationSql).toContain('using (accepting_requests is true);');
-    expect(migrationSql).toContain('visible_provider.accepting_requests is true');
-    expect(migrationSql).toContain('visible_provider.id::text = provider_services.provider_id::text');
-    expect(migrationSql).toContain('visible_provider.id::text = provider_trust_signals.provider_id::text');
-    expect(migrationSql).toContain('requester_id::text = auth.uid()::text');
-    expect(migrationSql).toContain('provider_id::text = auth.uid()::text');
-    expect(migrationSql).toContain('visible_request.id::text = provider_responses.job_request_id::text');
-    expect(migrationSql).toContain('from public.job_requests visible_request');
+    expectSql('using (accepting_requests is true);');
+    expectSql('visible_provider.accepting_requests is true');
+    expectSql('visible_provider.id::text = provider_services.provider_id::text');
+    expectSql('visible_provider.id::text = provider_trust_signals.provider_id::text');
+    expectSql('requester_id::text = auth.uid()::text');
+    expectSql('provider_id::text = auth.uid()::text');
+    expectSql('visible_request.id::text = provider_responses.job_request_id::text');
+    expectSql('from public.job_requests visible_request');
   });
 });
