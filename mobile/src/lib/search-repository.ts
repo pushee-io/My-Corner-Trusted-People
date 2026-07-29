@@ -1,13 +1,5 @@
-import {
-  createCommunityActionsReadRepository,
-  type CommunityActionsReadRepository,
-} from '@/lib/community-actions-repository';
-import {
-  getDay2BPreviewProviderId,
-  getDay2BReadRepository,
-  type Day2BReadRepository,
-} from '@/lib/day2b-read-repository';
-import { getMarketplaceNeighborhood, listMarketplaceListings } from '@/lib/marketplace-repository';
+import type { CommunityActionsReadRepository } from '@/lib/community-actions-repository';
+import type { Day2BReadRepository } from '@/lib/day2b-read-repository';
 import { categories } from '@/lib/mock-data';
 import type { MarketplaceListing, ServiceCategory } from '@/types/contracts';
 import type { AgencyBroadcast } from '@/types/day3';
@@ -43,10 +35,12 @@ export type SearchRepositoryOptions = {
 
 const defaultLimit = 20;
 const minimumQueryLength = 2;
+const previewProviderIdEnvKey = 'EXPO_PUBLIC_MY_CORNER_DAY2B_PROVIDER_PREVIEW_ID';
+const fallbackPreviewProviderId = 'prov-01';
 
 export function createSearchRepository(options: SearchRepositoryOptions = {}): SearchRepository {
   const sourceCategories = options.categories ?? categories;
-  const providerRequestPreviewId = options.providerRequestPreviewId ?? getDay2BPreviewProviderId();
+  const providerRequestPreviewId = options.providerRequestPreviewId ?? getProviderRequestPreviewId();
   const limit = options.limit ?? defaultLimit;
 
   return {
@@ -54,12 +48,13 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
       const normalizedQuery = normalize(query);
       if (normalizedQuery.length < minimumQueryLength) return [];
 
+      const day2bRepository = options.day2bReadRepository ?? (await getDefaultDay2BReadRepository());
+      const communityRepository = options.communityReadRepository ?? (await getDefaultCommunityReadRepository());
+
       const [providers, requests, community, marketplace] = await Promise.all([
-        safeRead(() => providerResults(options.day2bReadRepository ?? getDay2BReadRepository(), sourceCategories)),
-        safeRead(() =>
-          requestResults(options.day2bReadRepository ?? getDay2BReadRepository(), providerRequestPreviewId),
-        ),
-        safeRead(() => communityResults(options.communityReadRepository ?? createCommunityActionsReadRepository())),
+        safeRead(() => providerResults(day2bRepository, sourceCategories)),
+        safeRead(() => requestResults(day2bRepository, providerRequestPreviewId)),
+        safeRead(() => communityResults(communityRepository)),
         safeRead(() => marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource)),
       ]);
 
@@ -154,10 +149,32 @@ async function marketplaceResults(source: MarketplaceReadSource): Promise<Search
 
 const defaultMarketplaceReadSource: MarketplaceReadSource = {
   async listListings() {
+    const { getMarketplaceNeighborhood, listMarketplaceListings } = await import('@/lib/marketplace-repository');
     const neighborhood = await getMarketplaceNeighborhood();
     return listMarketplaceListings(neighborhood.id);
   },
 };
+
+async function getDefaultDay2BReadRepository(): Promise<Day2BReadRepository> {
+  const { getDay2BReadRepository } = await import('@/lib/day2b-read-repository');
+  return getDay2BReadRepository();
+}
+
+async function getDefaultCommunityReadRepository(): Promise<CommunityActionsReadRepository> {
+  const { createCommunityActionsReadRepository } = await import('@/lib/community-actions-repository');
+  return createCommunityActionsReadRepository();
+}
+
+function getProviderRequestPreviewId(): string {
+  return envValue(previewProviderIdEnvKey) ?? fallbackPreviewProviderId;
+}
+
+function envValue(key: string): string | undefined {
+  const maybeProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+  const value = maybeProcess?.env?.[key];
+
+  return value && value.trim().length > 0 ? value : undefined;
+}
 
 function matchesQuery(result: SearchResult, normalizedQuery: string) {
   return searchableText(result).includes(normalizedQuery);
