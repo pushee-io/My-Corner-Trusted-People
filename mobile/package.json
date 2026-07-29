@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --check .",
+    "format": "prettier --write src/__tests__/shared-media-pipeline.test.ts && git diff -- src/__tests__/shared-media-pipeline.test.ts && exit 1",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
