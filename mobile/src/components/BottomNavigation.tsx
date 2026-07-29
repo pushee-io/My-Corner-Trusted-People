@@ -1,0 +1,79 @@
+import { Link, usePathname } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { tokens } from '@/theme/tokens';
+
+type BottomNavigationItem = {
+  label: string;
+  href: string;
+  match: string[];
+};
+
+export const bottomNavigationItems: BottomNavigationItem[] = [
+  { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
+  { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
+  { label: 'Community', href: '/community', match: ['/community', '/groups', '/agency-broadcasts'] },
+  { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
+  { label: 'Settings', href: '/settings', match: ['/settings'] },
+];
+
+function isSelected(pathname: string, item: BottomNavigationItem) {
+  return item.match.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
+export function BottomNavigation() {
+  const pathname = usePathname();
+
+  return (
+    <View accessibilityRole="tablist" style={styles.container}>
+      {bottomNavigationItems.map((item) => {
+        const selected = isSelected(pathname, item);
+
+        return (
+          <Link key={item.href} href={item.href} asChild>
+            <Pressable
+              accessibilityRole="tab"
+              accessibilityState={{ selected }}
+              style={[styles.item, selected ? styles.selectedItem : null]}
+            >
+              <Text style={[styles.label, selected ? styles.selectedLabel : null]}>{item.label}</Text>
+            </Pressable>
+          </Link>
+        );
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: tokens.spacing.sm,
+    paddingVertical: tokens.spacing.sm,
+  },
+  item: {
+    alignItems: 'center',
+    borderRadius: tokens.radius.md,
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.xs,
+    paddingVertical: tokens.spacing.sm,
+  },
+  selectedItem: {
+    backgroundColor: tokens.color.primary,
+  },
+  label: {
+    color: tokens.color.textSecondary,
+    fontSize: tokens.type.minimum,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  selectedLabel: {
+    color: '#FFFFFF',
+  },
+});
