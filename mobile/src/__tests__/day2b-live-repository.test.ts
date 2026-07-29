@@ -67,6 +67,12 @@ jest.mock('@/lib/repository', () => ({
   updateRequestStatus: jest.fn(),
 }));
 
+const mockGetSupabaseDay2BReadClient = jest.fn();
+
+jest.mock('@/lib/day2b-supabase-read-adapter', () => ({
+  getSupabaseDay2BReadClient: mockGetSupabaseDay2BReadClient,
+}));
+
 import {
   Day2BLiveRepositoryError,
   getDay2BLiveRepository,
@@ -81,6 +87,10 @@ const explicitLiveConfig = {
 };
 
 describe('Day 2b live recovery boundary', () => {
+  beforeEach(() => {
+    mockGetSupabaseDay2BReadClient.mockReset();
+  });
+
   it('keeps seeded/local behavior as the default mode', async () => {
     const repository = getDay2BLiveRepository({});
     const providers = await repository.listProvidersByCategory('plumbing');
@@ -88,6 +98,7 @@ describe('Day 2b live recovery boundary', () => {
     expect(repository.mode).toBe('seeded');
     expect(providers.length).toBeGreaterThanOrEqual(3);
     expect(providers[0]?.id).toMatch(/^prov-/);
+    expect(mockGetSupabaseDay2BReadClient).not.toHaveBeenCalled();
   });
 
   it('fails closed when live mode is requested without Supabase config', async () => {
@@ -99,6 +110,35 @@ describe('Day 2b live recovery boundary', () => {
 
     expect(repository.mode).toBe('live-disabled');
     await expect(repository.listProvidersByCategory('plumbing')).rejects.toThrow(Day2BLiveRepositoryError);
+    expect(mockGetSupabaseDay2BReadClient).not.toHaveBeenCalled();
+  });
+
+  it('uses the configured Supabase read adapter when live mode is explicit', async () => {
+    mockGetSupabaseDay2BReadClient.mockReturnValue({
+      listProvidersByCategory: async () => ({
+        error: null,
+        data: [
+          {
+            id: 'prov-live-adapter',
+            business_name: 'Adapter Repairs',
+            headline: 'Read-only live provider',
+            general_area: 'East Legon and nearby',
+            category_ids: ['plumbing'],
+            trust_signals: [{ id: 'phone-verified', label: 'Phone verified', value: 'Yes' }],
+            completed_jobs: 12,
+            response_rate: 90,
+            accepting_requests: true,
+          },
+        ],
+      }),
+    });
+
+    const repository = getDay2BLiveRepository(explicitLiveConfig);
+    const providers = await repository.listProvidersByCategory('plumbing');
+
+    expect(repository.mode).toBe('live-readonly');
+    expect(mockGetSupabaseDay2BReadClient).toHaveBeenCalledTimes(1);
+    expect(providers[0]?.id).toBe('prov-live-adapter');
   });
 
   it('uses safe live provider payloads without private Day 2b fields', async () => {
