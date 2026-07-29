@@ -7,9 +7,17 @@ import {
   day2bProviderServiceColumns,
   day2bProviderTrustSignalColumns,
 } from '@/lib/day2b-supabase-read-adapter';
-import { day2bReadPolicyContracts, day2bReadTables, hasPrivateDay2BReadColumn } from '@/lib/day2b-supabase-read-policy';
+import {
+  day2bReadPolicyContracts,
+  day2bReadTables,
+  hasPrivateDay2BReadColumn,
+} from '@/lib/day2b-supabase-read-policy';
 
-const migrationPath = path.resolve(__dirname, '../../..', 'supabase/migrations/20260729005000_day2b_live_read_rls.sql');
+const migrationPath = path.resolve(
+  __dirname,
+  '../../..',
+  'supabase/migrations/20260729005000_day2b_live_read_rls.sql',
+);
 const migrationSql = readFileSync(migrationPath, 'utf8');
 
 const expectedColumnsByTable = {
@@ -25,7 +33,9 @@ function columnsFrom(columnList: string): string[] {
 }
 
 function grantColumnsFor(table: string): string[] {
-  const match = migrationSql.match(new RegExp(`grant select \\(([\\s\\S]*?)\\) on table public\\.${table} to authenticated;`, 'i'));
+  const match = migrationSql.match(
+    new RegExp(`grant select \\(([\\s\\S]*?)\\) on table public\\.${table} to authenticated;`, 'i'),
+  );
   if (!match?.[1]) throw new Error(`Missing column grant for ${table}.`);
 
   return match[1]
@@ -81,8 +91,11 @@ describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
   it('scopes provider discovery to accepting providers and request reads to authenticated participants', () => {
     expect(migrationSql).toContain('using (accepting_requests is true);');
     expect(migrationSql).toContain('visible_provider.accepting_requests is true');
+    expect(migrationSql).toContain('visible_provider.id::text = provider_services.provider_id::text');
+    expect(migrationSql).toContain('visible_provider.id::text = provider_trust_signals.provider_id::text');
     expect(migrationSql).toContain('requester_id::text = auth.uid()::text');
     expect(migrationSql).toContain('provider_id::text = auth.uid()::text');
+    expect(migrationSql).toContain('visible_request.id::text = provider_responses.job_request_id::text');
     expect(migrationSql).toContain('from public.job_requests visible_request');
   });
 });
