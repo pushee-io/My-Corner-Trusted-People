@@ -113,9 +113,7 @@ describe('shared media pipeline foundation', () => {
     });
 
     expect(result.accepted).toBe(false);
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({ code: 'too_many_files', index: 4 }),
-    );
+    expect(result.errors).toContainEqual(expect.objectContaining({ code: 'too_many_files', index: 4 }));
   });
 
   it('rejects invalid local media drafts before upload code can run', () => {
@@ -152,7 +150,8 @@ describe('shared media pipeline foundation', () => {
           fileName: '+233000000000 exact-address GhanaPost GPS legal-name challenge-hash.jpg',
           mimeType: 'image/png',
           byteSize: 128_000,
-          altText: 'Call +233244000000 or email akosua@example.com at GA-123-4567, exact address, legal name, challenge hash',
+          altText:
+            'Call +233244000000 or email akosua@example.com at GA-123-4567, exact address, legal name, challenge hash',
         },
       ],
     });
