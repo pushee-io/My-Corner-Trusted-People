@@ -7,11 +7,7 @@ import {
   day2bProviderServiceColumns,
   day2bProviderTrustSignalColumns,
 } from '@/lib/day2b-supabase-read-adapter';
-import {
-  day2bReadPolicyContracts,
-  day2bReadTables,
-  hasPrivateDay2BReadColumn,
-} from '@/lib/day2b-supabase-read-policy';
+import { day2bReadPolicyContracts, day2bReadTables, hasPrivateDay2BReadColumn } from '@/lib/day2b-supabase-read-policy';
 
 const migrationFile = 'supabase/migrations/20260729005000_day2b_live_read_rls.sql';
 const migrationPath = path.resolve(__dirname, '../../..', migrationFile);

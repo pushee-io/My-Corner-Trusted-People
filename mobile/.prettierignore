@@ -3,4 +3,3 @@ node_modules/
 coverage/
 dist/
 build/
-src/__tests__/day20d-day2b-supabase-rls-sql.test.ts
