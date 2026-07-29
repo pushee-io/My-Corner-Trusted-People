@@ -33,12 +33,17 @@ function columnsFrom(columnList: string): string[] {
 }
 
 function grantColumnsFor(table: string): string[] {
-  const match = migrationSql.match(
-    new RegExp(`grant select \\(([\\s\\S]*?)\\) on table public\\.${table} to authenticated;`, 'i'),
-  );
-  if (!match?.[1]) throw new Error(`Missing column grant for ${table}.`);
+  const grantStart = 'grant select (';
+  const grantEnd = `) on table public.${table} to authenticated;`;
+  const grantEndIndex = migrationSql.indexOf(grantEnd);
 
-  return match[1]
+  if (grantEndIndex === -1) throw new Error(`Missing column grant for ${table}.`);
+
+  const grantStartIndex = migrationSql.lastIndexOf(grantStart, grantEndIndex);
+  if (grantStartIndex === -1) throw new Error(`Missing column grant for ${table}.`);
+
+  return migrationSql
+    .slice(grantStartIndex + grantStart.length, grantEndIndex)
     .split(',')
     .map((column) => column.trim())
     .filter(Boolean);
@@ -55,9 +60,9 @@ describe('Day 20D Day 2b Supabase RLS SQL migration', () => {
     }
   });
 
-  it('revokes broad anon and authenticated access before granting narrow reads', () => {
+  it('revokes broad anon and authenticated SELECT access before granting narrow reads', () => {
     for (const table of day2bReadTables) {
-      expect(migrationSql).toContain(`revoke all on table public.${table} from anon, authenticated;`);
+      expect(migrationSql).toContain(`revoke select on table public.${table} from anon, authenticated;`);
     }
   });
 
