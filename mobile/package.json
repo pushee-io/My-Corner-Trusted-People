@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --write app/search.tsx src/__tests__/day21-search-read-surfaces.test.ts src/lib/search-repository.ts && git diff -- app/search.tsx src/__tests__/day21-search-read-surfaces.test.ts src/lib/search-repository.ts && exit 1",
+    "format": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
