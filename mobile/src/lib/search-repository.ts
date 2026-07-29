@@ -56,7 +56,9 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
 
       const [providers, requests, community, marketplace] = await Promise.all([
         safeRead(() => providerResults(options.day2bReadRepository ?? getDay2BReadRepository(), sourceCategories)),
-        safeRead(() => requestResults(options.day2bReadRepository ?? getDay2BReadRepository(), providerRequestPreviewId)),
+        safeRead(() =>
+          requestResults(options.day2bReadRepository ?? getDay2BReadRepository(), providerRequestPreviewId),
+        ),
         safeRead(() => communityResults(options.communityReadRepository ?? createCommunityActionsReadRepository())),
         safeRead(() => marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource)),
       ]);
