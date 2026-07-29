@@ -1,4 +1,7 @@
-import { createCommunityActionsReadRepository, type CommunityActionsReadRepository } from '@/lib/community-actions-repository';
+import {
+  createCommunityActionsReadRepository,
+  type CommunityActionsReadRepository,
+} from '@/lib/community-actions-repository';
 import { getDay2BReadRepository, type Day2BReadRepository } from '@/lib/day2b-read-repository';
 import { getMarketplaceNeighborhood, listMarketplaceListings } from '@/lib/marketplace-repository';
 import { categories } from '@/lib/mock-data';
@@ -61,7 +64,10 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
 
 export const searchRepository = createSearchRepository();
 
-async function providerResults(repository: Day2BReadRepository, sourceCategories: ServiceCategory[]): Promise<SearchResult[]> {
+async function providerResults(
+  repository: Day2BReadRepository,
+  sourceCategories: ServiceCategory[],
+): Promise<SearchResult[]> {
   const providerLists = await Promise.all(
     sourceCategories.map((category) => safeRead(() => repository.listProvidersByCategory(category.id))),
   );
@@ -130,7 +136,8 @@ async function marketplaceResults(source: MarketplaceReadSource): Promise<Search
     id: `marketplace-${listing.id}`,
     kind: 'marketplace_listing',
     title: listing.title,
-    subtitle: listing.priceGhs === undefined ? 'Marketplace · Free or negotiable' : `Marketplace · GHS ${listing.priceGhs}`,
+    subtitle:
+      listing.priceGhs === undefined ? 'Marketplace · Free or negotiable' : `Marketplace · GHS ${listing.priceGhs}`,
     body: [listing.description, listing.pickupArea, listing.availability].filter(Boolean).join(' · '),
     href: '/marketplace',
     sourceLabel: 'Marketplace',
