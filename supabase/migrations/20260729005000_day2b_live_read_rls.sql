@@ -1,7 +1,7 @@
 -- Day 20D: Day 2b live read boundary RLS policies.
--- This migration intentionally enables only authenticated read access for the
+-- This migration intentionally enables authenticated read access only for the
 -- narrow columns used by mobile/src/lib/day2b-supabase-read-adapter.ts.
--- It does not create tables and does not grant insert, update, delete, or upsert access.
+-- It does not grant insert, update, delete, or upsert access.
 
 alter table if exists public.provider_profiles enable row level security;
 alter table if exists public.provider_services enable row level security;
@@ -9,11 +9,11 @@ alter table if exists public.provider_trust_signals enable row level security;
 alter table if exists public.job_requests enable row level security;
 alter table if exists public.provider_responses enable row level security;
 
-revoke all on table public.provider_profiles from anon, authenticated;
-revoke all on table public.provider_services from anon, authenticated;
-revoke all on table public.provider_trust_signals from anon, authenticated;
-revoke all on table public.job_requests from anon, authenticated;
-revoke all on table public.provider_responses from anon, authenticated;
+revoke select on table public.provider_profiles from anon, authenticated;
+revoke select on table public.provider_services from anon, authenticated;
+revoke select on table public.provider_trust_signals from anon, authenticated;
+revoke select on table public.job_requests from anon, authenticated;
+revoke select on table public.provider_responses from anon, authenticated;
 
 grant select (
   id,
