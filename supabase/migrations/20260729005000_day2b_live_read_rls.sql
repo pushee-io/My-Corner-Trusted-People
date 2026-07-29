@@ -1,7 +1,7 @@
 -- Day 20D: Day 2b live read boundary RLS policies.
 -- This migration intentionally enables authenticated read access only for the
 -- narrow columns used by mobile/src/lib/day2b-supabase-read-adapter.ts.
--- It does not grant insert, update, delete, or upsert access.
+-- It leaves existing write privileges unchanged and adds no write privileges.
 
 alter table if exists public.provider_profiles enable row level security;
 alter table if exists public.provider_services enable row level security;
