@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --check .",
+    "format": "prettier --write src/__tests__/day20d-day2b-supabase-rls-sql.test.ts && git diff -- src/__tests__/day20d-day2b-supabase-rls-sql.test.ts && exit 1",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
