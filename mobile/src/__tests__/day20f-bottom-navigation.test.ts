@@ -8,6 +8,7 @@ const signInSource = readFileSync('app/sign-in.tsx', 'utf8');
 const expectedTabs = [
   { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
   { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
+  { label: 'Search', href: '/search', match: ['/search'] },
   { label: 'Community', href: '/community', match: ['/community', '/groups', '/agency-broadcasts'] },
   { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
   { label: 'Settings', href: '/settings', match: ['/settings'] },
