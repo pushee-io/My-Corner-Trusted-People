@@ -1,15 +1,16 @@
-const mockGetDay2BLiveRepository = jest.fn();
-
 jest.mock('@/lib/day2b-live-repository', () => ({
-  getDay2BLiveRepository: mockGetDay2BLiveRepository,
+  getDay2BLiveRepository: jest.fn(),
 }));
 
+import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
 import {
   getDay2BPreviewProviderId,
   getDay2BReadRepository,
   listDay2BProviderRequests,
   listDay2BProvidersByCategory,
 } from '@/lib/day2b-read-repository';
+
+const mockGetDay2BLiveRepository = getDay2BLiveRepository as jest.Mock;
 
 const readRepository = {
   mode: 'seeded',
