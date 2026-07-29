@@ -1,12 +1,13 @@
 import { createNeighborhoodFeedPost, getFeedUnlockStatus, listUnlockedNeighborhoodPosts } from '@/lib/feed-unlock';
+import { defaultActiveLocationContext } from '@/lib/location-context';
 import { saveNeighborhoodMembershipRecord } from '@/lib/neighborhood-membership-record';
 import { testRequester } from '@/lib/session';
 import type { AuditEvent, NeighborhoodFeedPost, NeighborhoodMembership } from '@/types/contracts';
 
 type Day2BPostResult = NeighborhoodFeedPost | undefined;
 
-export const day2bNeighborhoodId = 'east-legon';
-export const day2bNeighborhoodName = 'East Legon';
+export const day2bNeighborhoodId = defaultActiveLocationContext.neighborhoodId;
+export const day2bNeighborhoodName = defaultActiveLocationContext.neighborhoodName;
 export const day2bAuthorDisplayName = 'Akosua M.';
 
 const now = '2026-07-24T12:00:00.000Z';
