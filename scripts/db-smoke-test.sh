@@ -36,6 +36,10 @@ if [ -f supabase/tests/module1_rls_smoke.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/module1_rls_smoke.sql
 fi
 
+if [ -f supabase/tests/day2b_live_read_smoke.sql ]; then
+  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day2b_live_read_smoke.sql
+fi
+
 if [ -f supabase/tests/day2b_verified_neighborhood_access.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day2b_verified_neighborhood_access.sql
 fi
