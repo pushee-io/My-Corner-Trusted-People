@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "format": "prettier --write . && git diff -- src/__tests__/day20b-day2b-supabase-read-adapter.test.ts && exit 1",
+    "format": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
