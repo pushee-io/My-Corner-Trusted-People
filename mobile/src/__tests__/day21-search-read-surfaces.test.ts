@@ -135,7 +135,9 @@ describe('Day 21 search read surfaces', () => {
       expect.arrayContaining([expect.objectContaining({ kind: 'group', title: 'East Legon repair tips' })]),
     );
     await expect(repository.search('water pressure')).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ kind: 'agency_broadcast', title: 'Accra East water pressure update' })]),
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'agency_broadcast', title: 'Accra East water pressure update' }),
+      ]),
     );
     await expect(repository.search('chair')).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ kind: 'marketplace_listing', title: 'Study chair pickup' })]),
@@ -155,7 +157,9 @@ describe('Day 21 search read surfaces', () => {
     const results = await repository.search('water');
 
     expect(results).toEqual(
-      expect.arrayContaining([expect.objectContaining({ kind: 'agency_broadcast', title: 'Accra East water pressure update' })]),
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'agency_broadcast', title: 'Accra East water pressure update' }),
+      ]),
     );
     expect(results).not.toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'provider' })]));
   });
