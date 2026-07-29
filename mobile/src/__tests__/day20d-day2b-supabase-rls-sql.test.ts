@@ -39,10 +39,12 @@ function grantColumnsFor(table: string): string[] {
   const grantEnd = `) on table public.${table} to authenticated;`;
   const grantEndIndex = migrationSql.indexOf(grantEnd);
 
-  if (grantEndIndex === -1) throw new Error(`Missing column grant for ${table}.`);
+  if (grantEndIndex === -1)
+    throw new Error(`Missing column grant for ${table}.`);
 
   const grantStartIndex = migrationSql.lastIndexOf(grantStart, grantEndIndex);
-  if (grantStartIndex === -1) throw new Error(`Missing column grant for ${table}.`);
+  if (grantStartIndex === -1)
+    throw new Error(`Missing column grant for ${table}.`);
 
   const grantBody = migrationSql.slice(grantStartIndex + grantStart.length, grantEndIndex);
   const grantColumns = grantBody.split(',');
