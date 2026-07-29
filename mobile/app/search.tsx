@@ -50,9 +50,15 @@ export default function SearchScreen() {
       ) : isLoading ? (
         <LoadingState title="Searching" />
       ) : !hasSearched ? (
-        <EmptyState title="Search My Corner" body="Find providers, groups, agency notices, requests, and marketplace posts." />
+        <EmptyState
+          title="Search My Corner"
+          body="Find providers, groups, agency notices, requests, and marketplace posts."
+        />
       ) : results.length === 0 ? (
-        <EmptyState title="No results found" body="Try a provider, service, neighborhood, group, or marketplace keyword." />
+        <EmptyState
+          title="No results found"
+          body="Try a provider, service, neighborhood, group, or marketplace keyword."
+        />
       ) : (
         <View style={styles.results}>
           {results.map((result) => (
