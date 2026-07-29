@@ -26,8 +26,7 @@ grant select (
   response_rate,
   community_recommendations,
   availability,
-  accepting_requests,
-  account_age
+  accepting_requests
 ) on table public.provider_profiles to authenticated;
 
 grant select (
@@ -83,7 +82,7 @@ create policy day2b_provider_services_authenticated_read
     exists (
       select 1
       from public.provider_profiles visible_provider
-      where visible_provider.id = provider_services.provider_id
+      where visible_provider.id::text = provider_services.provider_id::text
         and visible_provider.accepting_requests is true
     )
   );
@@ -97,7 +96,7 @@ create policy day2b_provider_trust_signals_authenticated_read
     exists (
       select 1
       from public.provider_profiles visible_provider
-      where visible_provider.id = provider_trust_signals.provider_id
+      where visible_provider.id::text = provider_trust_signals.provider_id::text
         and visible_provider.accepting_requests is true
     )
   );
@@ -121,7 +120,7 @@ create policy day2b_provider_responses_authenticated_read
     exists (
       select 1
       from public.job_requests visible_request
-      where visible_request.id = provider_responses.job_request_id
+      where visible_request.id::text = provider_responses.job_request_id::text
         and (
           visible_request.requester_id::text = auth.uid()::text
           or visible_request.provider_id::text = auth.uid()::text
