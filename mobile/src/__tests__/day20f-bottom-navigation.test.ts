@@ -26,8 +26,8 @@ describe('Day 20F bottom navigation foundation', () => {
   });
 
   it('marks tabs as accessible and selected from nested feature routes', () => {
-    expect(bottomNavigationSource).toContain("accessibilityRole=\"tablist\"");
-    expect(bottomNavigationSource).toContain("accessibilityRole=\"tab\"");
+    expect(bottomNavigationSource).toContain('accessibilityRole="tablist"');
+    expect(bottomNavigationSource).toContain('accessibilityRole="tab"');
     expect(bottomNavigationSource).toContain('accessibilityState={{ selected }}');
     expect(bottomNavigationSource).toContain('pathname.startsWith(`${route}/`)');
   });
