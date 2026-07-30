@@ -74,7 +74,6 @@ jest.mock('@/lib/repository', () => ({
   updateRequestStatus: jest.fn(),
 }));
 
-
 const mockGetSupabaseDay2BReadClient = jest.fn();
 
 jest.mock('@/lib/day2b-supabase-read-adapter', () => ({

@@ -119,7 +119,7 @@ export function resetSupabaseCommunityReadClientForTests() {
 }
 
 function loadSupabaseModule(): SupabaseModuleShape {
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require('@/lib/supabase') as SupabaseModuleShape;
 }
 

@@ -161,7 +161,7 @@ export default function NewRequestScreen() {
       <Text style={styles.noticeText}>Prototype note: this screen will continue to review automatically.</Text>
       <Text style={styles.summary}>
         Requesting {category?.name ?? 'help'} from{' '}
-        {isProviderLoaded ? provider?.name ?? 'selected provider' : 'selected provider'}.
+        {isProviderLoaded ? (provider?.name ?? 'selected provider') : 'selected provider'}.
       </Text>
 
       <Pressable onPress={useSampleRequest} style={styles.button}>
