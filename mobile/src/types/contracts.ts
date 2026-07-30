@@ -132,7 +132,8 @@ export type UserImageBucket =
   | 'report-images'
   | 'group-images'
   | 'group-post-images'
-  | 'feed-post-images';
+  | 'feed-post-images'
+  | 'event-images';
 
 export type UserUploadedImage = {
   id: string;

@@ -1,9 +1,12 @@
 import { getCurrentProfile } from '@/lib/auth';
-import { getCurrentNeighborhood, type CurrentNeighborhood } from '@/lib/community-repository';
+import { getActiveLocationContext } from '@/lib/location-context';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { MarketplaceAvailability, MarketplaceListing, MarketplacePickupRequest } from '@/types/contracts';
 
-export type { CurrentNeighborhood } from '@/lib/community-repository';
+export type CurrentNeighborhood = {
+  id: string;
+  name: string;
+};
 
 type ListingRow = {
   id: string;
@@ -80,7 +83,11 @@ async function profileNames(profileIds: string[]) {
 }
 
 export async function getMarketplaceNeighborhood(): Promise<CurrentNeighborhood> {
-  return getCurrentNeighborhood();
+  const context = getActiveLocationContext();
+  return {
+    id: context.neighborhoodId,
+    name: context.neighborhoodName,
+  };
 }
 
 export async function listMarketplaceListings(neighborhoodId: string): Promise<MarketplaceListing[]> {

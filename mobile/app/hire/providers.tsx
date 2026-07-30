@@ -5,7 +5,7 @@ import { ProviderCard } from '@/components/ProviderCard';
 import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { categories } from '@/lib/mock-data';
-import { listProvidersByCategory } from '@/lib/repository';
+import { listDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
 import { tokens } from '@/theme/tokens';
 import type { Provider } from '@/types/contracts';
 
@@ -46,7 +46,7 @@ export default function ProvidersScreen() {
     setIsLoading(true);
     setError(undefined);
 
-    listProvidersByCategory(categoryId)
+    listDay2BProvidersByCategory(categoryId)
       .then((items) => {
         if (isMounted) setProviders(items);
       })

@@ -280,6 +280,22 @@ export function getDay2BLiveRepository(
   const mode = resolveDay2BLiveRepositoryMode(config);
 
   if (mode === 'seeded') return seededRepository();
-  if (mode === 'live-disabled' || !client) return closedRepository(mode);
-  return liveReadOnlyRepository(client);
+  if (mode === 'live-disabled') return closedRepository(mode);
+
+  const liveClient = client ?? loadConfiguredDay2BSupabaseReadClient();
+
+  if (!liveClient) return closedRepository('live-disabled');
+  return liveReadOnlyRepository(liveClient);
+}
+
+function loadConfiguredDay2BSupabaseReadClient(): Day2BSupabaseReadClient | undefined {
+  try {
+    const adapter = require('@/lib/day2b-supabase-read-adapter') as {
+      getSupabaseDay2BReadClient?: () => Day2BSupabaseReadClient;
+    };
+
+    return adapter.getSupabaseDay2BReadClient?.();
+  } catch {
+    return undefined;
+  }
 }

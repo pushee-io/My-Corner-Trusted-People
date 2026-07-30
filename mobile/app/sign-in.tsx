@@ -24,7 +24,7 @@ export default function SignInScreen() {
   }
 
   return (
-    <Screen title="Sign in">
+    <Screen title="Sign in" showBottomNavigation={false}>
       <Text style={styles.text}>Use a safe seeded account to continue this prototype.</Text>
       <Text style={styles.helper}>Requester: Akosua Mensah. Provider: Kwame PipeCare.</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}

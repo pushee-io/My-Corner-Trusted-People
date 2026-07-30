@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
+import { getActiveLocationLabel } from '@/lib/location-context';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
@@ -23,7 +24,7 @@ export default function HomeScreen() {
 
   return (
     <Screen title="My Corner home">
-      <Text style={styles.body}>East Legon · Accra pilot</Text>
+      <Text style={styles.body}>{getActiveLocationLabel()}</Text>
 
       <View style={styles.grid}>
         <Link href="/hire/categories" asChild>
