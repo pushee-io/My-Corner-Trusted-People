@@ -1,3 +1,10 @@
+import {
+  Day2BLiveRepositoryError,
+  getDay2BLiveRepository,
+  sanitizeLiveJobRequestRow,
+  sanitizeLiveProviderRow,
+} from '@/lib/day2b-live-repository';
+
 jest.mock('@/lib/repository', () => ({
   listProvidersByCategory: jest.fn((categoryId: string) => [
     {
@@ -66,13 +73,6 @@ jest.mock('@/lib/repository', () => ({
   createJobRequest: jest.fn(),
   updateRequestStatus: jest.fn(),
 }));
-
-import {
-  Day2BLiveRepositoryError,
-  getDay2BLiveRepository,
-  sanitizeLiveJobRequestRow,
-  sanitizeLiveProviderRow,
-} from '@/lib/day2b-live-repository';
 
 const explicitLiveConfig = {
   liveSupabaseEnabled: true,

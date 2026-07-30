@@ -27,12 +27,12 @@ const GHANA_POST_GPS_PATTERN = /^[A-Z]{2}-\d{3,4}-\d{3,4}$/;
 
 let currentAddress: GhanaAddressRecord | undefined;
 
-export const addressProviderOptions: Array<{
+export const addressProviderOptions: {
   provider: AddressProvider;
   label: string;
   purpose: string;
   provesResidence: false;
-}> = [
+}[] = [
   {
     provider: 'google_places_new',
     label: 'Google Places API New',

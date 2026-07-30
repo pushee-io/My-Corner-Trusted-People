@@ -62,17 +62,10 @@ export default function ProvidersScreen() {
     };
   }, [categoryId]);
 
-  useEffect(() => {
-    if (!firstProvider) return;
-
-    const timeout = setTimeout(() => continueWithProvider(firstProvider.id), 1800);
-    return () => clearTimeout(timeout);
-  }, [firstProvider?.id]);
-
   return (
     <Screen title={category ? category.name : 'Providers'}>
       <OfflineBanner />
-      <Text style={styles.note}>Prototype note: provider results will continue to review automatically.</Text>
+      <Text style={styles.note}>Choose a provider to review trust signals and start a request.</Text>
 
       <TextInput
         editable={false}

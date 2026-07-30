@@ -1,13 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { OfflineBanner } from '@/components/StateBlocks';
+import { structureServiceRequest } from '@/lib/ai';
+import { trackEvent } from '@/lib/analytics';
+import { featureFlags } from '@/lib/feature-flags';
 import { categories } from '@/lib/mock-data';
 import { getProvider } from '@/lib/repository';
-import { trackEvent } from '@/lib/analytics';
-import { structureServiceRequest } from '@/lib/ai';
-import { featureFlags } from '@/lib/feature-flags';
 import { validateRequestDraft } from '@/lib/request-validation';
 import { testRequester } from '@/lib/session';
 import { tokens } from '@/theme/tokens';
@@ -94,6 +94,7 @@ export default function NewRequestScreen() {
 
   function reviewRequest() {
     const validation = validateRequestDraft(draft, consentAccepted);
+
     if (!validation.valid) {
       setError(Object.values(validation.errors)[0] ?? 'Please complete the request.');
       return;
@@ -114,7 +115,7 @@ export default function NewRequestScreen() {
     });
   }
 
-  function useSampleRequest() {
+  const useSampleRequest = useCallback(() => {
     const sampleDraft = {
       ...draft,
       title: title || 'Kitchen sink leak',
@@ -136,14 +137,12 @@ export default function NewRequestScreen() {
         photoCount: String(sampleDraft.photoCount),
       },
     });
-  }
+  }, [description, draft, title, urgency]);
 
   useEffect(() => {
-    if (!isProviderLoaded) return undefined;
-
     const timeout = setTimeout(useSampleRequest, 1200);
     return () => clearTimeout(timeout);
-  }, [isProviderLoaded, useSampleRequest]);
+  }, [useSampleRequest]);
 
   async function useAiStructurer() {
     if (!featureFlags.ai_service_request_structurer) {
@@ -161,7 +160,8 @@ export default function NewRequestScreen() {
       <OfflineBanner />
       <Text style={styles.noticeText}>Prototype note: this screen will continue to review automatically.</Text>
       <Text style={styles.summary}>
-        Requesting {category?.name ?? 'help'} from {provider?.name ?? 'selected provider'}.
+        Requesting {category?.name ?? 'help'} from{' '}
+        {isProviderLoaded ? provider?.name ?? 'selected provider' : 'selected provider'}.
       </Text>
 
       <Pressable onPress={useSampleRequest} style={styles.button}>
