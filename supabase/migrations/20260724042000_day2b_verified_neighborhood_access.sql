@@ -155,7 +155,7 @@ create table public.residence_challenges (
   address_id uuid references public.private_addresses(id) on delete cascade,
   challenge_type text not null default 'test_postcard',
   code_hash text not null,
-  code_salt text not null default encode(gen_random_bytes(16), 'hex'),
+  code_salt text not null default encode(extensions.gen_random_bytes(16), 'hex'),
   status public.residence_challenge_status not null default 'created',
   delivery_status text not null default 'test_mode_not_mailed',
   expires_at timestamptz not null default now() + interval '14 days',
@@ -505,7 +505,7 @@ begin
   where address_id = target_address_id
     and status in ('created', 'delivery_pending', 'delivered', 'code_entered');
 
-  generated_salt := encode(gen_random_bytes(16), 'hex');
+  generated_salt := encode(extensions.gen_random_bytes(16), 'hex');
 
   insert into public.residence_challenges (
     profile_id,

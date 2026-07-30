@@ -32,6 +32,20 @@ $$;
 
 reset role;
 
+delete from public.profiles
+where auth_user_id in (
+  'aaaa1111-1111-4111-8111-111111111111',
+  'bbbb2222-2222-4222-8222-222222222222',
+  'cccc3333-3333-4333-8333-333333333333',
+  'dddd4444-4444-4444-8444-444444444444',
+  'eeee5555-5555-4555-8555-555555555555'
+);
+
+delete from public.neighborhoods
+where name in ('Day2B East Legon', 'Day2B Osu')
+  and city = 'Accra'
+  and country_code = 'GH';
+
 insert into public.profiles (auth_user_id, display_name, role, phone_verified)
 values
   ('aaaa1111-1111-4111-8111-111111111111', 'Ama Day2B', 'requester', true),
