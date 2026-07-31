@@ -132,7 +132,7 @@ const moderationCases: SupabaseModerationCaseRow[] = [
 type MockRows = Partial<Record<SupabaseCommunityReadTableName, unknown[]>>;
 
 function createMockSupabaseReadClient(rows: MockRows, failingTable?: SupabaseCommunityReadTableName) {
-  const calls: Array<{ table: SupabaseCommunityReadTableName; columns?: string }> = [];
+  const calls: { table: SupabaseCommunityReadTableName; columns?: string }[] = [];
 
   const client: SupabaseCommunityReadClient = {
     from(table) {

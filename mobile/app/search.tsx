@@ -1,75 +1,41 @@
-import { Link } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { EmptyState, LoadingState } from '@/components/StateBlocks';
 import { searchRepository, type SearchResult } from '@/lib/search-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function SearchScreen() {
-  const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
 
-  async function runSearch() {
-    setHasSearched(true);
-    setError(undefined);
-    setIsLoading(true);
-
-    try {
-      setResults(await searchRepository.search(query));
-    } catch {
-      setError('Could not search right now. Try again later.');
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  useEffect(() => {
+    const searchPromise = searchRepository.search('');
+    searchPromise.then(setResults).finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <Screen title="Search">
-      <View style={styles.searchPanel}>
-        <TextInput
-          accessibilityLabel="Search My Corner"
-          value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={runSearch}
-          placeholder="Search providers, groups, notices, requests"
-          placeholderTextColor={tokens.color.textSecondary}
-          returnKeyType="search"
-          style={styles.input}
-        />
-        <Pressable accessibilityRole="button" onPress={runSearch} style={styles.button}>
-          <Text style={styles.buttonText}>Search</Text>
-        </Pressable>
-      </View>
+      <Text style={styles.body}>Search across trusted hire, local answers, marketplace, and groups.</Text>
 
-      {error ? (
-        <ErrorState title="Search unavailable" body={error} onRetry={runSearch} />
-      ) : isLoading ? (
-        <LoadingState title="Searching" />
-      ) : !hasSearched ? (
-        <EmptyState
-          title="Search My Corner"
-          body="Find providers, groups, agency notices, requests, and marketplace posts."
-        />
+      <TextInput
+        editable={false}
+        placeholder="Search My Corner"
+        accessibilityLabel="Search My Corner"
+        style={styles.input}
+      />
+
+      {isLoading ? (
+        <LoadingState title="Loading search" />
       ) : results.length === 0 ? (
-        <EmptyState
-          title="No results found"
-          body="Try a provider, service, neighborhood, group, or marketplace keyword."
-        />
+        <EmptyState title="Search is coming next" body="Try again when search read surfaces are connected." />
       ) : (
-        <View style={styles.results}>
+        <View style={styles.section}>
           {results.map((result) => (
-            <Link key={result.id} href={result.href as '/home'} asChild>
-              <Pressable accessibilityRole="button" style={styles.resultCard}>
-                <Text style={styles.source}>{result.sourceLabel}</Text>
-                <Text style={styles.title}>{result.title}</Text>
-                <Text style={styles.subtitle}>{result.subtitle}</Text>
-                <Text style={styles.body}>{result.body}</Text>
-              </Pressable>
-            </Link>
+            <View key={result.id} style={styles.card}>
+              <Text style={styles.title}>{result.title}</Text>
+              <Text style={styles.body}>{result.subtitle}</Text>
+            </View>
           ))}
         </View>
       )}
@@ -78,45 +44,35 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  searchPanel: {
+  body: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    lineHeight: 22,
+  },
+  card: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderRadius: tokens.radius.md,
     borderWidth: 1,
-    gap: tokens.spacing.md,
+    gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
   input: {
-    backgroundColor: tokens.color.background,
+    backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderRadius: tokens.radius.md,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
     minHeight: tokens.touch.min,
-    paddingHorizontal: tokens.spacing.md,
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: tokens.color.primary,
-    borderRadius: tokens.radius.md,
-    justifyContent: 'center',
-    minHeight: tokens.touch.min,
     padding: tokens.spacing.md,
   },
-  buttonText: { color: '#FFFFFF', fontWeight: '700' },
-  results: { gap: tokens.spacing.md },
-  resultCard: {
-    backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
-    borderWidth: 1,
-    gap: tokens.spacing.xs,
-    minHeight: tokens.touch.min,
-    padding: tokens.spacing.lg,
+  section: {
+    gap: tokens.spacing.md,
   },
-  source: { color: tokens.color.primary, fontSize: tokens.type.label, fontWeight: '800' },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  subtitle: { color: tokens.color.textSecondary, fontSize: tokens.type.support, fontWeight: '700' },
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
+  title: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '700',
+  },
 });

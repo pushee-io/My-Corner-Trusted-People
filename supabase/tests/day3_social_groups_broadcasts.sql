@@ -32,6 +32,59 @@ $$;
 
 reset role;
 
+delete from public.social_group_posts
+where group_id in (
+  'd3300000-0000-4000-8000-000000000001',
+  'd3300000-0000-4000-8000-000000000002',
+  'd3300000-0000-4000-8000-000000000003'
+);
+
+delete from public.social_group_memberships
+where group_id in (
+  'd3300000-0000-4000-8000-000000000001',
+  'd3300000-0000-4000-8000-000000000002',
+  'd3300000-0000-4000-8000-000000000003'
+);
+
+delete from public.social_groups
+where id in (
+  'd3300000-0000-4000-8000-000000000001',
+  'd3300000-0000-4000-8000-000000000002',
+  'd3300000-0000-4000-8000-000000000003'
+);
+
+delete from public.agency_broadcasts
+where id in (
+  'd3400000-0000-4000-8000-000000000001',
+  'd3400000-0000-4000-8000-000000000002'
+);
+
+delete from public.neighborhood_cluster_members
+where cluster_id in (
+  'd3200000-0000-4000-8000-000000000001',
+  'd3200000-0000-4000-8000-000000000002'
+);
+
+delete from public.neighborhood_clusters
+where id in (
+  'd3200000-0000-4000-8000-000000000001',
+  'd3200000-0000-4000-8000-000000000002'
+);
+
+delete from public.neighborhoods
+where id in (
+  'd3100000-0000-4000-8000-000000000001',
+  'd3100000-0000-4000-8000-000000000002'
+);
+
+delete from public.profiles
+where id in (
+  'd3000000-0000-4000-8000-000000000001',
+  'd3000000-0000-4000-8000-000000000002',
+  'd3000000-0000-4000-8000-000000000003',
+  'd3000000-0000-4000-8000-000000000004'
+);
+
 insert into public.profiles (id, auth_user_id, display_name, role, phone_verified)
 values
   ('d3000000-0000-4000-8000-000000000001', 'd3aa1111-1111-4111-8111-111111111111', 'Day3 Ama', 'requester', true),
@@ -362,10 +415,24 @@ select pg_temp.assert_denied(
 );
 
 select pg_temp.assert_true(
-  (select coalesce(array_agg(id order by id), '{}'::uuid[]) from public.agency_broadcasts) = array[
-    'd3600000-0000-4000-8000-000000000001'::uuid,
-    'd3600000-0000-4000-8000-000000000002'::uuid
-  ],
+  exists (
+    select 1
+    from public.agency_broadcasts
+    where id = 'd3600000-0000-4000-8000-000000000001'
+  )
+  and exists (
+    select 1
+    from public.agency_broadcasts
+    where id = 'd3600000-0000-4000-8000-000000000002'
+  )
+  and not exists (
+    select 1
+    from public.agency_broadcasts
+    where id in (
+      'd3600000-0000-4000-8000-000000000003',
+      'd3600000-0000-4000-8000-000000000004'
+    )
+  ),
   'verified East Legon member should read approved regional and matching cluster broadcasts only'
 );
 

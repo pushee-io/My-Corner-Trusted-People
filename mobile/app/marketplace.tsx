@@ -1,10 +1,10 @@
+import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateBlocks';
 import {
   createMarketplaceListing,
-  createMarketplacePickupRequest,
   getMarketplaceNeighborhood,
   listMarketplaceListings,
   type CurrentNeighborhood,
@@ -27,12 +27,12 @@ export default function MarketplaceScreen() {
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [busyId, setBusyId] = useState<string>();
-  const [sent, setSent] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     async function load() {
       const currentNeighborhood = await getMarketplaceNeighborhood();
       const currentListings = await listMarketplaceListings(currentNeighborhood.id);
+
       setNeighborhood(currentNeighborhood);
       setListings(currentListings);
     }
@@ -43,7 +43,9 @@ export default function MarketplaceScreen() {
   }, []);
 
   async function postListing() {
-    if (!neighborhood || title.trim().length < 2 || description.trim().length < 2) return;
+    if (!neighborhood || title.trim().length < 2 || description.trim().length < 2) {
+      return;
+    }
 
     setBusyId('new');
     setError(undefined);
@@ -60,6 +62,7 @@ export default function MarketplaceScreen() {
       };
 
       const listing = await createMarketplaceListing(neighborhood.id, draft);
+
       setListings((current) => [listing, ...current]);
       setTitle('');
       setDescription('');
@@ -67,20 +70,6 @@ export default function MarketplaceScreen() {
       setPickupNotes('');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not create listing.');
-    } finally {
-      setBusyId(undefined);
-    }
-  }
-
-  async function requestPickup(listing: MarketplaceListing) {
-    setBusyId(listing.id);
-    setError(undefined);
-
-    try {
-      await createMarketplacePickupRequest(listing.id, 'Hi, I am interested. When would be a good pickup time?');
-      setSent((current) => ({ ...current, [listing.id]: true }));
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not send pickup request.');
     } finally {
       setBusyId(undefined);
     }
@@ -97,12 +86,14 @@ export default function MarketplaceScreen() {
   return (
     <Screen title={neighborhood ? `${neighborhood.name} marketplace` : 'Marketplace'}>
       <Text style={styles.body}>Listings use broad pickup areas only. Exact residential addresses are not shown.</Text>
+
       {error ? <EmptyState title="Marketplace notice" body={error} /> : null}
 
       <View style={styles.panel}>
         <Text style={styles.title}>New listing</Text>
 
         <TextInput value={title} onChangeText={setTitle} placeholder="Item name" style={styles.input} />
+
         <TextInput
           value={description}
           onChangeText={setDescription}
@@ -111,6 +102,7 @@ export default function MarketplaceScreen() {
           style={[styles.input, styles.textArea]}
           textAlignVertical="top"
         />
+
         <TextInput
           value={price}
           onChangeText={setPrice}
@@ -118,6 +110,7 @@ export default function MarketplaceScreen() {
           keyboardType="numeric"
           style={styles.input}
         />
+
         <TextInput
           value={pickupNotes}
           onChangeText={setPickupNotes}
@@ -128,6 +121,7 @@ export default function MarketplaceScreen() {
         />
 
         <Text style={styles.note}>Images come later. This version saves listings without photos.</Text>
+
         <Pressable disabled={busyId === 'new'} onPress={postListing} style={styles.button}>
           <Text style={styles.buttonText}>{busyId === 'new' ? 'Posting...' : 'Post listing'}</Text>
         </Pressable>
@@ -144,19 +138,11 @@ export default function MarketplaceScreen() {
             </Text>
             <Text style={styles.note}>Pickup: {listing.pickupArea}</Text>
 
-            <Pressable
-              disabled={sent[listing.id] || busyId === listing.id || listing.availability !== 'available'}
-              onPress={() => requestPickup(listing)}
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>
-                {sent[listing.id]
-                  ? 'Pickup request sent'
-                  : busyId === listing.id
-                    ? 'Sending...'
-                    : 'Send pickup request'}
-              </Text>
-            </Pressable>
+            <Link href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
+              <Pressable style={styles.button}>
+                <Text style={styles.buttonText}>View listing</Text>
+              </Pressable>
+            </Link>
           </View>
         ))}
       </View>
@@ -165,7 +151,11 @@ export default function MarketplaceScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22 },
+  body: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    lineHeight: 22,
+  },
   button: {
     backgroundColor: tokens.color.primary,
     borderRadius: tokens.radius.md,
@@ -173,7 +163,11 @@ const styles = StyleSheet.create({
     minHeight: tokens.touch.min,
     padding: tokens.spacing.lg,
   },
-  buttonText: { color: '#FFFFFF', fontWeight: '700', textAlign: 'center' },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   card: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
@@ -191,8 +185,14 @@ const styles = StyleSheet.create({
     minHeight: tokens.touch.min,
     padding: tokens.spacing.md,
   },
-  list: { gap: tokens.spacing.md },
-  note: { color: tokens.color.textSecondary, fontSize: tokens.type.support, lineHeight: 20 },
+  list: {
+    gap: tokens.spacing.md,
+  },
+  note: {
+    color: tokens.color.textSecondary,
+    fontSize: tokens.type.support,
+    lineHeight: 20,
+  },
   panel: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
@@ -201,7 +201,17 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
-  price: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
-  textArea: { minHeight: 96 },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  price: {
+    color: tokens.color.primary,
+    fontSize: tokens.type.body,
+    fontWeight: '700',
+  },
+  textArea: {
+    minHeight: 96,
+  },
+  title: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '700',
+  },
 });

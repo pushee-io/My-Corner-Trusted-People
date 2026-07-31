@@ -1,10 +1,10 @@
-import { Link, usePathname } from 'expo-router';
+import { Link, type Href, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 
 type BottomNavigationItem = {
   label: string;
-  href: string;
+  href: Href;
   match: string[];
 };
 
@@ -30,7 +30,7 @@ export function BottomNavigation() {
         const selected = isSelected(pathname, item);
 
         return (
-          <Link key={item.href} href={item.href} asChild>
+          <Link key={String(item.href)} href={item.href} asChild>
             <Pressable
               accessibilityRole="tab"
               accessibilityState={{ selected }}

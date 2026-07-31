@@ -47,7 +47,7 @@ export default function ProviderProfileScreen() {
         if (!cancelled) {
           setProvider(result ?? null);
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setProvider(null);
           setLoadError('We could not load this provider. Please try again.');
