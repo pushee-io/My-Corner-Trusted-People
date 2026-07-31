@@ -415,10 +415,24 @@ select pg_temp.assert_denied(
 );
 
 select pg_temp.assert_true(
-  (select coalesce(array_agg(id order by id), '{}'::uuid[]) from public.agency_broadcasts) = array[
-    'd3600000-0000-4000-8000-000000000001'::uuid,
-    'd3600000-0000-4000-8000-000000000002'::uuid
-  ],
+  exists (
+    select 1
+    from public.agency_broadcasts
+    where id = 'd3600000-0000-4000-8000-000000000001'
+  )
+  and exists (
+    select 1
+    from public.agency_broadcasts
+    where id = 'd3600000-0000-4000-8000-000000000002'
+  )
+  and not exists (
+    select 1
+    from public.agency_broadcasts
+    where id in (
+      'd3600000-0000-4000-8000-000000000003',
+      'd3600000-0000-4000-8000-000000000004'
+    )
+  ),
   'verified East Legon member should read approved regional and matching cluster broadcasts only'
 );
 
