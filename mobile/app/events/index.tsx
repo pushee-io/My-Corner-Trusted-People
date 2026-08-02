@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -21,14 +21,18 @@ export default function EventsScreen() {
   return (
     <Screen title="Events">
       <Text style={styles.intro}>Plans shared by verified neighbors. Private addresses stay hidden until an organizer allows access for confirmed attendees.</Text>
-      <Link href="/events/new" asChild>
+      <Link href={'/events/new' as Href} asChild>
         <Pressable accessibilityRole="button" style={styles.primary}><Text style={styles.primaryText}>Create event</Text></Pressable>
       </Link>
       {loading ? <Text style={styles.meta}>Loading local events...</Text> : null}
       {error ? <View style={styles.notice}><Text style={styles.error}>Could not load events</Text><Text style={styles.meta}>{error}</Text></View> : null}
       {!loading && !error && events.length === 0 ? <View style={styles.notice}><Text style={styles.title}>No upcoming events</Text><Text style={styles.meta}>Create the first plan for your neighborhood.</Text></View> : null}
       {events.map((event) => (
-        <Link key={event.id} href={{ pathname: '/events/[eventId]', params: { eventId: event.id } }} asChild>
+        <Link
+          key={event.id}
+          href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as Href}
+          asChild
+        >
           <Pressable accessibilityRole="button" style={styles.card}>
             <Text style={styles.title}>{event.title}</Text>
             <Text style={styles.meta}>{new Date(event.startsAt).toLocaleString('en-GH', { timeZone: event.timezone })}</Text>
