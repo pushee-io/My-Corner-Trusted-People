@@ -106,12 +106,18 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
   const forViewer = (event: EventRuntimeDetails, viewer: EventViewer): EventRuntimeDetails => {
     const going = rsvps.some((item) => item.eventId === event.id && item.profileId === viewer.profileId && item.status === 'going');
     const privateLocation = privateLocations.get(event.id);
+    const publicEvent = { ...event };
+    const virtualLink = publicEvent.virtualLink;
+    delete publicEvent.preciseLocation;
+    delete publicEvent.virtualLink;
     return {
-      ...event,
+      ...publicEvent,
       currentUserRsvpStatus: going ? 'going' : undefined,
       currentUserInterestStatus: interests.find((item) => item.eventId === event.id && item.profileId === viewer.profileId)?.status,
-      preciseLocation: going && privateLocation?.revealToConfirmedAttendees ? privateLocation.preciseAddress : undefined,
-      virtualLink: going || organizerRole(event.id, viewer.profileId) ? event.virtualLink : undefined,
+      ...(going && privateLocation?.revealToConfirmedAttendees
+        ? { preciseLocation: privateLocation.preciseAddress }
+        : {}),
+      ...((going || organizerRole(event.id, viewer.profileId)) && virtualLink ? { virtualLink } : {}),
     };
   };
   const updateCount = (eventId: string) => {
