@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -42,6 +42,12 @@ export default function HomeScreen() {
         <Link href="/groups" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Groups</Text>
+          </Pressable>
+        </Link>
+
+        <Link href={'/events' as Href} asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Events</Text>
           </Pressable>
         </Link>
 

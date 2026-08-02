@@ -12,7 +12,7 @@ export const bottomNavigationItems: BottomNavigationItem[] = [
   { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
   { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
   { label: 'Search', href: '/search', match: ['/search'] },
-  { label: 'Community', href: '/community', match: ['/community', '/groups', '/agency-broadcasts'] },
+  { label: 'Community', href: '/community', match: ['/community', '/groups', '/events', '/agency-broadcasts'] },
   { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
   { label: 'Settings', href: '/settings', match: ['/settings'] },
 ];
