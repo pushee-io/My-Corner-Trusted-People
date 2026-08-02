@@ -1,10 +1,18 @@
 import { getCurrentProfile } from '@/lib/auth';
-import { fromEventRow, fromEventRsvpRow, toEventInsert, toEventUpdate, type EventRow, type EventRsvpRow } from '@/lib/events-supabase-adapter';
+import {
+  fromEventRow,
+  fromEventRsvpRow,
+  toEventInsert,
+  toEventUpdate,
+  type EventRow,
+  type EventRsvpRow,
+} from '@/lib/events-supabase-adapter';
 import type { EventsRepository, ListAttendeesQuery, ListEventsQuery } from '@/lib/events-repository';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { Event, EventDraft, EventRsvp, EventUpdateDraft } from '@/types/events';
 
-const eventColumns = 'id, neighborhood_id, cluster_id, organizer_profile_id, organizer_display_name, title, description, starts_at, ends_at, timezone, venue_name, area_label, visibility, status, moderation_status, capacity, attendee_count, created_at, updated_at';
+const eventColumns =
+  'id, neighborhood_id, cluster_id, organizer_profile_id, organizer_display_name, title, description, starts_at, ends_at, timezone, venue_name, area_label, visibility, status, moderation_status, capacity, attendee_count, created_at, updated_at';
 const rsvpColumns = 'id, event_id, profile_id, attendee_display_name, status, created_at, updated_at';
 
 async function readEvent(eventId: string): Promise<Event> {
