@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -18,7 +18,7 @@ export default function NewEventScreen() {
     setSaving(true); setError(undefined);
     try {
       await eventsRepository.createEvent({ neighborhoodId: 'east-legon', title, description, startsAt, timezone: 'Africa/Accra', areaLabel, visibility: 'verified_neighborhood_members', capacity: capacity ? Number(capacity) : undefined });
-      router.replace('/events');
+      router.replace('/events' as Href);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not save the event.');
     } finally { setSaving(false); }
