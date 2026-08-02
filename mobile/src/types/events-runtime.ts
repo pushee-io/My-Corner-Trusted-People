@@ -28,6 +28,7 @@ export type EventRuntimeDetails = Event & {
   commentsEnabled: boolean;
   preciseLocation?: string;
   currentUserInterestStatus?: EventInterestStatus;
+  currentUserOrganizerRole?: EventOrganizerRole;
 };
 
 export type EventInvitation = {
@@ -36,6 +37,7 @@ export type EventInvitation = {
   inviterProfileId: string;
   inviteeProfileId: string;
   status: EventInviteStatus;
+  expiresAt: string;
   createdAt: string;
 };
 
@@ -45,7 +47,7 @@ export type EventComment = {
   authorProfileId: string;
   authorDisplayName: string;
   body: string;
-  moderationStatus: 'pending' | 'approved' | 'blocked' | 'removed';
+  moderationStatus: 'pending' | 'approved' | 'rejected' | 'blocked' | 'removed';
   createdAt: string;
 };
 

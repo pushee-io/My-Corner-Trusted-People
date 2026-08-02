@@ -1,4 +1,5 @@
 import type { Event, EventDraft, EventRsvp, EventUpdateDraft } from '@/types/events';
+import type { EventRuntimeDetails } from '@/types/events-runtime';
 
 export type EventRow = {
   id: string;
@@ -8,16 +9,20 @@ export type EventRow = {
   organizer_display_name: string;
   title: string;
   description: string;
+  cover_image_path: string | null;
   starts_at: string;
   ends_at: string | null;
   timezone: string;
+  location_type: 'in_person' | 'virtual' | 'hybrid';
   venue_name: string | null;
   area_label: string;
+  public_meetup_point: string | null;
   visibility: Event['visibility'];
   status: Event['status'];
   moderation_status: Event['moderationStatus'];
   capacity: number | null;
   attendee_count: number;
+  comments_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -33,6 +38,7 @@ export type EventRsvpRow = {
 };
 
 export type EventInsert = {
+  client_request_id?: string;
   neighborhood_id: string;
   title: string;
   description: string;
@@ -69,6 +75,30 @@ export function fromEventRow(row: EventRow, currentUserRsvpStatus?: EventRsvp['s
   };
 }
 
+export function fromEventRuntimeRow(
+  row: EventRow,
+  state: {
+    currentUserRsvpStatus?: EventRsvp['status'];
+    currentUserInterestStatus?: EventRuntimeDetails['currentUserInterestStatus'];
+    preciseLocation?: string;
+    virtualLink?: string;
+    currentUserOrganizerRole?: EventRuntimeDetails['currentUserOrganizerRole'];
+  } = {},
+): EventRuntimeDetails {
+  return {
+    ...fromEventRow(row, state.currentUserRsvpStatus),
+    clusterId: row.cluster_id,
+    locationType: row.location_type,
+    publicMeetupPoint: row.public_meetup_point ?? undefined,
+    coverImageUrl: row.cover_image_path ?? undefined,
+    commentsEnabled: row.comments_enabled,
+    currentUserInterestStatus: state.currentUserInterestStatus,
+    preciseLocation: state.preciseLocation,
+    virtualLink: state.virtualLink,
+    currentUserOrganizerRole: state.currentUserOrganizerRole,
+  };
+}
+
 export function fromEventRsvpRow(row: EventRsvpRow): EventRsvp {
   return {
     id: row.id,
@@ -83,6 +113,7 @@ export function fromEventRsvpRow(row: EventRsvpRow): EventRsvp {
 
 export function toEventInsert(draft: EventDraft): EventInsert {
   return {
+    client_request_id: draft.clientRequestId,
     neighborhood_id: draft.neighborhoodId,
     title: draft.title.trim(),
     description: draft.description.trim(),

@@ -1,0 +1,35 @@
+name: Events Stabilization Verification
+
+on:
+  push:
+    branches:
+      - feat/events-stabilization
+  workflow_dispatch:
+
+jobs:
+  verify-events-mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Format changed application sources
+        run: npx prettier --write app src ../.env.example ../.github/workflows ../scripts
+      - name: Capture formatting patch
+        run: git diff --binary > ../events-format.patch
+      - uses: actions/upload-artifact@v4
+        with:
+          name: events-format-patch
+          path: events-format.patch
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --runInBand
+      - run: npx expo-doctor
+      - run: npx expo export --platform web --output-dir dist-ci

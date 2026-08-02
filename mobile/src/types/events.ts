@@ -1,10 +1,14 @@
-export const EVENT_STATUSES = ['draft', 'scheduled', 'cancelled', 'completed'] as const;
+export const EVENT_STATUSES = ['draft', 'scheduled', 'cancelled', 'completed', 'archived'] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
 
-export const EVENT_VISIBILITIES = ['verified_neighborhood_members', 'immediate_cluster_members'] as const;
+export const EVENT_VISIBILITIES = [
+  'verified_neighborhood_members',
+  'immediate_cluster_members',
+  'invite_only',
+] as const;
 export type EventVisibility = (typeof EVENT_VISIBILITIES)[number];
 
-export const EVENT_MODERATION_STATUSES = ['pending', 'approved', 'blocked', 'removed'] as const;
+export const EVENT_MODERATION_STATUSES = ['pending', 'approved', 'rejected', 'blocked', 'removed'] as const;
 export type EventModerationStatus = (typeof EVENT_MODERATION_STATUSES)[number];
 
 export const RSVP_STATUSES = ['going', 'cancelled'] as const;
@@ -68,6 +72,7 @@ export type Event = {
 };
 
 export type EventDraft = {
+  clientRequestId?: string;
   neighborhoodId: string;
   title: string;
   description: string;

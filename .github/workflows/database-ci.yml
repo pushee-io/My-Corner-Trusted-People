@@ -15,7 +15,7 @@ on:
 
 jobs:
   verify-database:
-    name: Apply migrations and smoke-test Module 1 and Day 2B RLS
+    name: Apply migrations and smoke-test application RLS
     runs-on: ubuntu-latest
 
     services:

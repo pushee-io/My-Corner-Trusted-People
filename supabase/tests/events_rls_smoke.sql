@@ -41,6 +41,12 @@ begin
   if not has_function_privilege('authenticated', 'public.rsvp_to_event(uuid)', 'EXECUTE') then
     raise exception 'authenticated users require explicit RSVP function access';
   end if;
+  if not exists (select 1 from pg_proc where proname = 'is_events_feature_enabled') then
+    raise exception 'Events feature flag function is missing';
+  end if;
+  if not exists (select 1 from pg_trigger where tgname = 'event_invitations_audit' and not tgisinternal) then
+    raise exception 'event invitation audit trigger is missing';
+  end if;
 end $$;
 
 rollback;

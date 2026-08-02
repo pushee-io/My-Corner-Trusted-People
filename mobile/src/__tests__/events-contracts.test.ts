@@ -48,9 +48,13 @@ const rsvp: EventRsvp = {
 
 describe('Events Phase 1 contracts', () => {
   it('locks the lifecycle, visibility, moderation, RSVP, and organizer values', () => {
-    expect(EVENT_STATUSES).toEqual(['draft', 'scheduled', 'cancelled', 'completed']);
-    expect(EVENT_VISIBILITIES).toEqual(['verified_neighborhood_members', 'immediate_cluster_members']);
-    expect(EVENT_MODERATION_STATUSES).toEqual(['pending', 'approved', 'blocked', 'removed']);
+    expect(EVENT_STATUSES).toEqual(['draft', 'scheduled', 'cancelled', 'completed', 'archived']);
+    expect(EVENT_VISIBILITIES).toEqual([
+      'verified_neighborhood_members',
+      'immediate_cluster_members',
+      'invite_only',
+    ]);
+    expect(EVENT_MODERATION_STATUSES).toEqual(['pending', 'approved', 'rejected', 'blocked', 'removed']);
     expect(RSVP_STATUSES).toEqual(['going', 'cancelled']);
     expect(EVENT_ORGANIZER_ROLES).toEqual(['owner', 'co_organizer']);
     expect(EVENT_ORGANIZER_PERMISSIONS).toEqual([

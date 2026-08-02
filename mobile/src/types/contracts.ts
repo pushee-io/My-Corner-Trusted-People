@@ -92,6 +92,7 @@ export type JobRequest = JobRequestDraftInput & {
 };
 
 export type FeatureFlags = {
+  events: boolean;
   ai_service_request_structurer: boolean;
   ai_content_moderation: boolean;
 };

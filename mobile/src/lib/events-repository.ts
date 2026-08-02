@@ -181,6 +181,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
       currentUserInterestStatus: interests.find(
         (item) => item.eventId === event.id && item.profileId === viewer.profileId,
       )?.status,
+      currentUserOrganizerRole: organizerRole(event.id, viewer.profileId),
       ...(going && privateLocation?.revealToConfirmedAttendees
         ? { preciseLocation: privateLocation.preciseAddress }
         : {}),
@@ -362,6 +363,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
         inviterProfileId: viewer.profileId,
         inviteeProfileId,
         status: 'pending' as const,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date().toISOString(),
       };
       invitations.push(invitation);

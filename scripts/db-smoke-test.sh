@@ -47,3 +47,11 @@ fi
 if [ -f supabase/tests/day3_social_groups_broadcasts.sql ]; then
   psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day3_social_groups_broadcasts.sql
 fi
+
+if [ -f supabase/tests/events_rls_smoke.sql ]; then
+  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/events_rls_smoke.sql
+fi
+
+if [ -f supabase/tests/events_stabilization_rls.sql ]; then
+  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/events_stabilization_rls.sql
+fi

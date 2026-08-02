@@ -1,6 +1,7 @@
 import { Link, type Href, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
+import { isEventsClientEnabled } from '@/lib/events-feature';
 
 type BottomNavigationItem = {
   label: string;
@@ -12,7 +13,11 @@ export const bottomNavigationItems: BottomNavigationItem[] = [
   { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
   { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
   { label: 'Search', href: '/search', match: ['/search'] },
-  { label: 'Community', href: '/community', match: ['/community', '/groups', '/events', '/agency-broadcasts'] },
+  {
+    label: 'Community',
+    href: '/community',
+    match: ['/community', '/groups', '/agency-broadcasts', ...(isEventsClientEnabled() ? ['/events'] : [])],
+  },
   { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
   { label: 'Settings', href: '/settings', match: ['/settings'] },
 ];

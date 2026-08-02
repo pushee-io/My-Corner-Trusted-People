@@ -28,10 +28,13 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: mobile/package.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Verify Expo dependency compatibility
+        run: npx expo-doctor
 
       - name: Check formatting
         run: npm run format
@@ -43,4 +46,7 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm test
+        run: npm test -- --runInBand
+
+      - name: Verify web bundle
+        run: npx expo export --platform web --output-dir dist-ci
