@@ -12,7 +12,7 @@ do $$ begin create type public.event_location_type as enum ('in_person', 'virtua
 create table if not exists public.events (
   id uuid primary key default gen_random_uuid(),
   neighborhood_id uuid not null references public.neighborhoods(id) on delete restrict,
-  cluster_id text not null,
+  cluster_id uuid not null references public.neighborhood_clusters(id) on delete restrict,
   organizer_profile_id uuid not null references public.profiles(id) on delete restrict,
   organizer_display_name text not null,
   title text not null check (char_length(btrim(title)) between 3 and 120),
@@ -144,7 +144,13 @@ begin
   new.organizer_profile_id := public.current_profile_id();
   if new.organizer_profile_id is null then raise exception 'authentication required' using errcode = '42501'; end if;
   select p.display_name into new.organizer_display_name from public.profiles p where p.id = new.organizer_profile_id;
-  select coalesce(to_jsonb(n)->>'cluster_id', new.cluster_id) into new.cluster_id from public.neighborhoods n where n.id = new.neighborhood_id;
+  select ncm.cluster_id
+  into new.cluster_id
+  from public.neighborhood_cluster_members ncm
+  where ncm.neighborhood_id = new.neighborhood_id
+  order by ncm.created_at asc
+  limit 1;
+  if new.cluster_id is null then raise exception 'event neighborhood is not assigned to a cluster' using errcode = '23514'; end if;
   new.status := 'draft'; new.moderation_status := 'pending'; new.attendee_count := 0;
   return new;
 end $$;
@@ -164,13 +170,14 @@ returns boolean language sql stable security definer set search_path = public as
         or exists (
           select 1
           from public.neighborhood_memberships nm
-          join public.neighborhoods n on n.id = nm.neighborhood_id
+          left join public.neighborhood_cluster_members viewer_cluster
+            on viewer_cluster.neighborhood_id = nm.neighborhood_id
           where nm.profile_id = public.current_profile_id()
             and nm.status = 'verified' and nm.ended_at is null
             and (nm.verification_expires_at is null or nm.verification_expires_at > now())
             and (
               (e.visibility = 'verified_neighborhood_members' and nm.neighborhood_id = e.neighborhood_id)
-              or (e.visibility = 'immediate_cluster_members' and coalesce(to_jsonb(n)->>'cluster_id', '') = e.cluster_id)
+              or (e.visibility = 'immediate_cluster_members' and viewer_cluster.cluster_id = e.cluster_id)
             )
         )
         or exists (select 1 from public.event_organizers eo where eo.event_id = e.id and eo.profile_id = public.current_profile_id())
@@ -264,6 +271,56 @@ end $$;
 drop trigger if exists event_comments_prepare on public.event_comments;
 create trigger event_comments_prepare before insert on public.event_comments for each row execute function public.prepare_event_comment();
 
+create or replace function public.prepare_event_invitation()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  caller_profile uuid := public.current_profile_id();
+  target_event public.events;
+  recent_invitation_count integer;
+begin
+  if caller_profile is null or not public.can_manage_event(new.event_id, 'manage_attendees') then
+    raise exception 'not authorized to invite event attendees' using errcode = '42501';
+  end if;
+  if new.invitee_profile_id = caller_profile then
+    raise exception 'organizers cannot invite themselves' using errcode = '23514';
+  end if;
+
+  select * into target_event from public.events where id = new.event_id;
+  if not found then raise exception 'event not found' using errcode = '23503'; end if;
+
+  if not exists (
+    select 1
+    from public.neighborhood_memberships nm
+    left join public.neighborhood_cluster_members invitee_cluster
+      on invitee_cluster.neighborhood_id = nm.neighborhood_id
+    where nm.profile_id = new.invitee_profile_id
+      and nm.status = 'verified'
+      and nm.ended_at is null
+      and (nm.verification_expires_at is null or nm.verification_expires_at > now())
+      and (
+        (target_event.visibility = 'verified_neighborhood_members' and nm.neighborhood_id = target_event.neighborhood_id)
+        or (target_event.visibility = 'immediate_cluster_members' and invitee_cluster.cluster_id = target_event.cluster_id)
+      )
+  ) then
+    raise exception 'invitee is outside the event audience' using errcode = '42501';
+  end if;
+
+  select count(*) into recent_invitation_count
+  from public.event_invitations invitation
+  where invitation.inviter_profile_id = caller_profile
+    and invitation.created_at > now() - interval '1 hour';
+  if recent_invitation_count >= 20 then
+    raise exception 'event invitation rate limit exceeded' using errcode = 'P0001';
+  end if;
+
+  new.inviter_profile_id := caller_profile;
+  new.status := 'pending';
+  return new;
+end $$;
+
+drop trigger if exists event_invitations_prepare on public.event_invitations;
+create trigger event_invitations_prepare before insert on public.event_invitations for each row execute function public.prepare_event_invitation();
+
 create or replace function public.queue_event_side_effect()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -332,6 +389,18 @@ create policy reminders_own on public.event_reminders for all to authenticated u
 create policy audit_staff_or_organizer on public.event_audit_events for select to authenticated using (public.is_admin_or_moderator() or public.can_manage_event(event_id, 'edit_event'));
 
 revoke all on public.event_private_access, public.domain_event_outbox from anon, authenticated;
+revoke execute on function public.prepare_event_insert() from public, anon, authenticated;
+revoke execute on function public.can_view_event(uuid) from public, anon;
+revoke execute on function public.can_manage_event(uuid, text) from public, anon;
+revoke execute on function public.rsvp_to_event(uuid) from public, anon;
+revoke execute on function public.cancel_event_rsvp(uuid) from public, anon;
+revoke execute on function public.cancel_managed_event(uuid) from public, anon;
+revoke execute on function public.get_event_private_access(uuid) from public, anon;
+revoke execute on function public.set_event_private_access(uuid, text, text, boolean) from public, anon;
+revoke execute on function public.prepare_event_comment() from public, anon, authenticated;
+revoke execute on function public.prepare_event_invitation() from public, anon, authenticated;
+revoke execute on function public.queue_event_side_effect() from public, anon, authenticated;
+revoke execute on function public.audit_event_change() from public, anon, authenticated;
 grant select, insert on public.events to authenticated;
 grant update (title, description, cover_image_path, starts_at, ends_at, timezone, location_type, venue_name, area_label, public_meetup_point, visibility, capacity, comments_enabled) on public.events to authenticated;
 grant select, insert, update, delete on public.event_organizers, public.event_interests, public.event_invitations, public.event_comments, public.event_reports, public.event_reminders to authenticated;
