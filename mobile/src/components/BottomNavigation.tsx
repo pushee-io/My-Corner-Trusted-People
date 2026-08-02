@@ -1,6 +1,7 @@
 import { Link, type Href, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
+import { useEventsFeatureFlag } from '@/lib/events-feature';
 
 type BottomNavigationItem = {
   label: string;
@@ -12,7 +13,11 @@ export const bottomNavigationItems: BottomNavigationItem[] = [
   { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
   { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
   { label: 'Search', href: '/search', match: ['/search'] },
-  { label: 'Community', href: '/community', match: ['/community', '/groups', '/events', '/agency-broadcasts'] },
+  {
+    label: 'Community',
+    href: '/community',
+    match: ['/community', '/groups', '/agency-broadcasts'],
+  },
   { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
   { label: 'Settings', href: '/settings', match: ['/settings'] },
 ];
@@ -23,15 +28,18 @@ function isSelected(pathname: string, item: BottomNavigationItem) {
 
 export function BottomNavigation() {
   const pathname = usePathname();
+  const { enabled: eventsEnabled } = useEventsFeatureFlag();
 
   return (
     <View accessibilityRole="tablist" style={styles.container}>
       {bottomNavigationItems.map((item) => {
-        const selected = isSelected(pathname, item);
+        const selected =
+          isSelected(pathname, item) || (eventsEnabled && item.label === 'Community' && pathname.startsWith('/events'));
 
         return (
           <Link key={String(item.href)} href={item.href} asChild>
             <Pressable
+              accessibilityLabel={`${item.label} tab`}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               style={[styles.item, selected ? styles.selectedItem : null]}

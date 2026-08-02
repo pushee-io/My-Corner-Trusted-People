@@ -11,7 +11,7 @@ export type EventViewer = {
 
 export type EventLocationType = 'in_person' | 'virtual' | 'hybrid';
 export type EventInterestStatus = 'interested' | 'not_going' | 'waitlisted';
-export type EventInviteStatus = 'pending' | 'accepted' | 'declined' | 'revoked';
+export type EventInviteStatus = 'pending' | 'accepted' | 'declined' | 'revoked' | 'expired';
 
 export type EventPrivateLocation = {
   eventId: string;
@@ -28,6 +28,7 @@ export type EventRuntimeDetails = Event & {
   commentsEnabled: boolean;
   preciseLocation?: string;
   currentUserInterestStatus?: EventInterestStatus;
+  currentUserOrganizerRole?: EventOrganizerRole;
 };
 
 export type EventInvitation = {
@@ -36,6 +37,7 @@ export type EventInvitation = {
   inviterProfileId: string;
   inviteeProfileId: string;
   status: EventInviteStatus;
+  expiresAt: string;
   createdAt: string;
 };
 
@@ -45,7 +47,7 @@ export type EventComment = {
   authorProfileId: string;
   authorDisplayName: string;
   body: string;
-  moderationStatus: 'pending' | 'approved' | 'blocked' | 'removed';
+  moderationStatus: 'pending' | 'approved' | 'rejected' | 'removed';
   createdAt: string;
 };
 

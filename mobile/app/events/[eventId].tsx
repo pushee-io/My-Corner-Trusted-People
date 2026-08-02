@@ -1,10 +1,11 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Link, router, type Href, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { eventsRepository } from '@/lib/events-repository';
+import { eventsRepository } from '@/lib/events-runtime-repository';
 import { tokens } from '@/theme/tokens';
 import type { EventRuntimeDetails } from '@/types/events-runtime';
+import { getEventLifecycleState, organizerCan } from '@/types/events';
 
 export default function EventDetailsScreen() {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
@@ -88,7 +89,7 @@ export default function EventDetailsScreen() {
       <Text style={styles.body}>{event.description}</Text>
       <View style={styles.card}>
         <Text style={styles.label}>Status</Text>
-        <Text style={styles.body}>{event.status}</Text>
+        <Text style={styles.body}>{getEventLifecycleState(event)}</Text>
         <Text style={styles.label}>When</Text>
         <Text style={styles.body}>
           {new Date(event.startsAt).toLocaleString('en-GH', { timeZone: event.timezone })}
@@ -146,8 +147,17 @@ export default function EventDetailsScreen() {
         }
         style={styles.secondary}
       >
-        <Text style={styles.secondaryText}>Remind me</Text>
+        <Text style={styles.secondaryText}>
+          {organizerCan(event.currentUserOrganizerRole, 'send_reminders') ? 'Send attendee reminder' : 'Remind me'}
+        </Text>
       </Pressable>
+      {organizerCan(event.currentUserOrganizerRole, 'edit_event') ? (
+        <Link href={{ pathname: '/events/[eventId]/manage', params: { eventId: event.id } } as unknown as Href} asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="Manage this event" style={styles.secondary}>
+            <Text style={styles.secondaryText}>Manage event</Text>
+          </Pressable>
+        </Link>
+      ) : null}
       <Pressable
         onPress={() =>
           act(
@@ -159,7 +169,7 @@ export default function EventDetailsScreen() {
       >
         <Text style={styles.reportText}>Report event</Text>
       </Pressable>
-      {event.organizerProfileId === eventsRepository.defaultViewer.profileId && event.status !== 'cancelled' ? (
+      {organizerCan(event.currentUserOrganizerRole, 'cancel_event') && event.status !== 'cancelled' ? (
         <Pressable onPress={confirmCancellation} style={styles.report}>
           <Text style={styles.reportText}>Cancel event</Text>
         </Pressable>
