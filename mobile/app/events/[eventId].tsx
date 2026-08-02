@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { eventsRepository } from '@/lib/events-repository';
@@ -12,15 +12,17 @@ export default function EventDetailsScreen() {
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
 
-  async function load() {
+  const load = useCallback(async () => {
     if (!eventId) return;
     const item = await eventsRepository.getEventForViewer(eventId, eventsRepository.defaultViewer ?? {
       profileId: 'profile-akosua', displayName: 'Akosua M.', neighborhoodId: 'east-legon', clusterId: 'accra-east', isVerifiedNeighborhoodMember: true,
     });
     if (!item) setError('This event is unavailable or outside your verified area.'); else setEvent(item);
-  }
+  }, [eventId]);
 
-  useEffect(() => { load().catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load event.')); }, [eventId]);
+  useEffect(() => {
+    load().catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load event.'));
+  }, [load]);
 
   async function act(action: () => Promise<unknown>, success: string) {
     setError(undefined); setMessage(undefined);
