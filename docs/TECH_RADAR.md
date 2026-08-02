@@ -1,7 +1,7 @@
 # Tech Radar
 
 Last reviewed: 2026-08-02  
-Baseline commit: `d44d7d935fd6d29c721d1ab092ed168dc14cb21b`
+Baseline commit: `c2ea1cf` (Events stabilization merged through PR #35)
 
 ## Policy
 
@@ -13,7 +13,7 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 | React Native | `0.81.5` | Stable repository baseline | https://reactnative.dev/versions | 2026-08-02 | Native UI runtime | Expo SDK 54-compatible repository pin | Newer React Native releases may require a full Expo upgrade | Follow the selected Expo SDK, not an independent version target |
 | React | `19.1.0` | Stable repository baseline | https://react.dev/versions | 2026-08-02 | UI rendering | Compatible repository pin | Must remain compatible with Expo and React Native | Upgrade with Expo compatibility validation |
 | Expo Router | `6.0.23` | Stable repository baseline | https://docs.expo.dev/router/introduction/ | 2026-08-02 | File-based navigation | Existing application routing convention | Events routes are reachable without a client-side feature-flag gate | Keep SDK-compatible; add route-level feature gating before Events activation |
-| Supabase JS | `2.75.0` | Stable repository baseline | https://supabase.com/docs/reference/javascript/introduction | 2026-08-02 | Auth and data access | Existing MVP backend client | Events live repository is incomplete; session persistence is disabled | Pin exact manifest version and verify against local/staging Supabase before upgrade |
+| Supabase JS | `2.75.0` | Stable repository baseline | https://supabase.com/docs/reference/javascript/introduction | 2026-08-02 | Auth and data access | Existing MVP backend client | Events has a complete runtime Supabase repository; authenticated membership composition and session persistence remain incomplete | Pin exact manifest version and verify against local/staging Supabase before upgrade |
 | PostgreSQL | `16` in CI | Stable | https://www.postgresql.org/docs/16/ | 2026-08-02 | Primary database | Current database CI service image | Managed Supabase version must be checked before staging | Match local/CI capabilities to the target Supabase environment |
 | PostGIS | `3.4` in CI | Stable | https://postgis.net/docs/ | 2026-08-02 | Geographic queries | Existing database CI service image | Events do not currently exercise geographic matching | Upgrade with PostgreSQL/Supabase compatibility testing |
 | TanStack Query | `5.90.5` | Stable repository baseline | https://tanstack.com/query/latest/docs/framework/react/overview | 2026-08-02 | Server-state management | Approved application architecture | Events screens use direct effects and do not use query caching/retry behavior | Use for the live Events boundary rather than adding another state library |

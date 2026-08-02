@@ -1,7 +1,7 @@
 # Test Plan
 
 Last updated: 2026-08-02  
-Baseline commit: `d44d7d935fd6d29c721d1ab092ed168dc14cb21b`
+Baseline commit: `c2ea1cf` (Events stabilization merged through PR #35)
 
 ## Objective
 
@@ -14,21 +14,21 @@ Prove that Module 1 and Events operate across the mobile client, repository boun
 - **Passed:** captured execution completed successfully.
 - **Blocked:** required environment, credentials, service, or device was unavailable.
 
-As of this audit, Events has implemented unit tests and a structural SQL smoke file, but no workflow run or local execution result was available for commit `d44d7d9`. Tests must not be described as passed based only on their presence.
+After PR #35, Mobile CI and Database CI passed. Local verification passed formatting, lint with zero errors, strict type checking, 50 Jest suites, 246 tests, and 7 Events stabilization pgTAP assertions. Native build, device, and staging evidence remain outstanding.
 
 ## Required release gates
 
 | Gate | Required command or evidence | Current state |
 |---|---|---|
 | Reproducible install | `cd mobile && npm ci` | Not executed in this audit |
-| Formatting | `npm run format` | Not executed in this audit |
-| Lint | `npm run lint` with zero errors | Not executed in this audit |
-| Strict types | `npm run typecheck` | Not executed in this audit |
-| Unit/integration tests | `npm test -- --runInBand` | Three Events test files exist; execution unverified |
+| Formatting | `npm run format` | Passed locally |
+| Lint | `npm run lint` with zero errors | Passed locally with warnings only and zero errors |
+| Strict types | `npm run typecheck` | Passed locally |
+| Unit/integration tests | `npm test -- --runInBand` | Passed locally: 50 suites and 246 tests; Mobile CI passed on PR #35 |
 | Expo compatibility | `npx expo-doctor` | Not configured as CI gate |
 | Database migration | Apply every migration to a clean PostgreSQL/PostGIS database | CI script supports migrations; run evidence unavailable |
 | Module 1/Day 2B/Day 3 RLS | Existing SQL smoke suites | Invoked by `scripts/db-smoke-test.sh` |
-| Events RLS | `supabase/tests/events_rls_smoke.sql` | File exists but is not invoked by the CI script |
+| Events RLS | Events SQL smoke suites | Stabilization suite passed locally with 7 assertions; Events suites are not yet invoked by the CI script |
 | Native build | Android and iOS preview build | No evidence available |
 | Compact/tablet UI | Screenshots and interaction log | Not executed; later uploaded screenshots were unavailable |
 | Offline/failure behavior | Network failure and retry scenarios | Events retry/offline behavior not implemented |

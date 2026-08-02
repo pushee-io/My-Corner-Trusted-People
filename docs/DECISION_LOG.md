@@ -35,7 +35,7 @@ Reason: It replaced the temporary scaffold and contains the approved direction.
 ## 2026-08-02 - Keep Events disabled after merge
 
 Decision: Keep the `events` feature flag disabled in every environment.  
-Reason: The merged screens use the seeded complete repository, the Supabase repository implements only the smaller Phase 1 contract, and Events SQL smoke is not executed by CI.  
+Reason: PR #35 added the complete runtime Supabase repository, but authenticated membership/location composition remains provisional, Events SQL smoke is still not executed by CI, and native device verification remains outstanding.
 Exit: authenticated live-repository parity, route-level feature gating, functional RLS tests, device verification, and reviewed staging migration.
 
 ## 2026-08-02 - Treat seeded and live Events repositories as different maturity levels
@@ -59,7 +59,7 @@ Impact: Either stabilize on SDK 54 or schedule a separate whole-family upgrade w
 ## 2026-08-02 - Do not infer test success from test source
 
 Decision: Use the terms implemented, executed, and passed separately in project reporting.  
-Reason: No GitHub workflow run or local command evidence was available for commit `d44d7d9`.  
+Reason: This was true for the original `d44d7d9` audit. PR #35 later supplied passing Mobile CI and Database CI evidence; local verification also passed formatting, type checking, 50 Jest suites, 246 tests, and 7 Events stabilization pgTAP assertions.
 Impact: Events remains unverified until clean-checkout mobile and database evidence is captured.
 
 ## 2026-08-02 - Recommend Production Verification Services after Events stabilization

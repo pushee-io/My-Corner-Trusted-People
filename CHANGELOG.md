@@ -18,11 +18,11 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Known limitations
 
-- The merged Events screens use a seeded repository and hard-coded test viewer/location values.
+- Events now use the runtime Supabase repository, but authenticated profile, neighborhood, and cluster composition still use provisional values.
 - The Supabase Events repository does not implement the complete runtime contract used by the screens.
 - Database CI applies the Events migration but does not invoke the Events RLS smoke file.
 - Pending Events/comments do not yet have an operational, audited moderator workflow.
-- No passing workflow, local database run, native build, or device-test evidence was available for commit `d44d7d9` during this audit.
+- PR #35 passed Mobile CI and Database CI. Local verification passed formatting, type checking, 50 Jest suites, 246 tests, and 7 Events stabilization pgTAP assertions. Native build and device evidence remain outstanding.
 
 ## 2026-08-02 - Events vertical slice merge
 
