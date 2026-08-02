@@ -45,6 +45,12 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
+        <Link href="/events" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>Events</Text>
+          </Pressable>
+        </Link>
+
         <Link href="/agency-broadcasts" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Agency broadcasts</Text>
