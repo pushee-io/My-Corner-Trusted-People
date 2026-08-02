@@ -1,21 +1,43 @@
 # Tech Radar
 
-Date verified: 2026-07-16
+Last reviewed: 2026-08-02  
+Baseline commit: `c2ea1cf` (Events stabilization merged through PR #35)
 
-| Tool or dependency | Selected version | Channel | Official source | Purpose | Reason | Risks | Upgrade policy |
-|---|---:|---|---|---|---|---|---|
-| Expo SDK | 57.x, pin target `57.0.6` after registry access | Stable | Expo SDK 57 changelog and upgrade docs | React Native app foundation | Latest current Expo SDK; brings React Native 0.86 | npm registry blocked here, exact install not verified | Run `npx expo install --fix` after install access |
-| React Native | 0.86.x | Stable/active | React Native versions and Expo SDK 57 | Native runtime | SDK 57 target | Native dependency compatibility must be checked by Expo Doctor | Follow Expo SDK cadence |
-| React | 19.2.x | Stable | Expo SDK 57 changelog | UI runtime | SDK 57 uses React 19.2 | Exact patch not installed here | Let Expo resolve compatible patch |
-| Expo Router | SDK-compatible stable | Stable | Expo Router docs | File-based routing | Required for compact app flow | Exact package resolution blocked | Resolve with Expo install |
-| TypeScript | 6.0.x | Stable | TypeScript docs | Strict typing | Latest stable docs indicate 6.0 | Some ecosystem types may lag | Pin after install verification |
-| Supabase JS | 2.x | Stable | Supabase docs/changelog | Backend client | Stable since 2023; MVP backend | No Supabase project credentials here | Pin exact package after npm access |
-| Supabase Postgres/RLS | Current managed stable | Stable | Supabase docs | Data, auth, RLS, storage | Fits MVP speed and security | Policies need real auth-user verification | Test locally before staging |
-| OpenAI Responses API | Current stable | Stable | OpenAI docs route | Request structuring | Server-side only | API key unavailable here | Keep behind feature flag |
-| OpenAI moderation | `omni-moderation-latest` via env | Stable alias | OpenAI docs route | Text/image safety screening | Current moderation alias requested | Alias can change behavior | Log model and timestamp |
-| Sentry React Native | SDK-compatible stable | Stable | Sentry docs | Crash/performance monitoring | Standard RN monitoring | Package not installed due registry block | Add SDK when npm access works |
+## Policy
 
-## Verification Notes
-- Official Expo docs confirmed SDK 57 on 2026-07-16.
-- Official Expo changelog states SDK 57 includes React Native 0.86 and React 19.2.
-- npm registry access from this workspace failed with HTTP 403, so lockfile creation and package install verification are blocked.
+The committed `mobile/package-lock.json` is the reproducible dependency authority for the current application. Versions below describe the merged baseline; they do not claim to be the newest upstream release. Current upstream release verification was attempted on 2026-08-02, but the review environment could not reach official documentation or the npm registry. Do not upgrade the Expo family one package at a time.
+
+| Tool or dependency | Selected version | Release channel | Official source | Date verified | Purpose | Reason for selection | Known risks | Upgrade policy |
+|---|---:|---|---|---|---|---|---|---|
+| Expo SDK | `54.0.34` | Stable repository baseline | https://docs.expo.dev/versions/latest/ | 2026-08-02 | Mobile runtime and tooling | Installed Expo family in the committed lockfile | `TECH_RADAR.md` previously described an uninstalled SDK 57 target | Upgrade only as one Expo-supported compatibility set after `expo-doctor`, native build, and device verification |
+| React Native | `0.81.5` | Stable repository baseline | https://reactnative.dev/versions | 2026-08-02 | Native UI runtime | Expo SDK 54-compatible repository pin | Newer React Native releases may require a full Expo upgrade | Follow the selected Expo SDK, not an independent version target |
+| React | `19.1.0` | Stable repository baseline | https://react.dev/versions | 2026-08-02 | UI rendering | Compatible repository pin | Must remain compatible with Expo and React Native | Upgrade with Expo compatibility validation |
+| Expo Router | `6.0.23` | Stable repository baseline | https://docs.expo.dev/router/introduction/ | 2026-08-02 | File-based navigation | Existing application routing convention | Events routes are reachable without a client-side feature-flag gate | Keep SDK-compatible; add route-level feature gating before Events activation |
+| Supabase JS | `2.75.0` | Stable repository baseline | https://supabase.com/docs/reference/javascript/introduction | 2026-08-02 | Auth and data access | Existing MVP backend client | Events has a complete runtime Supabase repository; authenticated membership composition and session persistence remain incomplete | Pin exact manifest version and verify against local/staging Supabase before upgrade |
+| PostgreSQL | `16` in CI | Stable | https://www.postgresql.org/docs/16/ | 2026-08-02 | Primary database | Current database CI service image | Managed Supabase version must be checked before staging | Match local/CI capabilities to the target Supabase environment |
+| PostGIS | `3.4` in CI | Stable | https://postgis.net/docs/ | 2026-08-02 | Geographic queries | Existing database CI service image | Events do not currently exercise geographic matching | Upgrade with PostgreSQL/Supabase compatibility testing |
+| TanStack Query | `5.90.5` | Stable repository baseline | https://tanstack.com/query/latest/docs/framework/react/overview | 2026-08-02 | Server-state management | Approved application architecture | Events screens use direct effects and do not use query caching/retry behavior | Use for the live Events boundary rather than adding another state library |
+| React Hook Form | `7.62.0` | Stable repository baseline | https://react-hook-form.com/get-started | 2026-08-02 | Form state | Existing form architecture | Events create form uses local state and raw ISO input | Adopt with Zod for production Events forms |
+| Zod | `4.1.5` | Stable repository baseline | https://zod.dev/ | 2026-08-02 | Runtime validation | Existing typed-validation choice | Events drafts are not validated by a shared schema | Add shared client/server-compatible Events schemas |
+| TypeScript | `5.9.2` manifest family | Stable repository baseline | https://www.typescriptlang.org/docs/ | 2026-08-02 | Strict typing | `strict` is enabled | Manifest uses a compatible range rather than an exact version | Pin exact version in `package.json`; keep strict mode enabled |
+| Jest | `29.7.0` manifest family | Stable repository baseline | https://jestjs.io/docs/getting-started | 2026-08-02 | Unit and integration tests | Existing test runner | `babel-jest` is declared at `30.0.5`, creating a major-version mismatch risk | Align Jest and Babel-Jest majors before expanding component tests |
+| GitHub Actions | `actions/checkout@v4`, `actions/setup-node@v4` | Stable major actions | https://docs.github.com/actions | 2026-08-02 | CI | Existing delivery platform | Mobile CI uses `npm install`; Events SQL smoke is not invoked | Use `npm ci`, cache the lockfile, and make Events SQL tests a required check |
+| Node.js | `24` in Mobile CI | Stable CI selection | https://nodejs.org/en/about/previous-releases | 2026-08-02 | CI JavaScript runtime | Current workflow pin | Expo SDK 54 compatibility with this CI major is not documented in-repo | Verify Expo-supported Node range; prefer an active LTS supported by the selected SDK |
+| OpenAI Responses API | Environment-selected; server-side only | Stable API policy | https://platform.openai.com/docs/api-reference/responses | 2026-08-02 | Request structuring and assistance | Required trusted-backend boundary | No Events AI feature is implemented or needed | Keep behind a backend feature flag, timeout, logging, evaluation, and non-AI fallback |
+| OpenAI moderation | `omni-moderation-latest` policy alias | Stable alias policy | https://platform.openai.com/docs/guides/moderation | 2026-08-02 | Text and image safety signals | Product safety requirement | Alias behavior can change; Events comments are only marked pending today | Log resolved model/version and retain human review |
+| Sentry React Native | Not installed | Proposed | https://docs.sentry.io/platforms/react-native/ | 2026-08-02 | Crash and performance monitoring | Required before pilot release | No runtime monitoring evidence exists | Add after the Expo baseline is reconciled and before external pilot distribution |
+
+## Current classification
+
+- **Adopt:** Expo Router, strict TypeScript, Supabase/Postgres/RLS, TanStack Query, React Hook Form, Zod.
+- **Trial:** Events domain model, Events security-definer RPCs, domain event outbox.
+- **Hold:** Events feature activation, real notification delivery, production identity/residence integrations.
+- **Remove from active plan:** the undocumented assumption that SDK 57 is already selected or installed.
+
+## Required maintenance
+
+1. Re-run official upstream version checks from an environment with documentation and registry access.
+2. Decide whether to stabilize on Expo SDK 54 or perform a dedicated Expo-family upgrade.
+3. Replace compatible ranges (`~` and `^`) with exact manifest versions as required by project policy, retaining the lockfile.
+4. Run `npm ci`, `npx expo-doctor`, type checking, tests, and native preview builds after any dependency change.
+
