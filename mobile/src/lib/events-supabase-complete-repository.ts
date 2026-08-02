@@ -23,30 +23,8 @@ const runtimeViewer: EventViewer = {
   isVerifiedNeighborhoodMember: true,
 };
 
-const runtimeColumns = [
-  'id',
-  'neighborhood_id',
-  'cluster_id',
-  'organizer_profile_id',
-  'organizer_display_name',
-  'title',
-  'description',
-  'starts_at',
-  'ends_at',
-  'timezone',
-  'location_type',
-  'venue_name',
-  'area_label',
-  'public_meetup_point',
-  'visibility',
-  'status',
-  'moderation_status',
-  'capacity',
-  'attendee_count',
-  'comments_enabled',
-  'created_at',
-  'updated_at',
-].join(',');
+const runtimeColumns =
+  'id,neighborhood_id,cluster_id,organizer_profile_id,organizer_display_name,title,description,starts_at,ends_at,timezone,location_type,venue_name,area_label,public_meetup_point,visibility,status,moderation_status,capacity,attendee_count,comments_enabled,created_at,updated_at';
 
 async function attempt<T>(operation: () => Promise<T>): Promise<T> {
   try {

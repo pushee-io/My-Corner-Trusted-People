@@ -13,15 +13,25 @@ function publish(next: EventsFlagState) {
   return next;
 }
 
-export function loadEventsFeatureFlag() {
-  if (!isFeatureEnabled('events')) return Promise.resolve(publish('disabled'));
-  request ??= supabase
-    .from('feature_flags')
-    .select('enabled')
-    .eq('key', 'events')
-    .maybeSingle()
-    .then(({ data, error }) => publish(!error && data?.enabled === true ? 'enabled' : 'disabled'))
-    .catch(() => publish('disabled'));
+export async function loadEventsFeatureFlag(): Promise<EventsFlagState> {
+  if (!isFeatureEnabled('events')) {
+    return publish('disabled');
+  }
+
+  if (request) {
+    return request;
+  }
+
+  request = (async () => {
+    try {
+      const { data, error } = await supabase.from('feature_flags').select('enabled').eq('key', 'events').maybeSingle();
+
+      return publish(!error && data?.enabled === true ? 'enabled' : 'disabled');
+    } catch {
+      return publish('disabled');
+    }
+  })();
+
   return request;
 }
 

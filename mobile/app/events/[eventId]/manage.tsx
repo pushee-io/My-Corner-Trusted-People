@@ -43,14 +43,24 @@ export default function ManageEventScreen() {
   if (!eventId || (!role && !error))
     return (
       <Screen title="Manage event" showBottomNavigation={false}>
-        <Text accessibilityRole="alert" style={styles.meta}>Loading organizer permissions...</Text>
+        <Text accessibilityRole="alert" style={styles.meta}>
+          Loading organizer permissions...
+        </Text>
       </Screen>
     );
 
   return (
     <Screen title="Manage event" showBottomNavigation={false}>
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-      {notice ? <Text accessibilityRole="alert" style={styles.success}>{notice}</Text> : null}
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
+      {notice ? (
+        <Text accessibilityRole="alert" style={styles.success}>
+          {notice}
+        </Text>
+      ) : null}
 
       {organizerCan(role, 'edit_event') ? (
         <View style={styles.section}>
@@ -101,10 +111,7 @@ export default function ManageEventScreen() {
         <Action
           label="Send attendee reminder"
           onPress={() =>
-            act(
-              () => eventOrganizerActions.sendReminder(eventId, new Date().toISOString()),
-              'Reminder queued.',
-            )
+            act(() => eventOrganizerActions.sendReminder(eventId, new Date().toISOString()), 'Reminder queued.')
           }
         />
       ) : null}
@@ -146,14 +153,16 @@ export default function ManageEventScreen() {
         <Action
           label="Cancel event"
           destructive
-          onPress={() => Alert.alert('Cancel event?', 'Attendees will be notified.', [
-            { text: 'Keep event', style: 'cancel' },
-            {
-              text: 'Cancel event',
-              style: 'destructive',
-              onPress: () => void act(() => eventOrganizerActions.cancel(eventId), 'Event cancelled.'),
-            },
-          ])}
+          onPress={() =>
+            Alert.alert('Cancel event?', 'Attendees will be notified.', [
+              { text: 'Keep event', style: 'cancel' },
+              {
+                text: 'Cancel event',
+                style: 'destructive',
+                onPress: () => void act(() => eventOrganizerActions.cancel(eventId), 'Event cancelled.'),
+              },
+            ])
+          }
         />
       ) : null}
       <Action label="Back" onPress={() => router.back()} />

@@ -36,8 +36,8 @@ describe('Events stabilization', () => {
       .filter((file) => file.endsWith('.tsx') && file !== '_layout.tsx')
       .map((file) => fs.readFileSync(path.join(routeDirectory, file), 'utf8'));
     screens.push(fs.readFileSync(path.join(routeDirectory, '[eventId]/manage.tsx'), 'utf8'));
-    expect(screens.every((source) => source.includes("@/lib/events-runtime-repository"))).toBe(true);
-    expect(screens.every((source) => !source.includes("@/lib/events-repository"))).toBe(true);
+    expect(screens.every((source) => source.includes('@/lib/events-runtime-repository'))).toBe(true);
+    expect(screens.every((source) => !source.includes('@/lib/events-repository'))).toBe(true);
     expect(fs.readFileSync(path.join(routeDirectory, '_layout.tsx'), 'utf8')).toContain('useEventsFeatureFlag');
     expect(fs.readFileSync(path.join(root, 'app/home.tsx'), 'utf8')).toContain('eventsEnabled ?');
     expect(screens.at(-1)).toContain('organizerCan');
@@ -86,13 +86,13 @@ describe('Events stabilization', () => {
       path.join(root, '../supabase/migrations/20260802170000_events_stabilization.sql'),
       'utf8',
     );
-    expect(sql).toContain("add column if not exists expires_at");
-    expect(sql).toContain("active event invitation already exists");
-    expect(sql).toContain("event invitation rate limit exceeded");
-    expect(sql).toContain("invitee is outside the event audience");
-    expect(sql).toContain("validate_event_lifecycle_transition");
-    expect(sql).toContain("event_invitation_created");
-    expect(sql).toContain("revoke update, delete on public.event_audit_events");
+    expect(sql).toContain('add column if not exists expires_at');
+    expect(sql).toContain('active event invitation already exists');
+    expect(sql).toContain('event invitation rate limit exceeded');
+    expect(sql).toContain('invitee is outside the event audience');
+    expect(sql).toContain('validate_event_lifecycle_transition');
+    expect(sql).toContain('event_invitation_created');
+    expect(sql).toContain('revoke update, delete on public.event_audit_events');
     expect(sql).toContain("eo.role = 'co_organizer'");
   });
 });

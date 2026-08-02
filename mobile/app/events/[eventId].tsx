@@ -148,16 +148,11 @@ export default function EventDetailsScreen() {
         style={styles.secondary}
       >
         <Text style={styles.secondaryText}>
-          {organizerCan(event.currentUserOrganizerRole, 'send_reminders')
-            ? 'Send attendee reminder'
-            : 'Remind me'}
+          {organizerCan(event.currentUserOrganizerRole, 'send_reminders') ? 'Send attendee reminder' : 'Remind me'}
         </Text>
       </Pressable>
       {organizerCan(event.currentUserOrganizerRole, 'edit_event') ? (
-        <Link
-          href={{ pathname: '/events/[eventId]/manage', params: { eventId: event.id } } as unknown as Href}
-          asChild
-        >
+        <Link href={{ pathname: '/events/[eventId]/manage', params: { eventId: event.id } } as unknown as Href} asChild>
           <Pressable accessibilityRole="button" accessibilityLabel="Manage this event" style={styles.secondary}>
             <Text style={styles.secondaryText}>Manage event</Text>
           </Pressable>

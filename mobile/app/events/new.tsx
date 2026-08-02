@@ -47,11 +47,7 @@ export default function NewEventScreen() {
       <Field label="Capacity (optional)" value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
       <View style={styles.switchRow}>
         <Text style={styles.label}>Private, invitation-only event</Text>
-        <Switch
-          accessibilityLabel="Private invitation-only event"
-          value={isPrivate}
-          onValueChange={setIsPrivate}
-        />
+        <Switch accessibilityLabel="Private invitation-only event" value={isPrivate} onValueChange={setIsPrivate} />
       </View>
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>

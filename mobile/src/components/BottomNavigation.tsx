@@ -34,8 +34,7 @@ export function BottomNavigation() {
     <View accessibilityRole="tablist" style={styles.container}>
       {bottomNavigationItems.map((item) => {
         const selected =
-          isSelected(pathname, item) ||
-          (eventsEnabled && item.label === 'Community' && pathname.startsWith('/events'));
+          isSelected(pathname, item) || (eventsEnabled && item.label === 'Community' && pathname.startsWith('/events'));
 
         return (
           <Link key={String(item.href)} href={item.href} asChild>

@@ -21,7 +21,11 @@ function cachedQuery(query: { neighborhoodId: string; clusterId?: string }) {
 
 function remember(events: Event[], query?: { neighborhoodId: string; clusterId?: string }) {
   events.forEach((event) => eventCache.set(event.id, event));
-  if (query) queryCache.set(queryKey(query), events.map((event) => event.id));
+  if (query)
+    queryCache.set(
+      queryKey(query),
+      events.map((event) => event.id),
+    );
 }
 
 function enqueue(key: string, run: () => Promise<unknown>) {
@@ -176,7 +180,10 @@ export function createRuntimeEventsRepository(
         return optimistic;
       }
     },
-    cancelRsvp: (eventId) => live().cancelRsvp(eventId).catch((error) => Promise.reject(normalizeEventError(error))),
+    cancelRsvp: (eventId) =>
+      live()
+        .cancelRsvp(eventId)
+        .catch((error) => Promise.reject(normalizeEventError(error))),
     listAttendees: (query) =>
       live()
         .listAttendees(query)
@@ -211,24 +218,27 @@ export function createRuntimeEventsRepository(
             };
           throw normalizeEventError(caught);
         }),
-    createEventForViewer: (draft, eventViewer) => repository.createEvent(draft).then((event) => ({
-      ...event,
-      clusterId: eventViewer.clusterId,
-      locationType: 'in_person' as const,
-      commentsEnabled: true,
-    })),
-    updateEventForViewer: (eventId, draft) => repository.updateEvent(eventId, draft).then((event) => ({
-      ...event,
-      clusterId: '',
-      locationType: 'in_person' as const,
-      commentsEnabled: true,
-    })),
-    cancelEventForViewer: (eventId) => repository.cancelEvent(eventId).then((event) => ({
-      ...event,
-      clusterId: '',
-      locationType: 'in_person' as const,
-      commentsEnabled: true,
-    })),
+    createEventForViewer: (draft, eventViewer) =>
+      repository.createEvent(draft).then((event) => ({
+        ...event,
+        clusterId: eventViewer.clusterId,
+        locationType: 'in_person' as const,
+        commentsEnabled: true,
+      })),
+    updateEventForViewer: (eventId, draft) =>
+      repository.updateEvent(eventId, draft).then((event) => ({
+        ...event,
+        clusterId: '',
+        locationType: 'in_person' as const,
+        commentsEnabled: true,
+      })),
+    cancelEventForViewer: (eventId) =>
+      repository.cancelEvent(eventId).then((event) => ({
+        ...event,
+        clusterId: '',
+        locationType: 'in_person' as const,
+        commentsEnabled: true,
+      })),
     setGoing: (eventId, eventViewer) =>
       live()
         .setGoing(eventId, eventViewer)
