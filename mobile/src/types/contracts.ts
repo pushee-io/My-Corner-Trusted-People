@@ -94,6 +94,7 @@ export type JobRequest = JobRequestDraftInput & {
 export type FeatureFlags = {
   ai_service_request_structurer: boolean;
   ai_content_moderation: boolean;
+  events: boolean;
 };
 
 export type MarketplaceAvailability = 'available' | 'reserved' | 'collected' | 'removed';

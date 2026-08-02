@@ -1,8 +1,8 @@
 import { router, type Href } from 'expo-router';
 import { useState, type ComponentProps } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { eventsRepository } from '@/lib/events-repository';
+import { eventsRepository } from '@/lib/events-runtime-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function NewEventScreen() {
@@ -11,6 +11,7 @@ export default function NewEventScreen() {
   const [startsAt, setStartsAt] = useState('2026-09-12T09:00:00.000Z');
   const [areaLabel, setAreaLabel] = useState('East Legon, general area only');
   const [capacity, setCapacity] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
 
@@ -25,7 +26,7 @@ export default function NewEventScreen() {
         startsAt,
         timezone: 'Africa/Accra',
         areaLabel,
-        visibility: 'verified_neighborhood_members',
+        visibility: isPrivate ? 'private_invitees' : 'verified_neighborhood_members',
         capacity: capacity ? Number(capacity) : undefined,
       });
       router.replace('/events' as Href);
@@ -44,6 +45,14 @@ export default function NewEventScreen() {
       <Field label="Start time (ISO)" value={startsAt} onChangeText={setStartsAt} autoCapitalize="none" />
       <Field label="General area" value={areaLabel} onChangeText={setAreaLabel} />
       <Field label="Capacity (optional)" value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
+      <View style={styles.switchRow}>
+        <Text style={styles.label}>Private, invitation-only event</Text>
+        <Switch
+          accessibilityLabel="Private invitation-only event"
+          value={isPrivate}
+          onValueChange={setIsPrivate}
+        />
+      </View>
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}
@@ -91,6 +100,12 @@ const styles = StyleSheet.create({
     fontSize: tokens.type.support,
   },
   field: { gap: tokens.spacing.xs },
+  switchRow: {
+    minHeight: tokens.touch.min,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   label: { color: tokens.color.textPrimary, fontSize: tokens.type.label, fontWeight: '700' },
   input: {
     minHeight: tokens.touch.min,

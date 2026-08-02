@@ -5,11 +5,13 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getActiveLocationLabel } from '@/lib/location-context';
+import { useEventsFeatureFlag } from '@/lib/events-feature';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 export default function HomeScreen() {
+  const { enabled: eventsEnabled } = useEventsFeatureFlag();
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
@@ -45,11 +47,17 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
-        <Link href={'/events' as Href} asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Events</Text>
-          </Pressable>
-        </Link>
+        {eventsEnabled ? (
+          <Link href={'/events' as Href} asChild>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Open neighborhood events"
+              style={styles.secondary}
+            >
+              <Text style={styles.secondaryText}>Events</Text>
+            </Pressable>
+          </Link>
+        ) : null}
 
         <Link href="/agency-broadcasts" asChild>
           <Pressable style={styles.secondary}>

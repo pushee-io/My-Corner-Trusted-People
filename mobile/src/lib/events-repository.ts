@@ -149,7 +149,15 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
       event.moderationStatus === 'approved' &&
       (event.visibility === 'verified_neighborhood_members'
         ? event.neighborhoodId === viewer.neighborhoodId
-        : event.clusterId === viewer.clusterId));
+        : event.visibility === 'immediate_cluster_members'
+          ? event.clusterId === viewer.clusterId
+          : invitations.some(
+              (invitation) =>
+                invitation.eventId === event.id &&
+                invitation.inviteeProfileId === viewer.profileId &&
+                invitation.status === 'accepted' &&
+                new Date(invitation.expiresAt).getTime() > Date.now(),
+            )));
   const find = (eventId: string) => {
     const event = events.find((item) => item.id === eventId);
     if (!event) throw new Error('Event not found.');
@@ -160,7 +168,14 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
   const requirePermission = (
     eventId: string,
     viewer: EventViewer,
-    permission: 'edit_event' | 'cancel_event' | 'manage_attendees' | 'manage_organizers',
+    permission:
+      | 'edit_event'
+      | 'cancel_event'
+      | 'manage_attendees'
+      | 'manage_organizers'
+      | 'send_reminders'
+      | 'moderate_content'
+      | 'invite_attendees',
   ) => {
     const role = organizerRole(eventId, viewer.profileId);
     if (!role || !EVENT_ORGANIZER_ROLE_PERMISSIONS[role][permission])
@@ -185,6 +200,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
         ? { preciseLocation: privateLocation.preciseAddress }
         : {}),
       ...((going || organizerRole(event.id, viewer.profileId)) && virtualLink ? { virtualLink } : {}),
+      currentUserOrganizerRole: organizerRole(event.id, viewer.profileId),
     };
   };
   const updateCount = (eventId: string) => {
@@ -351,7 +367,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
       return { event: forViewer(find(eventId), viewer), rsvp };
     },
     async invite(eventId, inviteeProfileId, viewer) {
-      requirePermission(eventId, viewer, 'manage_attendees');
+      requirePermission(eventId, viewer, 'invite_attendees');
       const existing = invitations.find(
         (item) => item.eventId === eventId && item.inviteeProfileId === inviteeProfileId && item.status === 'pending',
       );
@@ -362,6 +378,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
         inviterProfileId: viewer.profileId,
         inviteeProfileId,
         status: 'pending' as const,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date().toISOString(),
       };
       invitations.push(invitation);
@@ -399,6 +416,13 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
     },
     async scheduleReminder(eventId, remindAt, viewer) {
       if (!visible(find(eventId), viewer)) throw new Error('Event is unavailable.');
+      const role = organizerRole(eventId, viewer.profileId);
+      if (role) {
+        requirePermission(eventId, viewer, 'send_reminders');
+        rsvps
+          .filter((rsvp) => rsvp.eventId === eventId && rsvp.status === 'going')
+          .forEach((rsvp) => notify(eventId, rsvp.profileId, 'event_reminder'));
+      }
       const existing = reminders.find((item) => item.eventId === eventId && item.profileId === viewer.profileId);
       if (existing) return existing;
       const reminder = {
@@ -409,7 +433,7 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
         createdAt: new Date().toISOString(),
       };
       reminders.push(reminder);
-      notify(eventId, viewer.profileId, 'event_reminder');
+      if (!role) notify(eventId, viewer.profileId, 'event_reminder');
       return reminder;
     },
     async addOrganizer(eventId, profileId, viewer) {
@@ -437,5 +461,3 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
   };
   return repository;
 }
-
-export const eventsRepository = createSeededEventsRepository();

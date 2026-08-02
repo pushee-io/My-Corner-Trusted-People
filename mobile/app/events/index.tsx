@@ -2,7 +2,7 @@ import { Link, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { eventsRepository } from '@/lib/events-repository';
+import { eventsRepository } from '@/lib/events-runtime-repository';
 import { tokens } from '@/theme/tokens';
 import type { Event } from '@/types/events';
 
@@ -11,7 +11,9 @@ export default function EventsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
-  useEffect(() => {
+  function load() {
+    setLoading(true);
+    setError(undefined);
     Promise.all([
       eventsRepository.listEvents({ neighborhoodId: 'east-legon', clusterId: 'accra-east' }),
       eventsRepository.listOrganizerEvents(eventsRepository.defaultViewer.profileId),
@@ -22,6 +24,10 @@ export default function EventsScreen() {
       })
       .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load events.'))
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
   }, []);
 
   return (
@@ -40,6 +46,14 @@ export default function EventsScreen() {
         <View style={styles.notice}>
           <Text style={styles.error}>Could not load events</Text>
           <Text style={styles.meta}>{error}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading events"
+            onPress={load}
+            style={styles.secondary}
+          >
+            <Text style={styles.secondaryText}>Try again</Text>
+          </Pressable>
         </View>
       ) : null}
       {!loading && !error && events.length === 0 ? (
@@ -60,7 +74,9 @@ export default function EventsScreen() {
               {new Date(event.startsAt).toLocaleString('en-GH', { timeZone: event.timezone })}
             </Text>
             <Text style={styles.body}>{event.areaLabel}</Text>
-            <Text style={styles.meta}>Status: {event.status}</Text>
+            <Text style={styles.meta}>
+              Status: {event.moderationStatus === 'approved' ? event.status : event.moderationStatus}
+            </Text>
             <Text style={styles.meta}>
               {event.attendeeCount}
               {event.capacity ? ` of ${event.capacity}` : ''} going
@@ -103,4 +119,13 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   primaryText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
+  secondaryText: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
 });
