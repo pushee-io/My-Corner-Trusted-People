@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 16.0.0",
+    "version": "21.4.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -11,7 +11,8 @@
       },
       "env": {
         "APP_ENV": "preview"
-      }
+      },
+      "environment": "preview"
     },
     "production": {
       "autoIncrement": true
