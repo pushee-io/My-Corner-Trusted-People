@@ -1,20 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-database_url="${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/postgres}"
+database_url="${DATABASE_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}"
 
-psql "$database_url" \
-  --set ON_ERROR_STOP=1 \
-  --command "do \$\$ begin if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if; end \$\$;" \
-  --command "do \$\$ begin if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if; end \$\$;" \
-  --command "create schema if not exists auth;" \
-  --command "create or replace function auth.uid() returns uuid language sql stable as \$\$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid \$\$;"
-
-for migration in supabase/migrations/*.sql; do
-  psql "$database_url" --set ON_ERROR_STOP=1 --file "$migration"
-done
-
-psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/seed.sql
+supabase db reset
 
 psql "$database_url" \
   --set ON_ERROR_STOP=1 \
@@ -32,18 +21,25 @@ psql "$database_url" \
   --command "grant insert on public.reports to authenticated;" \
   --command "grant select on public.notifications to authenticated;"
 
-if [ -f supabase/tests/module1_rls_smoke.sql ]; then
-  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/module1_rls_smoke.sql
-fi
+legacy_tests=(
+  supabase/tests/module1_rls_smoke.sql
+  supabase/tests/day2b_live_read_smoke.sql
+  supabase/tests/day2b_verified_neighborhood_access.sql
+  supabase/tests/day3_social_groups_broadcasts.sql
+)
 
-if [ -f supabase/tests/day2b_live_read_smoke.sql ]; then
-  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day2b_live_read_smoke.sql
-fi
+for test_file in "${legacy_tests[@]}"; do
+  if [[ -f "$test_file" ]]; then
+    psql "$database_url" --set ON_ERROR_STOP=1 --file "$test_file"
+  fi
+done
 
-if [ -f supabase/tests/day2b_verified_neighborhood_access.sql ]; then
-  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day2b_verified_neighborhood_access.sql
-fi
+pgtap_tests=(
+  supabase/tests/events_rls_smoke.sql
+  supabase/tests/events_stabilization_rls.sql
+  supabase/tests/events_stabilization_rls_smoke.sql
+)
 
-if [ -f supabase/tests/day3_social_groups_broadcasts.sql ]; then
-  psql "$database_url" --set ON_ERROR_STOP=1 --file supabase/tests/day3_social_groups_broadcasts.sql
-fi
+for test_file in "${pgtap_tests[@]}"; do
+  supabase test db "$test_file"
+done

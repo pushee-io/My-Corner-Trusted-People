@@ -1,6 +1,6 @@
 # Tech Radar
 
-Last reviewed: 2026-08-02  
+Last reviewed: 2026-08-02
 Baseline commit: `c2ea1cf` (Events stabilization merged through PR #35)
 
 ## Policy
@@ -21,7 +21,7 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 | Zod | `4.1.5` | Stable repository baseline | https://zod.dev/ | 2026-08-02 | Runtime validation | Existing typed-validation choice | Events drafts are not validated by a shared schema | Add shared client/server-compatible Events schemas |
 | TypeScript | `5.9.2` manifest family | Stable repository baseline | https://www.typescriptlang.org/docs/ | 2026-08-02 | Strict typing | `strict` is enabled | Manifest uses a compatible range rather than an exact version | Pin exact version in `package.json`; keep strict mode enabled |
 | Jest | `29.7.0` manifest family | Stable repository baseline | https://jestjs.io/docs/getting-started | 2026-08-02 | Unit and integration tests | Existing test runner | `babel-jest` is declared at `30.0.5`, creating a major-version mismatch risk | Align Jest and Babel-Jest majors before expanding component tests |
-| GitHub Actions | `actions/checkout@v4`, `actions/setup-node@v4` | Stable major actions | https://docs.github.com/actions | 2026-08-02 | CI | Existing delivery platform | Mobile CI uses `npm install`; Events SQL smoke is not invoked | Use `npm ci`, cache the lockfile, and make Events SQL tests a required check |
+| GitHub Actions | `actions/checkout@v4`, `actions/setup-node@v4` | Stable major actions | https://docs.github.com/actions | 2026-08-02 | CI | Existing delivery platform | Mobile CI uses `npm ci`; Database CI uses pinned Supabase CLI `2.111.0` and enforces Events pgTAP | Keep the CLI pinned and add native preview-build evidence |
 | Node.js | `24` in Mobile CI | Stable CI selection | https://nodejs.org/en/about/previous-releases | 2026-08-02 | CI JavaScript runtime | Current workflow pin | Expo SDK 54 compatibility with this CI major is not documented in-repo | Verify Expo-supported Node range; prefer an active LTS supported by the selected SDK |
 | OpenAI Responses API | Environment-selected; server-side only | Stable API policy | https://platform.openai.com/docs/api-reference/responses | 2026-08-02 | Request structuring and assistance | Required trusted-backend boundary | No Events AI feature is implemented or needed | Keep behind a backend feature flag, timeout, logging, evaluation, and non-AI fallback |
 | OpenAI moderation | `omni-moderation-latest` policy alias | Stable alias policy | https://platform.openai.com/docs/guides/moderation | 2026-08-02 | Text and image safety signals | Product safety requirement | Alias behavior can change; Events comments are only marked pending today | Log resolved model/version and retain human review |
@@ -40,4 +40,3 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 2. Decide whether to stabilize on Expo SDK 54 or perform a dedicated Expo-family upgrade.
 3. Replace compatible ranges (`~` and `^`) with exact manifest versions as required by project policy, retaining the lockfile.
 4. Run `npm ci`, `npx expo-doctor`, type checking, tests, and native preview builds after any dependency change.
-

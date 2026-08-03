@@ -1,37 +1,67 @@
 import { router, type Href } from 'expo-router';
-import { useState, type ComponentProps } from 'react';
-import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { useEffect, useState, type ComponentProps } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { eventsRepository } from '@/lib/events-runtime-repository';
+import { EventsFeatureGate } from '@/components/events/EventsFeatureGate';
+import { eventsRuntimeRepository } from '@/lib/events-runtime-repository';
+import { eventErrorMessage } from '@/lib/events-errors';
 import { tokens } from '@/theme/tokens';
+import type { EventVisibility } from '@/types/events';
+import type { EventsRuntimeContext } from '@/lib/events-runtime-contract';
 
 export default function NewEventScreen() {
+  return (
+    <EventsFeatureGate>
+      <NewEventContent />
+    </EventsFeatureGate>
+  );
+}
+
+function NewEventContent() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [startsAt, setStartsAt] = useState('2026-09-12T09:00:00.000Z');
-  const [areaLabel, setAreaLabel] = useState('East Legon, general area only');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [capacity, setCapacity] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [visibility, setVisibility] = useState<EventVisibility>('verified_neighborhood_members');
+  const [context, setContext] = useState<EventsRuntimeContext>();
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    eventsRuntimeRepository
+      .getContext()
+      .then(setContext)
+      .catch((caught) => {
+        setError(caught instanceof Error ? caught.message : 'Could not load your verified neighborhood.');
+      });
+  }, []);
 
   async function submit() {
     setSaving(true);
     setError(undefined);
     try {
-      await eventsRepository.createEvent({
-        neighborhoodId: 'east-legon',
+      if (!context) throw new Error('Your verified neighborhood is still loading.');
+      const startsAt = new Date(`${date}T${time}:00.000Z`);
+      if (!date || !time || Number.isNaN(startsAt.getTime())) throw new Error('Enter a valid date and time.');
+      if (startsAt.getTime() <= Date.now()) throw new Error('Event time must be in the future.');
+      const parsedCapacity = capacity ? Number(capacity) : undefined;
+      if (parsedCapacity !== undefined && (!Number.isInteger(parsedCapacity) || parsedCapacity < 1)) {
+        throw new Error('Capacity must be a whole number greater than zero.');
+      }
+      await eventsRuntimeRepository.createEvent({
+        neighborhoodId: context.neighborhoodId,
         title,
         description,
-        startsAt,
+        startsAt: startsAt.toISOString(),
         timezone: 'Africa/Accra',
-        areaLabel,
-        visibility: isPrivate ? 'private_invitees' : 'verified_neighborhood_members',
-        capacity: capacity ? Number(capacity) : undefined,
+        areaLabel: `${context.neighborhoodName}, general area only`,
+        visibility,
+        capacity: parsedCapacity,
       });
       router.replace('/events' as Href);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not save the event.');
+      setError(eventErrorMessage(caught));
     } finally {
       setSaving(false);
     }
@@ -42,24 +72,61 @@ export default function NewEventScreen() {
       <Text style={styles.notice}>Use a general area here. Do not enter a private residential address.</Text>
       <Field label="Event title" value={title} onChangeText={setTitle} />
       <Field label="Description" value={description} onChangeText={setDescription} multiline />
-      <Field label="Start time (ISO)" value={startsAt} onChangeText={setStartsAt} autoCapitalize="none" />
-      <Field label="General area" value={areaLabel} onChangeText={setAreaLabel} />
-      <Field label="Capacity (optional)" value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
-      <View style={styles.switchRow}>
-        <Text style={styles.label}>Private, invitation-only event</Text>
-        <Switch accessibilityLabel="Private invitation-only event" value={isPrivate} onValueChange={setIsPrivate} />
+      <Field
+        label="Date"
+        accessibilityHint="Use year dash month dash day"
+        placeholder="YYYY-MM-DD"
+        value={date}
+        onChangeText={setDate}
+        autoCapitalize="none"
+      />
+      <Field
+        label="Time"
+        accessibilityHint="Use 24-hour time in Ghana"
+        placeholder="HH:MM"
+        value={time}
+        onChangeText={setTime}
+        autoCapitalize="none"
+      />
+      <View style={styles.field}>
+        <Text style={styles.label}>Who can see this event?</Text>
+        {(
+          [
+            ['verified_neighborhood_members', 'Verified neighborhood'],
+            ['immediate_cluster_members', 'Nearby cluster'],
+            ['invite_only', 'Invite only'],
+          ] as const
+        ).map(([value, label]) => (
+          <Pressable
+            accessibilityRole="radio"
+            accessibilityState={{ checked: visibility === value }}
+            key={value}
+            onPress={() => setVisibility(value)}
+            style={[styles.choice, visibility === value ? styles.choiceSelected : null]}
+          >
+            <Text style={visibility === value ? styles.choiceSelectedText : styles.choiceText}>{label}</Text>
+          </Pressable>
+        ))}
       </View>
+      <Text style={styles.area}>General area: {context?.neighborhoodName ?? 'Loading verified neighborhood...'}</Text>
+      <Field label="Capacity (optional)" value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}
         </Text>
       ) : null}
       <View style={styles.actions}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.secondary}>
+        <Pressable
+          accessibilityLabel="Cancel event draft"
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={styles.secondary}
+        >
           <Text style={styles.secondaryText}>Cancel</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Save event draft"
           accessibilityState={{ disabled: saving }}
           disabled={saving}
           onPress={submit}
@@ -95,13 +162,8 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
     fontSize: tokens.type.support,
   },
+  area: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   field: { gap: tokens.spacing.xs },
-  switchRow: {
-    minHeight: tokens.touch.min,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   label: { color: tokens.color.textPrimary, fontSize: tokens.type.label, fontWeight: '700' },
   input: {
     minHeight: tokens.touch.min,
@@ -114,6 +176,17 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   multiline: { minHeight: 112, textAlignVertical: 'top' },
+  choice: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
+  choiceSelected: { backgroundColor: tokens.color.primary, borderColor: tokens.color.primary },
+  choiceText: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
+  choiceSelectedText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700' },
   error: { color: tokens.color.error, fontSize: tokens.type.body },
   actions: { flexDirection: 'row', gap: tokens.spacing.md },
   primary: {

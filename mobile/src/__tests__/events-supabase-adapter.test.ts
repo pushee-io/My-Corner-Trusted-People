@@ -1,4 +1,10 @@
-import { fromEventRow, toEventInsert, toEventUpdate, type EventRow } from '@/lib/events-supabase-adapter';
+import {
+  fromEventRow,
+  fromEventRuntimeRow,
+  toEventInsert,
+  toEventUpdate,
+  type EventRow,
+} from '@/lib/events-supabase-adapter';
 
 const row: EventRow = {
   id: 'event-1',
@@ -8,16 +14,20 @@ const row: EventRow = {
   organizer_display_name: 'Akosua M.',
   title: 'Community cleanup',
   description: 'A neighborhood cleanup.',
+  cover_image_path: null,
   starts_at: '2026-09-12T09:00:00.000Z',
   ends_at: null,
   timezone: 'Africa/Accra',
+  location_type: 'in_person',
   venue_name: null,
   area_label: 'East Legon, general area only',
+  public_meetup_point: null,
   visibility: 'verified_neighborhood_members',
   status: 'scheduled',
   moderation_status: 'approved',
   capacity: null,
   attendee_count: 0,
+  comments_enabled: true,
   created_at: '2026-08-01T12:00:00.000Z',
   updated_at: '2026-08-01T12:00:00.000Z',
 };
@@ -48,6 +58,23 @@ describe('Events Supabase adapter', () => {
       ends_at: null,
       venue_name: null,
       capacity: null,
+    });
+  });
+
+  it('maps runtime-only public fields and private access without leaking storage names', () => {
+    expect(
+      fromEventRuntimeRow(row, {
+        currentUserOrganizerRole: 'co_organizer',
+        currentUserInterestStatus: 'interested',
+        preciseLocation: 'Private location',
+      }),
+    ).toMatchObject({
+      clusterId: 'accra-east',
+      locationType: 'in_person',
+      commentsEnabled: true,
+      currentUserOrganizerRole: 'co_organizer',
+      currentUserInterestStatus: 'interested',
+      preciseLocation: 'Private location',
     });
   });
 });

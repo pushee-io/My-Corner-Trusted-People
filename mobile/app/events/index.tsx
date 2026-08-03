@@ -1,34 +1,42 @@
 import { Link, type Href } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { eventsRepository } from '@/lib/events-runtime-repository';
+import { EventsFeatureGate } from '@/components/events/EventsFeatureGate';
+import { eventsRuntimeRepository } from '@/lib/events-runtime-repository';
+import { eventStatusLabel, formatEventDate } from '@/lib/events-format';
+import { eventErrorMessage } from '@/lib/events-errors';
 import { tokens } from '@/theme/tokens';
 import type { Event } from '@/types/events';
 
 export default function EventsScreen() {
+  return (
+    <EventsFeatureGate>
+      <EventsContent />
+    </EventsFeatureGate>
+  );
+}
+
+function EventsContent() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
-  function load() {
+  const load = useCallback(() => {
     setLoading(true);
     setError(undefined);
-    Promise.all([
-      eventsRepository.listEvents({ neighborhoodId: 'east-legon', clusterId: 'accra-east' }),
-      eventsRepository.listOrganizerEvents(eventsRepository.defaultViewer.profileId),
-    ])
-      .then(([visibleEvents, organizerEvents]) => {
-        const uniqueEvents = new Map([...visibleEvents, ...organizerEvents].map((event) => [event.id, event]));
-        setEvents([...uniqueEvents.values()].sort((left, right) => left.startsAt.localeCompare(right.startsAt)));
-      })
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load events.'))
+    eventsRuntimeRepository
+      .listEvents()
+      .then(setEvents)
+      .catch((caught) => setError(eventErrorMessage(caught)))
       .finally(() => setLoading(false));
-  }
+  }, []);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
+
+  const diagnostics = eventsRuntimeRepository.getDiagnostics();
 
   return (
     <Screen title="Events">
@@ -42,17 +50,22 @@ export default function EventsScreen() {
         </Pressable>
       </Link>
       {loading ? <Text style={styles.meta}>Loading local events...</Text> : null}
+      {diagnostics.lastReadUsedCache ? (
+        <Text accessibilityRole="alert" style={styles.offline}>
+          You are offline. Showing the most recently loaded Events.
+        </Text>
+      ) : null}
       {error ? (
         <View style={styles.notice}>
           <Text style={styles.error}>Could not load events</Text>
           <Text style={styles.meta}>{error}</Text>
           <Pressable
+            accessibilityLabel="Retry loading Events"
             accessibilityRole="button"
-            accessibilityLabel="Retry loading events"
             onPress={load}
             style={styles.secondary}
           >
-            <Text style={styles.secondaryText}>Try again</Text>
+            <Text style={styles.secondaryText}>Retry</Text>
           </Pressable>
         </View>
       ) : null}
@@ -70,13 +83,9 @@ export default function EventsScreen() {
         >
           <Pressable accessibilityRole="button" style={styles.card}>
             <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.meta}>
-              {new Date(event.startsAt).toLocaleString('en-GH', { timeZone: event.timezone })}
-            </Text>
+            <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
             <Text style={styles.body}>{event.areaLabel}</Text>
-            <Text style={styles.meta}>
-              Status: {event.moderationStatus === 'approved' ? event.status : event.moderationStatus}
-            </Text>
+            <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
             <Text style={styles.meta}>
               {event.attendeeCount}
               {event.capacity ? ` of ${event.capacity}` : ''} going
@@ -111,6 +120,14 @@ const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   error: { color: tokens.color.error, fontSize: tokens.type.body, fontWeight: '700' },
+  offline: {
+    color: tokens.color.textPrimary,
+    backgroundColor: tokens.color.warning,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
+  },
   primary: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
@@ -127,5 +144,5 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radius.md,
     padding: tokens.spacing.md,
   },
-  secondaryText: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
+  secondaryText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
 });

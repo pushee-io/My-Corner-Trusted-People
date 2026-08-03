@@ -5,16 +5,16 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getActiveLocationLabel } from '@/lib/location-context';
-import { useEventsFeatureFlag } from '@/lib/events-feature';
+import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 export default function HomeScreen() {
-  const { enabled: eventsEnabled } = useEventsFeatureFlag();
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [eventsAvailable, setEventsAvailable] = useState(false);
   const latest = requests[0];
 
   useEffect(() => {
@@ -22,6 +22,14 @@ export default function HomeScreen() {
       .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
       .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
       .finally(() => setIsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!isEventsClientEnabled()) return;
+    eventsRuntimeRepository
+      .isEnabled()
+      .then(setEventsAvailable)
+      .catch(() => setEventsAvailable(false));
   }, []);
 
   return (
@@ -47,13 +55,9 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
-        {eventsEnabled ? (
+        {eventsAvailable ? (
           <Link href={'/events' as Href} asChild>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Open neighborhood events"
-              style={styles.secondary}
-            >
+            <Pressable accessibilityRole="button" style={styles.secondary}>
               <Text style={styles.secondaryText}>Events</Text>
             </Pressable>
           </Link>

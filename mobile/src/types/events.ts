@@ -4,11 +4,11 @@ export type EventStatus = (typeof EVENT_STATUSES)[number];
 export const EVENT_VISIBILITIES = [
   'verified_neighborhood_members',
   'immediate_cluster_members',
-  'private_invitees',
+  'invite_only',
 ] as const;
 export type EventVisibility = (typeof EVENT_VISIBILITIES)[number];
 
-export const EVENT_MODERATION_STATUSES = ['pending', 'approved', 'rejected', 'removed'] as const;
+export const EVENT_MODERATION_STATUSES = ['pending', 'approved', 'rejected', 'blocked', 'removed'] as const;
 export type EventModerationStatus = (typeof EVENT_MODERATION_STATUSES)[number];
 
 export const RSVP_STATUSES = ['going', 'cancelled'] as const;
@@ -55,22 +55,6 @@ export function organizerCan(role: EventOrganizerRole | undefined, permission: E
   return role ? EVENT_ORGANIZER_ROLE_PERMISSIONS[role][permission] : false;
 }
 
-export const EVENT_LIFECYCLE_STATES = [
-  'pending',
-  'approved',
-  'rejected',
-  'removed',
-  'cancelled',
-  'completed',
-  'archived',
-] as const;
-export type EventLifecycleState = (typeof EVENT_LIFECYCLE_STATES)[number];
-
-export function getEventLifecycleState(event: Pick<Event, 'status' | 'moderationStatus'>): EventLifecycleState {
-  if (event.status === 'cancelled' || event.status === 'completed' || event.status === 'archived') return event.status;
-  return event.moderationStatus;
-}
-
 export type EventOrganizerAccess = {
   eventId: string;
   profileId: string;
@@ -101,6 +85,7 @@ export type Event = {
 };
 
 export type EventDraft = {
+  clientRequestId?: string;
   neighborhoodId: string;
   title: string;
   description: string;

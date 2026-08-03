@@ -1,17 +1,17 @@
 # Events Post-Merge Verification Report
 
-Review date: 2026-08-02  
-Baseline: `d44d7d935fd6d29c721d1ab092ed168dc14cb21b`  
-Review method: source-level audit through the connected GitHub repository  
+Review date: 2026-08-02
+Baseline: `d44d7d935fd6d29c721d1ab092ed168dc14cb21b`
+Review method: source-level audit through the connected GitHub repository
 Execution limitation: the current repository archive was not mounted, direct clone and npm registry access returned HTTP 403, official web access returned HTTP 401, and GitHub returned no workflow run for the baseline.
 
 ## Post-stabilization update
 
 PR #35 was merged as `c2ea1cf` after this original source-level audit. It added the complete runtime Supabase repository, Events feature gating, organizer management, migration protections, error handling, offline behavior, and stabilization tests.
 
-Verified evidence now includes passing Mobile CI and Database CI, local formatting, lint with zero errors, strict type checking, 50 Jest suites, 246 tests, and 7 local Events stabilization pgTAP assertions.
+Verified evidence now includes local formatting, lint with zero errors, strict type checking, 51 Jest suites, 250 tests, a clean Supabase reset, all legacy SQL checks, and 31 Events pgTAP assertions. Database CI is configured to reproduce the database path with pinned Supabase CLI `2.111.0`.
 
-Remaining release blockers include provisional authenticated profile and neighborhood composition, Events SQL suites not being invoked by the database CI script, and missing native build, device, accessibility, and staging evidence. The findings below describe the original `d44d7d9` baseline unless this update explicitly supersedes them.
+Remaining release blockers include provisional authenticated profile and neighborhood composition plus missing native build, device, accessibility, and staging evidence. The findings below describe the original `d44d7d9` baseline unless this update explicitly supersedes them.
 
 ## Executive verdict - original audit
 
@@ -204,7 +204,7 @@ Repository rating: **Red for live use**.
 
 ## Testing summary
 
-For the original baseline, source coverage existed without execution evidence. After PR #35, local mobile verification passed formatting, lint with zero errors, strict types, 50 Jest suites, and 246 tests. The Events stabilization pgTAP suite passed all 7 assertions locally, and PR #35 passed Mobile CI and Database CI. The database test runner still does not invoke the Events SQL suites, and native build and device evidence remain unavailable.
+For the original baseline, source coverage existed without execution evidence. After Events stabilization, local mobile verification passed formatting, lint with zero errors, strict types, 51 Jest suites, and 250 tests. A clean Supabase reset passed all legacy SQL checks and all three Events pgTAP suites with 31 assertions. Database CI now reproduces that path with pinned Supabase CLI `2.111.0`; native build and device evidence remain unavailable.
 
 Result: Source-level findings remain valid for the original audit baseline. Post-stabilization verification now includes successful Mobile CI, Database CI, local Jest execution, and Events pgTAP verification. Native builds, accessibility validation, and physical-device verification remain outstanding.
 

@@ -1,6 +1,6 @@
 # Test Plan
 
-Last updated: 2026-08-02  
+Last updated: 2026-08-02
 Baseline commit: `c2ea1cf` (Events stabilization merged through PR #35)
 
 ## Objective
@@ -14,7 +14,7 @@ Prove that Module 1 and Events operate across the mobile client, repository boun
 - **Passed:** captured execution completed successfully.
 - **Blocked:** required environment, credentials, service, or device was unavailable.
 
-After PR #35, Mobile CI and Database CI passed. Local verification passed formatting, lint with zero errors, strict type checking, 50 Jest suites, 246 tests, and 7 Events stabilization pgTAP assertions. Native build, device, and staging evidence remain outstanding.
+After Events stabilization, local verification passed formatting, lint with zero errors, strict type checking, 51 Jest suites, 250 tests, a clean Supabase reset, all legacy SQL checks, and 31 Events pgTAP assertions. Database CI is configured to reproduce the database path. Native build, device, and staging evidence remain outstanding.
 
 ## Required release gates
 
@@ -24,11 +24,11 @@ After PR #35, Mobile CI and Database CI passed. Local verification passed format
 | Formatting | `npm run format` | Passed locally |
 | Lint | `npm run lint` with zero errors | Passed locally with warnings only and zero errors |
 | Strict types | `npm run typecheck` | Passed locally |
-| Unit/integration tests | `npm test -- --runInBand` | Passed locally: 50 suites and 246 tests; Mobile CI passed on PR #35 |
+| Unit/integration tests | `npm test -- --runInBand` | Passed locally: 51 suites and 250 tests |
 | Expo compatibility | `npx expo-doctor` | Not configured as CI gate |
 | Database migration | Apply every migration to a clean PostgreSQL/PostGIS database | CI script supports migrations; run evidence unavailable |
 | Module 1/Day 2B/Day 3 RLS | Existing SQL smoke suites | Invoked by `scripts/db-smoke-test.sh` |
-| Events RLS | Events SQL smoke suites | Stabilization suite passed locally with 7 assertions; Events suites are not yet invoked by the CI script |
+| Events RLS | Three Events pgTAP suites | Passed locally with 31 assertions and enforced by Database CI through pinned Supabase CLI `2.111.0` |
 | Native build | Android and iOS preview build | No evidence available |
 | Compact/tablet UI | Screenshots and interaction log | Not executed; later uploaded screenshots were unavailable |
 | Offline/failure behavior | Network failure and retry scenarios | Events retry/offline behavior not implemented |
@@ -66,7 +66,7 @@ After PR #35, Mobile CI and Database CI passed. Local verification passed format
 2. The live repository does not implement the complete repository contract consumed by the screens.
 3. No Expo component or route tests cover loading, empty, error, retry, create, RSVP, report, reminder, or cancellation flows.
 4. The SQL smoke file checks structure but does not exercise real users, JWT claims, RLS visibility, private-location access, capacity races, or organizer permissions.
-5. Database CI does not invoke the Events SQL smoke file.
+5. Database CI now performs a clean Supabase reset and invokes all three Events pgTAP suites.
 6. There is no test proving the Events feature flag prevents navigation or direct route access.
 7. There is no test for unverified users, expired membership, ended membership, or cluster outsiders through the live API.
 8. There is no test that an unauthorized `cancel_event_rsvp` call leaves unrelated events and audits unchanged.
