@@ -1,12 +1,15 @@
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { tokens } from '@/theme/tokens';
 
 export default function WelcomeScreen() {
+  const { fontScale, width } = useWindowDimensions();
+  const stackLockup = fontScale >= 1.6 || width < 340;
+
   return (
     <Screen title="My Corner" showBottomNavigation={false}>
-      <View style={styles.heroLogo}>
+      <View style={[styles.heroLogo, stackLockup ? styles.heroLogoStacked : null]}>
         <View style={styles.heroMark}>
           <View style={styles.cornerVertical} />
           <View style={styles.cornerHorizontal} />
@@ -20,7 +23,7 @@ export default function WelcomeScreen() {
       <Text style={styles.body}>No Wahala — Hire without headache.</Text>
       <Text style={styles.body}>Find trusted local help, review visible trust signals, and send a clear request.</Text>
       <Link href="/sign-in" asChild>
-        <Pressable style={styles.button}>
+        <Pressable accessibilityRole="button" style={styles.button}>
           <Text style={styles.buttonText}>Enter app</Text>
         </Pressable>
       </Link>
@@ -39,10 +42,12 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
     padding: tokens.spacing.lg,
   },
+  heroLogoStacked: { alignItems: 'flex-start', flexDirection: 'column' },
   heroMark: {
     alignItems: 'center',
     backgroundColor: tokens.color.primary,
     borderRadius: tokens.radius.md,
+    flexShrink: 0,
     height: 64,
     justifyContent: 'center',
     position: 'relative',
@@ -71,10 +76,23 @@ const styles = StyleSheet.create({
     fontSize: tokens.type.card,
     fontWeight: '900',
   },
-  heroText: { flex: 1 },
-  logoName: { color: tokens.color.textPrimary, fontSize: 24, fontWeight: '900' },
-  logoDescriptor: { color: tokens.color.textSecondary, fontSize: tokens.type.support, fontWeight: '700' },
-  body: { fontSize: tokens.type.body, color: tokens.color.textPrimary },
-  button: { backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
-  buttonText: { color: '#fff', fontWeight: '700', textAlign: 'center' },
+  heroText: { flexShrink: 1, minWidth: 0 },
+  logoName: { color: tokens.color.textPrimary, flexShrink: 1, fontSize: 24, fontWeight: '900' },
+  logoDescriptor: {
+    color: tokens.color.textSecondary,
+    flexShrink: 1,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
+  },
+  body: { color: tokens.color.textPrimary, flexShrink: 1, fontSize: tokens.type.body },
+  button: {
+    alignItems: 'center',
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.md,
+  },
+  buttonText: { color: '#fff', flexShrink: 1, fontWeight: '700', textAlign: 'center' },
 });
