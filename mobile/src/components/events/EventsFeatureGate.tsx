@@ -36,7 +36,12 @@ export function EventsFeatureGate({ children }: PropsWithChildren) {
             : 'Events is currently disabled while verification and safety checks are completed.'}
       </Text>
       {state !== 'checking' ? (
-        <Pressable accessibilityLabel="Return to My Corner home" accessibilityRole="button" onPress={() => router.replace('/home')} style={styles.button}>
+        <Pressable
+          accessibilityLabel="Return to My Corner home"
+          accessibilityRole="button"
+          onPress={() => router.replace('/home')}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>Return home</Text>
         </Pressable>
       ) : null}
@@ -45,9 +50,21 @@ export function EventsFeatureGate({ children }: PropsWithChildren) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', gap: tokens.spacing.md, padding: tokens.spacing.xl, backgroundColor: tokens.color.background },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: tokens.spacing.md,
+    padding: tokens.spacing.xl,
+    backgroundColor: tokens.color.background,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.section, fontWeight: '700' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 24 },
-  button: { minHeight: tokens.touch.min, justifyContent: 'center', borderRadius: tokens.radius.md, backgroundColor: tokens.color.primary, padding: tokens.spacing.md },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.md,
+  },
   buttonText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
 });

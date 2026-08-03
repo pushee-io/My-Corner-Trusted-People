@@ -29,9 +29,12 @@ function NewEventContent() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    eventsRuntimeRepository.getContext().then(setContext).catch((caught) => {
-      setError(caught instanceof Error ? caught.message : 'Could not load your verified neighborhood.');
-    });
+    eventsRuntimeRepository
+      .getContext()
+      .then(setContext)
+      .catch((caught) => {
+        setError(caught instanceof Error ? caught.message : 'Could not load your verified neighborhood.');
+      });
   }, []);
 
   async function submit() {
@@ -69,15 +72,31 @@ function NewEventContent() {
       <Text style={styles.notice}>Use a general area here. Do not enter a private residential address.</Text>
       <Field label="Event title" value={title} onChangeText={setTitle} />
       <Field label="Description" value={description} onChangeText={setDescription} multiline />
-      <Field label="Date" accessibilityHint="Use year dash month dash day" placeholder="YYYY-MM-DD" value={date} onChangeText={setDate} autoCapitalize="none" />
-      <Field label="Time" accessibilityHint="Use 24-hour time in Ghana" placeholder="HH:MM" value={time} onChangeText={setTime} autoCapitalize="none" />
+      <Field
+        label="Date"
+        accessibilityHint="Use year dash month dash day"
+        placeholder="YYYY-MM-DD"
+        value={date}
+        onChangeText={setDate}
+        autoCapitalize="none"
+      />
+      <Field
+        label="Time"
+        accessibilityHint="Use 24-hour time in Ghana"
+        placeholder="HH:MM"
+        value={time}
+        onChangeText={setTime}
+        autoCapitalize="none"
+      />
       <View style={styles.field}>
         <Text style={styles.label}>Who can see this event?</Text>
-        {([
-          ['verified_neighborhood_members', 'Verified neighborhood'],
-          ['immediate_cluster_members', 'Nearby cluster'],
-          ['invite_only', 'Invite only'],
-        ] as const).map(([value, label]) => (
+        {(
+          [
+            ['verified_neighborhood_members', 'Verified neighborhood'],
+            ['immediate_cluster_members', 'Nearby cluster'],
+            ['invite_only', 'Invite only'],
+          ] as const
+        ).map(([value, label]) => (
           <Pressable
             accessibilityRole="radio"
             accessibilityState={{ checked: visibility === value }}
@@ -97,7 +116,12 @@ function NewEventContent() {
         </Text>
       ) : null}
       <View style={styles.actions}>
-        <Pressable accessibilityLabel="Cancel event draft" accessibilityRole="button" onPress={() => router.back()} style={styles.secondary}>
+        <Pressable
+          accessibilityLabel="Cancel event draft"
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={styles.secondary}
+        >
           <Text style={styles.secondaryText}>Cancel</Text>
         </Pressable>
         <Pressable
@@ -152,7 +176,14 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   multiline: { minHeight: 112, textAlignVertical: 'top' },
-  choice: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.md },
+  choice: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
   choiceSelected: { backgroundColor: tokens.color.primary, borderColor: tokens.color.primary },
   choiceText: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   choiceSelectedText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700' },

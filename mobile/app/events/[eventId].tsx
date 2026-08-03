@@ -46,7 +46,10 @@ function EventDetailsContent() {
 
   useEffect(() => {
     void load();
-    eventsRuntimeRepository.getContext().then((context) => setIsStaff(context.isStaff)).catch(() => setIsStaff(false));
+    eventsRuntimeRepository
+      .getContext()
+      .then((context) => setIsStaff(context.isStaff))
+      .catch(() => setIsStaff(false));
   }, [load]);
 
   async function act(action: () => Promise<unknown>, success: string) {
@@ -69,7 +72,10 @@ function EventDetailsContent() {
       setError('Add a short reason so the moderation team can review the event.');
       return;
     }
-    await act(() => eventsRuntimeRepository.report(event!.id, reportReason.trim()), 'Report submitted for human review.');
+    await act(
+      () => eventsRuntimeRepository.report(event!.id, reportReason.trim()),
+      'Report submitted for human review.',
+    );
     setReportReason('');
   }
 
@@ -99,11 +105,21 @@ function EventDetailsContent() {
           {error ?? (loading ? 'Loading event...' : 'Event unavailable.')}
         </Text>
         {error ? (
-          <Pressable accessibilityLabel="Retry loading event" accessibilityRole="button" onPress={() => void load()} style={styles.secondary}>
+          <Pressable
+            accessibilityLabel="Retry loading event"
+            accessibilityRole="button"
+            onPress={() => void load()}
+            style={styles.secondary}
+          >
             <Text style={styles.secondaryText}>Retry</Text>
           </Pressable>
         ) : null}
-        <Pressable accessibilityLabel="Go back" accessibilityRole="button" onPress={() => router.back()} style={styles.secondary}>
+        <Pressable
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={styles.secondary}
+        >
           <Text style={styles.secondaryText}>Back</Text>
         </Pressable>
       </Screen>
@@ -136,7 +152,9 @@ function EventDetailsContent() {
             <Text style={styles.body}>{event.preciseLocation}</Text>
           </>
         ) : (
-          <Text style={styles.meta}>The precise location stays private until the approved attendee-release condition is met.</Text>
+          <Text style={styles.meta}>
+            The precise location stays private until the approved attendee-release condition is met.
+          </Text>
         )}
         <Text style={styles.label}>Attendance</Text>
         <Text style={styles.body}>
@@ -151,17 +169,38 @@ function EventDetailsContent() {
         {organizerRole ? <Text style={styles.status}>Organizer role: {organizerRole.replace('_', '-')}</Text> : null}
       </View>
 
-      {message ? <Text accessibilityRole="alert" style={styles.success}>{message}</Text> : null}
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+      {message ? (
+        <Text accessibilityRole="alert" style={styles.success}>
+          {message}
+        </Text>
+      ) : null}
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
 
       {event.status === 'scheduled' ? (
         <View style={styles.actions}>
-          <ActionButton label="Going" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.setGoing(event.id), 'You are going.')} primary />
-          <ActionButton label="Interested" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.setInterest(event.id), 'Marked interested.')} />
+          <ActionButton
+            label="Going"
+            disabled={busy}
+            onPress={() => act(() => eventsRuntimeRepository.setGoing(event.id), 'You are going.')}
+            primary
+          />
+          <ActionButton
+            label="Interested"
+            disabled={busy}
+            onPress={() => act(() => eventsRuntimeRepository.setInterest(event.id), 'Marked interested.')}
+          />
         </View>
       ) : null}
       {event.currentUserRsvpStatus || event.currentUserInterestStatus ? (
-        <ActionButton label="Cancel my response" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.cancelAttendance(event.id), 'Your response was cancelled.')} />
+        <ActionButton
+          label="Cancel my response"
+          disabled={busy}
+          onPress={() => act(() => eventsRuntimeRepository.cancelAttendance(event.id), 'Your response was cancelled.')}
+        />
       ) : null}
       <ActionButton label="Remind me one hour before" disabled={busy} onPress={remindMe} />
 
@@ -181,11 +220,15 @@ function EventDetailsContent() {
 
       {isOrganizer ? (
         <View style={styles.section}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>Organizer controls</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            Organizer controls
+          </Text>
           <ActionButton
             label="Edit event"
             disabled={busy}
-            onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId: event.id } } as Href)}
+            onPress={() =>
+              router.push({ pathname: '/events/[eventId]/edit', params: { eventId: event.id } } as unknown as Href)
+            }
           />
           <TextInput
             accessibilityLabel="Profile ID to invite"
@@ -199,7 +242,9 @@ function EventDetailsContent() {
           <ActionButton
             label="Send invitation"
             disabled={busy || !inviteeProfileId.trim()}
-            onPress={() => act(() => eventsRuntimeRepository.invite(event.id, inviteeProfileId.trim()), 'Invitation sent.')}
+            onPress={() =>
+              act(() => eventsRuntimeRepository.invite(event.id, inviteeProfileId.trim()), 'Invitation sent.')
+            }
           />
           <TextInput
             accessibilityLabel="Organizer announcement"
@@ -213,26 +258,92 @@ function EventDetailsContent() {
           <ActionButton
             label="Queue attendee announcement"
             disabled={busy || !announcement.trim()}
-            onPress={() => act(() => eventsRuntimeRepository.sendOrganizerReminder(event.id, announcement.trim()), 'Announcement queued.')}
+            onPress={() =>
+              act(
+                () => eventsRuntimeRepository.sendOrganizerReminder(event.id, announcement.trim()),
+                'Announcement queued.',
+              )
+            }
           />
           {isOwner && event.status !== 'cancelled' && event.status !== 'archived' ? (
             <>
-              <ActionButton label="Mark completed" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.transitionEvent(event.id, 'completed'), 'Event marked completed.')} />
+              <ActionButton
+                label="Mark completed"
+                disabled={busy}
+                onPress={() =>
+                  act(() => eventsRuntimeRepository.transitionEvent(event.id, 'completed'), 'Event marked completed.')
+                }
+              />
               <ActionButton label="Cancel event" disabled={busy} onPress={confirmCancellation} destructive />
             </>
           ) : null}
           {isOwner && ['cancelled', 'completed'].includes(event.status) ? (
-            <ActionButton label="Archive event" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.transitionEvent(event.id, 'archived'), 'Event archived.')} />
+            <ActionButton
+              label="Archive event"
+              disabled={busy}
+              onPress={() =>
+                act(() => eventsRuntimeRepository.transitionEvent(event.id, 'archived'), 'Event archived.')
+              }
+            />
           ) : null}
         </View>
       ) : null}
 
       {isStaff ? (
         <View style={styles.section}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>Moderation</Text>
-          <ActionButton label="Approve event" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.moderateContent('event', event.id, 'approved', 'Approved after moderator review'), 'Event approved.')} />
-          <ActionButton label="Reject event" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.moderateContent('event', event.id, 'rejected', 'Rejected after moderator review'), 'Event rejected.')} destructive />
-          <ActionButton label="Remove event" disabled={busy} onPress={() => act(() => eventsRuntimeRepository.moderateContent('event', event.id, 'removed', 'Removed after moderator review'), 'Event removed.')} destructive />
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            Moderation
+          </Text>
+          <ActionButton
+            label="Approve event"
+            disabled={busy}
+            onPress={() =>
+              act(
+                () =>
+                  eventsRuntimeRepository.moderateContent(
+                    'event',
+                    event.id,
+                    'approved',
+                    'Approved after moderator review',
+                  ),
+                'Event approved.',
+              )
+            }
+          />
+          <ActionButton
+            label="Reject event"
+            disabled={busy}
+            onPress={() =>
+              act(
+                () =>
+                  eventsRuntimeRepository.moderateContent(
+                    'event',
+                    event.id,
+                    'rejected',
+                    'Rejected after moderator review',
+                  ),
+                'Event rejected.',
+              )
+            }
+            destructive
+          />
+          <ActionButton
+            label="Remove event"
+            disabled={busy}
+            onPress={() =>
+              act(
+                () =>
+                  eventsRuntimeRepository.moderateContent(
+                    'event',
+                    event.id,
+                    'removed',
+                    'Removed after moderator review',
+                  ),
+                'Event removed.',
+              )
+            }
+            destructive
+          />
         </View>
       ) : null}
 
@@ -241,7 +352,19 @@ function EventDetailsContent() {
   );
 }
 
-function ActionButton({ label, onPress, disabled = false, primary = false, destructive = false }: { label: string; onPress: () => void | Promise<void>; disabled?: boolean; primary?: boolean; destructive?: boolean }) {
+function ActionButton({
+  label,
+  onPress,
+  disabled = false,
+  primary = false,
+  destructive = false,
+}: {
+  label: string;
+  onPress: () => void | Promise<void>;
+  disabled?: boolean;
+  primary?: boolean;
+  destructive?: boolean;
+}) {
   return (
     <Pressable
       accessibilityLabel={label}
@@ -249,32 +372,80 @@ function ActionButton({ label, onPress, disabled = false, primary = false, destr
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={() => void onPress()}
-      style={[styles.secondary, primary ? styles.primary : null, destructive ? styles.report : null, disabled ? styles.disabled : null]}
+      style={[
+        styles.secondary,
+        primary ? styles.primary : null,
+        destructive ? styles.report : null,
+        disabled ? styles.disabled : null,
+      ]}
     >
-      <Text style={[styles.secondaryText, primary ? styles.primaryText : null, destructive ? styles.reportText : null]}>{label}</Text>
+      <Text style={[styles.secondaryText, primary ? styles.primaryText : null, destructive ? styles.reportText : null]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.lg, gap: tokens.spacing.xs },
-  section: { gap: tokens.spacing.sm, borderTopColor: tokens.color.border, borderTopWidth: 1, paddingTop: tokens.spacing.md },
+  card: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.xs,
+  },
+  section: {
+    gap: tokens.spacing.sm,
+    borderTopColor: tokens.color.border,
+    borderTopWidth: 1,
+    paddingTop: tokens.spacing.md,
+  },
   sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  label: { color: tokens.color.textPrimary, fontSize: tokens.type.label, fontWeight: '700', marginTop: tokens.spacing.sm },
+  label: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.label,
+    fontWeight: '700',
+    marginTop: tokens.spacing.sm,
+  },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 24 },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support, lineHeight: 20 },
   actions: { flexDirection: 'row', gap: tokens.spacing.md },
   primary: { backgroundColor: tokens.color.primary },
   primaryText: { color: '#FFFFFF' },
-  secondary: { flex: 1, minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.md },
+  secondary: {
+    flex: 1,
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
   secondaryText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center', fontSize: tokens.type.body },
   report: { borderColor: tokens.color.error },
   reportText: { color: tokens.color.error },
   disabled: { opacity: 0.55 },
-  input: { minHeight: tokens.touch.min, backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.body, padding: tokens.spacing.md },
+  input: {
+    minHeight: tokens.touch.min,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    padding: tokens.spacing.md,
+  },
   multiline: { minHeight: 96, textAlignVertical: 'top' },
   status: { color: tokens.color.information, fontSize: tokens.type.support, fontWeight: '700' },
   success: { color: tokens.color.success, fontSize: tokens.type.body, fontWeight: '700' },
-  warning: { color: tokens.color.textPrimary, backgroundColor: tokens.color.warning, borderRadius: tokens.radius.md, padding: tokens.spacing.md, fontSize: tokens.type.support, fontWeight: '700' },
+  warning: {
+    color: tokens.color.textPrimary,
+    backgroundColor: tokens.color.warning,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
+  },
   error: { color: tokens.color.error, fontSize: tokens.type.body, fontWeight: '700' },
 });

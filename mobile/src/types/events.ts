@@ -22,6 +22,9 @@ export const EVENT_ORGANIZER_PERMISSIONS = [
   'cancel_event',
   'manage_attendees',
   'manage_organizers',
+  'send_reminders',
+  'moderate_content',
+  'invite_attendees',
 ] as const;
 export type EventOrganizerPermission = (typeof EVENT_ORGANIZER_PERMISSIONS)[number];
 
@@ -33,14 +36,24 @@ export const EVENT_ORGANIZER_ROLE_PERMISSIONS = {
     cancel_event: true,
     manage_attendees: true,
     manage_organizers: true,
+    send_reminders: true,
+    moderate_content: true,
+    invite_attendees: true,
   },
   co_organizer: {
     edit_event: true,
     cancel_event: false,
     manage_attendees: true,
     manage_organizers: false,
+    send_reminders: true,
+    moderate_content: true,
+    invite_attendees: true,
   },
 } as const satisfies Readonly<Record<EventOrganizerRole, EventOrganizerPermissionSet>>;
+
+export function organizerCan(role: EventOrganizerRole | undefined, permission: EventOrganizerPermission) {
+  return role ? EVENT_ORGANIZER_ROLE_PERMISSIONS[role][permission] : false;
+}
 
 export type EventOrganizerAccess = {
   eventId: string;

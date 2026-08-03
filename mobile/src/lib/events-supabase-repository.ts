@@ -59,7 +59,10 @@ function toRuntimeError(caught: unknown): EventsRuntimeError {
   if (caught instanceof EventsRuntimeError) return caught;
   const candidate = caught as { code?: string; message?: string } | undefined;
   const rawMessage = candidate?.message ?? 'Events request failed.';
-  const message = rawMessage.replace(/https?:\/\/\S+/gi, '[redacted-url]').replace(/eyJ[\w.-]+/g, '[redacted-token]').slice(0, 220);
+  const message = rawMessage
+    .replace(/https?:\/\/\S+/gi, '[redacted-url]')
+    .replace(/eyJ[\w.-]+/g, '[redacted-token]')
+    .slice(0, 220);
   const code = candidate?.code;
   let runtimeCode: EventsRuntimeErrorCode = 'unknown';
   let retryable = false;

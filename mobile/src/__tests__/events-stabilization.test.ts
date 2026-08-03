@@ -16,24 +16,36 @@ describe('Events stabilization gates', () => {
   });
 
   it('permits seeded Events only as an explicit non-production development mode', () => {
-    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'production', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded' })).toBe(false);
-    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'development', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded' })).toBe(false);
-    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'development', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded', EXPO_PUBLIC_EVENTS_ALLOW_SEEDED_DEVELOPMENT: 'true' })).toBe(true);
-    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'development', EXPO_PUBLIC_EVENTS_REPOSITORY: 'supabase' })).toBe(false);
+    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'production', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded' })).toBe(
+      false,
+    );
+    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'development', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded' })).toBe(
+      false,
+    );
+    expect(
+      isSeededEventsDevelopmentMode({
+        NODE_ENV: 'development',
+        EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded',
+        EXPO_PUBLIC_EVENTS_ALLOW_SEEDED_DEVELOPMENT: 'true',
+      }),
+    ).toBe(true);
+    expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'development', EXPO_PUBLIC_EVENTS_REPOSITORY: 'supabase' })).toBe(
+      false,
+    );
   });
 
   it('gates every Events route and prevents direct seeded repository imports', () => {
     for (const route of eventRoutes) {
       const source = readFileSync(route, 'utf8');
       expect(source).toContain('EventsFeatureGate');
-      expect(source).not.toContain("@/lib/events-repository");
+      expect(source).not.toContain('@/lib/events-repository');
     }
   });
 
   it('hides the Home shortcut until the runtime flag is enabled', () => {
     const source = readFileSync('app/home.tsx', 'utf8');
     expect(source).toContain('eventsAvailable ?');
-    expect(source).toContain('eventsRuntimeRepository.isEnabled()');
+    expect(source).toMatch(/eventsRuntimeRepository\s*\.isEnabled\(\)/);
   });
 
   it('runs both Events SQL smoke suites from database CI', () => {

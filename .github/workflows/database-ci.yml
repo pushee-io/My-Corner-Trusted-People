@@ -15,32 +15,24 @@ on:
 
 jobs:
   verify-database:
-    name: Apply migrations and smoke-test application RLS
+    name: Reset database and verify application RLS
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgis/postgis:16-3.4
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.111.0
+
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Apply migrations and smoke-test policies
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset database and run SQL verification
         run: bash scripts/db-smoke-test.sh

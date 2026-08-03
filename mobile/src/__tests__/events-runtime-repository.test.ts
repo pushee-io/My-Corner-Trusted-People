@@ -2,6 +2,10 @@ import { EventsRuntimeError, type EventsRuntimeRepository } from '@/lib/events-r
 import { createResilientEventsRepository } from '@/lib/events-runtime-repository';
 import type { EventRuntimeDetails } from '@/types/events-runtime';
 
+jest.mock('@/lib/events-supabase-repository', () => ({
+  createSupabaseEventsRuntimeRepository: jest.fn(),
+}));
+
 const event: EventRuntimeDetails = {
   id: 'event-1',
   neighborhoodId: 'neighborhood-1',
@@ -27,7 +31,9 @@ function createInnerRepository(): EventsRuntimeRepository & { offline: boolean }
   const repository: EventsRuntimeRepository & { offline: boolean } = {
     offline: false,
     mode: 'supabase',
-    async isEnabled() { return true; },
+    async isEnabled() {
+      return true;
+    },
     async getContext() {
       return {
         profileId: 'profile-2',
@@ -47,24 +53,50 @@ function createInnerRepository(): EventsRuntimeRepository & { offline: boolean }
       if (repository.offline) throw new EventsRuntimeError('offline', 'offline', true);
       return event;
     },
-    async createEvent() { return event; },
-    async updateEvent() { return event; },
-    async transitionEvent() { return event; },
+    async createEvent() {
+      return event;
+    },
+    async updateEvent() {
+      return event;
+    },
+    async transitionEvent() {
+      return event;
+    },
     async setGoing() {
       if (repository.offline) throw new EventsRuntimeError('offline', 'offline', true);
       return { event: { ...event, currentUserRsvpStatus: 'going', attendeeCount: 2 } };
     },
-    async setInterest() { return { event, interestStatus: 'interested' }; },
-    async cancelAttendance() { return { event }; },
-    async invite() { throw new Error('not used'); },
-    async respondToInvitation() { return 'accepted'; },
-    async addComment() { throw new Error('not used'); },
-    async report() { throw new Error('not used'); },
-    async scheduleReminder() { throw new Error('not used'); },
-    async sendOrganizerReminder() { return 0; },
+    async setInterest() {
+      return { event, interestStatus: 'interested' };
+    },
+    async cancelAttendance() {
+      return { event };
+    },
+    async invite() {
+      throw new Error('not used');
+    },
+    async respondToInvitation() {
+      return 'accepted';
+    },
+    async addComment() {
+      throw new Error('not used');
+    },
+    async report() {
+      throw new Error('not used');
+    },
+    async scheduleReminder() {
+      throw new Error('not used');
+    },
+    async sendOrganizerReminder() {
+      return 0;
+    },
     async moderateContent() {},
-    async retryPendingWrites() { return 0; },
-    getDiagnostics() { return { mode: 'supabase', lastReadUsedCache: false, pendingWriteCount: 0 }; },
+    async retryPendingWrites() {
+      return 0;
+    },
+    getDiagnostics() {
+      return { mode: 'supabase', lastReadUsedCache: false, pendingWriteCount: 0 };
+    },
   };
   return repository;
 }

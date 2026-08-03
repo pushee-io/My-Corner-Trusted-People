@@ -49,11 +49,7 @@ const rsvp: EventRsvp = {
 describe('Events Phase 1 contracts', () => {
   it('locks the lifecycle, visibility, moderation, RSVP, and organizer values', () => {
     expect(EVENT_STATUSES).toEqual(['draft', 'scheduled', 'cancelled', 'completed', 'archived']);
-    expect(EVENT_VISIBILITIES).toEqual([
-      'verified_neighborhood_members',
-      'immediate_cluster_members',
-      'invite_only',
-    ]);
+    expect(EVENT_VISIBILITIES).toEqual(['verified_neighborhood_members', 'immediate_cluster_members', 'invite_only']);
     expect(EVENT_MODERATION_STATUSES).toEqual(['pending', 'approved', 'rejected', 'blocked', 'removed']);
     expect(RSVP_STATUSES).toEqual(['going', 'cancelled']);
     expect(EVENT_ORGANIZER_ROLES).toEqual(['owner', 'co_organizer']);
@@ -62,6 +58,9 @@ describe('Events Phase 1 contracts', () => {
       'cancel_event',
       'manage_attendees',
       'manage_organizers',
+      'send_reminders',
+      'moderate_content',
+      'invite_attendees',
     ]);
   });
 
@@ -71,12 +70,18 @@ describe('Events Phase 1 contracts', () => {
       cancel_event: true,
       manage_attendees: true,
       manage_organizers: true,
+      send_reminders: true,
+      moderate_content: true,
+      invite_attendees: true,
     });
     expect(EVENT_ORGANIZER_ROLE_PERMISSIONS.co_organizer).toEqual({
       edit_event: true,
       cancel_event: false,
       manage_attendees: true,
       manage_organizers: false,
+      send_reminders: true,
+      moderate_content: true,
+      invite_attendees: true,
     });
 
     const access: EventOrganizerAccess = {

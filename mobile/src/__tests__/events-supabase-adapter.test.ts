@@ -1,4 +1,10 @@
-import { fromEventRow, fromEventRuntimeRow, toEventInsert, toEventUpdate, type EventRow } from '@/lib/events-supabase-adapter';
+import {
+  fromEventRow,
+  fromEventRuntimeRow,
+  toEventInsert,
+  toEventUpdate,
+  type EventRow,
+} from '@/lib/events-supabase-adapter';
 
 const row: EventRow = {
   id: 'event-1',

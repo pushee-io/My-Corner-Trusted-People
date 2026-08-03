@@ -26,7 +26,10 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!isEventsClientEnabled()) return;
-    eventsRuntimeRepository.isEnabled().then(setEventsAvailable).catch(() => setEventsAvailable(false));
+    eventsRuntimeRepository
+      .isEnabled()
+      .then(setEventsAvailable)
+      .catch(() => setEventsAvailable(false));
   }, []);
 
   return (

@@ -59,7 +59,12 @@ function EventsContent() {
         <View style={styles.notice}>
           <Text style={styles.error}>Could not load events</Text>
           <Text style={styles.meta}>{error}</Text>
-          <Pressable accessibilityLabel="Retry loading Events" accessibilityRole="button" onPress={load} style={styles.secondary}>
+          <Pressable
+            accessibilityLabel="Retry loading Events"
+            accessibilityRole="button"
+            onPress={load}
+            style={styles.secondary}
+          >
             <Text style={styles.secondaryText}>Retry</Text>
           </Pressable>
         </View>
@@ -78,9 +83,7 @@ function EventsContent() {
         >
           <Pressable accessibilityRole="button" style={styles.card}>
             <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.meta}>
-              {formatEventDate(event.startsAt, event.timezone)}
-            </Text>
+            <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
             <Text style={styles.body}>{event.areaLabel}</Text>
             <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
             <Text style={styles.meta}>
@@ -117,7 +120,14 @@ const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   error: { color: tokens.color.error, fontSize: tokens.type.body, fontWeight: '700' },
-  offline: { color: tokens.color.textPrimary, backgroundColor: tokens.color.warning, borderRadius: tokens.radius.md, padding: tokens.spacing.md, fontSize: tokens.type.support, fontWeight: '700' },
+  offline: {
+    color: tokens.color.textPrimary,
+    backgroundColor: tokens.color.warning,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    fontSize: tokens.type.support,
+    fontWeight: '700',
+  },
   primary: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
@@ -126,6 +136,13 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   primaryText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
-  secondary: { minHeight: tokens.touch.min, justifyContent: 'center', borderColor: tokens.color.primary, borderWidth: 1, borderRadius: tokens.radius.md, padding: tokens.spacing.md },
+  secondary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    borderColor: tokens.color.primary,
+    borderWidth: 1,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
   secondaryText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
 });

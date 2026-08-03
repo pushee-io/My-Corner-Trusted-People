@@ -234,7 +234,15 @@ export function createResilientEventsRepository(inner: EventsRuntimeRepository):
         return remember(await inner.updateEvent(eventId, draft));
       } catch (caught) {
         if (!offline(caught) || !details.has(eventId)) throw caught;
-        const optimistic = remember({ ...details.get(eventId)!, ...draft, updatedAt: new Date().toISOString() });
+        const current = details.get(eventId)!;
+        const optimistic = remember({
+          ...current,
+          ...draft,
+          endsAt: draft.endsAt === null ? undefined : (draft.endsAt ?? current.endsAt),
+          venueName: draft.venueName === null ? undefined : (draft.venueName ?? current.venueName),
+          capacity: draft.capacity === null ? undefined : (draft.capacity ?? current.capacity),
+          updatedAt: new Date().toISOString(),
+        });
         queue(`update:${eventId}`, () => inner.updateEvent(eventId, draft).then(remember));
         return optimistic;
       }
@@ -275,9 +283,7 @@ export function createResilientEventsRepository(inner: EventsRuntimeRepository):
       } catch (caught) {
         if (!offline(caught) || !details.has(eventId)) throw caught;
         const event = remember({ ...details.get(eventId)!, currentUserInterestStatus: 'interested' });
-        queue(`rsvp:${eventId}:interested`, () =>
-          inner.setInterest(eventId).then((result) => remember(result.event)),
-        );
+        queue(`rsvp:${eventId}:interested`, () => inner.setInterest(eventId).then((result) => remember(result.event)));
         return { event, interestStatus: 'interested' };
       }
     },
@@ -293,7 +299,8 @@ export function createResilientEventsRepository(inner: EventsRuntimeRepository):
           ...current,
           currentUserRsvpStatus: undefined,
           currentUserInterestStatus: 'not_going',
-          attendeeCount: current.currentUserRsvpStatus === 'going' ? Math.max(0, current.attendeeCount - 1) : current.attendeeCount,
+          attendeeCount:
+            current.currentUserRsvpStatus === 'going' ? Math.max(0, current.attendeeCount - 1) : current.attendeeCount,
         });
         queue(`rsvp:${eventId}:cancelled`, () =>
           inner.cancelAttendance(eventId).then((result) => remember(result.event)),
