@@ -5,10 +5,7 @@ jest.mock('@/lib/day2b-live-repository', () => ({
 }));
 
 import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
-import {
-  clearDay2BProviderCache,
-  loadDay2BProvidersByCategory,
-} from '@/lib/day2b-read-repository';
+import { clearDay2BProviderCache, loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
 import type { Provider } from '@/types/contracts';
 
 const provider: Provider = {
