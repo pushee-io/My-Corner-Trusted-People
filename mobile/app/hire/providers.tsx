@@ -77,18 +77,11 @@ export default function ProvidersScreen() {
       ) : isLoading ? (
         <EmptyState title="Loading providers" body="Checking live Supabase listings for this category." />
       ) : providers.length === 0 ? (
-        <EmptyState
-          title="No providers available"
-          body="Try a different category or neighborhood in this prototype."
-        />
+        <EmptyState title="No providers available" body="Try a different category or neighborhood in this prototype." />
       ) : (
         <View style={styles.list}>
           {providers.map((provider) => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onPress={() => continueWithProvider(provider.id)}
-            />
+            <ProviderCard key={provider.id} provider={provider} onPress={() => continueWithProvider(provider.id)} />
           ))}
         </View>
       )}
