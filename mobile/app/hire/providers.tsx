@@ -48,7 +48,10 @@ export default function ProvidersScreen() {
 
   return (
     <Screen title={category ? category.name : 'Providers'}>
-      {isShowingSaved ? <OfflineBanner message="Showing saved providers. Reconnect and try again for updates." /> : null}
+      {isShowingSaved ? <OfflineBanner
+          message="Showing saved providers. Reconnect and try again for updates."
+          onRetry={() => void loadProviders()}
+        /> : null}
       <Text style={styles.note}>Choose a provider to review trust signals and start a request.</Text>
 
       <TextInput
