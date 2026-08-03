@@ -42,10 +42,16 @@ export function SuccessState({ title, body }: { title: string; body: string }) {
   );
 }
 
-export function OfflineBanner() {
+export function OfflineBanner({
+  message = 'You appear to be offline. Some actions may not save until you reconnect.',
+}: {
+  message?: string;
+}) {
   return (
     <View style={styles.offline}>
-      <Text style={styles.offlineText}>You appear to be offline. Some actions may not save until you reconnect.</Text>
+      <Text accessibilityLiveRegion="polite" style={styles.offlineText}>
+        {message}
+      </Text>
     </View>
   );
 }
