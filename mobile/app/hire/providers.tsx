@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { ProviderCard } from '@/components/ProviderCard';
-import { ErrorState, OfflineBanner, EmptyState } from '@/components/StateBlocks';
+import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { categories } from '@/lib/mock-data';
 import { loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
@@ -48,10 +48,12 @@ export default function ProvidersScreen() {
 
   return (
     <Screen title={category ? category.name : 'Providers'}>
-      {isShowingSaved ? <OfflineBanner
+      {isShowingSaved ? (
+        <OfflineBanner
           message="Showing saved providers. Reconnect and try again for updates."
           onRetry={() => void loadProviders()}
-        /> : null}
+        />
+      ) : null}
       <Text style={styles.note}>Choose a provider to review trust signals and start a request.</Text>
 
       <TextInput
@@ -75,11 +77,18 @@ export default function ProvidersScreen() {
       ) : isLoading ? (
         <EmptyState title="Loading providers" body="Checking live Supabase listings for this category." />
       ) : providers.length === 0 ? (
-        <EmptyState title="No providers available" body="Try a different category or neighborhood in this prototype." />
+        <EmptyState
+          title="No providers available"
+          body="Try a different category or neighborhood in this prototype."
+        />
       ) : (
         <View style={styles.list}>
           {providers.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} onPress={() => continueWithProvider(provider.id)} />
+            <ProviderCard
+              key={provider.id}
+              provider={provider}
+              onPress={() => continueWithProvider(provider.id)}
+            />
           ))}
         </View>
       )}
