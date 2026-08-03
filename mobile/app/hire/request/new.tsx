@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { OfflineBanner } from '@/components/StateBlocks';
@@ -25,13 +25,22 @@ const contactOptions: { label: string; value: ContactPreference }[] = [
   { label: 'SMS', value: 'sms' },
 ];
 
+function tomorrowDate() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export default function NewRequestScreen() {
   const params = useLocalSearchParams<{ providerId?: string; categoryId?: string }>();
   const [provider, setProvider] = useState<Provider>();
   const [isProviderLoaded, setIsProviderLoaded] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [preferredDate, setPreferredDate] = useState('2026-07-18');
+  const [preferredDate, setPreferredDate] = useState(tomorrowDate);
   const [preferredTime, setPreferredTime] = useState('Afternoon');
   const [urgency, setUrgency] = useState<RequestUrgency>('soon');
   const [contactPreference, setContactPreference] = useState<ContactPreference>('app_update');
@@ -115,35 +124,6 @@ export default function NewRequestScreen() {
     });
   }
 
-  const useSampleRequest = useCallback(() => {
-    const sampleDraft = {
-      ...draft,
-      title: title || 'Kitchen sink leak',
-      description:
-        description || 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
-    };
-
-    trackEvent('request_sample_used', {
-      categoryId: sampleDraft.categoryId,
-      providerId: sampleDraft.providerId,
-      urgency,
-    });
-
-    router.push({
-      pathname: '/hire/request/review',
-      params: {
-        ...sampleDraft,
-        originalUserText: sampleDraft.description,
-        photoCount: String(sampleDraft.photoCount),
-      },
-    });
-  }, [description, draft, title, urgency]);
-
-  useEffect(() => {
-    const timeout = setTimeout(useSampleRequest, 1200);
-    return () => clearTimeout(timeout);
-  }, [useSampleRequest]);
-
   async function useAiStructurer() {
     if (!featureFlags.ai_service_request_structurer) {
       setError('AI structuring is currently off. You can still submit the request manually.');
@@ -158,15 +138,10 @@ export default function NewRequestScreen() {
   return (
     <Screen title="Create request">
       <OfflineBanner />
-      <Text style={styles.noticeText}>Prototype note: this screen will continue to review automatically.</Text>
       <Text style={styles.summary}>
         Requesting {category?.name ?? 'help'} from{' '}
         {isProviderLoaded ? (provider?.name ?? 'selected provider') : 'selected provider'}.
       </Text>
-
-      <Pressable onPress={useSampleRequest} style={styles.button}>
-        <Text style={styles.buttonText}>Use sample request and review</Text>
-      </Pressable>
 
       <Text style={styles.label}>Job title</Text>
       <TextInput
