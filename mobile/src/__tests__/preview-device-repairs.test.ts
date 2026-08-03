@@ -68,6 +68,7 @@ describe('preview device repairs', () => {
 
     expect(providerSource).toContain("pathname: '/hire/request/new'");
     expect(providerSource).not.toContain("pathname: '/hire/request/review'");
+    expect(providerSource).toContain('onRetry={() => void loadProviders()}');
     expect(requestSource).not.toContain('setTimeout(useSampleRequest');
     expect(requestSource).toContain('value={title}');
     expect(requestSource).toContain('value={description}');
