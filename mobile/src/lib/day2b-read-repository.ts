@@ -14,6 +14,7 @@ export type Day2BCachedRead<T> = {
 const previewProviderIdEnvKey = 'EXPO_PUBLIC_MY_CORNER_DAY2B_PROVIDER_PREVIEW_ID';
 const fallbackPreviewProviderId = 'prov-01';
 const providerListCache = new Map<string, Provider[]>();
+const maxProviderCacheEntries = 12;
 
 export function getDay2BReadRepository(): Day2BReadRepository {
   const repository = getDay2BLiveRepository();
@@ -33,6 +34,10 @@ export async function listDay2BProvidersByCategory(categoryId: string): Promise<
 export async function loadDay2BProvidersByCategory(categoryId: string): Promise<Day2BCachedRead<Provider[]>> {
   try {
     const providers = await getDay2BReadRepository().listProvidersByCategory(categoryId);
+    if (!providerListCache.has(categoryId) && providerListCache.size >= maxProviderCacheEntries) {
+      const oldestKey = providerListCache.keys().next().value;
+      if (oldestKey) providerListCache.delete(oldestKey);
+    }
     providerListCache.set(categoryId, providers);
     return { items: providers, fromCache: false };
   } catch (caught) {
