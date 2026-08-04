@@ -16,9 +16,9 @@ jest.mock('@supabase/supabase-js', () => ({
   createClient: jest.fn(() => ({})),
 }));
 
-const getItemAsync = SecureStore.getItemAsync as jest.MockedFunction<typeof SecureStore.getItemAsync>;
-const setItemAsync = SecureStore.setItemAsync as jest.MockedFunction<typeof SecureStore.setItemAsync>;
-const deleteItemAsync = SecureStore.deleteItemAsync as jest.MockedFunction<typeof SecureStore.deleteItemAsync>;
+const getItemAsync = jest.mocked(SecureStore.getItemAsync);
+const setItemAsync = jest.mocked(SecureStore.setItemAsync);
+const deleteItemAsync = jest.mocked(SecureStore.deleteItemAsync);
 
 describe('secure Supabase session storage', () => {
   beforeEach(() => {
