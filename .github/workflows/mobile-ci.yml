@@ -37,10 +37,7 @@ jobs:
         run: npx expo-doctor
 
       - name: Check formatting
-        run: |
-          npx prettier --write src/lib/__tests__/supabase.test.ts
-          git diff -- src/lib/__tests__/supabase.test.ts
-          git diff --exit-code -- src/lib/__tests__/supabase.test.ts
+        run: npm run format
 
       - name: Lint
         run: npm run lint
