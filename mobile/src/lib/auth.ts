@@ -1,11 +1,6 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/contracts';
 
-type TestAccount = {
-  email?: string;
-  password?: string;
-};
-
 export type CurrentProfile = {
   id: string;
   authUserId: string;
@@ -14,30 +9,21 @@ export type CurrentProfile = {
   phoneVerified: boolean;
 };
 
-function testAccountFor(role: 'requester' | 'provider'): TestAccount {
-  if (role === 'provider') {
-    return {
-      email: process.env.EXPO_PUBLIC_SUPABASE_TEST_PROVIDER_EMAIL,
-      password: process.env.EXPO_PUBLIC_SUPABASE_TEST_PROVIDER_PASSWORD,
-    };
-  }
-
-  return {
-    email: process.env.EXPO_PUBLIC_SUPABASE_TEST_REQUESTER_EMAIL,
-    password: process.env.EXPO_PUBLIC_SUPABASE_TEST_REQUESTER_PASSWORD,
-  };
-}
-
-export async function signInWithConfiguredTestAccount(role: 'requester' | 'provider') {
+export async function signInWithEmailPassword(email: string, password: string): Promise<CurrentProfile> {
   assertSupabaseConfigured();
-  const { email, password } = testAccountFor(role);
 
-  if (!email || !password) {
-    throw new Error(`Missing configured ${role} test account credentials.`);
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !password) {
+    throw new Error('Enter your email and password.');
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
   if (error) throw error;
+
+  return getCurrentProfile();
 }
 
 export async function getCurrentProfile(): Promise<CurrentProfile> {
@@ -45,7 +31,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!userData.user) {
-    throw new Error('Sign in with a Supabase test account before using live data.');
+    throw new Error('Sign in before using live data.');
   }
 
   const { data, error } = await supabase
@@ -55,7 +41,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
     .single();
 
   if (error) throw error;
-  if (!data) throw new Error('No My Corner profile is linked to the signed-in Supabase user.');
+  if (!data) throw new Error('No My Corner profile is linked to this account.');
 
   return {
     id: data.id,

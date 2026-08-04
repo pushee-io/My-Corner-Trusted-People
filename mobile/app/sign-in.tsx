@@ -1,42 +1,81 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { signInWithConfiguredTestAccount } from '@/lib/auth';
+import { signInWithEmailPassword } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
 
 export default function SignInScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string>();
-  const [loadingRole, setLoadingRole] = useState<'requester' | 'provider'>();
+  const [submitting, setSubmitting] = useState(false);
+  const disabled = submitting || !email.trim() || !password;
 
-  async function signIn(role: 'requester' | 'provider') {
+  async function signIn() {
     setError(undefined);
-    setLoadingRole(role);
+    setSubmitting(true);
 
     try {
-      await signInWithConfiguredTestAccount(role);
-      router.push(role === 'provider' ? '/provider' : '/neighborhood');
+      const profile = await signInWithEmailPassword(email, password);
+      router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not sign in.');
     } finally {
-      setLoadingRole(undefined);
+      setSubmitting(false);
     }
   }
 
   return (
     <Screen title="Sign in" showBottomNavigation={false}>
-      <Text style={styles.text}>Use a safe seeded account to continue this prototype.</Text>
-      <Text style={styles.helper}>Requester: Akosua Mensah. Provider: Kwame PipeCare.</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Text style={styles.text}>Sign in with your My Corner pilot account.</Text>
 
-      <Pressable disabled={loadingRole !== undefined} onPress={() => signIn('requester')} style={styles.button}>
-        <Text style={styles.buttonText}>{loadingRole === 'requester' ? 'Signing in...' : 'Continue as requester'}</Text>
-      </Pressable>
+      <View style={styles.field}>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          accessibilityLabel="Email"
+          autoCapitalize="none"
+          autoComplete="email"
+          keyboardType="email-address"
+          onChangeText={setEmail}
+          placeholder="name@example.com"
+          placeholderTextColor={tokens.color.textSecondary}
+          style={styles.input}
+          textContentType="emailAddress"
+          value={email}
+        />
+      </View>
 
-      <Pressable disabled={loadingRole !== undefined} onPress={() => signIn('provider')} style={styles.secondary}>
-        <Text style={styles.secondaryText}>
-          {loadingRole === 'provider' ? 'Signing in...' : 'Continue as provider'}
+      <View style={styles.field}>
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          accessibilityLabel="Password"
+          autoCapitalize="none"
+          autoComplete="password"
+          onChangeText={setPassword}
+          placeholder="Password"
+          placeholderTextColor={tokens.color.textSecondary}
+          secureTextEntry
+          style={styles.input}
+          textContentType="password"
+          value={password}
+        />
+      </View>
+
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
         </Text>
+      ) : null}
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled }}
+        disabled={disabled}
+        onPress={signIn}
+        style={[styles.button, disabled ? styles.disabled : null]}
+      >
+        <Text style={styles.buttonText}>{submitting ? 'Signing in...' : 'Sign in'}</Text>
       </Pressable>
     </Screen>
   );
@@ -44,15 +83,25 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   text: { fontSize: tokens.type.body, color: tokens.color.textPrimary },
-  helper: { fontSize: tokens.type.support, color: tokens.color.textSecondary },
-  error: { fontSize: tokens.type.support, color: tokens.color.error },
-  button: { backgroundColor: tokens.color.primary, padding: tokens.spacing.lg, borderRadius: tokens.radius.md },
-  buttonText: { color: '#fff', textAlign: 'center', fontWeight: '700' },
-  secondary: {
-    borderColor: tokens.color.primary,
+  field: { gap: tokens.spacing.xs },
+  label: { color: tokens.color.textPrimary, fontSize: tokens.type.label, fontWeight: '700' },
+  input: {
+    minHeight: tokens.touch.min,
+    borderColor: tokens.color.border,
     borderWidth: 1,
-    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    padding: tokens.spacing.md,
+  },
+  error: { fontSize: tokens.type.support, color: tokens.color.error },
+  button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.md,
     borderRadius: tokens.radius.md,
   },
-  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
+  disabled: { opacity: 0.5 },
+  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
 });

@@ -1,9 +1,16 @@
 import Constants from 'expo-constants';
+import * as SecureStore from 'expo-secure-store';
 import { createClient } from '@supabase/supabase-js';
 
 type SupabaseExtra = {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
+};
+
+export const secureSessionStorage = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as SupabaseExtra;
@@ -29,7 +36,8 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       detectSessionInUrl: false,
-      persistSession: false,
+      persistSession: true,
+      storage: secureSessionStorage,
     },
   },
 );

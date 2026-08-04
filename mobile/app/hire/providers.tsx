@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { ProviderCard } from '@/components/ProviderCard';
-import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
+import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { categories } from '@/lib/mock-data';
-import { listDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
+import { loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
 import { tokens } from '@/theme/tokens';
 import type { Provider } from '@/types/contracts';
 
@@ -16,55 +16,44 @@ export default function ProvidersScreen() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const firstProvider = providers[0];
+  const [isShowingSaved, setIsShowingSaved] = useState(false);
 
-  function continueWithProvider(providerId = firstProvider?.id ?? '') {
-    if (!providerId) return;
-
+  function continueWithProvider(providerId: string) {
     router.push({
-      pathname: '/hire/request/review',
-      params: {
-        requesterName: 'Akosua Mensah',
-        providerId,
-        categoryId,
-        neighborhood: 'East Legon',
-        areaLabel: 'East Legon, general area only',
-        title: 'Kitchen sink leak',
-        description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
-        originalUserText: 'Water is leaking under the kitchen sink.',
-        urgency: 'soon',
-        preferredDate: '2026-07-18',
-        preferredTime: 'Afternoon',
-        contactPreference: 'app_update',
-        photoCount: '0',
-      },
+      pathname: '/hire/request/new',
+      params: { providerId, categoryId },
     });
   }
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadProviders = useCallback(async () => {
     setIsLoading(true);
     setError(undefined);
 
-    listDay2BProvidersByCategory(categoryId)
-      .then((items) => {
-        if (isMounted) setProviders(items);
-      })
-      .catch((caught) => {
-        if (isMounted) setError(caught instanceof Error ? caught.message : 'Could not load providers.');
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    try {
+      const result = await loadDay2BProvidersByCategory(categoryId);
+      setProviders(result.items);
+      setIsShowingSaved(result.fromCache);
+    } catch (caught) {
+      setProviders([]);
+      setIsShowingSaved(false);
+      setError(caught instanceof Error ? caught.message : 'Could not load providers.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [categoryId]);
+
+  useEffect(() => {
+    void loadProviders();
+  }, [loadProviders]);
 
   return (
     <Screen title={category ? category.name : 'Providers'}>
-      <OfflineBanner />
+      {isShowingSaved ? (
+        <OfflineBanner
+          message="Showing saved providers. Reconnect and try again for updates."
+          onRetry={() => void loadProviders()}
+        />
+      ) : null}
       <Text style={styles.note}>Choose a provider to review trust signals and start a request.</Text>
 
       <TextInput
@@ -84,7 +73,7 @@ export default function ProvidersScreen() {
       </View>
 
       {error ? (
-        <EmptyState title="Could not load providers" body={error} />
+        <ErrorState title="Could not load providers" body={error} onRetry={() => void loadProviders()} />
       ) : isLoading ? (
         <EmptyState title="Loading providers" body="Checking live Supabase listings for this category." />
       ) : providers.length === 0 ? (

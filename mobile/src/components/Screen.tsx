@@ -41,7 +41,12 @@ export function Screen({
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: tokens.color.background },
   scroll: { flex: 1 },
-  content: { padding: tokens.spacing.lg, gap: tokens.spacing.lg },
+  content: {
+    flexGrow: 1,
+    gap: tokens.spacing.lg,
+    padding: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xxl,
+  },
   title: { fontSize: 28, fontWeight: '700', color: tokens.color.textPrimary },
-  body: { gap: tokens.spacing.md },
+  body: { flexShrink: 1, gap: tokens.spacing.md },
 });

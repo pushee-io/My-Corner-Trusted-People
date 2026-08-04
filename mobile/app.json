@@ -20,7 +20,7 @@
       },
       "package": "com.mycorner.trustedpeople"
     },
-    "plugins": ["expo-router"],
+    "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {
       "typedRoutes": true
     },
@@ -28,7 +28,12 @@
       "useMockData": true,
       "locale": "en-GH",
       "currency": "GHS",
-      "timezone": "Africa/Accra"
-    }
+      "timezone": "Africa/Accra",
+      "router": {},
+      "eas": {
+        "projectId": "cff4c187-09a6-4f09-9ddd-a7b04a8eccae"
+      }
+    },
+    "owner": "mycorner"
   }
 }
