@@ -28,18 +28,14 @@ describe('secure Supabase session storage', () => {
   it('configures Supabase to persist sessions with SecureStore', async () => {
     const { secureSessionStorage } = await import('../supabase');
 
-    expect(createClient).toHaveBeenCalledWith(
-      'https://placeholder.supabase.co',
-      'placeholder-anon-key',
-      {
-        auth: {
-          autoRefreshToken: true,
-          detectSessionInUrl: false,
-          persistSession: true,
-          storage: secureSessionStorage,
-        },
+    expect(createClient).toHaveBeenCalledWith('https://placeholder.supabase.co', 'placeholder-anon-key', {
+      auth: {
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        persistSession: true,
+        storage: secureSessionStorage,
       },
-    );
+    });
   });
 
   it('delegates session reads, writes, and removals to SecureStore', async () => {
