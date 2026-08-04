@@ -18,7 +18,7 @@ export default function SignInScreen() {
 
     try {
       const profile = await signInWithEmailPassword(email, password);
-      router.replace(profile.role === 'provider' ? '/provider' : '/neighborhood');
+      router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not sign in.');
     } finally {
