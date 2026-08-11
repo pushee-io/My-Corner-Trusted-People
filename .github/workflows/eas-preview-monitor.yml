@@ -2,6 +2,12 @@ name: Build and Monitor EAS Preview APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feat/eas-preview-readiness
+    paths:
+      - '.github/workflows/eas-preview-monitor.yml'
+
 permissions:
   contents: read
   issues: write
