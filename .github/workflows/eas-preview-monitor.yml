@@ -14,7 +14,7 @@ permissions:
   statuses: write
 
 env:
-  BUILD_COMMIT: c3f36d95c71a1d82bae767aabd67b545d458be9d
+  BUILD_COMMIT: ab076d9abcbcdfacad8c703064b35de9bcbe3f42
   PR_NUMBER: '38'
 
 jobs:
