@@ -48,7 +48,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           for attempt in $(seq 1 20); do
-            builds="$(eas build:list --platform android --limit 10 --json 2>/tmp/eas-list.log)"
+            builds="$(eas build:list --platform android --limit 10 --json)"
             build="$(printf '%s' "$builds" | jq -c --arg sha "$BUILD_COMMIT" 'map(select(.gitCommitHash == $sha)) | first // empty')"
 
             if [ -n "$build" ]; then
@@ -62,7 +62,6 @@ jobs:
             sleep 30
           done
 
-          cat /tmp/eas-list.log
           echo "::error::No Android EAS build was found for commit ${BUILD_COMMIT}."
           exit 1
 
