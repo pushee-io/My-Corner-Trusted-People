@@ -2,12 +2,6 @@ name: Build and Monitor EAS Preview APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/eas-preview-readiness
-    paths:
-      - '.github/workflows/eas-preview-monitor.yml'
-
 permissions:
   contents: read
   issues: write
@@ -109,7 +103,7 @@ jobs:
           publish_comment() {
             body="$1"
             payload="$(jq -n --arg body "$body" '{body: $body}')"
-            curl --fail-with-body --silent --show-error               --request POST               --header "Authorization: Bearer ${GH_TOKEN}"               --header "Accept: application/vnd.github+json"               --header "X-GitHub-Api-Version: 2022-11-28"               --data "$payload"               "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
+            curl --fail-with-body --silent --show-error               --request POST               --header "Authorization: Bearer ${GH_TOKEN}"               --header "Accept: application/vnd.github+json"               --header "X-GitHub-Api-Version: 2022-11-28"               --data "$payload"               "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" || echo "::warning::Could not post PR build comment."
           }
 
           publish_status pending "EAS is building the Android preview APK" "$DETAILS_URL"
