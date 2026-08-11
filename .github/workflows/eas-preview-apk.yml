@@ -1,0 +1,52 @@
+name: EAS Preview APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/eas-preview-readiness
+    paths:
+      - '.github/workflows/eas-preview-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-preview-apk
+  cancel-in-progress: false
+
+jobs:
+  submit-preview-build:
+    name: Submit Android preview APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Require Expo authentication
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured in GitHub repository secrets."
+            exit 1
+          fi
+
+      - name: Submit EAS internal Android APK build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: npx --yes eas-cli@21.4.0 build --platform android --profile preview --non-interactive --no-wait
