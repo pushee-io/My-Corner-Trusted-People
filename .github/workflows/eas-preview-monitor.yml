@@ -53,6 +53,10 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
+          eas whoami
+          eas project:info
+          eas build:list --platform android --limit 3
+
           for attempt in $(seq 1 20); do
             builds="$(eas build:list --platform android --limit 10 --json)"
             build="$(printf '%s' "$builds" | jq -c --arg sha "$BUILD_COMMIT" 'map(select(.gitCommitHash == $sha)) | first // empty')"
