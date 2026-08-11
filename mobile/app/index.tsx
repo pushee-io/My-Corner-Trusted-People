@@ -1,11 +1,48 @@
-import { Link } from 'expo-router';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Link, router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { restoreSessionProfile } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
 
 export default function WelcomeScreen() {
   const { fontScale, width } = useWindowDimensions();
+  const [restoringSession, setRestoringSession] = useState(true);
   const stackLockup = fontScale >= 1.6 || width < 340;
+
+  useEffect(() => {
+    let active = true;
+
+    async function restoreSession() {
+      try {
+        const profile = await restoreSessionProfile();
+        if (!active || !profile) return;
+
+        router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
+      } catch {
+        // Keep the welcome and sign-in flow available when restoration fails.
+      } finally {
+        if (active) setRestoringSession(false);
+      }
+    }
+
+    void restoreSession();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (restoringSession) {
+    return (
+      <Screen title="My Corner" showBottomNavigation={false}>
+        <View accessibilityLiveRegion="polite" style={styles.restoring}>
+          <ActivityIndicator color={tokens.color.primary} />
+          <Text style={styles.body}>Restoring your session...</Text>
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen title="My Corner" showBottomNavigation={false}>
@@ -32,6 +69,13 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  restoring: {
+    alignItems: 'center',
+    flex: 1,
+    gap: tokens.spacing.md,
+    justifyContent: 'center',
+    minHeight: 240,
+  },
   heroLogo: {
     alignItems: 'center',
     backgroundColor: tokens.color.surface,

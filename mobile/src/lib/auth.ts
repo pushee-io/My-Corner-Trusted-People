@@ -26,6 +26,16 @@ export async function signInWithEmailPassword(email: string, password: string): 
   return getCurrentProfile();
 }
 
+export async function restoreSessionProfile(): Promise<CurrentProfile | null> {
+  assertSupabaseConfigured();
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  if (!data.session) return null;
+
+  return getCurrentProfile();
+}
+
 export async function getCurrentProfile(): Promise<CurrentProfile> {
   assertSupabaseConfigured();
   const { data: userData, error: userError } = await supabase.auth.getUser();
