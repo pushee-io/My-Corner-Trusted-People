@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -77,6 +77,12 @@ export default function SignInScreen() {
       >
         <Text style={styles.buttonText}>{submitting ? 'Signing in...' : 'Sign in'}</Text>
       </Pressable>
+
+      <Link href="/forgot-password" asChild>
+        <Pressable accessibilityRole="button" style={styles.recoveryButton}>
+          <Text style={styles.recoveryButtonText}>Forgot password?</Text>
+        </Pressable>
+      </Link>
     </Screen>
   );
 }
@@ -95,6 +101,13 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   error: { fontSize: tokens.type.support, color: tokens.color.error },
+  recoveryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
+  recoveryButtonText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
   button: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
