@@ -9,6 +9,8 @@ export type CurrentProfile = {
   phoneVerified: boolean;
 };
 
+const passwordRecoveryRedirect = 'mycorner://reset-password';
+
 export async function signInWithEmailPassword(email: string, password: string): Promise<CurrentProfile> {
   assertSupabaseConfigured();
 
@@ -24,6 +26,48 @@ export async function signInWithEmailPassword(email: string, password: string): 
   if (error) throw error;
 
   return getCurrentProfile();
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  assertSupabaseConfigured();
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!isValidEmail(normalizedEmail)) {
+    throw new Error('Enter a valid email address.');
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+    redirectTo: passwordRecoveryRedirect,
+  });
+  if (error) throw new Error('We could not send recovery instructions. Please try again later.');
+}
+
+export async function createPasswordRecoverySession(url: string): Promise<void> {
+  assertSupabaseConfigured();
+
+  const parameters = recoveryParameters(url);
+  if (parameters.type !== 'recovery' || !parameters.accessToken || !parameters.refreshToken) {
+    throw new Error('This password recovery link is invalid or has expired.');
+  }
+
+  const { error } = await supabase.auth.setSession({
+    access_token: parameters.accessToken,
+    refresh_token: parameters.refreshToken,
+  });
+  if (error) throw new Error('This password recovery link is invalid or has expired.');
+}
+
+export async function updateRecoveredPassword(password: string): Promise<void> {
+  assertSupabaseConfigured();
+
+  if (password.length < 10) {
+    throw new Error('Use at least 10 characters for your new password.');
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw new Error('Could not update your password. Request a new recovery link and try again.');
+
+  await signOutFromDevice();
 }
 
 export async function signOutFromDevice(): Promise<void> {
@@ -77,4 +121,22 @@ export async function getCurrentProviderProfileId(): Promise<string> {
   if (!data) throw new Error('The signed-in account is not linked to a provider profile.');
 
   return data.id;
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function recoveryParameters(url: string) {
+  const fragmentStart = url.indexOf('#');
+  const queryStart = url.indexOf('?');
+  const parameterText =
+    fragmentStart >= 0 ? url.slice(fragmentStart + 1) : queryStart >= 0 ? url.slice(queryStart + 1) : '';
+  const parameters = new URLSearchParams(parameterText);
+
+  return {
+    accessToken: parameters.get('access_token'),
+    refreshToken: parameters.get('refresh_token'),
+    type: parameters.get('type'),
+  };
 }
