@@ -6,8 +6,15 @@ export type Day2BReadRepository = Pick<
   'mode' | 'listProvidersByCategory' | 'getProvider' | 'listProviderRequests'
 >;
 
+export type Day2BCachedRead<T> = {
+  items: T;
+  fromCache: boolean;
+};
+
 const previewProviderIdEnvKey = 'EXPO_PUBLIC_MY_CORNER_DAY2B_PROVIDER_PREVIEW_ID';
 const fallbackPreviewProviderId = 'prov-01';
+const providerListCache = new Map<string, Provider[]>();
+const maxProviderCacheEntries = 12;
 
 export function getDay2BReadRepository(): Day2BReadRepository {
   const repository = getDay2BLiveRepository();
@@ -21,7 +28,23 @@ export function getDay2BReadRepository(): Day2BReadRepository {
 }
 
 export async function listDay2BProvidersByCategory(categoryId: string): Promise<Provider[]> {
-  return getDay2BReadRepository().listProvidersByCategory(categoryId);
+  return (await loadDay2BProvidersByCategory(categoryId)).items;
+}
+
+export async function loadDay2BProvidersByCategory(categoryId: string): Promise<Day2BCachedRead<Provider[]>> {
+  try {
+    const providers = await getDay2BReadRepository().listProvidersByCategory(categoryId);
+    if (!providerListCache.has(categoryId) && providerListCache.size >= maxProviderCacheEntries) {
+      const oldestKey = providerListCache.keys().next().value;
+      if (oldestKey) providerListCache.delete(oldestKey);
+    }
+    providerListCache.set(categoryId, providers);
+    return { items: providers, fromCache: false };
+  } catch (caught) {
+    const cached = providerListCache.get(categoryId);
+    if (cached) return { items: cached, fromCache: true };
+    throw caught;
+  }
 }
 
 export async function getDay2BProvider(providerId: string): Promise<Provider | undefined> {
@@ -34,6 +57,10 @@ export async function listDay2BProviderRequests(providerId = getDay2BPreviewProv
 
 export function getDay2BPreviewProviderId(): string {
   return envValue(previewProviderIdEnvKey) ?? fallbackPreviewProviderId;
+}
+
+export function clearDay2BProviderCache() {
+  providerListCache.clear();
 }
 
 function envValue(key: string): string | undefined {

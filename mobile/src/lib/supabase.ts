@@ -1,9 +1,17 @@
 import Constants from 'expo-constants';
-import { createClient } from '@supabase/supabase-js';
+import * as SecureStore from 'expo-secure-store';
+import { createClient, processLock } from '@supabase/supabase-js';
+import { AppState, Platform } from 'react-native';
 
 type SupabaseExtra = {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
+};
+
+export const secureSessionStorage = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as SupabaseExtra;
@@ -29,7 +37,19 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       detectSessionInUrl: false,
-      persistSession: false,
+      lock: processLock,
+      persistSession: true,
+      storage: secureSessionStorage,
     },
   },
 );
+
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+}

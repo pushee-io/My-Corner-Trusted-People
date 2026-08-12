@@ -42,10 +42,23 @@ export function SuccessState({ title, body }: { title: string; body: string }) {
   );
 }
 
-export function OfflineBanner() {
+export function OfflineBanner({
+  message = 'You appear to be offline. Some actions may not save until you reconnect.',
+  onRetry,
+}: {
+  message?: string;
+  onRetry?: () => void;
+}) {
   return (
     <View style={styles.offline}>
-      <Text style={styles.offlineText}>You appear to be offline. Some actions may not save until you reconnect.</Text>
+      <Text accessibilityLiveRegion="polite" style={styles.offlineText}>
+        {message}
+      </Text>
+      {onRetry ? (
+        <Pressable accessibilityRole="button" onPress={onRetry} style={styles.offlineRetry}>
+          <Text style={styles.offlineRetryText}>Try again</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -65,6 +78,8 @@ const styles = StyleSheet.create({
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   offline: { backgroundColor: '#FFF4D6', padding: tokens.spacing.md, borderRadius: tokens.radius.md },
   offlineText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
+  offlineRetry: { alignSelf: 'flex-start', minHeight: tokens.touch.min, justifyContent: 'center' },
+  offlineRetryText: { color: tokens.color.primary, fontWeight: '700' },
   success: {
     backgroundColor: '#EEF7F4',
     borderColor: tokens.color.success,

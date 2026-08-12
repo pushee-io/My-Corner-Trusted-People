@@ -10,7 +10,7 @@ const validDraft = {
   description: 'The kitchen sink is leaking under the cabinet.',
   originalUserText: 'Kitchen sink leak',
   urgency: 'soon' as const,
-  preferredDate: '2026-07-18',
+  preferredDate: '2099-07-18',
   preferredTime: 'Afternoon',
   contactPreference: 'app_update' as const,
   photoCount: 0,
@@ -26,5 +26,17 @@ describe('request validation', () => {
     expect(result.valid).toBe(false);
     expect(result.errors.consent).toBeTruthy();
     expect(result.errors.title).toBeTruthy();
+  });
+
+  it('rejects invalid and past preferred dates', () => {
+    const now = new Date(2026, 7, 3, 12);
+
+    expect(validateRequestDraft({ ...validDraft, preferredDate: '2026-02-30' }, true, now).errors.preferredDate).toBe(
+      'Use a valid date in YYYY-MM-DD format.',
+    );
+    expect(validateRequestDraft({ ...validDraft, preferredDate: '2026-08-02' }, true, now).errors.preferredDate).toBe(
+      'Choose today or a future date.',
+    );
+    expect(validateRequestDraft({ ...validDraft, preferredDate: '2026-08-03' }, true, now).valid).toBe(true);
   });
 });

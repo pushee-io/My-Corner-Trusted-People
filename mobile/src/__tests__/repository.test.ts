@@ -1,9 +1,16 @@
-import { createJobRequest, getRequest, listProvidersByCategory, updateRequestStatus } from '@/lib/repository';
-import { getCurrentProfile } from '@/lib/auth';
+import {
+  createJobRequest,
+  getRequest,
+  listProviderRequests,
+  listProvidersByCategory,
+  updateRequestStatus,
+} from '@/lib/repository';
+import { getCurrentProfile, getCurrentProviderProfileId } from '@/lib/auth';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 
 jest.mock('@/lib/auth', () => ({
   getCurrentProfile: jest.fn(),
+  getCurrentProviderProfileId: jest.fn(),
 }));
 
 jest.mock('@/lib/supabase', () => ({
@@ -34,6 +41,9 @@ type SupabaseMock = {
 };
 
 const mockedGetCurrentProfile = getCurrentProfile as jest.MockedFunction<typeof getCurrentProfile>;
+const mockedGetCurrentProviderProfileId = getCurrentProviderProfileId as jest.MockedFunction<
+  typeof getCurrentProviderProfileId
+>;
 const mockedAssertSupabaseConfigured = assertSupabaseConfigured as jest.MockedFunction<typeof assertSupabaseConfigured>;
 const mockedSupabase = supabase as unknown as SupabaseMock;
 
@@ -110,6 +120,7 @@ describe('Module 1 repository', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    mockedGetCurrentProviderProfileId.mockResolvedValue('provider-profile-auth');
     mockedGetCurrentProfile.mockResolvedValue({
       id: 'profile-requester',
       authUserId: 'auth-requester',
@@ -202,6 +213,25 @@ describe('Module 1 repository', () => {
       name: 'Ama Plumbing',
       phoneVerified: true,
     });
+  });
+
+  it('loads incoming requests for the authenticated provider profile', async () => {
+    const requestsQuery = createQuery({
+      data: [jobRequestRow({ provider_id: 'provider-profile-auth' })],
+      error: null,
+    });
+
+    useTableQueries({
+      job_requests: [requestsQuery],
+      job_request_status_events: [createQuery({ data: [], error: null })],
+      provider_responses: [createQuery({ data: [], error: null })],
+    });
+
+    const requests = await listProviderRequests();
+
+    expect(mockedGetCurrentProviderProfileId).toHaveBeenCalledTimes(1);
+    expect(requestsQuery.eq).toHaveBeenCalledWith('provider_id', 'provider-profile-auth');
+    expect(requests[0]?.providerId).toBe('provider-profile-auth');
   });
 
   it('creates a request and lets provider accept it', async () => {

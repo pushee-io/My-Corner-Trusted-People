@@ -1,11 +1,6 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/contracts';
 
-type TestAccount = {
-  email?: string;
-  password?: string;
-};
-
 export type CurrentProfile = {
   id: string;
   authUserId: string;
@@ -14,30 +9,38 @@ export type CurrentProfile = {
   phoneVerified: boolean;
 };
 
-function testAccountFor(role: 'requester' | 'provider'): TestAccount {
-  if (role === 'provider') {
-    return {
-      email: process.env.EXPO_PUBLIC_SUPABASE_TEST_PROVIDER_EMAIL,
-      password: process.env.EXPO_PUBLIC_SUPABASE_TEST_PROVIDER_PASSWORD,
-    };
+export async function signInWithEmailPassword(email: string, password: string): Promise<CurrentProfile> {
+  assertSupabaseConfigured();
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !password) {
+    throw new Error('Enter your email and password.');
   }
 
-  return {
-    email: process.env.EXPO_PUBLIC_SUPABASE_TEST_REQUESTER_EMAIL,
-    password: process.env.EXPO_PUBLIC_SUPABASE_TEST_REQUESTER_PASSWORD,
-  };
+  const { error } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+  if (error) throw error;
+
+  return getCurrentProfile();
 }
 
-export async function signInWithConfiguredTestAccount(role: 'requester' | 'provider') {
+export async function signOutFromDevice(): Promise<void> {
   assertSupabaseConfigured();
-  const { email, password } = testAccountFor(role);
 
-  if (!email || !password) {
-    throw new Error(`Missing configured ${role} test account credentials.`);
-  }
-
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
   if (error) throw error;
+}
+
+export async function restoreSessionProfile(): Promise<CurrentProfile | null> {
+  assertSupabaseConfigured();
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  if (!data.session) return null;
+
+  return getCurrentProfile();
 }
 
 export async function getCurrentProfile(): Promise<CurrentProfile> {
@@ -45,7 +48,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!userData.user) {
-    throw new Error('Sign in with a Supabase test account before using live data.');
+    throw new Error('Sign in before using live data.');
   }
 
   const { data, error } = await supabase
@@ -55,7 +58,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
     .single();
 
   if (error) throw error;
-  if (!data) throw new Error('No My Corner profile is linked to the signed-in Supabase user.');
+  if (!data) throw new Error('No My Corner profile is linked to this account.');
 
   return {
     id: data.id,

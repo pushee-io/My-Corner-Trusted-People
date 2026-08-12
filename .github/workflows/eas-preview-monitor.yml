@@ -1,0 +1,150 @@
+name: Build and Monitor EAS Preview APK
+# Founder-approved sign-out verification build: 2026-08-12
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/eas-preview-readiness
+    paths:
+      - '.github/workflows/eas-preview-monitor.yml'
+
+permissions:
+  contents: read
+  issues: write
+  statuses: write
+
+concurrency:
+  group: eas-preview-atomic
+  cancel-in-progress: false
+
+env:
+  PR_NUMBER: '38'
+
+jobs:
+  build-and-monitor:
+    name: Build and monitor Android preview APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Require Expo authentication
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured in GitHub repository secrets."
+            exit 1
+          fi
+
+      - name: Install EAS CLI
+        run: npm install --global eas-cli@21.4.0
+
+      - name: Publish pending status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          payload="$(jq -n             --arg state pending             --arg context eas-preview-apk             --arg description "Submitting Android preview APK to EAS"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
+          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+
+      - name: Submit exactly one EAS build
+        id: submit
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas whoami
+          eas project:info
+
+          existing="$(eas build:list --platform android --limit 10 --json)"
+          existing_id="$(printf '%s' "$existing" | jq -r --arg sha "$GITHUB_SHA" 'map(select(.gitCommitHash == $sha)) | first | .id // empty')"
+
+          if [ -n "$existing_id" ]; then
+            echo "::error::An EAS build already exists for commit ${GITHUB_SHA}; refusing to submit a duplicate."
+            exit 1
+          fi
+
+          eas build --platform android --profile preview --non-interactive --no-wait
+
+          for attempt in $(seq 1 20); do
+            builds="$(eas build:list --platform android --limit 10 --json)"
+            build="$(printf '%s' "$builds" | jq -c --arg sha "$GITHUB_SHA" 'map(select(.gitCommitHash == $sha)) | first // empty')"
+
+            if [ -n "$build" ]; then
+              build_id="$(printf '%s' "$build" | jq -r '.id')"
+              details_url="https://expo.dev/accounts/mycorner/projects/my-corner/builds/${build_id}"
+              echo "build_id=${build_id}" >> "$GITHUB_OUTPUT"
+              echo "details_url=${details_url}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "::error::EAS accepted the command, but no build record appeared for commit ${GITHUB_SHA}."
+          exit 1
+
+      - name: Monitor build to completion
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          BUILD_ID: ${{ steps.submit.outputs.build_id }}
+          DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+        run: |
+          publish_status() {
+            state="$1"
+            description="$2"
+            target_url="$3"
+            payload="$(jq -n               --arg state "$state"               --arg context eas-preview-apk               --arg description "$description"               --arg target_url "$target_url"               '{state: $state, context: $context, description: $description, target_url: $target_url}')"
+            curl --fail-with-body --silent --show-error               --request POST               --header "Authorization: Bearer ${GH_TOKEN}"               --header "Accept: application/vnd.github+json"               --header "X-GitHub-Api-Version: 2022-11-28"               --data "$payload"               "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+          }
+
+          publish_comment() {
+            body="$1"
+            payload="$(jq -n --arg body "$body" '{body: $body}')"
+            curl --fail-with-body --silent --show-error               --request POST               --header "Authorization: Bearer ${GH_TOKEN}"               --header "Accept: application/vnd.github+json"               --header "X-GitHub-Api-Version: 2022-11-28"               --data "$payload"               "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" || echo "::warning::Could not post PR build comment."
+          }
+
+          publish_status pending "EAS is building the Android preview APK" "$DETAILS_URL"
+
+          for attempt in $(seq 1 120); do
+            build="$(eas build:view "$BUILD_ID" --json)"
+            status="$(printf '%s' "$build" | jq -r '.status')"
+
+            case "$status" in
+              FINISHED)
+                apk_url="$(printf '%s' "$build" | jq -r '.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty')"
+                target_url="${apk_url:-$DETAILS_URL}"
+                publish_status success "Android preview APK build completed" "$target_url"
+                publish_comment "Android preview APK build completed successfully. Build details: ${DETAILS_URL}\n\nAPK: ${target_url}"
+                exit 0
+                ;;
+              ERRORED|CANCELED)
+                publish_status failure "Android preview APK build ${status,,}" "$DETAILS_URL"
+                publish_comment "Android preview APK build ended with status **${status}**. Build details: ${DETAILS_URL}"
+                exit 1
+                ;;
+            esac
+
+            sleep 30
+          done
+
+          publish_status error "Timed out waiting for the Android preview APK" "$DETAILS_URL"
+          publish_comment "Monitoring timed out before the Android preview APK reached a terminal state. Build details: ${DETAILS_URL}"
+          exit 1
+
+      - name: Publish workflow failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          payload="$(jq -n             --arg state failure             --arg context eas-preview-apk             --arg description "Android preview APK workflow failed"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
+          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
