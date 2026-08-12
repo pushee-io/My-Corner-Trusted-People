@@ -50,11 +50,16 @@ type DecideMembershipRpcRow = {
   accepted: boolean;
 };
 
+const seededMembershipViewer = {
+  ...defaultDay3NeighborhoodContext,
+  profileId: 'profile-new-member',
+};
+
 const seededRepository: GroupMembershipRepository = {
   mode: 'seeded',
 
   async requestMembership(groupId) {
-    return requestSocialGroupMembership(groupId, defaultDay3NeighborhoodContext);
+    return requestSocialGroupMembership(groupId, seededMembershipViewer);
   },
 
   async listPendingMemberships() {
