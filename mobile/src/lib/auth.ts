@@ -26,6 +26,13 @@ export async function signInWithEmailPassword(email: string, password: string): 
   return getCurrentProfile();
 }
 
+export async function signOutFromDevice(): Promise<void> {
+  assertSupabaseConfigured();
+
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
+  if (error) throw error;
+}
+
 export async function restoreSessionProfile(): Promise<CurrentProfile | null> {
   assertSupabaseConfigured();
 
