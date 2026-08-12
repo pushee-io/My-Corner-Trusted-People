@@ -467,5 +467,122 @@ select pg_temp.assert_true(
 );
 
 reset role;
+set role authenticated;
+set request.jwt.claim.sub = 'd3bb2222-2222-4222-8222-222222222222';
+
+select pg_temp.assert_true(
+  (
+    select requested.status = 'pending' and requested.created
+    from public.request_social_group_membership('d3300000-0000-4000-8000-000000000003') requested
+  ),
+  'verified resident should create a pending membership through the authenticated RPC'
+);
+
+select pg_temp.assert_true(
+  (
+    select requested.status = 'pending' and not requested.created
+    from public.request_social_group_membership('d3300000-0000-4000-8000-000000000003') requested
+  ),
+  'repeated request while pending should be idempotent'
+);
+
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = 'd3dd4444-4444-4444-8444-444444444444';
+
+select pg_temp.assert_true(
+  exists (
+    select 1
+    from public.list_pending_social_group_memberships() request
+    where request.group_id = 'd3300000-0000-4000-8000-000000000003'
+      and request.profile_id = 'd3000000-0000-4000-8000-000000000002'
+  ),
+  'moderator should see the pending membership request'
+);
+
+select pg_temp.assert_true(
+  (
+    select decision.status = 'rejected' and decision.accepted
+    from public.decide_social_group_membership(
+      (
+        select membership.id
+        from public.social_group_memberships membership
+        where membership.group_id = 'd3300000-0000-4000-8000-000000000003'
+          and membership.profile_id = 'd3000000-0000-4000-8000-000000000002'
+      ),
+      'rejected'
+    ) decision
+  ),
+  'moderator should reject a pending membership'
+);
+
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = 'd3bb2222-2222-4222-8222-222222222222';
+
+select pg_temp.assert_true(
+  (
+    select requested.status = 'pending' and requested.created
+    from public.request_social_group_membership('d3300000-0000-4000-8000-000000000003') requested
+  ),
+  'rejected applicant should be able to retry and return to pending'
+);
+
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = 'd3dd4444-4444-4444-8444-444444444444';
+
+select pg_temp.assert_true(
+  (
+    select decision.status = 'accepted' and decision.accepted
+    from public.decide_social_group_membership(
+      (
+        select membership.id
+        from public.social_group_memberships membership
+        where membership.group_id = 'd3300000-0000-4000-8000-000000000003'
+          and membership.profile_id = 'd3000000-0000-4000-8000-000000000002'
+      ),
+      'accepted'
+    ) decision
+  ),
+  'moderator should accept a retried pending membership'
+);
+
+select pg_temp.assert_true(
+  (
+    select not decision.accepted
+    from public.decide_social_group_membership(
+      (
+        select membership.id
+        from public.social_group_memberships membership
+        where membership.group_id = 'd3300000-0000-4000-8000-000000000003'
+          and membership.profile_id = 'd3000000-0000-4000-8000-000000000002'
+      ),
+      'accepted'
+    ) decision
+  ),
+  'duplicate moderator decision should not be applied twice'
+);
+
+select pg_temp.assert_true(
+  (
+    select social_group.member_count
+    from public.social_groups social_group
+    where social_group.id = 'd3300000-0000-4000-8000-000000000003'
+  ) = 19,
+  'member count should increase exactly once after acceptance'
+);
+
+select pg_temp.assert_true(
+  (
+    select array_agg(event.event_type order by event.created_at, event.event_type)
+    from public.social_group_membership_events event
+    where event.group_id = 'd3300000-0000-4000-8000-000000000003'
+      and event.profile_id = 'd3000000-0000-4000-8000-000000000002'
+  ) = array['requested', 'rejected', 're_requested', 'accepted'],
+  'membership workflow should retain its request and decision audit trail'
+);
+
+reset role;
 
 select 'day3_social_groups_broadcasts_passed' as result;
