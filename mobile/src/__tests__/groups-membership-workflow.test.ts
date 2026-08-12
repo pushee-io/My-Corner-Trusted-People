@@ -10,14 +10,14 @@ describe('Groups membership workflow', () => {
   it('moves a request through pending, rejection, retry, and acceptance', async () => {
     const repository = createGroupMembershipRepository('seeded');
 
-    const firstRequest = await repository.requestMembership('group-east-legon-schools');
+    const firstRequest = await repository.requestMembership('group-east-legon-repairs');
     expect(firstRequest).toMatchObject({ status: 'pending', created: true });
 
     const pending = await repository.listPendingMemberships();
-    const request = pending.find((item) => item.groupId === 'group-east-legon-schools');
+    const request = pending.find((item) => item.groupId === 'group-east-legon-repairs');
     expect(request).toMatchObject({
-      groupName: 'East Legon parents and schools',
-      applicantName: 'Akosua Mensah',
+      groupName: 'East Legon repair tips',
+      applicantName: 'New pilot resident',
       status: 'pending',
     });
 
@@ -29,7 +29,7 @@ describe('Groups membership workflow', () => {
       expect.objectContaining({ membershipId: request!.membershipId }),
     );
 
-    expect(await repository.requestMembership('group-east-legon-schools')).toMatchObject({
+    expect(await repository.requestMembership('group-east-legon-repairs')).toMatchObject({
       status: 'pending',
       created: true,
     });
@@ -42,7 +42,7 @@ describe('Groups membership workflow', () => {
       reason: 'not_pending',
     });
 
-    expect(await repository.requestMembership('group-east-legon-schools')).toMatchObject({
+    expect(await repository.requestMembership('group-east-legon-repairs')).toMatchObject({
       status: 'accepted',
       created: false,
     });
