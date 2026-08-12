@@ -1,9 +1,5 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
-import {
-  createPasswordRecoverySession,
-  requestPasswordReset,
-  updateRecoveredPassword,
-} from '../auth';
+import { createPasswordRecoverySession, requestPasswordReset, updateRecoveredPassword } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
@@ -83,9 +79,7 @@ describe('password recovery', () => {
   });
 
   it('rejects short passwords and does not pretend failed updates succeeded', async () => {
-    await expect(updateRecoveredPassword('short')).rejects.toThrow(
-      'Use at least 10 characters for your new password.',
-    );
+    await expect(updateRecoveredPassword('short')).rejects.toThrow('Use at least 10 characters for your new password.');
     expect(mockedSupabase.auth.updateUser).not.toHaveBeenCalled();
 
     mockedSupabase.auth.updateUser.mockResolvedValue({ error: new Error('provider detail') });
