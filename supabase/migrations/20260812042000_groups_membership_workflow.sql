@@ -9,7 +9,7 @@ create table if not exists public.social_group_membership_events (
   profile_id uuid not null references public.profiles(id) on delete cascade,
   actor_profile_id uuid not null references public.profiles(id) on delete restrict,
   event_type text not null check (event_type in ('requested', 're_requested', 'accepted', 'rejected')),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default clock_timestamp()
 );
 
 create index if not exists social_group_membership_events_membership_created_idx
