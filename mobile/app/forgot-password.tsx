@@ -20,9 +20,7 @@ export default function ForgotPasswordScreen() {
       await requestPasswordReset(email);
       setSubmitted(true);
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : 'We could not send recovery instructions.',
-      );
+      setError(caught instanceof Error ? caught.message : 'We could not send recovery instructions.');
     } finally {
       setSubmitting(false);
     }
