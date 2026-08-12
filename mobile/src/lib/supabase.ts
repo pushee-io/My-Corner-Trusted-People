@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, processLock } from '@supabase/supabase-js';
+import { AppState, Platform } from 'react-native';
 
 type SupabaseExtra = {
   supabaseUrl?: string;
@@ -36,8 +37,19 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       detectSessionInUrl: false,
+      lock: processLock,
       persistSession: true,
       storage: secureSessionStorage,
     },
   },
 );
+
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+}
