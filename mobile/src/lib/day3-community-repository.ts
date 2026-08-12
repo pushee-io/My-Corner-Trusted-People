@@ -72,18 +72,6 @@ const socialGroups: SocialGroup[] = [
     moderationStatus: 'clean',
   },
   {
-    id: 'group-east-legon-schools',
-    name: 'East Legon parents and schools',
-    description: 'Neighborhood group for school notices, activities, and parent recommendations.',
-    neighborhoodId: 'east-legon',
-    clusterId: 'accra-east',
-    visibility: 'verified_neighborhood_members',
-    memberCount: 12,
-    createdByProfileId: 'profile-ama',
-    createdAt: nowIso,
-    moderationStatus: 'clean',
-  },
-  {
     id: 'group-osu-traders',
     name: 'Osu local traders',
     description: 'Neighborhood group for Osu trader recommendations.',
