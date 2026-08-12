@@ -10,6 +10,9 @@ import type {
   SocialGroup,
   SocialGroupJoinRequestResult,
   SocialGroupMembership,
+  SocialGroupMembershipDecision,
+  SocialGroupMembershipDecisionResult,
+  SocialGroupMembershipRequest,
   SocialGroupMembershipStatus,
   SocialGroupPost,
   SocialGroupPostActionResult,
@@ -64,6 +67,18 @@ const socialGroups: SocialGroup[] = [
     clusterId: 'accra-east',
     visibility: 'immediate_cluster_members',
     memberCount: 71,
+    createdByProfileId: 'profile-ama',
+    createdAt: nowIso,
+    moderationStatus: 'clean',
+  },
+  {
+    id: 'group-east-legon-schools',
+    name: 'East Legon parents and schools',
+    description: 'Neighborhood group for school notices, activities, and parent recommendations.',
+    neighborhoodId: 'east-legon',
+    clusterId: 'accra-east',
+    visibility: 'verified_neighborhood_members',
+    memberCount: 12,
     createdByProfileId: 'profile-ama',
     createdAt: nowIso,
     moderationStatus: 'clean',
@@ -244,12 +259,27 @@ export function requestSocialGroupMembership(
 
   const existingStatus = getSocialGroupMembershipStatus(groupId, viewer.profileId);
 
-  if (existingStatus !== 'none') {
+  if (existingStatus === 'accepted' || existingStatus === 'pending') {
     return {
       groupId,
       profileId: viewer.profileId,
       status: existingStatus,
       created: false,
+    };
+  }
+
+  if (existingStatus === 'rejected' || existingStatus === 'removed') {
+    socialGroupMemberships = socialGroupMemberships.map((membership) =>
+      membership.groupId === groupId && membership.profileId === viewer.profileId
+        ? { ...membership, status: 'pending', joinedAt: undefined }
+        : membership,
+    );
+
+    return {
+      groupId,
+      profileId: viewer.profileId,
+      status: 'pending',
+      created: true,
     };
   }
 
@@ -269,6 +299,57 @@ export function requestSocialGroupMembership(
     status: 'pending',
     created: true,
   };
+}
+
+export function listPendingSocialGroupMemberships(
+  viewer: Day3NeighborhoodContext = moderatorDay5Context,
+): SocialGroupMembershipRequest[] {
+  if (!isDay5Moderator(viewer)) return [];
+
+  return socialGroupMemberships
+    .filter((membership) => membership.status === 'pending')
+    .map((membership) => ({
+      membershipId: membership.id,
+      groupId: membership.groupId,
+      groupName: socialGroups.find((group) => group.id === membership.groupId)?.name ?? 'Group unavailable',
+      profileId: membership.profileId,
+      applicantName: seededApplicantName(membership.profileId),
+      status: membership.status,
+      requestedAt: nowIso,
+    }));
+}
+
+export function applySocialGroupMembershipDecision(
+  membershipId: string,
+  viewer: Day3NeighborhoodContext,
+  decision: SocialGroupMembershipDecision,
+): SocialGroupMembershipDecisionResult {
+  if (!isDay5Moderator(viewer)) {
+    return { membershipId, accepted: false, reason: 'not_moderator' };
+  }
+
+  const membership = socialGroupMemberships.find((item) => item.id === membershipId);
+  if (!membership) {
+    return { membershipId, accepted: false, reason: 'membership_not_found' };
+  }
+
+  if (membership.status !== 'pending') {
+    return { membershipId, accepted: false, reason: 'not_pending' };
+  }
+
+  socialGroupMemberships = socialGroupMemberships.map((item) =>
+    item.id === membershipId
+      ? { ...item, status: decision, joinedAt: decision === 'accepted' ? new Date().toISOString() : undefined }
+      : item,
+  );
+
+  return { membershipId, status: decision, accepted: true };
+}
+
+function seededApplicantName(profileId: string): string {
+  if (profileId === 'profile-akosua') return 'Akosua Mensah';
+  if (profileId === 'profile-new-member') return 'New pilot resident';
+  return 'Verified resident';
 }
 
 export function listVisibleSocialGroups(viewer: Day3NeighborhoodContext): SocialGroup[] {
