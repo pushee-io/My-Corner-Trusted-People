@@ -2,6 +2,15 @@ import { readFileSync } from 'fs';
 import { resetDay3CommunityRepositoryForTests } from '@/lib/day3-community-repository';
 import { createGroupMembershipRepository } from '@/lib/group-membership-repository';
 
+jest.mock('@/lib/auth', () => ({
+  getCurrentProfile: jest.fn(),
+}));
+
+jest.mock('@/lib/supabase', () => ({
+  assertSupabaseConfigured: jest.fn(),
+  supabase: { rpc: jest.fn() },
+}));
+
 describe('Groups membership workflow', () => {
   afterEach(() => {
     resetDay3CommunityRepositoryForTests();
