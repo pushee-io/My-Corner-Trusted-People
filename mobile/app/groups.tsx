@@ -206,10 +206,7 @@ export default function GroupsScreen() {
                 accessibilityState={{ busy: requestingGroupId === section.group.id }}
                 disabled={Boolean(requestingGroupId)}
                 onPress={() => void requestJoin(section.group.id)}
-                style={[
-                  styles.secondaryButton,
-                  requestingGroupId === section.group.id ? styles.disabledButton : null,
-                ]}
+                style={[styles.secondaryButton, requestingGroupId === section.group.id ? styles.disabledButton : null]}
               >
                 <Text style={styles.secondaryButtonText}>
                   {requestingGroupId === section.group.id ? 'Sending request...' : 'Request to join'}
