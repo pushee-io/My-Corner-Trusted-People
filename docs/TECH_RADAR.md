@@ -5,7 +5,7 @@ Baseline commit: `61f69d4` (Events stabilization merged through PR #34)
 
 ## Policy
 
-The committed `mobile/package-lock.json` is the reproducible dependency authority for the current application. Versions below describe the merged baseline; they do not claim to be the newest upstream release. Current upstream release verification was attempted on 2026-08-02, but the review environment could not reach official documentation or the npm registry. Do not upgrade the Expo family one package at a time.
+The committed `mobile/package-lock.json` is the reproducible dependency authority for the current application. Versions below describe the merged baseline; they do not claim to be the newest upstream release. Official Expo Router and Supabase password-recovery guidance was rechecked on 2026-08-12. A complete latest-version registry audit was not performed, and no dependency upgrades are included in this slice. Do not upgrade the Expo family one package at a time.
 
 | Tool or dependency | Selected version | Release channel | Official source | Date verified | Purpose | Reason for selection | Known risks | Upgrade policy |
 |---|---:|---|---|---|---|---|---|---|
