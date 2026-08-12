@@ -1,4 +1,5 @@
 name: Build and Monitor EAS Preview APK
+# Founder-approved sign-out verification build: 2026-08-12
 
 on:
   workflow_dispatch:
