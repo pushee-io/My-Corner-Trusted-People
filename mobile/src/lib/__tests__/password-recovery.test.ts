@@ -1,5 +1,9 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
-import { createPasswordRecoverySession, requestPasswordReset, updateRecoveredPassword } from '../auth';
+import {
+  createPasswordRecoverySession,
+  requestPasswordReset,
+  updateRecoveredPassword,
+} from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
@@ -43,7 +47,9 @@ describe('password recovery', () => {
     await expect(requestPasswordReset('not-an-email')).rejects.toThrow('Enter a valid email address.');
     expect(mockedSupabase.auth.resetPasswordForEmail).not.toHaveBeenCalled();
 
-    mockedSupabase.auth.resetPasswordForEmail.mockResolvedValue({ error: new Error('account lookup detail') });
+    mockedSupabase.auth.resetPasswordForEmail.mockResolvedValue({
+      error: new Error('account lookup detail'),
+    });
     await expect(requestPasswordReset('pilot@example.com')).rejects.toThrow(
       'We could not send recovery instructions. Please try again later.',
     );
