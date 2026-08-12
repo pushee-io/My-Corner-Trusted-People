@@ -1,5 +1,5 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
-import { restoreSessionProfile } from '../auth';
+import { restoreSessionProfile, signOutFromDevice } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
@@ -7,6 +7,7 @@ jest.mock('@/lib/supabase', () => ({
     auth: {
       getSession: jest.fn(),
       getUser: jest.fn(),
+      signOut: jest.fn(),
     },
     from: jest.fn(),
   },
@@ -23,6 +24,7 @@ const mockedSupabase = supabase as unknown as {
   auth: {
     getSession: jest.Mock;
     getUser: jest.Mock;
+    signOut: jest.Mock;
   };
   from: jest.Mock;
 };
@@ -92,5 +94,21 @@ describe('session restoration', () => {
     });
 
     await expect(restoreSessionProfile()).rejects.toBe(storageError);
+  });
+
+  it('signs out only the current device session', async () => {
+    mockedSupabase.auth.signOut.mockResolvedValue({ error: null });
+
+    await expect(signOutFromDevice()).resolves.toBeUndefined();
+
+    expect(mockedAssertSupabaseConfigured).toHaveBeenCalledTimes(1);
+    expect(mockedSupabase.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+  });
+
+  it('reports sign-out failures so the app does not pretend the session was cleared', async () => {
+    const signOutError = new Error('secure storage unavailable');
+    mockedSupabase.auth.signOut.mockResolvedValue({ error: signOutError });
+
+    await expect(signOutFromDevice()).rejects.toBe(signOutError);
   });
 });
