@@ -20,7 +20,9 @@ export default function ForgotPasswordScreen() {
       await requestPasswordReset(email);
       setSubmitted(true);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'We could not send recovery instructions.');
+      setError(
+        caught instanceof Error ? caught.message : 'We could not send recovery instructions.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -32,8 +34,8 @@ export default function ForgotPasswordScreen() {
         <View accessibilityLiveRegion="polite" style={styles.success}>
           <Text style={styles.title}>Check your email</Text>
           <Text style={styles.text}>
-            If an account matches that address, My Corner sent a password recovery link. The link expires and can
-            only be used to reset access.
+            If an account matches that address, My Corner sent a password recovery link. The link expires and can only
+            be used to reset access.
           </Text>
           <Link href="/sign-in" asChild>
             <Pressable accessibilityRole="button" style={styles.secondaryButton}>
