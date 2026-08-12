@@ -1,9 +1,9 @@
 import { createClient, processLock } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
 
-const startAutoRefresh = jest.fn();
-const stopAutoRefresh = jest.fn();
-const addEventListener = jest.fn();
+const mockStartAutoRefresh = jest.fn();
+const mockStopAutoRefresh = jest.fn();
+const mockAddEventListener = jest.fn();
 
 jest.mock('expo-constants', () => ({
   __esModule: true,
@@ -19,15 +19,15 @@ jest.mock('expo-secure-store', () => ({
 jest.mock('@supabase/supabase-js', () => ({
   createClient: jest.fn(() => ({
     auth: {
-      startAutoRefresh,
-      stopAutoRefresh,
+      startAutoRefresh: mockStartAutoRefresh,
+      stopAutoRefresh: mockStopAutoRefresh,
     },
   })),
   processLock: jest.fn(),
 }));
 
 jest.mock('react-native', () => ({
-  AppState: { addEventListener },
+  AppState: { addEventListener: mockAddEventListener },
   Platform: { OS: 'android' },
 }));
 
@@ -79,12 +79,12 @@ describe('secure Supabase session storage', () => {
 
   it('refreshes tokens only while the native app is active', async () => {
     await import('../supabase');
-    const onAppStateChange = addEventListener.mock.calls[0]?.[1] as (state: string) => void;
+    const onAppStateChange = mockAddEventListener.mock.calls[0]?.[1] as (state: string) => void;
 
     onAppStateChange('active');
-    expect(startAutoRefresh).toHaveBeenCalledTimes(1);
+    expect(mockStartAutoRefresh).toHaveBeenCalledTimes(1);
 
     onAppStateChange('background');
-    expect(stopAutoRefresh).toHaveBeenCalledTimes(1);
+    expect(mockStopAutoRefresh).toHaveBeenCalledTimes(1);
   });
 });
