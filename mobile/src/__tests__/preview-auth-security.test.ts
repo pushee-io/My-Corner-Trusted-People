@@ -17,6 +17,16 @@ describe('preview authentication security', () => {
     expect(signIn).toContain("profile.role === 'provider' ? '/provider/requests' : '/neighborhood'");
   });
 
+  it('serializes mobile auth access and refreshes tokens with app state', () => {
+    const supabase = readFileSync('src/lib/supabase.ts', 'utf8');
+
+    expect(supabase).toContain('lock: processLock');
+    expect(supabase).toContain("state === 'active'");
+    expect(supabase).toContain('supabase.auth.startAutoRefresh()');
+    expect(supabase).toContain('supabase.auth.stopAutoRefresh()');
+    expect(supabase).toContain('storage: secureSessionStorage');
+  });
+
   it('pins EAS and binds internal builds to the preview environment', () => {
     const eas = JSON.parse(readFileSync('eas.json', 'utf8'));
 
