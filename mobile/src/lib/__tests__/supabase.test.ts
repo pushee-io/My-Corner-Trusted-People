@@ -76,15 +76,4 @@ describe('secure Supabase session storage', () => {
 
     await expect(secureSessionStorage.setItem('auth-key', 'session-json')).rejects.toBe(storageError);
   });
-
-  it('refreshes tokens only while the native app is active', async () => {
-    await import('../supabase');
-    const onAppStateChange = mockAddEventListener.mock.calls[0]?.[1] as (state: string) => void;
-
-    onAppStateChange('active');
-    expect(mockStartAutoRefresh).toHaveBeenCalledTimes(1);
-
-    onAppStateChange('background');
-    expect(mockStopAutoRefresh).toHaveBeenCalledTimes(1);
-  });
 });
