@@ -8,6 +8,7 @@ import {
   getCommunityActionsReadRepository,
   type SocialGroupScreenSection,
 } from '@/lib/community-actions-repository';
+import { getGroupMembershipRepository } from '@/lib/group-membership-repository';
 import { tokens } from '@/theme/tokens';
 
 function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
@@ -25,6 +26,7 @@ export default function GroupsScreen() {
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [requestingGroupId, setRequestingGroupId] = useState<string>();
 
   const refreshSections = useCallback(async (showLoading = false) => {
     if (showLoading) setIsLoading(true);
@@ -65,20 +67,30 @@ export default function GroupsScreen() {
     }, []),
   );
 
-  function requestJoin(groupId: string) {
-    const result = communityActionsRepository.requestSocialGroupMembership(groupId);
+  async function requestJoin(groupId: string) {
+    setRequestingGroupId(groupId);
+    setError(undefined);
 
-    if (result.created) {
-      setNotice('Join request sent for moderator review.');
-    } else if (result.status === 'accepted') {
-      setNotice('You are already a member of this group.');
-    } else if (result.status === 'pending') {
-      setNotice('Your join request is already pending.');
-    } else {
-      setNotice('This group is not available for your verified neighborhood.');
+    try {
+      const result = await getGroupMembershipRepository().requestMembership(groupId);
+
+      if (result.created) {
+        setNotice('Join request sent for moderator review.');
+      } else if (result.status === 'accepted') {
+        setNotice('You are already a member of this group.');
+      } else if (result.status === 'pending') {
+        setNotice('Your join request is already pending.');
+      } else {
+        setNotice('This group is not available for your verified neighborhood.');
+      }
+
+      await refreshSections();
+    } catch {
+      setNotice(undefined);
+      setError('Could not send your join request. Check your connection and try again.');
+    } finally {
+      setRequestingGroupId(undefined);
     }
-
-    void refreshSections();
   }
 
   function publishPost(groupId: string) {
@@ -189,8 +201,19 @@ export default function GroupsScreen() {
                 </Pressable>
               </View>
             ) : section.membershipStatus === 'none' ? (
-              <Pressable onPress={() => requestJoin(section.group.id)} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Request to join</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ busy: requestingGroupId === section.group.id }}
+                disabled={Boolean(requestingGroupId)}
+                onPress={() => void requestJoin(section.group.id)}
+                style={[
+                  styles.secondaryButton,
+                  requestingGroupId === section.group.id ? styles.disabledButton : null,
+                ]}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  {requestingGroupId === section.group.id ? 'Sending request...' : 'Request to join'}
+                </Text>
               </Pressable>
             ) : (
               <Text style={styles.meta}>Posting unlocks after membership is approved.</Text>
