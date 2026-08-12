@@ -1,5 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, processLock } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
+
+const startAutoRefresh = jest.fn();
+const stopAutoRefresh = jest.fn();
+const addEventListener = jest.fn();
 
 jest.mock('expo-constants', () => ({
   __esModule: true,
@@ -13,7 +17,18 @@ jest.mock('expo-secure-store', () => ({
 }));
 
 jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => ({})),
+  createClient: jest.fn(() => ({
+    auth: {
+      startAutoRefresh,
+      stopAutoRefresh,
+    },
+  })),
+  processLock: jest.fn(),
+}));
+
+jest.mock('react-native', () => ({
+  AppState: { addEventListener },
+  Platform: { OS: 'android' },
 }));
 
 const getItemAsync = jest.mocked(SecureStore.getItemAsync);
@@ -32,6 +47,7 @@ describe('secure Supabase session storage', () => {
       auth: {
         autoRefreshToken: true,
         detectSessionInUrl: false,
+        lock: processLock,
         persistSession: true,
         storage: secureSessionStorage,
       },
@@ -59,5 +75,16 @@ describe('secure Supabase session storage', () => {
     const { secureSessionStorage } = await import('../supabase');
 
     await expect(secureSessionStorage.setItem('auth-key', 'session-json')).rejects.toBe(storageError);
+  });
+
+  it('refreshes tokens only while the native app is active', async () => {
+    await import('../supabase');
+    const onAppStateChange = addEventListener.mock.calls[0]?.[1] as (state: string) => void;
+
+    onAppStateChange('active');
+    expect(startAutoRefresh).toHaveBeenCalledTimes(1);
+
+    onAppStateChange('background');
+    expect(stopAutoRefresh).toHaveBeenCalledTimes(1);
   });
 });
