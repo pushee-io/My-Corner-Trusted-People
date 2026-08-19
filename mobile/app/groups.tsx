@@ -24,10 +24,7 @@ function canRequestMembership(status: SocialGroupScreenSection['membershipStatus
   return status === 'none' || status === 'rejected' || status === 'removed';
 }
 
-function requestButtonLabel(
-  status: SocialGroupScreenSection['membershipStatus'],
-  isRequesting: boolean,
-) {
+function requestButtonLabel(status: SocialGroupScreenSection['membershipStatus'], isRequesting: boolean) {
   if (isRequesting) return 'Sending request...';
   return status === 'none' ? 'Request to join' : 'Request again';
 }
@@ -51,8 +48,7 @@ export default function GroupsScreen() {
         communityActionsRepository.mode === 'supabase'
           ? { ...defaultViewer, profileId: (await getCurrentProfile()).id }
           : defaultViewer;
-      const nextSections =
-        await getCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
+      const nextSections = await getCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
       setSections(nextSections);
     } catch {
       setError('Could not load groups. Try again later.');
@@ -209,10 +205,7 @@ export default function GroupsScreen() {
                 style={[styles.secondaryButton, requestingGroupId === section.group.id ? styles.disabledButton : null]}
               >
                 <Text style={styles.secondaryButtonText}>
-                  {requestButtonLabel(
-                    section.membershipStatus,
-                    requestingGroupId === section.group.id,
-                  )}
+                  {requestButtonLabel(section.membershipStatus, requestingGroupId === section.group.id)}
                 </Text>
               </Pressable>
             ) : (
