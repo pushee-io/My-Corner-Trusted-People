@@ -69,6 +69,10 @@ describe('Groups membership workflow', () => {
     expect(repositorySource).not.toContain('caught.message');
 
     expect(groupsSource).toContain('Sending request...');
+    expect(groupsSource).toContain('Request again');
+    expect(groupsSource).toContain('getCurrentProfile');
+    expect(groupsSource).toContain('profileId: (await getCurrentProfile()).id');
+    expect(groupsSource).toContain('Your request is waiting for moderator review.');
     expect(groupsSource).toContain('Could not send your join request.');
     expect(reviewSource).toContain('Membership approved.');
     expect(reviewSource).toContain('Membership request declined.');
@@ -79,5 +83,8 @@ describe('Groups membership workflow', () => {
     expect(migration).toContain('public.is_admin_or_moderator()');
     expect(migration).toContain('social_group_membership_events');
     expect(migration).toContain("membership_record.status <> 'pending'");
+    expect(migration).toContain("set search_path = ''");
+    expect(migration).toContain('revoke update on public.social_group_memberships from authenticated');
+    expect(migration).toContain('rls_social_group_memberships_own_or_moderator_read');
   });
 });
