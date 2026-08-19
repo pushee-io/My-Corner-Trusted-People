@@ -62,11 +62,14 @@ describe('Groups membership workflow', () => {
     const groupsSource = readFileSync('app/groups.tsx', 'utf8');
     const reviewSource = readFileSync('app/groups/membership-requests.tsx', 'utf8');
     const migration = readFileSync('../supabase/migrations/20260812042000_groups_membership_workflow.sql', 'utf8');
+    const easConfig = JSON.parse(readFileSync('eas.json', 'utf8'));
 
     expect(repositorySource).toContain("supabase.rpc('request_social_group_membership'");
     expect(repositorySource).toContain("supabase.rpc('list_pending_social_group_memberships'");
     expect(repositorySource).toContain("supabase.rpc('decide_social_group_membership'");
     expect(repositorySource).not.toContain('caught.message');
+
+    expect(easConfig.build.preview.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY).toBe('supabase');
 
     expect(groupsSource).toContain('Sending request...');
     expect(groupsSource).toContain('Request again');
