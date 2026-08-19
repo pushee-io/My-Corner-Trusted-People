@@ -20,6 +20,18 @@ function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
   return 'Not a member';
 }
 
+function canRequestMembership(status: SocialGroupScreenSection['membershipStatus']) {
+  return status === 'none' || status === 'rejected' || status === 'removed';
+}
+
+function requestButtonLabel(
+  status: SocialGroupScreenSection['membershipStatus'],
+  isRequesting: boolean,
+) {
+  if (isRequesting) return 'Sending request...';
+  return status === 'none' ? 'Request to join' : 'Request again';
+}
+
 export default function GroupsScreen() {
   const [sections, setSections] = useState<SocialGroupScreenSection[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -188,7 +200,7 @@ export default function GroupsScreen() {
                   <Text style={styles.buttonText}>Submit post</Text>
                 </Pressable>
               </View>
-            ) : ['none', 'rejected', 'removed'].includes(section.membershipStatus) ? (
+            ) : canRequestMembership(section.membershipStatus) ? (
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ busy: requestingGroupId === section.group.id }}
@@ -197,11 +209,10 @@ export default function GroupsScreen() {
                 style={[styles.secondaryButton, requestingGroupId === section.group.id ? styles.disabledButton : null]}
               >
                 <Text style={styles.secondaryButtonText}>
-                  {requestingGroupId === section.group.id
-                      ? 'Sending request...'
-                      : section.membershipStatus === 'none'
-                        ? 'Request to join'
-                        : 'Request again'}
+                  {requestButtonLabel(
+                    section.membershipStatus,
+                    requestingGroupId === section.group.id,
+                  )}
                 </Text>
               </Pressable>
             ) : (
