@@ -1,5 +1,5 @@
 name: Build and Monitor EAS Preview APK
-# Founder-approved Groups membership device verification build: 2026-08-19
+# Founder-approved live Groups replacement preview build: 2026-08-19
 
 on:
   workflow_dispatch:
@@ -19,11 +19,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PR_NUMBER: '41'
+  PR_NUMBER: '44'
 
 jobs:
   build-and-monitor:
-    if: ${{ false }}
+    if: ${{ true }}
     name: Build and monitor Android preview APK
     runs-on: ubuntu-latest
     timeout-minutes: 75
