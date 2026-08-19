@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { getCurrentProfile } from '@/lib/auth';
 import {
   communityActionsRepository,
   getCommunityActionsReadRepository,
@@ -33,7 +34,13 @@ export default function GroupsScreen() {
     setError(undefined);
 
     try {
-      const nextSections = await getCommunityActionsReadRepository().listSocialGroupScreenSections();
+      const defaultViewer = communityActionsRepository.defaultViewer;
+      const viewer =
+        communityActionsRepository.mode === 'supabase'
+          ? { ...defaultViewer, profileId: (await getCurrentProfile()).id }
+          : defaultViewer;
+      const nextSections =
+        await getCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
       setSections(nextSections);
     } catch {
       setError('Could not load groups. Try again later.');
@@ -44,27 +51,8 @@ export default function GroupsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-
-      setIsLoading(true);
-      setError(undefined);
-
-      getCommunityActionsReadRepository()
-        .listSocialGroupScreenSections()
-        .then((nextSections) => {
-          if (isActive) setSections(nextSections);
-        })
-        .catch(() => {
-          if (isActive) setError('Could not load groups. Try again later.');
-        })
-        .finally(() => {
-          if (isActive) setIsLoading(false);
-        });
-
-      return () => {
-        isActive = false;
-      };
-    }, []),
+      void refreshSections(true);
+    }, [refreshSections]),
   );
 
   async function requestJoin(groupId: string) {
@@ -200,7 +188,7 @@ export default function GroupsScreen() {
                   <Text style={styles.buttonText}>Submit post</Text>
                 </Pressable>
               </View>
-            ) : section.membershipStatus === 'none' ? (
+            ) : ['none', 'rejected', 'removed'].includes(section.membershipStatus) ? (
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ busy: requestingGroupId === section.group.id }}
@@ -209,11 +197,15 @@ export default function GroupsScreen() {
                 style={[styles.secondaryButton, requestingGroupId === section.group.id ? styles.disabledButton : null]}
               >
                 <Text style={styles.secondaryButtonText}>
-                  {requestingGroupId === section.group.id ? 'Sending request...' : 'Request to join'}
+                  {requestingGroupId === section.group.id
+                      ? 'Sending request...'
+                      : section.membershipStatus === 'none'
+                        ? 'Request to join'
+                        : 'Request again'}
                 </Text>
               </Pressable>
             ) : (
-              <Text style={styles.meta}>Posting unlocks after membership is approved.</Text>
+              <Text style={styles.meta}>Your request is waiting for moderator review.</Text>
             )}
 
             <View style={styles.posts}>
