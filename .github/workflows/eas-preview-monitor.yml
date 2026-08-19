@@ -1,11 +1,11 @@
 name: Build and Monitor EAS Preview APK
-# Founder-approved sign-out verification build: 2026-08-12
+# Founder-approved password-reset device verification build: 2026-08-12
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - feat/eas-preview-readiness
+      - main
     paths:
       - '.github/workflows/eas-preview-monitor.yml'
 
@@ -16,13 +16,14 @@ permissions:
 
 concurrency:
   group: eas-preview-atomic
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
-  PR_NUMBER: '38'
+  PR_NUMBER: '40'
 
 jobs:
   build-and-monitor:
+    if: ${{ false }}
     name: Build and monitor Android preview APK
     runs-on: ubuntu-latest
     timeout-minutes: 75
