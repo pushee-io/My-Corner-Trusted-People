@@ -206,11 +206,18 @@ export default function CommunityFeedScreen() {
                 : 'Live updates paused'}
           </Text>
         </View>
-        <Link href="/community/moderation" asChild>
-          <Pressable style={styles.queueButton}>
-            <Text style={styles.queueText}>Moderation queue</Text>
-          </Pressable>
-        </Link>
+        <View style={styles.queueLinks}>
+          <Link href="/groups/membership-requests" asChild>
+            <Pressable accessibilityRole="button" style={styles.queueButton}>
+              <Text style={styles.queueText}>Membership requests</Text>
+            </Pressable>
+          </Link>
+          <Link href="/community/moderation" asChild>
+            <Pressable accessibilityRole="button" style={styles.queueButton}>
+              <Text style={styles.queueText}>Content reports</Text>
+            </Pressable>
+          </Link>
+        </View>
       </View>
       {error ? <EmptyState title="Feed notice" body={error} /> : null}
 
@@ -349,6 +356,7 @@ const styles = StyleSheet.create({
   liveStatus: { backgroundColor: '#EEF7F4', borderColor: tokens.color.success },
   pausedDot: { backgroundColor: tokens.color.error },
   pausedStatus: { backgroundColor: '#FDECEC', borderColor: tokens.color.error },
+  queueLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
   queueButton: {
     borderColor: tokens.color.primary,
     borderRadius: tokens.radius.pill,

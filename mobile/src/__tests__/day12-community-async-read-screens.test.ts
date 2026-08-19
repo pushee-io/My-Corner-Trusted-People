@@ -34,7 +34,7 @@ describe('Day 12 async community read screens', () => {
       const source = readFileSync(screen.path, 'utf8');
 
       expect(source).toContain('getCommunityActionsReadRepository');
-      expect(source).toContain(`.${screen.readMethod}()`);
+      expect(source).toContain(`.${screen.readMethod}(`);
       expect(source).toContain('useFocusEffect');
       expect(source).toContain('useCallback');
       expect(source).not.toContain('@/lib/day3-community-repository');
@@ -61,7 +61,7 @@ describe('Day 12 async community read screens', () => {
     const agencyBroadcastsSource = readFileSync('app/agency-broadcasts.tsx', 'utf8');
     const moderationSource = readFileSync('app/community/moderation.tsx', 'utf8');
 
-    expect(groupsSource).toContain('communityActionsRepository.requestSocialGroupMembership');
+    expect(groupsSource).toContain('getGroupMembershipRepository().requestMembership');
     expect(groupsSource).toContain('communityActionsRepository.createSocialGroupPost');
     expect(groupsSource).toContain('communityActionsRepository.reportSocialGroupPost');
     expect(agencyBroadcastsSource).toContain('communityActionsRepository.reportAgencyBroadcast');

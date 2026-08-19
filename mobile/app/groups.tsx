@@ -3,11 +3,13 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { getCurrentProfile } from '@/lib/auth';
 import {
   communityActionsRepository,
   getCommunityActionsReadRepository,
   type SocialGroupScreenSection,
 } from '@/lib/community-actions-repository';
+import { getGroupMembershipRepository } from '@/lib/group-membership-repository';
 import { tokens } from '@/theme/tokens';
 
 function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
@@ -18,6 +20,15 @@ function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
   return 'Not a member';
 }
 
+function canRequestMembership(status: SocialGroupScreenSection['membershipStatus']) {
+  return status === 'none' || status === 'rejected' || status === 'removed';
+}
+
+function requestButtonLabel(status: SocialGroupScreenSection['membershipStatus'], isRequesting: boolean) {
+  if (isRequesting) return 'Sending request...';
+  return status === 'none' ? 'Request to join' : 'Request again';
+}
+
 export default function GroupsScreen() {
   const [sections, setSections] = useState<SocialGroupScreenSection[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -25,13 +36,19 @@ export default function GroupsScreen() {
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [requestingGroupId, setRequestingGroupId] = useState<string>();
 
   const refreshSections = useCallback(async (showLoading = false) => {
     if (showLoading) setIsLoading(true);
     setError(undefined);
 
     try {
-      const nextSections = await getCommunityActionsReadRepository().listSocialGroupScreenSections();
+      const defaultViewer = communityActionsRepository.defaultViewer;
+      const viewer =
+        communityActionsRepository.mode === 'supabase'
+          ? { ...defaultViewer, profileId: (await getCurrentProfile()).id }
+          : defaultViewer;
+      const nextSections = await getCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
       setSections(nextSections);
     } catch {
       setError('Could not load groups. Try again later.');
@@ -42,43 +59,34 @@ export default function GroupsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-
-      setIsLoading(true);
-      setError(undefined);
-
-      getCommunityActionsReadRepository()
-        .listSocialGroupScreenSections()
-        .then((nextSections) => {
-          if (isActive) setSections(nextSections);
-        })
-        .catch(() => {
-          if (isActive) setError('Could not load groups. Try again later.');
-        })
-        .finally(() => {
-          if (isActive) setIsLoading(false);
-        });
-
-      return () => {
-        isActive = false;
-      };
-    }, []),
+      void refreshSections(true);
+    }, [refreshSections]),
   );
 
-  function requestJoin(groupId: string) {
-    const result = communityActionsRepository.requestSocialGroupMembership(groupId);
+  async function requestJoin(groupId: string) {
+    setRequestingGroupId(groupId);
+    setError(undefined);
 
-    if (result.created) {
-      setNotice('Join request sent for moderator review.');
-    } else if (result.status === 'accepted') {
-      setNotice('You are already a member of this group.');
-    } else if (result.status === 'pending') {
-      setNotice('Your join request is already pending.');
-    } else {
-      setNotice('This group is not available for your verified neighborhood.');
+    try {
+      const result = await getGroupMembershipRepository().requestMembership(groupId);
+
+      if (result.created) {
+        setNotice('Join request sent for moderator review.');
+      } else if (result.status === 'accepted') {
+        setNotice('You are already a member of this group.');
+      } else if (result.status === 'pending') {
+        setNotice('Your join request is already pending.');
+      } else {
+        setNotice('This group is not available for your verified neighborhood.');
+      }
+
+      await refreshSections();
+    } catch {
+      setNotice(undefined);
+      setError('Could not send your join request. Check your connection and try again.');
+    } finally {
+      setRequestingGroupId(undefined);
     }
-
-    void refreshSections();
   }
 
   function publishPost(groupId: string) {
@@ -188,12 +196,20 @@ export default function GroupsScreen() {
                   <Text style={styles.buttonText}>Submit post</Text>
                 </Pressable>
               </View>
-            ) : section.membershipStatus === 'none' ? (
-              <Pressable onPress={() => requestJoin(section.group.id)} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Request to join</Text>
+            ) : canRequestMembership(section.membershipStatus) ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ busy: requestingGroupId === section.group.id }}
+                disabled={Boolean(requestingGroupId)}
+                onPress={() => void requestJoin(section.group.id)}
+                style={[styles.secondaryButton, requestingGroupId === section.group.id ? styles.disabledButton : null]}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  {requestButtonLabel(section.membershipStatus, requestingGroupId === section.group.id)}
+                </Text>
               </Pressable>
             ) : (
-              <Text style={styles.meta}>Posting unlocks after membership is approved.</Text>
+              <Text style={styles.meta}>Your request is waiting for moderator review.</Text>
             )}
 
             <View style={styles.posts}>
