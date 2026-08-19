@@ -39,7 +39,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   actor_profile_id uuid;
@@ -132,7 +132,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 begin
   if not public.is_admin_or_moderator() then
@@ -167,7 +167,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   actor_profile_id uuid;
@@ -231,9 +231,29 @@ begin
 end;
 $$;
 
-revoke all on function public.request_social_group_membership(uuid) from public;
-revoke all on function public.list_pending_social_group_memberships() from public;
-revoke all on function public.decide_social_group_membership(uuid, public.social_group_membership_status) from public;
+-- Membership decisions must pass through the audited RPC above.
+drop policy if exists "rls_social_group_memberships_admin_manage"
+  on public.social_group_memberships;
+revoke update on public.social_group_memberships from authenticated;
+
+-- Applicants can read their own state; only moderators and administrators can inspect applications.
+drop policy if exists "rls_social_group_memberships_own_or_group_read"
+  on public.social_group_memberships;
+drop policy if exists "rls_social_group_memberships_own_or_moderator_read"
+  on public.social_group_memberships;
+
+create policy "rls_social_group_memberships_own_or_moderator_read"
+  on public.social_group_memberships
+  for select
+  to authenticated
+  using (
+    profile_id = public.current_profile_id()
+    or public.is_admin_or_moderator()
+  );
+
+revoke all on function public.request_social_group_membership(uuid) from public, anon;
+revoke all on function public.list_pending_social_group_memberships() from public, anon;
+revoke all on function public.decide_social_group_membership(uuid, public.social_group_membership_status) from public, anon;
 
 grant execute on function public.request_social_group_membership(uuid) to authenticated;
 grant execute on function public.list_pending_social_group_memberships() to authenticated;
