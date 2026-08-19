@@ -11,7 +11,8 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_ENV": "preview"
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY": "supabase"
       },
       "environment": "preview"
     },
