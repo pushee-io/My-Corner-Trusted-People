@@ -34,7 +34,7 @@ describe('Day 12 async community read screens', () => {
       const source = readFileSync(screen.path, 'utf8');
 
       expect(source).toContain('getCommunityActionsReadRepository');
-      expect(source).toContain(`.${screen.readMethod}()`);
+      expect(source).toContain(`.${screen.readMethod}(`);
       expect(source).toContain('useFocusEffect');
       expect(source).toContain('useCallback');
       expect(source).not.toContain('@/lib/day3-community-repository');
