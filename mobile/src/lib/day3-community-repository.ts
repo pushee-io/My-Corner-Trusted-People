@@ -2,6 +2,8 @@ import type {
   AgencyBroadcast,
   CommunityReport,
   CommunityReportResult,
+  CreateSocialGroupInput,
+  CreateSocialGroupResult,
   CreateSocialGroupPostInput,
   Day3NeighborhoodContext,
   Day5ModerationActionResult,
@@ -46,7 +48,7 @@ type Day5ModerationDecisionRecord = {
   decision: Day5ModerationDecision;
 };
 
-const socialGroups: SocialGroup[] = [
+const initialSocialGroups: SocialGroup[] = [
   {
     id: 'group-east-legon-repairs',
     name: 'East Legon repair tips',
@@ -67,6 +69,18 @@ const socialGroups: SocialGroup[] = [
     clusterId: 'accra-east',
     visibility: 'immediate_cluster_members',
     memberCount: 71,
+    createdByProfileId: 'profile-ama',
+    createdAt: nowIso,
+    moderationStatus: 'clean',
+  },
+  {
+    id: 'group-east-legon-schools',
+    name: 'East Legon parents and schools',
+    description: 'School notices, activities, and parent recommendations for verified neighbors.',
+    neighborhoodId: 'east-legon',
+    clusterId: 'accra-east',
+    visibility: 'verified_neighborhood_members',
+    memberCount: 12,
     createdByProfileId: 'profile-ama',
     createdAt: nowIso,
     moderationStatus: 'clean',
@@ -96,6 +110,8 @@ const socialGroups: SocialGroup[] = [
     moderationStatus: 'blocked',
   },
 ];
+
+let socialGroups = [...initialSocialGroups];
 
 const initialSocialGroupMemberships: SocialGroupMembership[] = [
   {
@@ -338,6 +354,45 @@ function seededApplicantName(profileId: string): string {
   if (profileId === 'profile-akosua') return 'Akosua Mensah';
   if (profileId === 'profile-new-member') return 'New pilot resident';
   return 'Verified resident';
+}
+
+export function createSocialGroup(
+  input: CreateSocialGroupInput,
+  viewer: Day3NeighborhoodContext = defaultDay3NeighborhoodContext,
+): CreateSocialGroupResult {
+  const name = input.name.trim();
+  const description = input.description.trim();
+
+  if (!viewer.isVerifiedNeighborhoodMember) return { accepted: false, reason: 'not_verified' };
+  if (name.length < 3 || name.length > 80) return { accepted: false, reason: 'invalid_name' };
+  if (description.length < 1 || description.length > 500) {
+    return { accepted: false, reason: 'invalid_description' };
+  }
+
+  const group: SocialGroup = {
+    id: `group-created-${socialGroups.length + 1}`,
+    name,
+    description,
+    neighborhoodId: viewer.neighborhoodId,
+    clusterId: viewer.clusterId,
+    visibility: input.visibility,
+    memberCount: 1,
+    createdByProfileId: viewer.profileId,
+    createdAt: new Date().toISOString(),
+    moderationStatus: 'not_run',
+  };
+
+  socialGroups.unshift(group);
+  socialGroupMemberships.push({
+    id: `membership-${group.id}-${viewer.profileId}`,
+    groupId: group.id,
+    profileId: viewer.profileId,
+    role: 'owner',
+    status: 'accepted',
+    joinedAt: group.createdAt,
+  });
+
+  return { group, accepted: true };
 }
 
 export function listVisibleSocialGroups(viewer: Day3NeighborhoodContext): SocialGroup[] {
@@ -649,6 +704,7 @@ export function getAgencyBroadcastScreenItems(
 }
 
 export function resetDay3CommunityRepositoryForTests() {
+  socialGroups = [...initialSocialGroups];
   socialGroupMemberships = [...initialSocialGroupMemberships];
   socialGroupPosts = [...initialSocialGroupPosts];
   agencyBroadcasts = [...initialAgencyBroadcasts];

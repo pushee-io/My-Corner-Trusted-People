@@ -118,6 +118,7 @@ describe('Day 3 social groups and agency broadcasts', () => {
     expect(listVisibleSocialGroups(eastLegonViewer).map((group) => group.id)).toEqual([
       'group-east-legon-repairs',
       'group-accra-east-water',
+      'group-east-legon-schools',
     ]);
   });
 
