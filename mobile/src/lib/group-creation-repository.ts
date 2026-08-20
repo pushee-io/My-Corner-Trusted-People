@@ -1,5 +1,8 @@
 import { getCurrentProfile } from '@/lib/auth';
-import { createSocialGroup, defaultDay3NeighborhoodContext } from '@/lib/day3-community-repository';
+import {
+  createSocialGroup,
+  defaultDay3NeighborhoodContext,
+} from '@/lib/day3-community-repository';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { CreateSocialGroupInput, SocialGroup } from '@/types/day3';
 
@@ -40,7 +43,9 @@ const supabaseRepository: GroupCreationRepository = {
       target_visibility: input.visibility,
     });
 
-    if (error) throw new Error('Could not create the group. Check your verified neighborhood and try again.');
+    if (error) {
+      throw new Error('Could not create the group. Check your verified neighborhood and try again.');
+    }
     const row = (Array.isArray(data) ? data[0] : data) as CreateGroupRpcRow | undefined;
     if (!row) throw new Error('Could not confirm the new group. Try again.');
 
