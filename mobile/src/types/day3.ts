@@ -150,6 +150,25 @@ export type SocialGroupMembership = {
   joinedAt?: string;
 };
 
+export type SocialGroupMembershipDecision = 'accepted' | 'rejected';
+
+export type SocialGroupMembershipRequest = {
+  membershipId: string;
+  groupId: string;
+  groupName: string;
+  profileId: string;
+  applicantName: string;
+  status: Exclude<SocialGroupMembershipStatus, 'none'>;
+  requestedAt: string;
+};
+
+export type SocialGroupMembershipDecisionResult = {
+  membershipId: string;
+  status?: SocialGroupMembershipDecision;
+  accepted: boolean;
+  reason?: 'membership_not_found' | 'not_pending' | 'not_moderator';
+};
+
 export type SocialGroupPost = {
   id: string;
   groupId: string;

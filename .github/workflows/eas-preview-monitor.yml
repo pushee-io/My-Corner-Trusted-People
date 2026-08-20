@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feat/eas-preview-readiness
+      - main
     paths:
       - '.github/workflows/eas-preview-monitor.yml'
 
@@ -16,13 +16,14 @@ permissions:
 
 concurrency:
   group: eas-preview-atomic
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   PR_NUMBER: '40'
 
 jobs:
   build-and-monitor:
+    if: ${{ false }}
     name: Build and monitor Android preview APK
     runs-on: ubuntu-latest
     timeout-minutes: 75
