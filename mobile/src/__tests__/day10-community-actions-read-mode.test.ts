@@ -126,7 +126,11 @@ describe('Day 10 community actions read mode integration', () => {
 
     const sections = await createCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
 
-    expect(sections.map((section) => section.group.id)).toEqual(['group-east-legon-repairs', 'group-accra-east-water', 'group-east-legon-schools']);
+    expect(sections.map((section) => section.group.id)).toEqual([
+      'group-east-legon-repairs',
+      'group-accra-east-water',
+      'group-east-legon-schools',
+    ]);
   });
 
   it('falls back to seeded reads when Supabase mode has no read client', async () => {
