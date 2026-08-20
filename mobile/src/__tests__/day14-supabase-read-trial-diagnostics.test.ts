@@ -47,7 +47,7 @@ describe('Day 14 Supabase read trial diagnostics', () => {
       label: 'Community reads: seeded',
     });
 
-    await expect(repository.listSocialGroupScreenSections()).resolves.toHaveLength(2);
+    await expect(repository.listSocialGroupScreenSections()).resolves.toHaveLength(3);
   });
 
   it('shows Supabase as active when a read client is available', async () => {
