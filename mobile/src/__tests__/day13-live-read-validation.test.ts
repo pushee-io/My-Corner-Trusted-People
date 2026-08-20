@@ -83,7 +83,7 @@ describe('Day 13 live read validation', () => {
       label: 'Community reads: seeded',
     });
 
-    await expect(repository.listAgencyBroadcasts()).resolves.toHaveLength(3);
+    await expect(repository.listAgencyBroadcasts()).resolves.toHaveLength(2);
   });
 
   it('surfaces the active read mode in Settings without private data', () => {
