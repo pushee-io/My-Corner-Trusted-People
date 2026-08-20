@@ -55,7 +55,7 @@ export default function CreateGroupScreen() {
       <Text style={styles.counter}>{description.length}/500</Text>
 
       <Text style={styles.label}>Who can discover this group?</Text>
-      <View accessibilityRole="radiogroup" style={styles.options}>
+      <View accessibilityLabel="Group visibility" style={styles.options}>
         <Pressable
           accessibilityRole="radio"
           accessibilityState={{ checked: visibility === 'verified_neighborhood_members' }}
@@ -79,10 +79,16 @@ export default function CreateGroupScreen() {
       </View>
 
       <View style={styles.safety}>
-        <Text style={styles.safetyText}>Do not include exact home addresses, private contact details, or children's personal information.</Text>
+        <Text style={styles.safetyText}>
+          Do not include exact home addresses, private contact details, or children's personal information.
+        </Text>
       </View>
 
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
 
       <Pressable
         accessibilityRole="button"
