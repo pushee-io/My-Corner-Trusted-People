@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -151,6 +151,20 @@ export default function GroupsScreen() {
 
   return (
     <Screen title="Groups">
+      <View style={styles.actionRow}>
+        <Link href="/groups/new" asChild>
+          <Pressable accessibilityRole="button" style={styles.createButton}>
+            <Text style={styles.createButtonText}>Create group</Text>
+          </Pressable>
+        </Link>
+        <Link href="/groups/membership-requests" asChild>
+          <Pressable accessibilityRole="button" style={styles.reviewButton}>
+            <Text style={styles.reviewButtonText}>Review membership requests</Text>
+          </Pressable>
+        </Link>
+      </View>
+      <Text style={styles.helper}>Request to join appears on groups where you are not already a member.</Text>
+
       {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
       {sections.length === 0 ? (
@@ -238,6 +252,26 @@ export default function GroupsScreen() {
 }
 
 const styles = StyleSheet.create({
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
+  createButton: {
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.lg,
+  },
+  createButtonText: { color: '#FFFFFF', fontWeight: '700', textAlign: 'center' },
+  helper: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
+  reviewButton: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.lg,
+  },
+  reviewButtonText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   button: {
     backgroundColor: tokens.color.primary,
