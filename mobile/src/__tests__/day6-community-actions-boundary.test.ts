@@ -8,7 +8,11 @@ describe('Day 6 community actions repository boundary', () => {
   it('keeps groups screen data behind a repository boundary', () => {
     const sections = communityActionsRepository.getSocialGroupScreenSections();
 
-    expect(sections.map((section) => section.group.id)).toEqual(['group-east-legon-repairs', 'group-accra-east-water', 'group-east-legon-schools']);
+    expect(sections.map((section) => section.group.id)).toEqual([
+      'group-east-legon-repairs',
+      'group-accra-east-water',
+      'group-east-legon-schools',
+    ]);
     expect(sections.flatMap((section) => section.posts).every((post) => post.moderationStatus !== 'blocked')).toBe(
       true,
     );
