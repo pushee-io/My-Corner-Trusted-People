@@ -80,7 +80,7 @@ export default function CreateGroupScreen() {
 
       <View style={styles.safety}>
         <Text style={styles.safetyText}>
-          Do not include exact home addresses, private contact details, or children's personal information.
+          Do not include exact home addresses, private contact details, or children&apos;s personal information.
         </Text>
       </View>
 
