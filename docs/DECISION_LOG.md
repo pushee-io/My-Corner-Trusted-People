@@ -1,5 +1,12 @@
 # Decision Log
 
+## 2026-08-21 - Prepare Events for development activation only
+
+Decision: Provision the `events` database flag as disabled, then enable it explicitly in development only after mobile and database checks pass.
+Reason: The authenticated Supabase runtime and RLS boundary are implemented, but feature availability must remain independently reversible in every environment.
+Experience: Replace internal readiness language with a user-safe unavailable state and retry action, and expose RLS-authorized comments on event details.
+Production: Staging and production remain disabled until separate approval and release evidence exist.
+
 ## 2026-08-20 - Separate Groups discovery from participation
 
 Decision: Keep `/groups` as a concise directory and move posts, comments, likes, sharing, and reporting to `/groups/[groupId]`.
