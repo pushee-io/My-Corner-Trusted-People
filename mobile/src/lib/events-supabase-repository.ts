@@ -28,6 +28,7 @@ import type {
 const eventColumns =
   'id, neighborhood_id, cluster_id, organizer_profile_id, organizer_display_name, title, description, cover_image_path, starts_at, ends_at, timezone, location_type, venue_name, area_label, public_meetup_point, visibility, status, moderation_status, capacity, attendee_count, comments_enabled, created_at, updated_at';
 const rsvpColumns = 'id, event_id, profile_id, attendee_display_name, status, created_at, updated_at';
+const commentColumns = 'id, event_id, author_profile_id, author_display_name, body, moderation_status, created_at';
 
 async function readEvent(eventId: string): Promise<Event> {
   const { data, error } = await supabase.from('events').select(eventColumns).eq('id', eventId).single();
@@ -52,6 +53,16 @@ type EventInvitationRow = {
   invitee_profile_id: string;
   status: EventInvitation['status'];
   expires_at: string;
+  created_at: string;
+};
+
+type EventCommentRow = {
+  id: string;
+  event_id: string;
+  author_profile_id: string;
+  author_display_name: string;
+  body: string;
+  moderation_status: EventComment['moderationStatus'];
   created_at: string;
 };
 
@@ -119,6 +130,18 @@ function mapInvitation(row: EventInvitationRow): EventInvitation {
   };
 }
 
+function mapComment(row: EventCommentRow): EventComment {
+  return {
+    id: row.id,
+    eventId: row.event_id,
+    authorProfileId: row.author_profile_id,
+    authorDisplayName: row.author_display_name,
+    body: row.body,
+    moderationStatus: row.moderation_status,
+    createdAt: row.created_at,
+  };
+}
+
 export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository {
   assertSupabaseConfigured();
   const core = createSupabaseEventsRepository();
@@ -140,7 +163,7 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
       if (error) throw error;
       if (!data) return null;
 
-      const [rsvpResult, interestResult, privateResult, organizerResult] = await Promise.all([
+      const [rsvpResult, interestResult, privateResult, organizerResult, commentsResult] = await Promise.all([
         supabase
           .from('event_rsvps')
           .select('status')
@@ -160,21 +183,26 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
           .eq('event_id', eventId)
           .eq('profile_id', context.profileId)
           .maybeSingle(),
+        supabase.from('event_comments').select(commentColumns).eq('event_id', eventId).order('created_at'),
       ]);
       if (rsvpResult.error) throw rsvpResult.error;
       if (interestResult.error) throw interestResult.error;
       if (privateResult.error) throw privateResult.error;
       if (organizerResult.error) throw organizerResult.error;
+      if (commentsResult.error) throw commentsResult.error;
       const privateAccess = (privateResult.data as { precise_address?: string; virtual_link?: string }[] | null)?.[0];
       const rsvpStatus = rsvpResult.data?.status === 'going' ? ('going' as const) : undefined;
 
-      return fromEventRuntimeRow(data as EventRow, {
-        currentUserRsvpStatus: rsvpStatus,
-        currentUserInterestStatus: interestResult.data?.status,
-        preciseLocation: privateAccess?.precise_address,
-        virtualLink: privateAccess?.virtual_link,
-        currentUserOrganizerRole: organizerResult.data?.role,
-      });
+      return {
+        ...fromEventRuntimeRow(data as EventRow, {
+          currentUserRsvpStatus: rsvpStatus,
+          currentUserInterestStatus: interestResult.data?.status,
+          preciseLocation: privateAccess?.precise_address,
+          virtualLink: privateAccess?.virtual_link,
+          currentUserOrganizerRole: organizerResult.data?.role,
+        }),
+        comments: ((commentsResult.data ?? []) as EventCommentRow[]).map(mapComment),
+      };
     });
   }
 
@@ -311,15 +339,7 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
           .select('id,event_id,author_profile_id,author_display_name,body,moderation_status,created_at')
           .single();
         if (error) throw error;
-        return {
-          id: data.id,
-          eventId: data.event_id,
-          authorProfileId: data.author_profile_id,
-          authorDisplayName: data.author_display_name,
-          body: data.body,
-          moderationStatus: data.moderation_status,
-          createdAt: data.created_at,
-        } as EventComment;
+        return mapComment(data as EventCommentRow);
       });
     },
     async report(eventId, reason) {

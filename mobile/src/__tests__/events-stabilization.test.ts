@@ -52,5 +52,27 @@ describe('Events stabilization gates', () => {
     const source = readFileSync('../scripts/db-smoke-test.sh', 'utf8');
     expect(source).toContain('supabase/tests/events_rls_smoke.sql');
     expect(source).toContain('supabase/tests/events_stabilization_rls.sql');
+    expect(source).toContain('supabase/tests/events_feature_flag_smoke.sql');
+  });
+
+  it('provisions the server switch without automatically activating Events', () => {
+    const source = readFileSync('../supabase/migrations/20260821180000_provision_events_feature_flag.sql', 'utf8');
+    expect(source).toContain("'events'");
+    expect(source).toContain('false');
+    expect(source).not.toMatch(/set\s+enabled\s*=\s*true/i);
+  });
+
+  it('keeps disabled-state copy user-safe and offers a retry', () => {
+    const source = readFileSync('src/components/events/EventsFeatureGate.tsx', 'utf8');
+    expect(source).toContain('Try again');
+    expect(source).not.toContain('verification and safety checks');
+  });
+
+  it('loads and posts RLS-authorized comments from the event detail route', () => {
+    const repository = readFileSync('src/lib/events-supabase-repository.ts', 'utf8');
+    const detail = readFileSync('app/events/[eventId].tsx', 'utf8');
+    expect(repository).toContain("from('event_comments')");
+    expect(detail).toContain('eventsRuntimeRepository.addComment');
+    expect(detail).toContain('event.comments.map');
   });
 });
