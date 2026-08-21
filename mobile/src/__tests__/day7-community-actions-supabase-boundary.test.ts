@@ -114,7 +114,7 @@ describe('Day 7 community actions Supabase boundary', () => {
   });
 
   it('keeps community action screens dependent on the repository boundary only', () => {
-    const screenPaths = ['app/groups.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
+    const screenPaths = ['app/groups/index.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
 
     for (const path of screenPaths) {
       const source = readFileSync(path, 'utf8');

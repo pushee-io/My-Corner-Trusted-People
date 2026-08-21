@@ -59,7 +59,7 @@ describe('Groups membership workflow', () => {
 
   it('keeps live membership actions behind authenticated RPCs and safe UI errors', () => {
     const repositorySource = readFileSync('src/lib/group-membership-repository.ts', 'utf8');
-    const groupsSource = readFileSync('app/groups.tsx', 'utf8');
+    const groupsSource = readFileSync('app/groups/index.tsx', 'utf8');
     const reviewSource = readFileSync('app/groups/membership-requests.tsx', 'utf8');
     const migration = readFileSync('../supabase/migrations/20260812042000_groups_membership_workflow.sql', 'utf8');
 
