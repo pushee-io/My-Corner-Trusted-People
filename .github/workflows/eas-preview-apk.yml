@@ -29,15 +29,15 @@ jobs:
         working-directory: mobile
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Publish submission pending
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           payload="$(jq -n             --arg state pending             --arg context eas-preview-submit             --arg description "Submitting Android preview APK to EAS"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
           curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
-
-      - name: Check out repository
-        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
