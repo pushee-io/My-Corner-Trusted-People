@@ -126,7 +126,11 @@ describe('Day 10 community actions read mode integration', () => {
 
     const sections = await createCommunityActionsReadRepository().listSocialGroupScreenSections(viewer);
 
-    expect(sections.map((section) => section.group.id)).toEqual(['group-east-legon-repairs', 'group-accra-east-water']);
+    expect(sections.map((section) => section.group.id)).toEqual([
+      'group-east-legon-repairs',
+      'group-accra-east-water',
+      'group-east-legon-schools',
+    ]);
   });
 
   it('falls back to seeded reads when Supabase mode has no read client', async () => {
@@ -189,7 +193,7 @@ describe('Day 10 community actions read mode integration', () => {
   });
 
   it('keeps screens dependent on the community actions boundary only', () => {
-    const screenPaths = ['app/groups.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
+    const screenPaths = ['app/groups/index.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
 
     for (const path of screenPaths) {
       const source = readFileSync(path, 'utf8');

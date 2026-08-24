@@ -29,6 +29,7 @@ export type EventRuntimeDetails = Event & {
   preciseLocation?: string;
   currentUserInterestStatus?: EventInterestStatus;
   currentUserOrganizerRole?: EventOrganizerRole;
+  comments?: EventComment[];
 };
 
 export type EventInvitation = {

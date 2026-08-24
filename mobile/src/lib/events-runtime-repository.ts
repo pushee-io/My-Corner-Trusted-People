@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { createSeededEventsRepository } from '@/lib/events-repository';
 import { isEventsClientEnabled, isSeededEventsDevelopmentMode } from '@/lib/events-feature';
 import {
@@ -376,8 +377,7 @@ function optimisticDraft(draft: EventDraft, context: EventsRuntimeContext): Even
 }
 
 function createClientRequestId(): string {
-  const cryptoValue = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto?.randomUUID?.();
-  return cryptoValue ?? `event-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return Crypto.randomUUID();
 }
 
 function createConfiguredRepository(): EventsRuntimeRepository {

@@ -9,7 +9,7 @@ type ScreenExpectation = {
 
 const screens: ScreenExpectation[] = [
   {
-    path: 'app/groups.tsx',
+    path: 'app/groups/index.tsx',
     readMethod: 'listSocialGroupScreenSections',
     loadingTitle: 'Loading groups',
     errorMessage: 'Could not load groups. Try again later.',
@@ -57,13 +57,14 @@ describe('Day 12 async community read screens', () => {
   });
 
   it('keeps write and moderation actions on the existing action repository path', () => {
-    const groupsSource = readFileSync('app/groups.tsx', 'utf8');
+    const groupsSource = readFileSync('app/groups/index.tsx', 'utf8');
+    const groupDetailSource = readFileSync('app/groups/[groupId].tsx', 'utf8');
     const agencyBroadcastsSource = readFileSync('app/agency-broadcasts.tsx', 'utf8');
     const moderationSource = readFileSync('app/community/moderation.tsx', 'utf8');
 
     expect(groupsSource).toContain('getGroupMembershipRepository().requestMembership');
-    expect(groupsSource).toContain('communityActionsRepository.createSocialGroupPost');
-    expect(groupsSource).toContain('communityActionsRepository.reportSocialGroupPost');
+    expect(groupDetailSource).toContain('getSocialGroupDetailRepository().createPost');
+    expect(groupDetailSource).toContain('getSocialGroupDetailRepository().reportPost');
     expect(agencyBroadcastsSource).toContain('communityActionsRepository.reportAgencyBroadcast');
     expect(moderationSource).toContain('communityActionsRepository.applyModerationDecision');
   });

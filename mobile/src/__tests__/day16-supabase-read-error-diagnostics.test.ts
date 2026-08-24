@@ -87,7 +87,7 @@ describe('Day 16 Supabase read error diagnostics', () => {
   });
 
   it('keeps user-facing screen errors generic while developer diagnostics are available in Settings', () => {
-    const screenPaths = ['app/groups.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
+    const screenPaths = ['app/groups/index.tsx', 'app/agency-broadcasts.tsx', 'app/community/moderation.tsx'];
     const settingsSource = readFileSync('app/settings.tsx', 'utf8');
 
     expect(settingsSource).toContain('getSupabaseCommunityReadFailureDiagnostics');

@@ -13,7 +13,11 @@ describe('Day 3 community screen data', () => {
   it('feeds the Groups screen only visible groups and visible group posts', () => {
     const sections = getSocialGroupScreenSections(eastLegonViewer);
 
-    expect(sections.map((section) => section.group.id)).toEqual(['group-east-legon-repairs', 'group-accra-east-water']);
+    expect(sections.map((section) => section.group.id)).toEqual([
+      'group-east-legon-repairs',
+      'group-accra-east-water',
+      'group-east-legon-schools',
+    ]);
     expect(sections.flatMap((section) => section.posts).map((post) => post.id)).toEqual(['group-post-repair-tip']);
     expect(sections.flatMap((section) => section.posts).every((post) => post.moderationStatus !== 'blocked')).toBe(
       true,

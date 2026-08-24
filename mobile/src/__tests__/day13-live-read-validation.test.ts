@@ -45,7 +45,7 @@ describe('Day 13 live read validation', () => {
       label: 'Community reads: seeded',
     });
 
-    await expect(repository.listSocialGroupScreenSections()).resolves.toHaveLength(2);
+    await expect(repository.listSocialGroupScreenSections()).resolves.toHaveLength(3);
   });
 
   it('uses Supabase reads when Supabase mode receives a read client', async () => {

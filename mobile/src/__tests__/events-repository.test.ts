@@ -104,6 +104,9 @@ describe('Events complete repository', () => {
     await expect(
       repository.addComment('event-east-legon-cleanup', 'I can bring refuse bags.', neighbor),
     ).resolves.toMatchObject({ moderationStatus: 'pending' });
+    await expect(repository.getEventForViewer('event-east-legon-cleanup', neighbor)).resolves.toMatchObject({
+      comments: [expect.objectContaining({ body: 'I can bring refuse bags.', authorProfileId: neighbor.profileId })],
+    });
     const first = await repository.report('event-east-legon-cleanup', 'Needs review', neighbor);
     const second = await repository.report('event-east-legon-cleanup', 'Duplicate', neighbor);
     expect(second.id).toBe(first.id);

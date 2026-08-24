@@ -201,6 +201,13 @@ export function createSeededEventsRepository(seedViewer: EventViewer = defaultVi
         : {}),
       ...((going || organizerRole(event.id, viewer.profileId)) && virtualLink ? { virtualLink } : {}),
       currentUserOrganizerRole: organizerRole(event.id, viewer.profileId),
+      comments: comments.filter(
+        (comment) =>
+          comment.eventId === event.id &&
+          (comment.moderationStatus === 'approved' ||
+            comment.authorProfileId === viewer.profileId ||
+            viewer.isModerator === true),
+      ),
     };
   };
   const updateCount = (eventId: string) => {

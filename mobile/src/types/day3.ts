@@ -184,6 +184,18 @@ export type CreateSocialGroupPostInput = {
   body: string;
 };
 
+export type CreateSocialGroupInput = {
+  name: string;
+  description: string;
+  visibility: SocialGroupVisibility;
+};
+
+export type CreateSocialGroupResult = {
+  group?: SocialGroup;
+  accepted: boolean;
+  reason?: 'invalid_name' | 'invalid_description' | 'not_verified';
+};
+
 export type SocialGroupJoinRequestResult = {
   groupId: string;
   profileId: string;

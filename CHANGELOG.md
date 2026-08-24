@@ -6,20 +6,31 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Added
 
+- RLS-authorized Event comments in the live and seeded detail flows.
+- Retryable, user-safe Events availability states and responsive tablet event cards.
+- A fail-closed Events feature-flag provision migration and database smoke test.
+- Tappable Groups directory summaries and a dedicated group-detail route.
+- Member-only group comments and likes using the existing social-group model.
+- Privacy-aware sharing and validated group-post reporting into human moderation.
+- Forward-only Supabase engagement migration and focused seeded/live-boundary tests.
 - Comprehensive Events post-merge verification report.
 - Events testing matrix, release gates, SQL scenarios, mobile scenarios, and CI corrections.
 - Repository-baseline dependency radar with explicit source and verification status.
 
 ### Changed
 
-- Corrected the documented implementation baseline to Expo 54.0.34, React Native 0.81.5, and React 19.1.0.
+- Prepared Events for explicit development activation without enabling staging or production.
+- Reconciled Events documentation with the complete authenticated Supabase runtime repository.
+- Moved posting and post actions out of the Groups directory and into `/groups/[groupId]`.
+- Preserved group creation, membership requests, Events, restored navigation, and all existing migrations.
+- Corrected the documented implementation baseline to Expo 54.0.37, React Native 0.81.5, and React 19.1.0.
 - Recorded that Events remains disabled pending live-repository parity, functional RLS verification, feature gating, and device testing.
 - Recommended Production Verification Services after an Events stabilization milestone, ahead of Push Notifications.
 
 ### Known limitations
 
-- Events now use the runtime Supabase repository, but authenticated profile, neighborhood, and cluster composition still use provisional values.
-- The Supabase Events repository does not implement the complete runtime contract used by the screens.
+- Events remains fail-closed until both the client flag and the environment-specific database flag are enabled.
+- Development activation and native compact/tablet evidence remain required for this cycle.
 - Database CI now performs a clean Supabase reset and enforces all three Events pgTAP suites with 31 assertions.
 - Pending Events/comments do not yet have an operational, audited moderator workflow.
 - Events stabilization passed local formatting, lint with zero errors, type checking, 51 Jest suites, 250 tests, a clean Supabase reset, all legacy SQL checks, and 31 Events pgTAP assertions. Native build and device evidence remain outstanding.
