@@ -153,12 +153,10 @@ async function signedListingImages(listingIds: string[]) {
   const rows = (data ?? []) as ListingImageRow[];
   if (rows.length === 0) return new Map<string, string[]>();
 
-  const { data: signed, error: signedError } = await supabase.storage
-    .from('listing-images')
-    .createSignedUrls(
-      rows.map((row) => row.object_path),
-      60 * 60,
-    );
+  const { data: signed, error: signedError } = await supabase.storage.from('listing-images').createSignedUrls(
+    rows.map((row) => row.object_path),
+    60 * 60,
+  );
   if (signedError) throw signedError;
 
   const urls = new Map<string, string[]>();
@@ -192,9 +190,7 @@ async function hydratePickupRequests(rows: PickupRequestRow[]) {
     profileNames(rows.map((row) => row.requester_id)),
     privatePickupDetails(rows.map((row) => row.id)),
   ]);
-  return rows.map((row) =>
-    mapPickupRequest(row, names.get(row.requester_id), privateDetails.get(row.id)),
-  );
+  return rows.map((row) => mapPickupRequest(row, names.get(row.requester_id), privateDetails.get(row.id)));
 }
 
 export async function getMarketplaceNeighborhood(): Promise<CurrentNeighborhood> {

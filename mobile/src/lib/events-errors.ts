@@ -7,8 +7,8 @@ export function eventErrorMessage(caught: unknown): string {
   switch (caught.code) {
     case 'authentication_expired':
       return 'Your session expired. Sign in again to continue.';
-   case 'forbidden':
-  return caught.message;
+    case 'forbidden':
+      return caught.message;
     case 'capacity_reached':
       return 'This event is full. You may be placed on the waitlist.';
     case 'duplicate':

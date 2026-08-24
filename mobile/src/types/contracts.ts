@@ -116,13 +116,7 @@ export type MarketplaceListing = {
   createdAt: string;
 };
 
-export type MarketplacePickupStatus =
-  | 'proposed'
-  | 'accepted'
-  | 'confirmed'
-  | 'declined'
-  | 'cancelled'
-  | 'completed';
+export type MarketplacePickupStatus = 'proposed' | 'accepted' | 'confirmed' | 'declined' | 'cancelled' | 'completed';
 
 export type MarketplacePickupRequest = {
   id: string;

@@ -44,8 +44,13 @@ async function prepareMarketplacePhoto(photo: ImagePicker.ImagePickerAsset): Pro
 
   if (file.size > photoPolicy.maxBytesPerFile) {
     const fallback = ImageManipulator.ImageManipulator.manipulate(saved.uri);
-    fallback.resize({ width: saved.width >= saved.height ? 1280 : null, height: saved.height > saved.width ? 1280 : null });
-    saved = await (await fallback.renderAsync()).saveAsync({
+    fallback.resize({
+      width: saved.width >= saved.height ? 1280 : null,
+      height: saved.height > saved.width ? 1280 : null,
+    });
+    saved = await (
+      await fallback.renderAsync()
+    ).saveAsync({
       compress: 0.5,
       format: ImageManipulator.SaveFormat.JPEG,
     });
@@ -237,7 +242,9 @@ export default function MarketplaceScreen() {
 
         <View style={styles.photoHeader}>
           <Text style={styles.fieldLabel}>Photos</Text>
-          <Text style={styles.note}>{photos.length} of {photoPolicy.maxFiles}</Text>
+          <Text style={styles.note}>
+            {photos.length} of {photoPolicy.maxFiles}
+          </Text>
         </View>
         <View style={styles.photoGrid}>
           {photos.map((photo, index) => (
@@ -263,7 +270,9 @@ export default function MarketplaceScreen() {
           <Text style={styles.secondaryButtonText}>{preparingPhotos ? 'Preparing photos...' : 'Add photos'}</Text>
         </Pressable>
         <Text style={styles.note}>JPEG, PNG, WebP, HEIC, or HEIF. Maximum 6 MB each.</Text>
-        <Text style={styles.privacyNote}>Pickup area: {neighborhood?.name}. Precise instructions are never stored on the public listing.</Text>
+        <Text style={styles.privacyNote}>
+          Pickup area: {neighborhood?.name}. Precise instructions are never stored on the public listing.
+        </Text>
 
         <Pressable
           accessibilityRole="button"
@@ -278,11 +287,15 @@ export default function MarketplaceScreen() {
       <View style={styles.list}>
         {listings.map((listing) => (
           <View key={listing.id} style={styles.card}>
-            {listing.imageUrl ? <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" /> : null}
+            {listing.imageUrl ? (
+              <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
+            ) : null}
             <Text style={styles.title}>{listing.title}</Text>
             <Text style={styles.body}>{listing.description}</Text>
             <Text style={styles.price}>{priceLabel(listing)}</Text>
-            <Text style={styles.note}>{listing.availability} · {listing.sellerName}</Text>
+            <Text style={styles.note}>
+              {listing.availability} · {listing.sellerName}
+            </Text>
             <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
             <Link href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.button}>
@@ -298,27 +311,82 @@ export default function MarketplaceScreen() {
 
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22 },
-  button: { backgroundColor: tokens.color.primary, borderRadius: tokens.radius.md, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.lg },
+  button: {
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.lg,
+  },
   buttonText: { color: '#FFFFFF', fontWeight: '700', textAlign: 'center' },
-  card: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, gap: tokens.spacing.sm, padding: tokens.spacing.lg },
+  card: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.sm,
+    padding: tokens.spacing.lg,
+  },
   disabled: { opacity: 0.55 },
   fieldLabel: { color: tokens.color.textPrimary, fontSize: tokens.type.body, fontWeight: '700' },
-  input: { borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, color: tokens.color.textPrimary, fontSize: tokens.type.body, minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  input: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   list: { gap: tokens.spacing.md },
   listingImage: { backgroundColor: tokens.color.border, borderRadius: tokens.radius.md, height: 180, width: '100%' },
   note: { color: tokens.color.textSecondary, fontSize: tokens.type.support, lineHeight: 20 },
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, gap: tokens.spacing.sm, padding: tokens.spacing.lg },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.sm,
+    padding: tokens.spacing.lg,
+  },
   photo: { height: 112, width: '100%' },
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
   photoHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
-  photoItem: { borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, flexBasis: '47%', minWidth: 132, overflow: 'hidden' },
+  photoItem: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    flexBasis: '47%',
+    minWidth: 132,
+    overflow: 'hidden',
+  },
   price: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
-  privacyNote: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.support, lineHeight: 20, padding: tokens.spacing.md },
+  privacyNote: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    lineHeight: 20,
+    padding: tokens.spacing.md,
+  },
   removeButton: { justifyContent: 'center', minHeight: tokens.touch.min, paddingHorizontal: tokens.spacing.sm },
   removeText: { color: tokens.color.error, fontWeight: '700', textAlign: 'center' },
-  secondaryButton: { borderColor: tokens.color.primary, borderRadius: tokens.radius.md, borderWidth: 1, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  secondaryButton: {
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   secondaryButtonText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
-  success: { backgroundColor: '#E7F6EE', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.support, padding: tokens.spacing.md },
+  success: {
+    backgroundColor: '#E7F6EE',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    padding: tokens.spacing.md,
+  },
   textArea: { minHeight: 96 },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
 });

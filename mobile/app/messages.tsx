@@ -61,8 +61,12 @@ export default function MessagesScreen() {
   return (
     <Screen title={listingTitle ? `Messages · ${listingTitle}` : 'Marketplace messages'} showBottomNavigation={false}>
       <View style={styles.notice}>
-        <Text style={styles.noticeText}>Messages are private to buyer and seller, but are not end-to-end encrypted.</Text>
-        <Text style={styles.noticeBody}>Do not send phone numbers or exact addresses here. Use protected pickup confirmation.</Text>
+        <Text style={styles.noticeText}>
+          Messages are private to buyer and seller, but are not end-to-end encrypted.
+        </Text>
+        <Text style={styles.noticeBody}>
+          Do not send phone numbers or exact addresses here. Use protected pickup confirmation.
+        </Text>
       </View>
 
       {loading ? <LoadingState title="Loading messages" /> : null}
@@ -119,20 +123,58 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22 },
   bubble: { borderRadius: tokens.radius.md, gap: tokens.spacing.xs, maxWidth: '88%', padding: tokens.spacing.md },
-  button: { backgroundColor: tokens.color.primary, borderRadius: tokens.radius.md, flex: 1, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  button: {
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   buttonText: { color: '#FFFFFF', fontWeight: '700', textAlign: 'center' },
-  composer: { borderTopColor: tokens.color.border, borderTopWidth: 1, gap: tokens.spacing.sm, paddingTop: tokens.spacing.md },
+  composer: {
+    borderTopColor: tokens.color.border,
+    borderTopWidth: 1,
+    gap: tokens.spacing.sm,
+    paddingTop: tokens.spacing.md,
+  },
   composerActions: { flexDirection: 'row', gap: tokens.spacing.sm },
   disabled: { opacity: 0.55 },
   empty: { color: tokens.color.textSecondary, fontSize: tokens.type.support, lineHeight: 20, textAlign: 'center' },
-  input: { borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, color: tokens.color.textPrimary, fontSize: tokens.type.body, minHeight: 88, padding: tokens.spacing.md },
+  input: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    minHeight: 88,
+    padding: tokens.spacing.md,
+  },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-  notice: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, gap: tokens.spacing.xs, padding: tokens.spacing.lg },
+  notice: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    gap: tokens.spacing.xs,
+    padding: tokens.spacing.lg,
+  },
   noticeBody: { color: tokens.color.textPrimary, fontSize: tokens.type.support, lineHeight: 20 },
   noticeText: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
-  otherBubble: { alignSelf: 'flex-start', backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1 },
+  otherBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+  },
   ownBubble: { alignSelf: 'flex-end', backgroundColor: '#E7F6EE' },
-  secondaryButton: { borderColor: tokens.color.primary, borderRadius: tokens.radius.md, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  secondaryButton: {
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   secondaryButtonText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
   sender: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
   thread: { gap: tokens.spacing.sm },

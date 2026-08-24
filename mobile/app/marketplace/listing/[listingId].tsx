@@ -83,10 +83,7 @@ export default function MarketplaceListingScreen() {
   );
 
   const isSeller = Boolean(listing && viewerId === listing.sellerId);
-  const myRequest = useMemo(
-    () => requests.find((request) => request.requesterId === viewerId),
-    [requests, viewerId],
-  );
+  const myRequest = useMemo(() => requests.find((request) => request.requesterId === viewerId), [requests, viewerId]);
 
   async function sendPickupRequest() {
     if (!listing || message.trim().length < 2) return;
@@ -155,7 +152,13 @@ export default function MarketplaceListingScreen() {
       {listing.imageUrls?.length ? (
         <View style={styles.imageGrid}>
           {listing.imageUrls.map((uri, index) => (
-            <Image key={uri} accessibilityLabel={`${listing.title} photo ${index + 1}`} source={{ uri }} style={styles.image} resizeMode="cover" />
+            <Image
+              key={uri}
+              accessibilityLabel={`${listing.title} photo ${index + 1}`}
+              source={{ uri }}
+              style={styles.image}
+              resizeMode="cover"
+            />
           ))}
         </View>
       ) : (
@@ -174,11 +177,17 @@ export default function MarketplaceListingScreen() {
       </View>
 
       {error ? <EmptyState title="Marketplace notice" body={error} /> : null}
-      {notice ? <Text accessibilityRole="alert" style={styles.success}>{notice}</Text> : null}
+      {notice ? (
+        <Text accessibilityRole="alert" style={styles.success}>
+          {notice}
+        </Text>
+      ) : null}
 
       {isSeller ? (
         <View style={styles.section}>
-          <Text accessibilityRole="header" style={styles.title}>Pickup requests</Text>
+          <Text accessibilityRole="header" style={styles.title}>
+            Pickup requests
+          </Text>
           {requests.length === 0 ? <Text style={styles.note}>No pickup proposals yet.</Text> : null}
           {requests.map((request) => (
             <View key={request.id} style={styles.panel}>
@@ -192,8 +201,17 @@ export default function MarketplaceListingScreen() {
               ) : null}
               {request.status === 'proposed' ? (
                 <View style={styles.actions}>
-                  <ActionButton label="Accept proposed time" busy={Boolean(busyAction)} onPress={() => void respond(request.id, 'accept')} />
-                  <ActionButton label="Decline" busy={Boolean(busyAction)} onPress={() => void respond(request.id, 'decline')} secondary />
+                  <ActionButton
+                    label="Accept proposed time"
+                    busy={Boolean(busyAction)}
+                    onPress={() => void respond(request.id, 'accept')}
+                  />
+                  <ActionButton
+                    label="Decline"
+                    busy={Boolean(busyAction)}
+                    onPress={() => void respond(request.id, 'decline')}
+                    secondary
+                  />
                 </View>
               ) : null}
               {request.status === 'accepted' ? (
@@ -210,16 +228,32 @@ export default function MarketplaceListingScreen() {
                     style={styles.textArea}
                   />
                   <Text style={styles.note}>Visible only to this buyer after confirmation.</Text>
-                  <ActionButton label="Confirm private pickup details" busy={Boolean(busyAction)} onPress={() => void respond(request.id, 'confirm')} />
+                  <ActionButton
+                    label="Confirm private pickup details"
+                    busy={Boolean(busyAction)}
+                    onPress={() => void respond(request.id, 'confirm')}
+                  />
                 </>
               ) : null}
               {request.status === 'confirmed' ? (
-                <ActionButton label="Mark pickup completed" busy={Boolean(busyAction)} onPress={() => void respond(request.id, 'complete')} />
+                <ActionButton
+                  label="Mark pickup completed"
+                  busy={Boolean(busyAction)}
+                  onPress={() => void respond(request.id, 'complete')}
+                />
               ) : null}
               {['proposed', 'accepted', 'confirmed'].includes(request.status) ? (
-                <ActionButton label="Cancel pickup" busy={Boolean(busyAction)} onPress={() => void respond(request.id, 'cancel')} secondary />
+                <ActionButton
+                  label="Cancel pickup"
+                  busy={Boolean(busyAction)}
+                  onPress={() => void respond(request.id, 'cancel')}
+                  secondary
+                />
               ) : null}
-              <Link href={{ pathname: '/messages', params: { requestId: request.id, listingTitle: listing.title } }} asChild>
+              <Link
+                href={{ pathname: '/messages', params: { requestId: request.id, listingTitle: listing.title } }}
+                asChild
+              >
                 <Pressable accessibilityRole="button" style={styles.secondaryButton}>
                   <Text style={styles.secondaryButtonText}>Open messages</Text>
                 </Pressable>
@@ -238,27 +272,64 @@ export default function MarketplaceListingScreen() {
           ) : (
             <Text style={styles.note}>Precise details remain hidden until the seller confirms pickup.</Text>
           )}
-          <Link href={{ pathname: '/messages', params: { requestId: myRequest.id, listingTitle: listing.title } }} asChild>
+          <Link
+            href={{ pathname: '/messages', params: { requestId: myRequest.id, listingTitle: listing.title } }}
+            asChild
+          >
             <Pressable accessibilityRole="button" style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Message seller</Text>
             </Pressable>
           </Link>
           {['proposed', 'accepted', 'confirmed'].includes(myRequest.status) ? (
-            <ActionButton label="Cancel pickup" busy={Boolean(busyAction)} onPress={() => void respond(myRequest.id, 'cancel')} secondary />
+            <ActionButton
+              label="Cancel pickup"
+              busy={Boolean(busyAction)}
+              onPress={() => void respond(myRequest.id, 'cancel')}
+              secondary
+            />
           ) : null}
           {myRequest.status === 'confirmed' ? (
-            <ActionButton label="Mark pickup completed" busy={Boolean(busyAction)} onPress={() => void respond(myRequest.id, 'complete')} />
+            <ActionButton
+              label="Mark pickup completed"
+              busy={Boolean(busyAction)}
+              onPress={() => void respond(myRequest.id, 'complete')}
+            />
           ) : null}
         </View>
       ) : (
         <View style={styles.panel}>
           <Text style={styles.title}>Propose pickup</Text>
-          <TextInput accessibilityLabel="Message to seller" value={message} onChangeText={setMessage} multiline maxLength={300} style={styles.textArea} />
-          <TextInput accessibilityLabel="Pickup date" value={pickupDate} onChangeText={setPickupDate} placeholder="YYYY-MM-DD" style={styles.input} />
-          <TextInput accessibilityLabel="Pickup time" value={pickupTime} onChangeText={setPickupTime} placeholder="HH:MM" style={styles.input} />
+          <TextInput
+            accessibilityLabel="Message to seller"
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            maxLength={300}
+            style={styles.textArea}
+          />
+          <TextInput
+            accessibilityLabel="Pickup date"
+            value={pickupDate}
+            onChangeText={setPickupDate}
+            placeholder="YYYY-MM-DD"
+            style={styles.input}
+          />
+          <TextInput
+            accessibilityLabel="Pickup time"
+            value={pickupTime}
+            onChangeText={setPickupTime}
+            placeholder="HH:MM"
+            style={styles.input}
+          />
           <Text style={styles.note}>Times use Ghana time. The initial proposal includes only the general area.</Text>
           <ActionButton
-            label={listing.availability !== 'available' ? 'Not available' : busyAction ? 'Sending...' : 'Send pickup proposal'}
+            label={
+              listing.availability !== 'available'
+                ? 'Not available'
+                : busyAction
+                  ? 'Sending...'
+                  : 'Send pickup proposal'
+            }
             busy={Boolean(busyAction) || listing.availability !== 'available'}
             onPress={() => void sendPickupRequest()}
           />
@@ -268,9 +339,24 @@ export default function MarketplaceListingScreen() {
   );
 }
 
-function ActionButton({ label, busy, onPress, secondary = false }: { label: string; busy: boolean; onPress: () => void; secondary?: boolean }) {
+function ActionButton({
+  label,
+  busy,
+  onPress,
+  secondary = false,
+}: {
+  label: string;
+  busy: boolean;
+  onPress: () => void;
+  secondary?: boolean;
+}) {
   return (
-    <Pressable accessibilityRole="button" disabled={busy} onPress={onPress} style={secondary ? styles.secondaryButton : styles.button}>
+    <Pressable
+      accessibilityRole="button"
+      disabled={busy}
+      onPress={onPress}
+      style={secondary ? styles.secondaryButton : styles.button}
+    >
       <Text style={secondary ? styles.secondaryButtonText : styles.buttonText}>{label}</Text>
     </Pressable>
   );
@@ -279,23 +365,92 @@ function ActionButton({ label, busy, onPress, secondary = false }: { label: stri
 const styles = StyleSheet.create({
   actions: { gap: tokens.spacing.sm },
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22 },
-  button: { backgroundColor: tokens.color.primary, borderRadius: tokens.radius.md, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.lg },
+  button: {
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.lg,
+  },
   buttonText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
-  image: { backgroundColor: tokens.color.border, borderRadius: tokens.radius.md, flexBasis: '48%', height: 180, minWidth: 145 },
+  image: {
+    backgroundColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    flexBasis: '48%',
+    height: 180,
+    minWidth: 145,
+  },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
-  imagePlaceholder: { alignItems: 'center', backgroundColor: '#EEF7F4', borderRadius: tokens.radius.md, height: 160, justifyContent: 'center', width: '100%' },
+  imagePlaceholder: {
+    alignItems: 'center',
+    backgroundColor: '#EEF7F4',
+    borderRadius: tokens.radius.md,
+    height: 160,
+    justifyContent: 'center',
+    width: '100%',
+  },
   imagePlaceholderText: { color: tokens.color.textSecondary, fontSize: tokens.type.support, fontWeight: '700' },
-  input: { borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, color: tokens.color.textPrimary, fontSize: tokens.type.body, minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  input: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   note: { color: tokens.color.textSecondary, fontSize: tokens.type.support, lineHeight: 20 },
-  panel: { backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, gap: tokens.spacing.sm, padding: tokens.spacing.lg },
+  panel: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.sm,
+    padding: tokens.spacing.lg,
+  },
   price: { color: tokens.color.primary, fontSize: tokens.type.card, fontWeight: '700' },
-  privacyNote: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.support, lineHeight: 20, padding: tokens.spacing.md },
-  privateDetails: { backgroundColor: '#E7F6EE', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22, padding: tokens.spacing.md },
-  secondaryButton: { borderColor: tokens.color.primary, borderRadius: tokens.radius.md, borderWidth: 1, justifyContent: 'center', minHeight: tokens.touch.min, padding: tokens.spacing.md },
+  privacyNote: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    lineHeight: 20,
+    padding: tokens.spacing.md,
+  },
+  privateDetails: {
+    backgroundColor: '#E7F6EE',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    lineHeight: 22,
+    padding: tokens.spacing.md,
+  },
+  secondaryButton: {
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   secondaryButtonText: { color: tokens.color.primary, fontWeight: '700', textAlign: 'center' },
   section: { gap: tokens.spacing.md },
   status: { color: tokens.color.primary, fontSize: tokens.type.support, fontWeight: '700' },
-  success: { backgroundColor: '#E7F6EE', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, fontSize: tokens.type.support, padding: tokens.spacing.md },
-  textArea: { borderColor: tokens.color.border, borderRadius: tokens.radius.md, borderWidth: 1, color: tokens.color.textPrimary, fontSize: tokens.type.body, minHeight: 104, padding: tokens.spacing.md },
+  success: {
+    backgroundColor: '#E7F6EE',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    padding: tokens.spacing.md,
+  },
+  textArea: {
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+    minHeight: 104,
+    padding: tokens.spacing.md,
+  },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
 });

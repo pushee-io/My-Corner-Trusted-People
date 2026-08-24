@@ -12,7 +12,7 @@ describe('Marketplace media, pickup, and messaging vertical slice', () => {
   it('uses the shared eight-photo policy and private listing image bucket', () => {
     expect(listScreen).toContain("getMediaPipelinePolicy('marketplace_listing')");
     expect(listScreen).toContain('selectionLimit: remaining');
-    expect(repository).toContain("new File(attachment.localUri).arrayBuffer()");
+    expect(repository).toContain('new File(attachment.localUri).arrayBuffer()');
     expect(repository).toContain(".from('listing-images')");
     expect(repository).toContain(".from('marketplace_listing_images')");
     expect(migration).toContain("'listing-images',\n  'listing-images',\n  false");
