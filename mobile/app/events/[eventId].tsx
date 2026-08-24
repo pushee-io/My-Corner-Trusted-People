@@ -335,7 +335,7 @@ function EventDetailsContent() {
         </View>
       ) : null}
 
-      {isStaff ? (
+      {isStaff && event.moderationStatus === 'pending' ? (
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
             Moderation

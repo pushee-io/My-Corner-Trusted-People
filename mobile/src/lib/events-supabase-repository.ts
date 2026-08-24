@@ -216,18 +216,44 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
       });
     },
     getContext,
-    async listEvents() {
-      return runtimeCall(async () => {
-        const context = await getContext();
-        const [visible, managed] = await Promise.all([
-          core.listEvents({ neighborhoodId: context.neighborhoodId, clusterId: context.clusterId }),
-          core.listOrganizerEvents(context.profileId),
-        ]);
-        return [...new Map([...visible, ...managed].map((event) => [event.id, event])).values()].sort((left, right) =>
-          left.startsAt.localeCompare(right.startsAt),
-        );
-      });
-    },
+   async listEvents() {
+  return runtimeCall(async () => {
+    const context = await getContext();
+
+    const [visible, managed] = await Promise.all([
+      core.listEvents({
+        neighborhoodId: context.neighborhoodId,
+        clusterId: context.clusterId,
+      }),
+      core.listOrganizerEvents(context.profileId),
+    ]);
+
+    let pendingModeration: EventRuntimeDetails[] = [];
+
+    if (context.isStaff) {
+      const { data, error } = await supabase
+        .from('events')
+        .select(eventColumns)
+        .eq('moderation_status', 'pending')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      pendingModeration = ((data ?? []) as EventRow[]).map((row) =>
+        fromEventRuntimeRow(row),
+      );
+    }
+
+    return [
+      ...new Map(
+        [...visible, ...managed, ...pendingModeration].map((event) => [
+          event.id,
+          event,
+        ]),
+      ).values(),
+    ].sort((left, right) => left.startsAt.localeCompare(right.startsAt));
+  });
+},
     getEvent,
     async createEvent(draft) {
       return runtimeCall(async () => {

@@ -126,13 +126,13 @@ function NewEventContent() {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Save event draft"
+          accessibilityLabel="Submit event for review"
           accessibilityState={{ disabled: saving }}
           disabled={saving}
           onPress={submit}
           style={styles.primary}
         >
-          <Text style={styles.primaryText}>{saving ? 'Saving...' : 'Save draft'}</Text>
+          <Text style={styles.primaryText}>{saving ? 'Submitting...' : 'Submit for review'}</Text>
         </Pressable>
       </View>
     </Screen>

@@ -38,6 +38,8 @@ function EventsContent() {
   }, [load]);
 
   const diagnostics = eventsRuntimeRepository.getDiagnostics();
+  const pendingEvents = events.filter((event) => event.moderationStatus === 'pending');
+  const upcomingEvents = events.filter((event) => event.moderationStatus !== 'pending');
 
   return (
     <Screen title="Events">
@@ -76,8 +78,32 @@ function EventsContent() {
           <Text style={styles.meta}>Create the first plan for your neighborhood.</Text>
         </View>
       ) : null}
+
+      {pendingEvents.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pending review</Text>
+          <Text style={styles.meta}>Events waiting for moderator approval.</Text>
+          <View style={styles.eventGrid}>
+            {pendingEvents.map((event) => (
+              <Link
+                key={event.id}
+                href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
+                asChild
+              >
+                <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+                  <Text style={styles.title}>{event.title}</Text>
+                  <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+                  <Text style={styles.body}>{event.areaLabel}</Text>
+                  <Text style={styles.meta}>Status: Pending review</Text>
+                </Pressable>
+              </Link>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
       <View style={styles.eventGrid}>
-        {events.map((event) => (
+        {upcomingEvents.map((event) => (
           <Link
             key={event.id}
             href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
@@ -103,6 +129,8 @@ function EventsContent() {
 const styles = StyleSheet.create({
   intro: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 24 },
   eventGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
+  section: { gap: tokens.spacing.sm },
+  sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   card: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
