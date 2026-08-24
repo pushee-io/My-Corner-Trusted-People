@@ -116,14 +116,36 @@ export type MarketplaceListing = {
   createdAt: string;
 };
 
+export type MarketplacePickupStatus =
+  | 'proposed'
+  | 'accepted'
+  | 'confirmed'
+  | 'declined'
+  | 'cancelled'
+  | 'completed';
+
 export type MarketplacePickupRequest = {
   id: string;
   listingId: string;
   requesterId: string;
   requesterName: string;
   message: string;
-  status: 'open' | 'accepted' | 'declined' | 'cancelled';
+  generalArea: string;
+  proposedStart: string;
+  proposedEnd: string;
+  status: MarketplacePickupStatus;
+  privateDetails?: string;
   createdAt: string;
+};
+
+export type MarketplaceMessage = {
+  id: string;
+  conversationId: string;
+  senderProfileId: string;
+  senderName: string;
+  body: string;
+  createdAt: string;
+  isOwn: boolean;
 };
 
 export type UserImageBucket =
