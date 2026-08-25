@@ -41,7 +41,9 @@ export function BottomNavigation() {
               accessibilityState={{ selected }}
               style={StyleSheet.flatten([styles.item, selected ? styles.selectedItem : undefined])}
             >
-              <Text style={StyleSheet.flatten([styles.label, selected ? styles.selectedLabel : undefined])}>{item.label}</Text>
+              <Text style={StyleSheet.flatten([styles.label, selected ? styles.selectedLabel : undefined])}>
+                {item.label}
+              </Text>
             </Pressable>
           </Link>
         );
