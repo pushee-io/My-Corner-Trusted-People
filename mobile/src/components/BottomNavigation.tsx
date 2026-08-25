@@ -39,9 +39,9 @@ export function BottomNavigation() {
             <Pressable
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              style={[styles.item, selected ? styles.selectedItem : null]}
+              style={StyleSheet.flatten([styles.item, selected ? styles.selectedItem : undefined])}
             >
-              <Text style={[styles.label, selected ? styles.selectedLabel : null]}>{item.label}</Text>
+              <Text style={StyleSheet.flatten([styles.label, selected ? styles.selectedLabel : undefined])}>{item.label}</Text>
             </Pressable>
           </Link>
         );
