@@ -6,9 +6,9 @@ Date prepared: 2026-08-01
 
 1. Phase 1 contracts: lifecycle, visibility, moderation, RSVP, organizer roles, and asynchronous repository boundary.
 2. Domain behavior: visibility authorization, organizer permissions, capacity and waitlist behavior, idempotent invitations and reports, comments, reminders, updates, and cancellation.
-3. Supabase boundary: storage adapters plus an opt-in live repository. The seeded repository remains the safe default while the `events` feature flag is disabled.
+3. Supabase boundary: a complete authenticated runtime repository plus an explicit seeded development repository.
 4. Database and security: normalized event tables, private-location separation, RLS, security-definer RPCs, atomic capacity checks, audit history, and a notification outbox.
-5. Mobile experience: event list, create-event draft, event details, RSVP, interest, reminder, report, loading, empty, and error states.
+5. Mobile experience: responsive event list, create-event draft, event details, RSVP, interest, comments, reminder, report, loading, empty, and retryable error states.
 6. Navigation: Events is available from Home and is recognized as part of Community navigation.
 7. Verification: contract, repository, adapter, runtime smoke, and SQL policy smoke coverage.
 
@@ -25,13 +25,22 @@ Date prepared: 2026-08-01
 
 ## Activation sequence
 
-1. Apply the migration to local Supabase.
-2. Run `supabase/tests/events_rls_smoke.sql` with the local test harness.
-3. Run mobile formatting, linting, type checking, and all Jest tests.
-4. Test the screens with verified same-neighborhood, same-cluster, organizer, attendee, outsider, moderator, and unverified accounts.
-5. Enable the `events` feature flag only in development after all checks pass.
+1. Apply all migrations through `20260821180000_provision_events_feature_flag.sql` to development Supabase.
+2. Run the database smoke harness, including Events RLS and feature-flag tests.
+3. Run mobile formatting, linting, type checking, all Jest tests, and a web export.
+4. Set `EXPO_PUBLIC_FEATURE_EVENTS=enabled` and `EXPO_PUBLIC_EVENTS_REPOSITORY=supabase` in the local development app only.
+5. Enable the database switch in the development project SQL editor only:
 
-Do not apply this migration to production or enable production notifications without founder approval and a reviewed deployment plan.
+   ```sql
+   update public.feature_flags
+   set enabled = true, updated_at = now()
+   where key = 'events';
+   ```
+
+6. Test verified same-neighborhood, same-cluster, organizer, attendee, outsider, moderator, and unverified access.
+7. Capture compact Android phone plus tablet portrait and landscape evidence before merging.
+
+Do not enable the production Events flag or production notifications without founder approval and a reviewed deployment plan.
 
 ## Deferred production services
 

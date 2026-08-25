@@ -4,21 +4,18 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - feat/eas-preview-readiness
     paths:
       - '.github/workflows/eas-preview-apk.yml'
 
 permissions:
   contents: read
-  issues: write
   statuses: write
 
 concurrency:
   group: eas-preview-apk
   cancel-in-progress: false
-
-env:
-  PR_NUMBER: '38'
 
 jobs:
   submit-preview-build:
@@ -29,15 +26,15 @@ jobs:
         working-directory: mobile
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Publish submission pending
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           payload="$(jq -n             --arg state pending             --arg context eas-preview-submit             --arg description "Submitting Android preview APK to EAS"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
           curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
-
-      - name: Check out repository
-        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -58,12 +55,29 @@ jobs:
             exit 1
           fi
 
-      - name: Submit EAS internal Android APK build
+      - name: Submit EAS cloud Android APK build
         id: submit
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          npx --yes eas-cli@21.4.0 build --platform android --profile preview --non-interactive --no-wait
+          cloud_log="$(mktemp)"
+          set +e
+          npx --yes eas-cli@21.4.0 build --platform android --profile preview --non-interactive --no-wait 2>&1 | tee "$cloud_log"
+          cloud_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$cloud_status" -ne 0 ]; then
+            if grep -Fq 'has used its Android builds from the Free plan this month' "$cloud_log"; then
+              echo "EAS cloud quota is exhausted; switching to a local GitHub-hosted build."
+              echo "quota_exhausted=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "::error::EAS cloud build submission failed for a reason other than quota exhaustion."
+            exit "$cloud_status"
+          fi
+
+          echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
 
           for attempt in $(seq 1 10); do
             builds="$(npx --yes eas-cli@21.4.0 build:list --platform android --limit 10 --json 2>/tmp/eas-list.log)"
@@ -84,16 +98,54 @@ jobs:
           echo "::error::Build was submitted, but its EAS record could not be located."
           exit 1
 
+      - name: Build Android preview APK locally
+        id: local_build
+        if: steps.submit.outputs.quota_exhausted == 'true'
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          apk_path="${RUNNER_TEMP}/my-corner-preview-${GITHUB_SHA::7}.apk"
+          npx --yes eas-cli@21.4.0 build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --local \
+            --output "$apk_path"
+          test -s "$apk_path"
+          echo "apk_path=${apk_path}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload locally built preview APK
+        if: steps.submit.outputs.quota_exhausted == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-corner-preview-${{ github.sha }}
+          path: ${{ steps.local_build.outputs.apk_path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Select build details
+        id: details
+        env:
+          CLOUD_DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+          USED_LOCAL_BUILD: ${{ steps.submit.outputs.quota_exhausted }}
+        run: |
+          if [ "$USED_LOCAL_BUILD" = "true" ]; then
+            echo "description=Android preview APK available in workflow artifacts" >> "$GITHUB_OUTPUT"
+            echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+          else
+            echo "description=Android preview APK submitted to EAS" >> "$GITHUB_OUTPUT"
+            echo "url=${CLOUD_DETAILS_URL}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish submission success
         env:
           GH_TOKEN: ${{ github.token }}
-          DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+          DETAILS_DESCRIPTION: ${{ steps.details.outputs.description }}
+          DETAILS_URL: ${{ steps.details.outputs.url }}
         run: |
-          payload="$(jq -n             --arg state success             --arg context eas-preview-submit             --arg description "Android preview APK submitted to EAS"             --arg target_url "$DETAILS_URL"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
+          payload="$(jq -n             --arg state success             --arg context eas-preview-submit             --arg description "$DETAILS_DESCRIPTION"             --arg target_url "$DETAILS_URL"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
           curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
 
-          comment="$(jq -n --arg body "Android preview APK submitted to EAS. Build details: ${DETAILS_URL}" '{body: $body}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$comment"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
 
       - name: Publish submission failure
         if: failure()

@@ -2,6 +2,10 @@ import { EventsRuntimeError, type EventsRuntimeRepository } from '@/lib/events-r
 import { createResilientEventsRepository } from '@/lib/events-runtime-repository';
 import type { EventRuntimeDetails } from '@/types/events-runtime';
 
+jest.mock('expo-crypto', () => ({
+  randomUUID: jest.fn(() => '00000000-0000-4000-8000-000000000001'),
+}));
+
 jest.mock('@/lib/events-supabase-repository', () => ({
   createSupabaseEventsRuntimeRepository: jest.fn(),
 }));

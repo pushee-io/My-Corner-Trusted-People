@@ -134,21 +134,10 @@ export default function ProviderProfileScreen() {
       {canStartRequest && selectedCategoryId ? (
         <Link
           href={{
-            pathname: '/hire/request/review',
+            pathname: '/hire/request/new',
             params: {
-              requesterName: 'Akosua Mensah',
               providerId: provider.id,
               categoryId: selectedCategoryId,
-              neighborhood: 'East Legon',
-              areaLabel: 'East Legon, general area only',
-              title: 'Kitchen sink leak',
-              description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
-              originalUserText: 'Water is leaking under the kitchen sink.',
-              urgency: 'soon',
-              preferredDate: '2026-07-18',
-              preferredTime: 'Afternoon',
-              contactPreference: 'app_update',
-              photoCount: '0',
             },
           }}
           asChild

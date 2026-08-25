@@ -11,7 +11,10 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_ENV": "preview"
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY": "supabase",
+        "EXPO_PUBLIC_FEATURE_EVENTS": "enabled",
+        "EXPO_PUBLIC_EVENTS_REPOSITORY": "supabase"
       },
       "environment": "preview"
     },

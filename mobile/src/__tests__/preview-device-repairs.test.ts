@@ -1,12 +1,11 @@
 import { readFileSync } from 'node:fs';
+import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
+import { clearDay2BProviderCache, loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
+import type { Provider } from '@/types/contracts';
 
 jest.mock('@/lib/day2b-live-repository', () => ({
   getDay2BLiveRepository: jest.fn(),
 }));
-
-import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
-import { clearDay2BProviderCache, loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
-import type { Provider } from '@/types/contracts';
 
 const provider: Provider = {
   id: 'prov-cache-01',
@@ -59,13 +58,19 @@ describe('preview device repairs', () => {
     });
   });
 
-  it('keeps provider selection and request composition user controlled', () => {
-    const providerSource = readFileSync('app/hire/providers.tsx', 'utf8');
+  it('routes provider selection through trust review and editable composition', () => {
+    const providersSource = readFileSync('app/hire/providers.tsx', 'utf8');
+    const profileSource = readFileSync('app/hire/provider/[providerId].tsx', 'utf8');
     const requestSource = readFileSync('app/hire/request/new.tsx', 'utf8');
+    const providerInboxSource = readFileSync('app/provider/requests.tsx', 'utf8');
 
-    expect(providerSource).toContain("pathname: '/hire/request/new'");
-    expect(providerSource).not.toContain("pathname: '/hire/request/review'");
-    expect(providerSource).toContain('onRetry={() => void loadProviders()}');
+    expect(providersSource).toContain("pathname: '/hire/provider/[providerId]'");
+    expect(profileSource).toContain("pathname: '/hire/request/new'");
+    expect(profileSource).not.toContain("pathname: '/hire/request/review'");
+    expect(profileSource).not.toContain('Kitchen sink leak');
+    expect(providersSource).toContain('onRetry={() => void loadProviders()}');
+    expect(requestSource).not.toContain('<OfflineBanner');
+    expect(providerInboxSource).not.toContain('<OfflineBanner');
     expect(requestSource).not.toContain('setTimeout(useSampleRequest');
     expect(requestSource).toContain('value={title}');
     expect(requestSource).toContain('value={description}');

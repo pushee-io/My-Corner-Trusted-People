@@ -25,6 +25,7 @@ function EventDetailsContent() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [commentBody, setCommentBody] = useState('');
   const [inviteeProfileId, setInviteeProfileId] = useState('');
   const [announcement, setAnnouncement] = useState('');
   const [isStaff, setIsStaff] = useState(false);
@@ -84,6 +85,16 @@ function EventDetailsContent() {
     const oneHourBefore = start - 60 * 60 * 1000;
     const remindAt = new Date(Math.max(Date.now() + 5 * 60 * 1000, oneHourBefore)).toISOString();
     await act(() => eventsRuntimeRepository.scheduleReminder(event!.id, remindAt), 'Reminder saved.');
+  }
+
+  async function addComment() {
+    const body = commentBody.trim();
+    if (body.length < 2) {
+      setError('Write a short comment before posting.');
+      return;
+    }
+    await act(() => eventsRuntimeRepository.addComment(event!.id, body), 'Comment submitted for review.');
+    setCommentBody('');
   }
 
   function confirmCancellation() {
@@ -204,6 +215,41 @@ function EventDetailsContent() {
       ) : null}
       <ActionButton label="Remind me one hour before" disabled={busy} onPress={remindMe} />
 
+      {event.commentsEnabled ? (
+        <View style={styles.section}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            Comments
+          </Text>
+          {event.comments?.length ? (
+            <View style={styles.commentList}>
+              {event.comments.map((comment) => (
+                <View key={comment.id} style={styles.comment}>
+                  <Text style={styles.commentAuthor}>{comment.authorDisplayName}</Text>
+                  <Text style={styles.body}>{comment.body}</Text>
+                  <Text style={styles.meta}>
+                    {new Date(comment.createdAt).toLocaleString('en-GH')}
+                    {comment.moderationStatus === 'pending' ? ' · Awaiting review' : ''}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.meta}>No comments yet.</Text>
+          )}
+          <TextInput
+            accessibilityLabel="Event comment"
+            maxLength={500}
+            multiline
+            onChangeText={setCommentBody}
+            placeholder="Add a useful neighborhood update"
+            placeholderTextColor={tokens.color.textSecondary}
+            style={[styles.input, styles.multiline]}
+            value={commentBody}
+          />
+          <ActionButton label="Post comment" disabled={busy || !commentBody.trim()} onPress={() => void addComment()} />
+        </View>
+      ) : null}
+
       <View style={styles.section}>
         <Text style={styles.label}>Report this event</Text>
         <TextInput
@@ -289,7 +335,7 @@ function EventDetailsContent() {
         </View>
       ) : null}
 
-      {isStaff ? (
+      {isStaff && event.moderationStatus === 'pending' ? (
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
             Moderation
@@ -402,6 +448,14 @@ const styles = StyleSheet.create({
     paddingTop: tokens.spacing.md,
   },
   sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  commentList: { gap: tokens.spacing.md },
+  comment: {
+    borderLeftColor: tokens.color.primary,
+    borderLeftWidth: 2,
+    gap: tokens.spacing.xs,
+    paddingLeft: tokens.spacing.md,
+  },
+  commentAuthor: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
   label: {
     color: tokens.color.textPrimary,
     fontSize: tokens.type.label,

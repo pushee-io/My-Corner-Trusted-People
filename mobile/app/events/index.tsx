@@ -1,6 +1,6 @@
 import { Link, type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EventsFeatureGate } from '@/components/events/EventsFeatureGate';
 import { eventsRuntimeRepository } from '@/lib/events-runtime-repository';
@@ -18,6 +18,7 @@ export default function EventsScreen() {
 }
 
 function EventsContent() {
+  const { width } = useWindowDimensions();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
@@ -37,6 +38,8 @@ function EventsContent() {
   }, [load]);
 
   const diagnostics = eventsRuntimeRepository.getDiagnostics();
+  const pendingEvents = events.filter((event) => event.moderationStatus === 'pending');
+  const upcomingEvents = events.filter((event) => event.moderationStatus !== 'pending');
 
   return (
     <Screen title="Events">
@@ -75,30 +78,59 @@ function EventsContent() {
           <Text style={styles.meta}>Create the first plan for your neighborhood.</Text>
         </View>
       ) : null}
-      {events.map((event) => (
-        <Link
-          key={event.id}
-          href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
-          asChild
-        >
-          <Pressable accessibilityRole="button" style={styles.card}>
-            <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
-            <Text style={styles.body}>{event.areaLabel}</Text>
-            <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
-            <Text style={styles.meta}>
-              {event.attendeeCount}
-              {event.capacity ? ` of ${event.capacity}` : ''} going
-            </Text>
-          </Pressable>
-        </Link>
-      ))}
+
+      {pendingEvents.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pending review</Text>
+          <Text style={styles.meta}>Events waiting for moderator approval.</Text>
+          <View style={styles.eventGrid}>
+            {pendingEvents.map((event) => (
+              <Link
+                key={event.id}
+                href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
+                asChild
+              >
+                <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+                  <Text style={styles.title}>{event.title}</Text>
+                  <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+                  <Text style={styles.body}>{event.areaLabel}</Text>
+                  <Text style={styles.meta}>Status: Pending review</Text>
+                </Pressable>
+              </Link>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      <View style={styles.eventGrid}>
+        {upcomingEvents.map((event) => (
+          <Link
+            key={event.id}
+            href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
+            asChild
+          >
+            <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+              <Text style={styles.title}>{event.title}</Text>
+              <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+              <Text style={styles.body}>{event.areaLabel}</Text>
+              <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
+              <Text style={styles.meta}>
+                {event.attendeeCount}
+                {event.capacity ? ` of ${event.capacity}` : ''} going
+              </Text>
+            </Pressable>
+          </Link>
+        ))}
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   intro: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 24 },
+  eventGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
+  section: { gap: tokens.spacing.sm },
+  sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   card: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
@@ -108,6 +140,7 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     gap: tokens.spacing.xs,
   },
+  mediumCard: { flexBasis: '48%', flexGrow: 1, minWidth: 260 },
   notice: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,

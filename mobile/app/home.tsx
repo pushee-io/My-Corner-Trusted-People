@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
+import { displayError } from '@/lib/display-error';
 import { getActiveLocationLabel } from '@/lib/location-context';
 import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { listRequesterRequests } from '@/lib/repository';
@@ -20,7 +21,7 @@ export default function HomeScreen() {
   useEffect(() => {
     listRequesterRequests()
       .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
+      .catch((caught) => setError(displayError(caught, 'Could not load requests.')))
       .finally(() => setIsLoading(false));
   }, []);
 

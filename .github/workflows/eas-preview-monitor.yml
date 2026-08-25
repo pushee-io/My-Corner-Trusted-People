@@ -1,5 +1,5 @@
 name: Build and Monitor EAS Preview APK
-# Founder-approved password-reset device verification build: 2026-08-12
+# Founder-approved live Groups replacement preview build: 2026-08-19
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PR_NUMBER: '40'
+  PR_NUMBER: '44'
 
 jobs:
   build-and-monitor:
