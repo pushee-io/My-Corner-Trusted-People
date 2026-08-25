@@ -290,6 +290,8 @@ export function getDay2BLiveRepository(
 
 function loadConfiguredDay2BSupabaseReadClient(): Day2BSupabaseReadClient | undefined {
   try {
+    // Keep the Supabase adapter lazy so seeded tests do not load native modules.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const adapter = require('@/lib/day2b-supabase-read-adapter') as {
       getSupabaseDay2BReadClient?: () => Day2BSupabaseReadClient;
     };
