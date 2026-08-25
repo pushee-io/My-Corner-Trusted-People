@@ -2,7 +2,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { OfflineBanner } from '@/components/StateBlocks';
 import { structureServiceRequest } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
 import { featureFlags } from '@/lib/feature-flags';
@@ -137,7 +136,6 @@ export default function NewRequestScreen() {
 
   return (
     <Screen title="Create request">
-      <OfflineBanner />
       <Text style={styles.summary}>
         Requesting {category?.name ?? 'help'} from{' '}
         {isProviderLoaded ? (provider?.name ?? 'selected provider') : 'selected provider'}.
