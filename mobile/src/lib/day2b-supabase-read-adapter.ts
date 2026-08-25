@@ -302,5 +302,7 @@ function toError(error: Day2BSupabaseReadError): Error {
 }
 
 function loadSupabaseModule(): SupabaseModuleShape {
+  // Keep the native Supabase client out of isolated adapter tests.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require('@/lib/supabase') as SupabaseModuleShape;
 }
