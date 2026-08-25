@@ -165,12 +165,20 @@ select pg_temp.assert_true(
 insert into public.marketplace_pickup_requests (
   listing_id,
   requester_id,
-  message
+  message,
+  general_area,
+  proposed_start,
+  proposed_end,
+  status
 )
 values (
   'e4300000-0000-4000-8000-000000000001',
   'e4000000-0000-4000-8000-000000000002',
-  'Hi, I am interested. Is afternoon pickup possible?'
+  'Hi, I am interested. Is afternoon pickup possible?',
+  'East Legon, general pickup area',
+  now() + interval '1 day',
+  now() + interval '1 day 1 hour',
+  'proposed'
 );
 
 select pg_temp.assert_true(
@@ -183,12 +191,20 @@ select pg_temp.assert_denied(
     insert into public.marketplace_pickup_requests (
       listing_id,
       requester_id,
-      message
+      message,
+      general_area,
+      proposed_start,
+      proposed_end,
+      status
     )
     values (
       'e4300000-0000-4000-8000-000000000002',
       'e4000000-0000-4000-8000-000000000002',
-      'I should not be able to request a blocked listing.'
+      'I should not be able to request a blocked listing.',
+      'East Legon, general pickup area',
+      now() + interval '1 day',
+      now() + interval '1 day 1 hour',
+      'proposed'
     )
   $statement$,
   'verified member must not request a blocked marketplace listing'
@@ -217,9 +233,15 @@ select pg_temp.assert_true(
   'seller should read pickup requests for their own listings'
 );
 
-update public.marketplace_pickup_requests
-set status = 'accepted'
-where listing_id = 'e4300000-0000-4000-8000-000000000001';
+select public.respond_to_marketplace_pickup_request(
+  (
+    select id
+    from public.marketplace_pickup_requests
+    where listing_id = 'e4300000-0000-4000-8000-000000000001'
+  ),
+  'accept',
+  null
+);
 
 select pg_temp.assert_true(
   exists (
