@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - feat/eas-preview-readiness
     paths:
       - '.github/workflows/eas-preview-apk.yml'
