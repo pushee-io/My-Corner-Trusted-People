@@ -124,13 +124,24 @@ async function auditLayout(page, scenario) {
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const reports = [];
+let activePage;
+let activeScenario = 'not-started';
+
+function observePage(page, scenario) {
+  page.on('console', (message) => console.log(`browser[${scenario}] ${message.type()}: ${message.text()}`));
+  page.on('pageerror', (error) => console.error(`browser[${scenario}] pageerror: ${error.message}`));
+}
 
 try {
   const phone = await browser.newPage({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 1 });
+  activePage = phone;
+  activeScenario = 'compact-requester-pin-release';
+  observePage(phone, activeScenario);
   await mockSafetyRpc(phone, safetyRow());
   await phone.goto(`${baseUrl}/hire/request/safety-session?requestId=job-safety-usability-test`, {
     waitUntil: 'networkidle',
   });
+  console.log(`browser[compact-requester-pin-release] body: ${(await phone.locator('body').innerText()).slice(0, 1500)}`);
   await phone.getByText('Private service pin').waitFor();
   await phone.getByLabel('Private location description').fill('Green gate beside the pharmacy');
   await phone.getByRole('checkbox').click();
@@ -141,6 +152,9 @@ try {
   reports.push(await auditLayout(phone, 'compact-requester-pin-release'));
 
   const tablet = await browser.newPage({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 1 });
+  activePage = tablet;
+  activeScenario = 'tablet-provider-code-entry';
+  observePage(tablet, activeScenario);
   await mockSafetyRpc(
     tablet,
     safetyRow({
@@ -159,11 +173,21 @@ try {
   await tablet.goto(`${baseUrl}/hire/request/safety-session?requestId=job-safety-usability-test`, {
     waitUntil: 'networkidle',
   });
+  console.log(`browser[tablet-provider-code-entry] body: ${(await tablet.locator('body').innerText()).slice(0, 1500)}`);
   await tablet.getByText('Enter requester code').waitFor();
   await tablet.getByText('Never request it by message or phone.').waitFor();
   await tablet.getByLabel('Six-digit code').fill('483921');
   await tablet.screenshot({ path: `${outputDir}/tablet-provider-code-entry.png`, fullPage: true });
   reports.push(await auditLayout(tablet, 'tablet-provider-code-entry'));
+} catch (error) {
+  if (activePage) {
+    await activePage.screenshot({ path: `${outputDir}/diagnostic-${activeScenario}.png`, fullPage: true });
+    await writeFile(
+      `${outputDir}/diagnostic-${activeScenario}.txt`,
+      await activePage.locator('body').innerText().catch(() => String(error)),
+    );
+  }
+  throw error;
 } finally {
   await browser.close();
 }
