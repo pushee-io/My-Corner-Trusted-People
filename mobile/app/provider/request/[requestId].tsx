@@ -52,29 +52,35 @@ export default function ProviderRequestDetailScreen() {
         <Text style={styles.notice}>Exact requester address is not shown in this workflow.</Text>
       </View>
 
-      <Link
-        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
-        asChild
-      >
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Accept request</Text>
-        </Pressable>
-      </Link>
+      {['Submitted', 'Viewed'].includes(request.status) ? (
+        <>
+          <Link
+            href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
+            asChild
+          >
+            <Pressable style={styles.button}>
+              <Text style={styles.buttonText}>Accept request</Text>
+            </Pressable>
+          </Link>
 
-      <Link
-        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
-        asChild
-      >
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Decline request</Text>
-        </Pressable>
-      </Link>
+          <Link
+            href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
+            asChild
+          >
+            <Pressable style={styles.secondary}>
+              <Text style={styles.secondaryText}>Decline request</Text>
+            </Pressable>
+          </Link>
+        </>
+      ) : null}
 
-      <Link href={{ pathname: '/provider/request/status-update', params: { requestId: request.id } }} asChild>
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Update status</Text>
-        </Pressable>
-      </Link>
+      {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
+        <Link href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>
+          <Pressable style={styles.button}>
+            <Text style={styles.buttonText}>Open job safety session</Text>
+          </Pressable>
+        </Link>
+      ) : null}
     </Screen>
   );
 }
