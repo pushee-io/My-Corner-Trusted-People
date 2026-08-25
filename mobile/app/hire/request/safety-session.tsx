@@ -334,10 +334,9 @@ export default function JobSafetySessionScreen() {
               disabled={isSaving}
               label={isRequester ? 'Confirm job is complete' : 'Confirm work is finished'}
               onPress={() =>
-                runAction(
-                  () => acknowledgeJobSafetyCompletion(requestId!),
-                  'Your completion confirmation was recorded.',
-                )
+                runAction(async () => {
+                  await acknowledgeJobSafetyCompletion(requestId!);
+                }, 'Your completion confirmation was recorded.')
               }
             />
           ) : (
