@@ -11,15 +11,11 @@ on:
 
 permissions:
   contents: read
-  issues: write
   statuses: write
 
 concurrency:
   group: eas-preview-apk
   cancel-in-progress: false
-
-env:
-  PR_NUMBER: '38'
 
 jobs:
   submit-preview-build:
@@ -150,8 +146,6 @@ jobs:
           payload="$(jq -n             --arg state success             --arg context eas-preview-submit             --arg description "$DETAILS_DESCRIPTION"             --arg target_url "$DETAILS_URL"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
           curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
 
-          comment="$(jq -n --arg body "${DETAILS_DESCRIPTION}. Build details: ${DETAILS_URL}" '{body: $body}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$comment"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
 
       - name: Publish submission failure
         if: failure()
