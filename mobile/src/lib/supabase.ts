@@ -8,11 +8,37 @@ type SupabaseExtra = {
   supabaseAnonKey?: string;
 };
 
-export const secureSessionStorage = {
+const nativeSessionStorage = {
   getItem: (key: string) => SecureStore.getItemAsync(key),
   setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
   removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 };
+
+const webSessionStorage = {
+  getItem: async (key: string) => {
+    try {
+      return globalThis.localStorage?.getItem(key) ?? null;
+    } catch {
+      return null;
+    }
+  },
+  setItem: async (key: string, value: string) => {
+    try {
+      globalThis.localStorage?.setItem(key, value);
+    } catch {
+      // A blocked browser storage policy should not crash authentication.
+    }
+  },
+  removeItem: async (key: string) => {
+    try {
+      globalThis.localStorage?.removeItem(key);
+    } catch {
+      // A blocked browser storage policy should not crash sign-out.
+    }
+  },
+};
+
+export const secureSessionStorage = Platform.OS === 'web' ? webSessionStorage : nativeSessionStorage;
 
 const extra = (Constants.expoConfig?.extra ?? {}) as SupabaseExtra;
 
