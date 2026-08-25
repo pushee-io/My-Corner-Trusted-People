@@ -601,7 +601,7 @@ begin
 
   if not (
     (old.status = 'Draft' and new.status = 'Submitted')
-    or (old.status = 'Submitted' and new.status in ('Viewed', 'Cancelled', 'Reported'))
+    or (old.status = 'Submitted' and new.status in ('Viewed', 'Accepted', 'Declined', 'Cancelled', 'Reported'))
     or (old.status = 'Viewed' and new.status in ('Accepted', 'Declined', 'Cancelled', 'Reported'))
     or (old.status = 'Accepted' and new.status in ('In progress', 'Cancelled', 'Reported'))
     or (old.status = 'In progress' and new.status in ('Completed', 'Reported'))
