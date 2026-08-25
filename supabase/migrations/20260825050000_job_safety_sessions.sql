@@ -172,7 +172,7 @@ begin
   end if;
 
   if requester_view or session_state <> 'awaiting_location' then
-    select pgp_sym_decrypt(safety.private_location_ciphertext, public.job_safety_location_key())::jsonb
+    select extensions.pgp_sym_decrypt(safety.private_location_ciphertext, public.job_safety_location_key())::jsonb
     into location_payload
     from public.job_safety_sessions safety
     where safety.job_request_id = target_job_request_id
@@ -257,13 +257,13 @@ begin
   end if;
 
   generated_code := (
-    ((('x' || encode(gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::integer
+    ((('x' || encode(extensions.gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::integer
   )::text;
 
   update public.job_safety_sessions
   set
     state = 'location_shared',
-    private_location_ciphertext = pgp_sym_encrypt(
+    private_location_ciphertext = extensions.pgp_sym_encrypt(
       jsonb_build_object(
         'latitude', target_latitude,
         'longitude', target_longitude,
@@ -275,7 +275,7 @@ begin
     location_consent_version = btrim(target_consent_version),
     location_consented_at = now(),
     location_shared_at = now(),
-    code_hash = crypt(generated_code, gen_salt('bf', 8)),
+    code_hash = extensions.crypt(generated_code, extensions.gen_salt('bf', 8)),
     code_expires_at = now() + interval '15 minutes',
     code_attempt_count = 0,
     updated_at = now()
@@ -328,12 +328,12 @@ begin
   end if;
 
   generated_code := (
-    ((('x' || encode(gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::integer
+    ((('x' || encode(extensions.gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::integer
   )::text;
 
   update public.job_safety_sessions
   set
-    code_hash = crypt(generated_code, gen_salt('bf', 8)),
+    code_hash = extensions.crypt(generated_code, extensions.gen_salt('bf', 8)),
     code_expires_at = expires_at,
     code_attempt_count = 0,
     updated_at = now()
@@ -469,7 +469,7 @@ begin
     return jsonb_build_object('started', false, 'reason', 'code_expired');
   end if;
 
-  if supplied_code !~ '^[0-9]{6}$' or crypt(supplied_code, safety.code_hash) <> safety.code_hash then
+  if supplied_code !~ '^[0-9]{6}$' or extensions.crypt(supplied_code, safety.code_hash) <> safety.code_hash then
     update public.job_safety_sessions
     set code_attempt_count = code_attempt_count + 1, updated_at = now()
     where job_request_id = target_job_request_id;
