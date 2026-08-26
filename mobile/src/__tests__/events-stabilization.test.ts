@@ -15,6 +15,15 @@ describe('Events stabilization gates', () => {
     expect(isEventsClientEnabled({ EXPO_PUBLIC_FEATURE_EVENTS: 'enabled' })).toBe(true);
   });
 
+  it('enables the live Events client in preview builds while retaining the server gate', () => {
+    const config = JSON.parse(readFileSync('eas.json', 'utf8'));
+
+    expect(config.build.preview.env).toMatchObject({
+      EXPO_PUBLIC_FEATURE_EVENTS: 'enabled',
+      EXPO_PUBLIC_EVENTS_REPOSITORY: 'supabase',
+    });
+  });
+
   it('permits seeded Events only as an explicit non-production development mode', () => {
     expect(isSeededEventsDevelopmentMode({ NODE_ENV: 'production', EXPO_PUBLIC_EVENTS_REPOSITORY: 'seeded' })).toBe(
       false,

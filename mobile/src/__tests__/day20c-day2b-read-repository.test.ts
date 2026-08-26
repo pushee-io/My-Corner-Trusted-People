@@ -1,7 +1,3 @@
-jest.mock('@/lib/day2b-live-repository', () => ({
-  getDay2BLiveRepository: jest.fn(),
-}));
-
 import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
 import {
   getDay2BPreviewProviderId,
@@ -9,6 +5,10 @@ import {
   listDay2BProviderRequests,
   listDay2BProvidersByCategory,
 } from '@/lib/day2b-read-repository';
+
+jest.mock('@/lib/day2b-live-repository', () => ({
+  getDay2BLiveRepository: jest.fn(),
+}));
 
 const mockGetDay2BLiveRepository = getDay2BLiveRepository as jest.Mock;
 

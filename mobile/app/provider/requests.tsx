@@ -1,7 +1,7 @@
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
+import { EmptyState } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { StatusPill } from '@/components/StatusPill';
 import { listProviderRequests } from '@/lib/repository';
@@ -22,8 +22,6 @@ export default function ProviderRequestsScreen() {
 
   return (
     <Screen title="Incoming requests">
-      <OfflineBanner />
-
       {error ? (
         <EmptyState title="Could not load requests" body={error} />
       ) : isLoading ? (

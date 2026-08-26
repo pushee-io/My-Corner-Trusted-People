@@ -28,6 +28,7 @@ legacy_tests=(
   supabase/tests/day3_social_groups_broadcasts.sql
   supabase/tests/day3b_social_group_engagement.sql
   supabase/tests/events_feature_flag_smoke.sql
+  supabase/tests/marketplace_core_rls.sql
 )
 
 for test_file in "${legacy_tests[@]}"; do
@@ -40,6 +41,7 @@ pgtap_tests=(
   supabase/tests/events_rls_smoke.sql
   supabase/tests/events_stabilization_rls.sql
   supabase/tests/events_stabilization_rls_smoke.sql
+  supabase/tests/20260824_marketplace_vertical_slice.sql
 )
 
 for test_file in "${pgtap_tests[@]}"; do

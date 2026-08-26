@@ -20,7 +20,7 @@ export default function ProvidersScreen() {
 
   function continueWithProvider(providerId: string) {
     router.push({
-      pathname: '/hire/request/new',
+      pathname: '/hire/provider/[providerId]',
       params: { providerId, categoryId },
     });
   }

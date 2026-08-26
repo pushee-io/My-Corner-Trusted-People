@@ -1,11 +1,3 @@
-jest.mock('@/lib/repository', () => ({
-  listProvidersByCategory: jest.fn(),
-  getProvider: jest.fn(),
-  listProviderRequests: jest.fn(),
-  createJobRequest: jest.fn(),
-  updateRequestStatus: jest.fn(),
-}));
-
 import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
 import {
   createDay2BSupabaseReadClient,
@@ -16,6 +8,14 @@ import {
   day2bProviderTrustSignalColumns,
   type Day2BSupabaseReadTableName,
 } from '@/lib/day2b-supabase-read-adapter';
+
+jest.mock('@/lib/repository', () => ({
+  listProvidersByCategory: jest.fn(),
+  getProvider: jest.fn(),
+  listProviderRequests: jest.fn(),
+  createJobRequest: jest.fn(),
+  updateRequestStatus: jest.fn(),
+}));
 
 type Call = {
   table: Day2BSupabaseReadTableName;
