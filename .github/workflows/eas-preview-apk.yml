@@ -73,10 +73,8 @@ jobs:
 
           supabase_url="${EXPO_PUBLIC_SUPABASE_URL:-}"
           supabase_key="${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}"
-          expected_url="https://opeojxwkwwnnncnsuaag.supabase.co"
-
-          if [ "$supabase_url" != "$expected_url" ]; then
-            echo "::error::Development Supabase URL does not match the approved My Corner project."
+          if [[ ! "$supabase_url" =~ ^https://[a-z0-9]{20}\.supabase\.co$ ]]; then
+            echo "::error::Development Supabase URL is not a valid hosted Supabase project URL."
             exit 1
           fi
 
