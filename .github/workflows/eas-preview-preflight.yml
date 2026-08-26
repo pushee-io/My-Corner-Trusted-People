@@ -1,0 +1,149 @@
+name: EAS Preview Supabase Preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/eas-preview-readiness
+    paths:
+      - '.github/workflows/eas-preview-preflight.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-preview-supabase-preflight
+  cancel-in-progress: true
+
+jobs:
+  verify-preview-supabase:
+    name: Verify Preview Supabase pair and Events packaging
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Require Expo authentication
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Validate key, Events RPC, and packaged project reference
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          approved_ref="opeojxwkwwnnncnsuaag"
+          approved_url="https://${approved_ref}.supabase.co"
+          rejected_ref="ojsbfxrumrqgnuwftnrf"
+          preview_env="${RUNNER_TEMP}/eas-preview.env"
+          export_dir="${RUNNER_TEMP}/my-corner-preflight-export"
+
+          npx --yes eas-cli@21.4.0 env:pull preview \
+            --path "$preview_env" \
+            --non-interactive
+
+          set -a
+          # shellcheck disable=SC1090
+          source "$preview_env"
+          set +a
+
+          supabase_url="${EXPO_PUBLIC_SUPABASE_URL:-}"
+          supabase_key="${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}"
+
+          echo "::add-mask::$supabase_url"
+          echo "::add-mask::$supabase_key"
+
+          if [ "$supabase_url" != "$approved_url" ]; then
+            echo "::error::EAS Preview does not target the approved Supabase project reference."
+            exit 1
+          fi
+
+          if [[ ! "$supabase_key" =~ ^sb_publishable_ ]]; then
+            echo "::error::EAS Preview key is not a Supabase publishable key."
+            exit 1
+          fi
+
+          curl --fail-with-body --silent --show-error \
+            --output /dev/null \
+            --header "apikey: $supabase_key" \
+            "$supabase_url/auth/v1/settings"
+
+          rpc_body="${RUNNER_TEMP}/events-rpc-response.json"
+          rpc_status="$(curl --silent --show-error \
+            --output "$rpc_body" \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "apikey: $supabase_key" \
+            --header "Content-Type: application/json" \
+            --data '{}' \
+            "$supabase_url/rest/v1/rpc/is_events_feature_enabled")"
+
+          case "$rpc_status" in
+            200)
+              rpc_value="$(jq -r '.' "$rpc_body")"
+              if [ "$rpc_value" != "true" ] && [ "$rpc_value" != "false" ]; then
+                echo "::error::Events feature RPC returned an unexpected payload."
+                exit 1
+              fi
+              echo "Events feature RPC is available; enabled=$rpc_value."
+              ;;
+            401|403)
+              rpc_error_code="$(jq -r '.code // empty' "$rpc_body")"
+              if [ "$rpc_error_code" != "42501" ]; then
+                echo "::error::Events feature RPC did not return the expected authenticated-only boundary."
+                exit 1
+              fi
+              echo "Events feature RPC is available and correctly restricted to authenticated users."
+              ;;
+            *)
+              echo "::error::Events feature RPC is unavailable (HTTP $rpc_status)."
+              exit 1
+              ;;
+          esac
+
+          if [ "$(jq -r '.build.preview.environment' eas.json)" != "preview" ]; then
+            echo "::error::The Preview build profile is not bound to the EAS preview environment."
+            exit 1
+          fi
+
+          if [ "$(jq -r '.build.preview.env.EXPO_PUBLIC_FEATURE_EVENTS' eas.json)" != "enabled" ] ||
+             [ "$(jq -r '.build.preview.env.EXPO_PUBLIC_EVENTS_REPOSITORY' eas.json)" != "supabase" ]; then
+            echo "::error::The Preview build profile does not enable the Supabase Events path."
+            exit 1
+          fi
+
+          CI=1 npx expo export \
+            --platform android \
+            --output-dir "$export_dir" \
+            --clear
+
+          if ! grep --recursive --fixed-strings --quiet "$approved_ref" "$export_dir"; then
+            echo "::error::The exported Android bundle does not contain the approved Supabase project reference."
+            exit 1
+          fi
+
+          if grep --recursive --fixed-strings --quiet "$rejected_ref" "$export_dir"; then
+            echo "::error::The exported Android bundle still contains the rejected Supabase project reference."
+            exit 1
+          fi
+
+          echo "Preflight passed: key authentication, Events RPC availability, and Android bundle project reference are verified."
