@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer';
+
 const expectedRef = 'opeojxwkwwnnncnsuaag';
 const expectedUrl = `https://${expectedRef}.supabase.co`;
 
