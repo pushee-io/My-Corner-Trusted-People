@@ -71,15 +71,19 @@ jobs:
           source "$development_env"
           set +a
 
-          supabase_url="${EXPO_PUBLIC_SUPABASE_URL:-}"
+          approved_supabase_url="https://opeojxwkwwnnncnsuaag.supabase.co"
+          approved_key_sha256="8a8d0ff1dd2930ebccafc9ae1981932d65c16d1b641322a94e4f653d0223c79d"
+          supabase_url="$approved_supabase_url"
           supabase_key="${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}"
-          if [[ ! "$supabase_url" =~ ^https://[a-z0-9]{20}\.supabase\.co$ ]]; then
-            echo "::error::Development Supabase URL is not a valid hosted Supabase project URL."
-            exit 1
-          fi
 
           if [ -z "$supabase_key" ]; then
             echo "::error::Development Supabase anon key is missing."
+            exit 1
+          fi
+
+          key_sha256="$(printf '%s' "$supabase_key" | sha256sum | cut -d ' ' -f1)"
+          if [ "$key_sha256" != "$approved_key_sha256" ]; then
+            echo "::error::Development Supabase key does not match the approved Events project key fingerprint."
             exit 1
           fi
 
