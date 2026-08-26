@@ -11,7 +11,7 @@ on:
       existing_build_id:
         description: 'Existing completed EAS build ID to inspect without starting a new build'
         required: false
-        default: ''
+        default: '1597cda3-24a0-4a17-91a6-4b41765c2c77'
         type: string
 
 permissions:
