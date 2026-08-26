@@ -44,9 +44,15 @@ const expected = {
   eventsRepository: 'supabase',
 };
 
-if (preview?.distribution !== expected.distribution) fail('preview distribution must be internal');
-if (preview?.environment !== expected.environment) fail('preview environment must be preview');
-if (preview?.android?.buildType !== expected.androidBuildType) fail('preview Android build type must be apk');
+if (preview?.distribution !== expected.distribution) {
+  fail('preview distribution must be internal');
+}
+if (preview?.environment !== expected.environment) {
+  fail('preview environment must be preview');
+}
+if (preview?.android?.buildType !== expected.androidBuildType) {
+  fail('preview Android build type must be apk');
+}
 if (preview?.env?.EXPO_PUBLIC_FEATURE_EVENTS !== expected.featureEvents) {
   fail('EXPO_PUBLIC_FEATURE_EVENTS must be pinned to enabled in the preview profile');
 }
@@ -56,11 +62,16 @@ if (preview?.env?.EXPO_PUBLIC_EVENTS_REPOSITORY !== expected.eventsRepository) {
 
 await Promise.all([
   requireText('app/home.tsx', "'/events'"),
-  requireText('src/lib/events-feature.ts', "EXPO_PUBLIC_FEATURE_EVENTS === enabledValue"),
-  requireText('src/lib/events-supabase-repository.ts', "supabase.rpc('is_events_feature_enabled')"),
+  requireText('src/lib/events-feature.ts', 'EXPO_PUBLIC_FEATURE_EVENTS === enabledValue'),
+  requireText(
+    'src/lib/events-supabase-repository.ts',
+    "supabase.rpc('is_events_feature_enabled')",
+  ),
   requireText('src/lib/events-runtime-repository.ts', 'Events is not available yet.'),
 ]);
 
 if (!process.exitCode) {
-  console.log('Preview contract verified: Events routes, navigation, repository, RPC, and pinned preview flags are present.');
+  console.log(
+    'Preview contract verified: Events routes, navigation, repository, RPC, and pinned preview flags are present.',
+  );
 }
