@@ -64,6 +64,15 @@ jobs:
             exit 1
           fi
 
+      - name: Verify EAS preview Supabase environment
+        if: inputs.existing_build_id == ''
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx --yes eas-cli@22.4.0 env:exec \
+            --environment preview \
+            'node scripts/verify-preview-supabase-env.mjs'
+
       - name: Submit EAS cloud Android APK build
         id: submit
         if: inputs.existing_build_id == ''
@@ -72,7 +81,7 @@ jobs:
         run: |
           cloud_log="${RUNNER_TEMP}/eas-submit.log"
           set +e
-          npx --yes eas-cli@21.4.0 build             --platform android             --profile preview             --non-interactive             --no-wait 2>&1 | tee "$cloud_log"
+          npx --yes eas-cli@22.4.0 build             --platform android             --profile preview             --non-interactive             --no-wait 2>&1 | tee "$cloud_log"
           cloud_status=${PIPESTATUS[0]}
           set -e
 
@@ -122,7 +131,7 @@ jobs:
           build_json="${RUNNER_TEMP}/eas-build.json"
 
           for attempt in $(seq 1 120); do
-            if npx --yes eas-cli@21.4.0 build:view "$BUILD_ID" --json > "$build_json" 2>"${RUNNER_TEMP}/eas-view.log"; then
+            if npx --yes eas-cli@22.4.0 build:view "$BUILD_ID" --json > "$build_json" 2>"${RUNNER_TEMP}/eas-view.log"; then
               status="$(jq -r '.status // empty' "$build_json")"
               echo "EAS build status: ${status:-unknown}"
 

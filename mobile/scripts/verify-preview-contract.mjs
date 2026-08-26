@@ -31,12 +31,14 @@ await Promise.all(
     'src/lib/events-feature.ts',
     'src/lib/events-runtime-repository.ts',
     'src/lib/events-supabase-repository.ts',
+    'scripts/verify-preview-supabase-env.mjs',
   ].map(requireFile),
 );
 
 const eas = JSON.parse(await readFile(path.join(root, 'eas.json'), 'utf8'));
 const preview = eas.build?.preview;
 const expected = {
+  easCliVersion: '22.4.0',
   distribution: 'internal',
   environment: 'preview',
   androidBuildType: 'apk',
@@ -44,6 +46,9 @@ const expected = {
   eventsRepository: 'supabase',
 };
 
+if (eas.cli?.version !== expected.easCliVersion) {
+  fail(`EAS CLI must be pinned to ${expected.easCliVersion}`);
+}
 if (preview?.distribution !== expected.distribution) {
   fail('preview distribution must be internal');
 }
