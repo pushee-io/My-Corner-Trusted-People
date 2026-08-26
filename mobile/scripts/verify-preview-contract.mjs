@@ -63,10 +63,7 @@ if (preview?.env?.EXPO_PUBLIC_EVENTS_REPOSITORY !== expected.eventsRepository) {
 await Promise.all([
   requireText('app/home.tsx', "'/events'"),
   requireText('src/lib/events-feature.ts', 'EXPO_PUBLIC_FEATURE_EVENTS === enabledValue'),
-  requireText(
-    'src/lib/events-supabase-repository.ts',
-    "supabase.rpc('is_events_feature_enabled')",
-  ),
+  requireText('src/lib/events-supabase-repository.ts', "supabase.rpc('is_events_feature_enabled')"),
   requireText('src/lib/events-runtime-repository.ts', 'Events is not available yet.'),
 ]);
 
