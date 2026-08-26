@@ -55,6 +55,78 @@ jobs:
             exit 1
           fi
 
+      - name: Correct and verify EAS Preview Supabase project pair
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          development_env="${RUNNER_TEMP}/eas-development.env"
+          preview_env="${RUNNER_TEMP}/eas-preview.env"
+
+          npx --yes eas-cli@21.4.0 env:pull development \
+            --path "$development_env" \
+            --non-interactive
+
+          set -a
+          # shellcheck disable=SC1090
+          source "$development_env"
+          set +a
+
+          supabase_url="${EXPO_PUBLIC_SUPABASE_URL:-}"
+          supabase_key="${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}"
+          expected_url="https://opeojxwkwwnnncnsuaag.supabase.co"
+
+          if [ "$supabase_url" != "$expected_url" ]; then
+            echo "::error::Development Supabase URL does not match the approved My Corner project."
+            exit 1
+          fi
+
+          if [ -z "$supabase_key" ]; then
+            echo "::error::Development Supabase anon key is missing."
+            exit 1
+          fi
+
+          echo "::add-mask::$supabase_url"
+          echo "::add-mask::$supabase_key"
+
+          curl --fail-with-body --silent --show-error \
+            --output /dev/null \
+            --header "apikey: $supabase_key" \
+            "$supabase_url/auth/v1/settings"
+
+          npx --yes eas-cli@21.4.0 env:set preview \
+            --name EXPO_PUBLIC_SUPABASE_URL \
+            --value "$supabase_url" \
+            --visibility plaintext \
+            --scope project \
+            --non-interactive
+
+          npx --yes eas-cli@21.4.0 env:set preview \
+            --name EXPO_PUBLIC_SUPABASE_ANON_KEY \
+            --value "$supabase_key" \
+            --visibility sensitive \
+            --scope project \
+            --non-interactive
+
+          npx --yes eas-cli@21.4.0 env:pull preview \
+            --path "$preview_env" \
+            --non-interactive
+
+          (
+            unset EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
+            set -a
+            # shellcheck disable=SC1090
+            source "$preview_env"
+            set +a
+
+            if [ "${EXPO_PUBLIC_SUPABASE_URL:-}" != "$supabase_url" ] ||
+               [ "${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}" != "$supabase_key" ]; then
+              echo "::error::EAS Preview Supabase values did not round-trip as the approved pair."
+              exit 1
+            fi
+          )
+
+          echo "EAS Preview Supabase URL and anon key now form the verified approved project pair."
+
       - name: Submit EAS cloud Android APK build
         id: submit
         env:
