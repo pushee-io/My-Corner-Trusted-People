@@ -1,11 +1,11 @@
 # Tech Radar
 
-Last reviewed: 2026-08-20
-Baseline commit: `61f69d4` (Events stabilization merged through PR #34)
+Last reviewed: 2026-08-26
+Baseline commit: `0b819fd` (preview APK recovery merged through PR #57)
 
 ## Policy
 
-The committed `mobile/package-lock.json` is the reproducible dependency authority for the current application. Versions below describe the merged baseline; they do not claim to be the newest upstream release. Official Supabase migration, RLS, and API-security guidance was rechecked on 2026-08-21. No dependency upgrades are included in this Events slice. Do not upgrade the Expo family one package at a time.
+The committed `mobile/package-lock.json` is the reproducible dependency authority for the current application. Versions below describe the merged baseline; they do not claim to be the newest upstream release. Official EAS preview-environment guidance and Supabase client API-key guidance were rechecked on 2026-08-26. No dependency upgrades are included in this Events slice. Do not upgrade the Expo family one package at a time.
 
 | Tool or dependency   |                               Selected version | Release channel            | Official source                                                 | Date verified | Purpose                                     | Reason for selection                                                                               | Known risks                                                                                                            | Upgrade policy                                                                                                           |
 | -------------------- | ---------------------------------------------: | -------------------------- | --------------------------------------------------------------- | ------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
