@@ -64,6 +64,15 @@ jobs:
             exit 1
           fi
 
+      - name: Verify EAS preview Supabase environment
+        if: inputs.existing_build_id == ''
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx --yes eas-cli@21.4.0 env:exec \
+            --environment preview \
+            'node scripts/verify-preview-supabase-env.mjs'
+
       - name: Submit EAS cloud Android APK build
         id: submit
         if: inputs.existing_build_id == ''
