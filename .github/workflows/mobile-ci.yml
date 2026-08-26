@@ -42,7 +42,10 @@ jobs:
         run: npx expo-doctor
 
       - name: Check formatting
-        run: npm run format
+        run: |
+          npx prettier scripts/verify-preview-contract.mjs > "${RUNNER_TEMP}/verify-preview-contract.formatted.mjs"
+          diff -u scripts/verify-preview-contract.mjs "${RUNNER_TEMP}/verify-preview-contract.formatted.mjs" || true
+          npm run format
 
       - name: Lint
         run: npm run lint
