@@ -4,10 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       founder_approved:
-        description: 'Founder approved this paid EAS preview build'
+        description: 'Founder approved a new paid EAS preview build'
         required: true
         default: false
         type: boolean
+      existing_build_id:
+        description: 'Existing completed EAS build ID to inspect without starting a new build'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -19,7 +24,7 @@ concurrency:
 jobs:
   build-and-verify-preview:
     name: Build and verify Android preview APK
-    if: inputs.founder_approved == true
+    if: inputs.founder_approved == true || inputs.existing_build_id != ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
     defaults:
@@ -61,6 +66,7 @@ jobs:
 
       - name: Submit EAS cloud Android APK build
         id: submit
+        if: inputs.existing_build_id == ''
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
@@ -87,11 +93,31 @@ jobs:
           echo "details_url=${details_url}" >> "$GITHUB_OUTPUT"
           echo "Recorded EAS build ID: ${build_id}"
 
+      - name: Resolve EAS build ID
+        id: build
+        env:
+          EXISTING_BUILD_ID: ${{ inputs.existing_build_id }}
+          SUBMITTED_BUILD_ID: ${{ steps.submit.outputs.build_id }}
+          SUBMITTED_DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+        run: |
+          build_id="${EXISTING_BUILD_ID:-$SUBMITTED_BUILD_ID}"
+          if ! printf '%s' "$build_id" | grep -Eq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
+            echo "::error::A valid real EAS build ID is required."
+            exit 1
+          fi
+          details_url="$SUBMITTED_DETAILS_URL"
+          if [ -z "$details_url" ]; then
+            details_url="https://expo.dev/builds/$build_id"
+            echo "Reusing existing EAS build ID: $build_id; no new build submitted."
+          fi
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+          echo "details_url=$details_url" >> "$GITHUB_OUTPUT"
+
       - name: Wait for final EAS result
         id: completed
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          BUILD_ID: ${{ steps.submit.outputs.build_id }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
         run: |
           build_json="${RUNNER_TEMP}/eas-build.json"
 
@@ -140,7 +166,7 @@ jobs:
         id: verify_apk
         env:
           APK_PATH: ${{ steps.artifact.outputs.apk_path }}
-          BUILD_ID: ${{ steps.submit.outputs.build_id }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
         run: |
           unzip -tq "$APK_PATH"
           unzip -Z1 "$APK_PATH" | grep -Fx 'assets/app.config'
@@ -151,21 +177,17 @@ jobs:
           unzip -p "$APK_PATH" assets/index.android.bundle > "$bundle_path"
           test -s "$bundle_path"
 
-          hermesc="node_modules/react-native/sdks/hermesc/linux64-bin/hermesc"
-          if [ ! -x "$hermesc" ]; then
-            echo "::error::Hermes bytecode inspector is unavailable."
-            exit 1
-          fi
-
-          "$hermesc" -dump-bytecode "$bundle_path" > "$dump_path"
+          strings -a -n 4 "$bundle_path" > "$dump_path"
           grep -Fq 'is_events_feature_enabled' "$dump_path"
           grep -Fq 'Events is not available yet.' "$dump_path"
 
-          supabase_url="$(grep -Eo 'https://[a-z]{20}\.supabase\.co' "$dump_path" | head -n 1 || true)"
-          if [ -z "$supabase_url" ]; then
-            echo "::error::The completed APK does not contain a verifiable Supabase project URL."
+          supabase_urls="$(grep -Eo 'https://[a-z]{20}\.supabase\.co' "$dump_path" | sort -u || true)"
+          expected_supabase_url='https://opeojxwkwwnnncnsuaag.supabase.co'
+          if [ "$supabase_urls" != "$expected_supabase_url" ]; then
+            echo "::error::Expected only staging Supabase URL $expected_supabase_url; found: ${supabase_urls:-none}"
             exit 1
           fi
+          supabase_url="$supabase_urls"
 
           apkanalyzer_path="$(command -v apkanalyzer || find "$ANDROID_HOME" -type f -name apkanalyzer | head -n 1 || true)"
           if [ -z "$apkanalyzer_path" ]; then
@@ -195,8 +217,8 @@ jobs:
 
       - name: Publish verified build summary
         env:
-          BUILD_ID: ${{ steps.submit.outputs.build_id }}
-          DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
+          DETAILS_URL: ${{ steps.build.outputs.details_url }}
         run: |
           {
             echo "## Verified Android preview APK"
