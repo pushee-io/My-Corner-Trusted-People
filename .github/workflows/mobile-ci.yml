@@ -5,10 +5,12 @@ on:
     paths:
       - 'mobile/**'
       - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/eas-preview-apk.yml'
   pull_request:
     paths:
       - 'mobile/**'
       - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/eas-preview-apk.yml'
   workflow_dispatch:
 
 jobs:
@@ -32,6 +34,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify preview build contract
+        run: npm run verify:preview
 
       - name: Verify Expo dependency compatibility
         run: npx expo-doctor
