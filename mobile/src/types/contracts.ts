@@ -142,6 +142,62 @@ export type MarketplaceMessage = {
   isOwn: boolean;
 };
 
+export type MarketplaceModerationDecision = 'approve' | 'flag' | 'block';
+
+export type MarketplaceModerationReportStatus = 'open' | 'reviewing' | 'resolved';
+
+export type MarketplaceModerationReasonCode =
+  | 'no_violation'
+  | 'insufficient_evidence'
+  | 'misleading_or_scam'
+  | 'prohibited_item'
+  | 'unsafe_pickup'
+  | 'harassment'
+  | 'privacy_exposure'
+  | 'duplicate_or_spam'
+  | 'other';
+
+export type MarketplaceModerationQueueItem = {
+  reportId: string;
+  reportReason: string;
+  reportDetails?: string;
+  reportStatus: MarketplaceModerationReportStatus;
+  reportedAt: string;
+  reporterName: string;
+  listingId: string;
+  listingTitle: string;
+  listingDescription: string;
+  listingModerationStatus: ModerationStatus;
+  sellerId: string;
+  sellerName: string;
+  neighborhoodName: string;
+  imageUrl?: string;
+};
+
+export type MarketplaceModerationAuditEntry = {
+  id: string;
+  actorName: string;
+  action: MarketplaceModerationDecision;
+  reasonCode: MarketplaceModerationReasonCode;
+  reasonDetails?: string;
+  previousStatus: ModerationStatus;
+  resultingStatus: ModerationStatus;
+  createdAt: string;
+};
+
+export type MarketplaceModerationReport = MarketplaceModerationQueueItem & {
+  listingPickupArea: string;
+  imageUrls: string[];
+  auditHistory: MarketplaceModerationAuditEntry[];
+};
+
+export type MarketplaceModerationActionInput = {
+  reportId: string;
+  decision: MarketplaceModerationDecision;
+  reasonCode: MarketplaceModerationReasonCode;
+  reasonDetails?: string;
+};
+
 export type UserImageBucket =
   | 'profile-images'
   | 'listing-images'
