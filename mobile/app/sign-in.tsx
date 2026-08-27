@@ -18,7 +18,11 @@ export default function SignInScreen() {
 
     try {
       const profile = await signInWithEmailPassword(email, password);
-      router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
+      if (profile.role === 'moderator' || profile.role === 'admin') {
+        router.replace('/marketplace/moderation');
+      } else {
+        router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not sign in.');
     } finally {

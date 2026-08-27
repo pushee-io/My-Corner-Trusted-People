@@ -96,6 +96,19 @@ Run each scenario with real `request.jwt.claim.sub` values and seeded profiles:
 
 ## Required mobile scenarios
 
+### Marketplace moderator queue
+
+- Non-moderators cannot list, open, or decide Marketplace reports.
+- Open, reviewing, resolved, and all filters return only the requested report states.
+- Approve marks the listing clean and resolves the report.
+- Flag marks the listing flagged and keeps the report under review.
+- Block hides the listing, resolves the report, and does not ban the seller.
+- Every action requires a compatible controlled reason; `other` requires explanatory notes.
+- Repeat submission against a resolved report is rejected without a second audit event.
+- Audit history shows actor, action, reason, previous state, resulting state, and timestamp.
+- Loading, empty, retryable error, and authorization states are understandable.
+- Compact phone and tablet layouts retain 48 dp touch targets, readable text scaling, and labeled controls.
+
 - Verified member lists neighborhood and cluster events from the active membership context.
 - User creates a draft with localized date/time controls and clear moderation status.
 - Organizer can reopen and edit a pending draft.

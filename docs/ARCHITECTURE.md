@@ -20,3 +20,21 @@ flowchart LR
 ```
 
 The public repository interface remains storage-agnostic. Screens depend only on the runtime repository. The seeded implementation is a test factory and is not reachable from production screens. Supabase remains authoritative; cached data is a read fallback and queued writes reconcile by replacing optimistic records with server records after a successful retry.
+
+## Marketplace Moderation
+
+```mermaid
+flowchart LR
+  A[Moderator queue] --> B[Typed moderation repository]
+  B --> C{Authenticated moderator or admin?}
+  C -- No --> D[Deny without report data]
+  C -- Yes --> E[Moderator-only Supabase RPC]
+  E --> F[Lock report and listing]
+  F --> G{Approve, flag, or block listing}
+  G --> H[Update listing and report state]
+  H --> I[Upsert moderation case]
+  I --> J[Append audit event]
+  J --> K[Return refreshed report and history]
+```
+
+The review RPC validates action-to-reason compatibility on the server. Blocking affects the reported listing only; it is not a permanent user ban. Direct authenticated writes to moderation cases and audit events remain revoked.

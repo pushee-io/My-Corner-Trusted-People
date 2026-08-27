@@ -82,3 +82,15 @@ Decision: After the short Events stabilization milestone, prioritize Production 
 Reason: verified neighborhood membership is an authorization dependency for private feed and Events access; notifications improve engagement but do not establish the trust boundary.
 Scope: production phone verification and residence-assurance provider abstractions first. Identity verification, biometric processing, background checks, legal-language changes, and paid vendor activation require founder approval and qualified privacy/legal review.
 Deferred: retain the domain outbox but do not deliver real push notifications until verified membership, consent, preferences, token lifecycle, and delivery monitoring are production-ready.
+
+## 2026-08-27 - Make Marketplace moderation human-owned and auditable
+
+Decision: Marketplace reports are decided by a moderator or administrator through one database transaction with a controlled reason and append-only audit event.
+Reason: AI or client state must not independently label a seller trustworthy, hide content, or impose account enforcement.
+Impact: Approve marks the listing clean, flag keeps the report under review, and block hides only the listing. Permanent account bans remain outside this slice and require founder-approved enforcement policy.
+
+## 2026-08-27 - Keep the Marketplace migration out of Preview
+
+Decision: Prepare and test the migration locally without applying it to Preview.
+Reason: The founder explicitly separated implementation from Preview device verification approval.
+Exit: Founder approval, reviewed migration output, Preview backup/recovery readiness, then compact-phone and tablet device verification.
