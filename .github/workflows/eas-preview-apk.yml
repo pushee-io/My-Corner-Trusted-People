@@ -46,6 +46,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify approved Events client-gate fix
+        run: |
+          npm run format
+          npm run lint
+          npm run typecheck
+          npm test -- --runInBand
+          grep -Fq 'process.env.EXPO_PUBLIC_FEATURE_EVENTS' src/lib/events-feature.ts
+          if grep -Fq 'globalThis' src/lib/events-feature.ts; then
+            echo "::error::Events feature flags must use Expo-compatible static environment references."
+            exit 1
+          fi
+
       - name: Require Expo authentication
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
