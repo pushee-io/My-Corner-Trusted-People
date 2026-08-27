@@ -27,7 +27,7 @@ export default function PhoneVerificationScreen() {
     <Screen title="Phone verification">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-{testProviderEnabled
+          {testProviderEnabled
             ? 'Local development test provider. No real SMS is sent.'
             : 'Real SMS verification is not active. Test codes are disabled in Preview and Production.'}
         </Text>
@@ -48,7 +48,7 @@ export default function PhoneVerificationScreen() {
         style={[styles.button, !testProviderEnabled ? styles.disabled : null]}
         onPress={sendCode}
       >
-        <Text style={styles.buttonText}>Send test code</Text>
+        <Text style={styles.buttonText}>{testProviderEnabled ? 'Send local test code' : 'SMS unavailable'}</Text>
       </Pressable>
 
       {session ? (
@@ -67,6 +67,7 @@ export default function PhoneVerificationScreen() {
         value={code}
         onChangeText={setCode}
         keyboardType="number-pad"
+        editable={testProviderEnabled}
         style={styles.input}
         accessibilityLabel="Verification code"
       />
