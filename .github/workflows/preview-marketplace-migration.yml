@@ -1,0 +1,74 @@
+name: Apply Marketplace migration to Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/preview-marketplace-migration.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-marketplace-migration
+  cancel-in-progress: false
+
+jobs:
+  apply-preview-migration:
+    name: Apply approved Marketplace migration to Preview
+    if: github.event.head_commit.message == 'Apply Marketplace moderator migration to Preview (#60)'
+    environment: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_PREVIEW_PROJECT_REF: opeojxwkwwnnncnsuaag
+      TARGET_MIGRATION: '20260827190000'
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+    steps:
+      - name: Check out approved source
+        uses: actions/checkout@v4
+
+      - name: Set up pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.111.0
+
+      - name: Require Preview deployment credentials
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is missing from the Preview environment."
+            exit 1
+          fi
+          if [ -z "$SUPABASE_DB_PASSWORD" ]; then
+            echo "::error::SUPABASE_DB_PASSWORD is missing from the Preview environment."
+            exit 1
+          fi
+          test -f "supabase/migrations/${TARGET_MIGRATION}_marketplace_moderator_queue.sql"
+
+      - name: Link only the pinned Preview project
+        run: supabase link --project-ref "$EXPECTED_PREVIEW_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Dry-run the migration
+        run: |
+          supabase db push --dry-run 2>&1 | tee "$RUNNER_TEMP/preview-dry-run.log"
+          grep -Fq "$TARGET_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
+
+          unexpected="$({ grep -Eo '20[0-9]{12}' "$RUNNER_TEMP/preview-dry-run.log" || true; } \
+            | sort -u \
+            | grep -Fvx "$TARGET_MIGRATION" || true)"
+          if [ -n "$unexpected" ]; then
+            echo "::error::Unexpected pending Preview migrations: $unexpected"
+            exit 1
+          fi
+
+      - name: Apply the approved migration
+        run: supabase db push --yes
+
+      - name: Verify Preview migration history
+        run: |
+          supabase migration list --linked | tee "$RUNNER_TEMP/preview-migrations.log"
+          grep -Eq "${TARGET_MIGRATION}[[:space:]]*\\|[[:space:]]*${TARGET_MIGRATION}" \
+            "$RUNNER_TEMP/preview-migrations.log"
