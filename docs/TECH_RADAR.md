@@ -1,6 +1,6 @@
 # Tech Radar
 
-Last reviewed: 2026-08-26
+Last reviewed: 2026-08-27
 Baseline commit: `0b819fd` (preview APK recovery merged through PR #57)
 
 ## Policy
@@ -41,3 +41,10 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 2. Decide whether to stabilize on Expo SDK 54 or perform a dedicated Expo-family upgrade.
 3. Replace compatible ranges (`~` and `^`) with exact manifest versions as required by project policy, retaining the lockfile.
 4. Run `npm ci`, `npx expo-doctor`, type checking, tests, and native preview builds after any dependency change.
+
+## 2026-08-27 Marketplace moderation verification note
+
+- Expo SDK 54 documentation confirms React Native 0.81 and React 19.1 as its compatible runtime family. The existing exact application pins remain unchanged for this focused slice.
+- Expo Router SDK 54 documentation currently recommends `~6.0.24`; the repository remains on `~6.0.23` pending a dedicated dependency update with lockfile and device verification.
+- Supabase documentation reconfirms that exposed tables require both grants and Row Level Security. Marketplace moderation therefore uses authenticated execution grants, moderator checks inside security-definer RPCs, and explicit RLS read policies.
+- No new dependency was added. Preview migration application remains pending separate founder approval.
