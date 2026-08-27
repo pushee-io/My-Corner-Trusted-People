@@ -10,6 +10,7 @@ This repository contains the Day-One Module 1 vertical slice for **My Corner**, 
 - Design token source in `design/tokens.json` and TypeScript tokens in `mobile/src/theme/tokens.ts`
 - Supabase migration and seed SQL in `supabase/`
 - Fictional provider/category data in `seed/`
+- Dedicated Marketplace moderator queue at `/marketplace/moderation` with approve, flag, block-listing, reasons, and audit history
 - Product, design, AI, trust, test, and release docs in `docs/`
 - Figma design file: https://www.figma.com/design/eHvnZ6NPomoA4t965Vbuqs/1.-My-Corner---Module-1-Trusted-Hire-Prototype?node-id=0-1&m=dev
 
@@ -31,6 +32,12 @@ npm run web
 - Provider: Kwame PipeCare
 
 These are fictional seeded identities for prototype testing only.
+
+A Preview moderator account must have `profiles.role` set to `moderator` or `admin`. Moderator credentials are never committed. Successful moderator sign-in routes directly to the Marketplace report queue.
+
+## Marketplace Moderator Migration
+
+`supabase/migrations/20260827190000_marketplace_moderator_queue.sql` is prepared for review but has not been applied to Preview. Apply it only after separate founder approval, then run the Marketplace SQL checks and device matrix in `docs/TEST_PLAN.md`.
 
 ## Environment
 Copy `.env.example` into the mobile or backend runtime as appropriate. Do not put service-role Supabase keys or OpenAI keys in the mobile app.
