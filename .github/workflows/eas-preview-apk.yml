@@ -79,8 +79,9 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           npx --yes eas-cli@22.4.0 env:exec \
-            --environment preview \
-            'node scripts/verify-preview-supabase-env.mjs'
+            preview \
+            'node scripts/verify-preview-supabase-env.mjs' \
+            --non-interactive
 
       - name: Submit EAS cloud Android APK build
         id: submit
