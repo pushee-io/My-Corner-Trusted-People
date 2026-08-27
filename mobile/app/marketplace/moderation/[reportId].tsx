@@ -132,7 +132,9 @@ export default function MarketplaceModerationReportScreen() {
       <View style={styles.section}>
         <View style={styles.headingRow}>
           <Text style={styles.sectionTitle}>Report</Text>
-          <Text style={styles.statusText}>{report.reportStatus === 'reviewing' ? 'Under review' : report.reportStatus}</Text>
+          <Text style={styles.statusText}>
+            {report.reportStatus === 'reviewing' ? 'Under review' : report.reportStatus}
+          </Text>
         </View>
         <Text style={styles.label}>Reason submitted</Text>
         <Text style={styles.body}>{report.reportReason}</Text>
@@ -147,7 +149,12 @@ export default function MarketplaceModerationReportScreen() {
         {report.imageUrls.length > 0 ? (
           <View style={styles.imageGrid}>
             {report.imageUrls.map((url, index) => (
-              <Image accessibilityLabel={`Listing evidence ${index + 1}`} key={url} source={{ uri: url }} style={styles.image} />
+              <Image
+                accessibilityLabel={`Listing evidence ${index + 1}`}
+                key={url}
+                source={{ uri: url }}
+                style={styles.image}
+              />
             ))}
           </View>
         ) : (
@@ -233,7 +240,9 @@ export default function MarketplaceModerationReportScreen() {
             <Text style={styles.title}>Confirm {actionLabel(decision).toLowerCase()}</Text>
             <Text style={styles.body}>{availableReasons.find((reason) => reason.code === reasonCode)?.label}</Text>
             {decision === 'block' ? (
-              <Text style={styles.warning}>The listing will be hidden immediately. The seller account will not be banned.</Text>
+              <Text style={styles.warning}>
+                The listing will be hidden immediately. The seller account will not be banned.
+              </Text>
             ) : null}
             <View style={styles.confirmationActions}>
               <Pressable
@@ -280,7 +289,12 @@ export default function MarketplaceModerationReportScreen() {
 
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 23 },
-  confirmation: { backgroundColor: '#FFF4D6', borderRadius: tokens.radius.md, gap: tokens.spacing.md, padding: tokens.spacing.lg },
+  confirmation: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    gap: tokens.spacing.md,
+    padding: tokens.spacing.lg,
+  },
   confirmationActions: { gap: tokens.spacing.sm },
   counter: { color: tokens.color.textSecondary, fontSize: tokens.type.minimum, textAlign: 'right' },
   decision: {
@@ -298,10 +312,20 @@ const styles = StyleSheet.create({
   decisionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.body, fontWeight: '700' },
   decisionTitleSelected: { color: '#FFFFFF' },
   disabled: { opacity: 0.55 },
-  error: { backgroundColor: '#FBE9E5', borderRadius: tokens.radius.md, color: tokens.color.error, padding: tokens.spacing.md },
+  error: {
+    backgroundColor: '#FBE9E5',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.error,
+    padding: tokens.spacing.md,
+  },
   headingRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   history: { gap: tokens.spacing.md },
-  historyItem: { borderLeftColor: tokens.color.primary, borderLeftWidth: 3, gap: tokens.spacing.xs, paddingLeft: tokens.spacing.md },
+  historyItem: {
+    borderLeftColor: tokens.color.primary,
+    borderLeftWidth: 3,
+    gap: tokens.spacing.xs,
+    paddingLeft: tokens.spacing.md,
+  },
   image: { aspectRatio: 1, backgroundColor: tokens.color.border, borderRadius: tokens.radius.md, flexBasis: '47%' },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
   input: {
@@ -347,10 +371,25 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.md,
   },
   secondaryButtonText: { color: tokens.color.primary, fontWeight: '700' },
-  section: { borderBottomColor: tokens.color.border, borderBottomWidth: 1, gap: tokens.spacing.md, paddingBottom: tokens.spacing.xl },
+  section: {
+    borderBottomColor: tokens.color.border,
+    borderBottomWidth: 1,
+    gap: tokens.spacing.md,
+    paddingBottom: tokens.spacing.xl,
+  },
   sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.section, fontWeight: '700' },
-  statusText: { color: tokens.color.primary, fontSize: tokens.type.label, fontWeight: '700', textTransform: 'capitalize' },
-  success: { backgroundColor: '#E7F6EE', borderRadius: tokens.radius.md, color: tokens.color.textPrimary, padding: tokens.spacing.md },
+  statusText: {
+    color: tokens.color.primary,
+    fontSize: tokens.type.label,
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
+  success: {
+    backgroundColor: '#E7F6EE',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    padding: tokens.spacing.md,
+  },
   textArea: { minHeight: 112, textAlignVertical: 'top' },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   warning: { color: tokens.color.error, fontSize: tokens.type.support, fontWeight: '700', lineHeight: 20 },
