@@ -23,8 +23,9 @@ alter table public.reports enable row level security;
 alter table public.moderation_cases enable row level security;
 alter table public.audit_events enable row level security;
 
-grant select on public.reports, public.moderation_cases, public.audit_events to authenticated;
-revoke insert, update, delete on public.moderation_cases, public.audit_events from authenticated;
+grant select on public.reports, public.moderation_cases to authenticated;
+revoke select, insert, update, delete on public.audit_events from authenticated;
+revoke insert, update, delete on public.moderation_cases from authenticated;
 
 drop policy if exists "moderators read marketplace reports" on public.reports;
 create policy "moderators read marketplace reports" on public.reports
