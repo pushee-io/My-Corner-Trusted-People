@@ -179,7 +179,7 @@ export default function MarketplaceScreen() {
       setDescription('');
       setPrice('');
       setPhotos([]);
-      setMessage('Listing posted. Exact pickup details stay private until a pickup is confirmed.');
+      setMessage('Listing submitted for review. It will appear to neighbors after approval.');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not create listing.');
     } finally {
@@ -296,6 +296,11 @@ export default function MarketplaceScreen() {
             <Text style={styles.note}>
               {listing.availability} · {listing.sellerName}
             </Text>
+            {listing.moderationStatus !== 'clean' ? (
+              <Text accessibilityRole="status" style={styles.reviewStatus}>
+                Pending moderation. Only you and moderators can view this listing.
+              </Text>
+            ) : null}
             <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
             <Link href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.button}>
@@ -371,6 +376,14 @@ const styles = StyleSheet.create({
   },
   removeButton: { justifyContent: 'center', minHeight: tokens.touch.min, paddingHorizontal: tokens.spacing.sm },
   removeText: { color: tokens.color.error, fontWeight: '700', textAlign: 'center' },
+  reviewStatus: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    lineHeight: 20,
+    padding: tokens.spacing.md,
+  },
   secondaryButton: {
     borderColor: tokens.color.primary,
     borderRadius: tokens.radius.md,
