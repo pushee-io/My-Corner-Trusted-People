@@ -297,7 +297,7 @@ export default function MarketplaceScreen() {
               {listing.availability} · {listing.sellerName}
             </Text>
             {listing.moderationStatus !== 'clean' ? (
-              <Text accessibilityRole="status" style={styles.reviewStatus}>
+              <Text accessibilityLiveRegion="polite" style={styles.reviewStatus}>
                 Pending moderation. Only you and moderators can view this listing.
               </Text>
             ) : null}
