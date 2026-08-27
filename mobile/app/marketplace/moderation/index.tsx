@@ -144,7 +144,12 @@ const styles = StyleSheet.create({
     paddingVertical: tokens.spacing.md,
   },
   rowBody: { flex: 1, gap: tokens.spacing.xs },
-  rowHeader: { alignItems: 'flex-start', flexDirection: 'row', gap: tokens.spacing.sm, justifyContent: 'space-between' },
+  rowHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: tokens.spacing.sm,
+    justifyContent: 'space-between',
+  },
   secondaryButton: {
     alignItems: 'center',
     borderColor: tokens.color.primary,
