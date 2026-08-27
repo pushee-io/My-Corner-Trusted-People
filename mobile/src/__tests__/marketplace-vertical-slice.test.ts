@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const migrationPath = '../supabase/migrations/20260824120000_marketplace_media_pickup_messages.sql';
+const moderationMigrationPath = '../supabase/migrations/20260827190000_marketplace_moderation_fail_closed.sql';
 
 describe('Marketplace media, pickup, and messaging vertical slice', () => {
   const repository = fs.readFileSync('src/lib/marketplace-repository.ts', 'utf8');
@@ -8,6 +9,7 @@ describe('Marketplace media, pickup, and messaging vertical slice', () => {
   const detailScreen = fs.readFileSync('app/marketplace/listing/[listingId].tsx', 'utf8');
   const messagesScreen = fs.readFileSync('app/messages.tsx', 'utf8');
   const migration = fs.readFileSync(migrationPath, 'utf8');
+  const moderationMigration = fs.readFileSync(moderationMigrationPath, 'utf8');
 
   it('uses the shared eight-photo policy and private listing image bucket', () => {
     expect(listScreen).toContain("getMediaPipelinePolicy('marketplace_listing')");
@@ -48,5 +50,19 @@ describe('Marketplace media, pickup, and messaging vertical slice', () => {
     expect(messagesScreen).toContain('listMarketplaceMessages(requestId)');
     expect(messagesScreen).toContain('sendMarketplaceMessage(requestId, trimmed)');
     expect(messagesScreen).toContain('not end-to-end encrypted');
+  });
+
+  it('fails closed until listing and image moderation are clean', () => {
+    expect(repository).toContain('moderation_status.eq.clean,seller_id.eq.');
+    expect(repository).toContain('moderation_status.eq.clean,owner_profile_id.eq.');
+    expect(repository).not.toContain(".neq('moderation_status', 'blocked')");
+    expect(listScreen).toContain('Listing submitted for review.');
+    expect(listScreen).toContain('Only you and moderators can view this listing.');
+    expect(detailScreen).toContain('Neighbors cannot view it or propose a pickup.');
+    expect(moderationMigration).toContain("and moderation_status = 'not_run'");
+    expect(moderationMigration).toContain("ml.moderation_status = 'clean'");
+    expect(moderationMigration).toContain('only a moderator may change marketplace moderation status');
+    expect(moderationMigration).toContain('guard_marketplace_pickup_moderation');
+    expect(moderationMigration).toContain("pr.status in ('proposed', 'accepted', 'confirmed')");
   });
 });
