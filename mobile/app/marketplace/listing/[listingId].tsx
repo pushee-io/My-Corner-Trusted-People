@@ -174,6 +174,11 @@ export default function MarketplaceListingScreen() {
         <Text style={styles.note}>Availability: {listing.availability}</Text>
         <Text style={styles.note}>General pickup area: {listing.pickupArea}</Text>
         <Text style={styles.privacyNote}>Exact pickup instructions are not part of this public listing.</Text>
+        {listing.moderationStatus !== 'clean' ? (
+          <Text accessibilityRole="status" style={styles.reviewNotice}>
+            This listing is under moderation review. Neighbors cannot view it or propose a pickup.
+          </Text>
+        ) : null}
       </View>
 
       {error ? <EmptyState title="Marketplace notice" body={error} /> : null}
@@ -410,6 +415,14 @@ const styles = StyleSheet.create({
   },
   price: { color: tokens.color.primary, fontSize: tokens.type.card, fontWeight: '700' },
   privacyNote: {
+    backgroundColor: '#FFF4D6',
+    borderRadius: tokens.radius.md,
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.support,
+    lineHeight: 20,
+    padding: tokens.spacing.md,
+  },
+  reviewNotice: {
     backgroundColor: '#FFF4D6',
     borderRadius: tokens.radius.md,
     color: tokens.color.textPrimary,
