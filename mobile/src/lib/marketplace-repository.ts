@@ -141,12 +141,13 @@ async function profileNames(profileIds: string[]) {
 
 async function signedListingImages(listingIds: string[]) {
   if (listingIds.length === 0) return new Map<string, string[]>();
+  const profile = await getCurrentProfile();
 
   const { data, error } = await supabase
     .from('marketplace_listing_images')
     .select('listing_id, object_path, position')
     .in('listing_id', listingIds)
-    .neq('moderation_status', 'blocked')
+    .or(`moderation_status.eq.clean,owner_profile_id.eq.${profile.id}`)
     .order('position', { ascending: true });
   if (error) throw error;
 
@@ -226,11 +227,12 @@ export async function getMarketplaceViewer() {
 
 export async function listMarketplaceListings(neighborhoodId: string): Promise<MarketplaceListing[]> {
   assertSupabaseConfigured();
+  const profile = await getCurrentProfile();
   const { data, error } = await supabase
     .from('marketplace_listings')
     .select(listingColumns)
     .eq('neighborhood_id', neighborhoodId)
-    .neq('moderation_status', 'blocked')
+    .or(`moderation_status.eq.clean,seller_id.eq.${profile.id}`)
     .order('created_at', { ascending: false })
     .limit(50);
   if (error) throw error;
@@ -239,11 +241,12 @@ export async function listMarketplaceListings(neighborhoodId: string): Promise<M
 
 export async function getMarketplaceListing(listingId: string): Promise<MarketplaceListing> {
   assertSupabaseConfigured();
+  const profile = await getCurrentProfile();
   const { data, error } = await supabase
     .from('marketplace_listings')
     .select(listingColumns)
     .eq('id', listingId)
-    .neq('moderation_status', 'blocked')
+    .or(`moderation_status.eq.clean,seller_id.eq.${profile.id}`)
     .single();
   if (error) throw error;
   return (await hydrateListings([data as ListingRow]))[0];
