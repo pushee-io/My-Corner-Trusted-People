@@ -40,7 +40,7 @@ describe('Marketplace moderator queue', () => {
     expect(migration).toContain("'marketplace_report_reviewed'");
     expect(migration).toContain("'previous_status', listing_row.moderation_status");
     expect(migration).toContain("'resulting_status', next_content_status");
-    expect(migration).toContain('revoke insert, update, delete on public.moderation_cases, public.audit_events');
+    expect(migration).toContain('revoke select, insert, update, delete on public.audit_events');
     expect(reportScreen).toContain('Audit history');
   });
 });
