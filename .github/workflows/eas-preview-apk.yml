@@ -55,79 +55,51 @@ jobs:
             exit 1
           fi
 
-      - name: Correct and verify EAS Preview Supabase project pair
+      - name: Verify EAS Preview Supabase project pair
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          development_env="${RUNNER_TEMP}/eas-development.env"
+          approved_ref="opeojxwkwwnnncnsuaag"
+          approved_url="https://${approved_ref}.supabase.co"
+          rejected_ref="ojsbfxrumrqgnuwftnrf"
           preview_env="${RUNNER_TEMP}/eas-preview.env"
 
-          npx --yes eas-cli@21.4.0 env:pull development \
-            --path "$development_env" \
+          npx --yes eas-cli@21.4.0 env:pull preview \
+            --path "$preview_env" \
             --non-interactive
 
           set -a
           # shellcheck disable=SC1090
-          source "$development_env"
+          source "$preview_env"
           set +a
 
-          approved_supabase_url="https://opeojxwkwwnnncnsuaag.supabase.co"
-          approved_key_sha256="8a8d0ff1dd2930ebccafc9ae1981932d65c16d1b641322a94e4f653d0223c79d"
-          supabase_url="$approved_supabase_url"
+          supabase_url="${EXPO_PUBLIC_SUPABASE_URL:-}"
           supabase_key="${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}"
-
-          if [ -z "$supabase_key" ]; then
-            echo "::error::Development Supabase anon key is missing."
-            exit 1
-          fi
-
-          key_sha256="$(printf '%s' "$supabase_key" | sha256sum | cut -d ' ' -f1)"
-          if [ "$key_sha256" != "$approved_key_sha256" ]; then
-            echo "::error::Development Supabase key does not match the approved Events project key fingerprint."
-            exit 1
-          fi
 
           echo "::add-mask::$supabase_url"
           echo "::add-mask::$supabase_key"
+
+          if [ "$supabase_url" != "$approved_url" ]; then
+            echo "::error::EAS Preview does not target the approved Supabase project reference."
+            exit 1
+          fi
+
+          if [[ ! "$supabase_key" =~ ^sb_publishable_ ]]; then
+            echo "::error::EAS Preview key is not a Supabase publishable key."
+            exit 1
+          fi
+
+          if [[ "$supabase_url" == *"$rejected_ref"* ]]; then
+            echo "::error::EAS Preview still targets the rejected Supabase project."
+            exit 1
+          fi
 
           curl --fail-with-body --silent --show-error \
             --output /dev/null \
             --header "apikey: $supabase_key" \
             "$supabase_url/auth/v1/settings"
 
-          npx --yes eas-cli@21.4.0 env:set preview \
-            --name EXPO_PUBLIC_SUPABASE_URL \
-            --value "$supabase_url" \
-            --visibility plaintext \
-            --scope project \
-            --non-interactive
-
-          npx --yes eas-cli@21.4.0 env:set preview \
-            --name EXPO_PUBLIC_SUPABASE_ANON_KEY \
-            --value "$supabase_key" \
-            --visibility sensitive \
-            --scope project \
-            --non-interactive
-
-          npx --yes eas-cli@21.4.0 env:pull preview \
-            --path "$preview_env" \
-            --non-interactive
-
-          (
-            unset EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
-            set -a
-            # shellcheck disable=SC1090
-            source "$preview_env"
-            set +a
-
-            if [ "${EXPO_PUBLIC_SUPABASE_URL:-}" != "$supabase_url" ] ||
-               [ "${EXPO_PUBLIC_SUPABASE_ANON_KEY:-}" != "$supabase_key" ]; then
-              echo "::error::EAS Preview Supabase values did not round-trip as the approved pair."
-              exit 1
-            fi
-          )
-
-          echo "EAS Preview Supabase URL and anon key now form the verified approved project pair."
+          echo "EAS Preview uses the authenticated approved Supabase project pair."
 
       - name: Submit EAS cloud Android APK build
         id: submit
@@ -172,6 +144,33 @@ jobs:
           echo "::error::Build was submitted, but its EAS record could not be located."
           exit 1
 
+      - name: Monitor EAS cloud Android APK build
+        if: steps.submit.outputs.quota_exhausted == 'false'
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          BUILD_ID: ${{ steps.submit.outputs.build_id }}
+        run: |
+          for attempt in $(seq 1 120); do
+            build="$(npx --yes eas-cli@21.4.0 build:view "$BUILD_ID" --json)"
+            status="$(printf '%s' "$build" | jq -r '.status')"
+
+            case "$status" in
+              FINISHED)
+                echo "EAS cloud Android preview APK completed."
+                exit 0
+                ;;
+              ERRORED|CANCELED)
+                echo "::error::EAS cloud Android preview APK ended with status $status."
+                exit 1
+                ;;
+            esac
+
+            sleep 30
+          done
+
+          echo "::error::Timed out waiting for the EAS cloud Android preview APK."
+          exit 1
+
       - name: Build Android preview APK locally
         id: local_build
         if: steps.submit.outputs.quota_exhausted == 'true'
@@ -207,7 +206,7 @@ jobs:
             echo "description=Android preview APK available in workflow artifacts" >> "$GITHUB_OUTPUT"
             echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
           else
-            echo "description=Android preview APK submitted to EAS" >> "$GITHUB_OUTPUT"
+            echo "description=Android preview APK completed in EAS" >> "$GITHUB_OUTPUT"
             echo "url=${CLOUD_DETAILS_URL}" >> "$GITHUB_OUTPUT"
           fi
 
