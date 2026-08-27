@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
+import { getCurrentProfile } from '@/lib/auth';
 import { getActiveLocationLabel } from '@/lib/location-context';
 import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { listRequesterRequests } from '@/lib/repository';
@@ -15,6 +16,7 @@ export default function HomeScreen() {
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [eventsAvailable, setEventsAvailable] = useState(false);
+  const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
   const latest = requests[0];
 
   useEffect(() => {
@@ -22,6 +24,12 @@ export default function HomeScreen() {
       .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
       .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
       .finally(() => setIsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    getCurrentProfile()
+      .then((profile) => setCanModerateMarketplace(profile.role === 'moderator' || profile.role === 'admin'))
+      .catch(() => setCanModerateMarketplace(false));
   }, []);
 
   useEffect(() => {
@@ -74,6 +82,14 @@ export default function HomeScreen() {
             <Text style={styles.secondaryText}>Marketplace</Text>
           </Pressable>
         </Link>
+
+        {canModerateMarketplace ? (
+          <Link href="/marketplace/moderation" asChild>
+            <Pressable accessibilityRole="button" style={styles.secondary}>
+              <Text style={styles.secondaryText}>Marketplace reports</Text>
+            </Pressable>
+          </Link>
+        ) : null}
 
         <Link href="/community/moderation" asChild>
           <Pressable style={styles.secondary}>
