@@ -23,7 +23,8 @@ jobs:
     timeout-minutes: 20
     env:
       EXPECTED_PREVIEW_PROJECT_REF: opeojxwkwwnnncnsuaag
-      PREREQUISITE_MIGRATION: '20260724041000'
+      COMPATIBILITY_MIGRATION: '20260724041000'
+      MARKETPLACE_SCHEMA_MIGRATION: '20260824120000'
       TARGET_MIGRATION: '20260827190000'
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
@@ -47,7 +48,8 @@ jobs:
             echo "::error::SUPABASE_DB_PASSWORD is missing from the Preview environment."
             exit 1
           fi
-          test -f "supabase/migrations/${PREREQUISITE_MIGRATION}_pgcrypto_gen_random_bytes_compatibility.sql"
+          test -f "supabase/migrations/${COMPATIBILITY_MIGRATION}_pgcrypto_gen_random_bytes_compatibility.sql"
+          test -f "supabase/migrations/${MARKETPLACE_SCHEMA_MIGRATION}_marketplace_media_pickup_messages.sql"
           test -f "supabase/migrations/${TARGET_MIGRATION}_marketplace_moderator_queue.sql"
 
       - name: Link only the pinned Preview project
@@ -56,12 +58,14 @@ jobs:
       - name: Dry-run the approved migrations
         run: |
           supabase db push --dry-run --include-all 2>&1 | tee "$RUNNER_TEMP/preview-dry-run.log"
-          grep -Fq "$PREREQUISITE_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
+          grep -Fq "$COMPATIBILITY_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
+          grep -Fq "$MARKETPLACE_SCHEMA_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
           grep -Fq "$TARGET_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
 
           unexpected="$({ grep -Eo '20[0-9]{12}' "$RUNNER_TEMP/preview-dry-run.log" || true; } \
             | sort -u \
-            | grep -Fvx "$PREREQUISITE_MIGRATION" \
+            | grep -Fvx "$COMPATIBILITY_MIGRATION" \
+            | grep -Fvx "$MARKETPLACE_SCHEMA_MIGRATION" \
             | grep -Fvx "$TARGET_MIGRATION" || true)"
           if [ -n "$unexpected" ]; then
             echo "::error::Unexpected pending Preview migrations: $unexpected"
@@ -74,7 +78,9 @@ jobs:
       - name: Verify Preview migration history
         run: |
           supabase migration list --linked | tee "$RUNNER_TEMP/preview-migrations.log"
-          grep -Eq "${PREREQUISITE_MIGRATION}[[:space:]]*\\|[[:space:]]*${PREREQUISITE_MIGRATION}" \
+          grep -Eq "${COMPATIBILITY_MIGRATION}[[:space:]]*\\|[[:space:]]*${COMPATIBILITY_MIGRATION}" \
+            "$RUNNER_TEMP/preview-migrations.log"
+          grep -Eq "${MARKETPLACE_SCHEMA_MIGRATION}[[:space:]]*\\|[[:space:]]*${MARKETPLACE_SCHEMA_MIGRATION}" \
             "$RUNNER_TEMP/preview-migrations.log"
           grep -Eq "${TARGET_MIGRATION}[[:space:]]*\\|[[:space:]]*${TARGET_MIGRATION}" \
             "$RUNNER_TEMP/preview-migrations.log"
