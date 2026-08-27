@@ -15,6 +15,15 @@ describe('Events stabilization gates', () => {
     expect(isEventsClientEnabled({ EXPO_PUBLIC_FEATURE_EVENTS: 'enabled' })).toBe(true);
   });
 
+  it('uses Expo-compatible static references for release environment substitution', () => {
+    const source = readFileSync('src/lib/events-feature.ts', 'utf8');
+
+    expect(source).toContain('process.env.EXPO_PUBLIC_FEATURE_EVENTS');
+    expect(source).toContain('process.env.EXPO_PUBLIC_EVENTS_REPOSITORY');
+    expect(source).toContain('process.env.EXPO_PUBLIC_EVENTS_ALLOW_SEEDED_DEVELOPMENT');
+    expect(source).not.toContain('globalThis');
+  });
+
   it('enables the live Events client in preview builds while retaining the server gate', () => {
     const config = JSON.parse(readFileSync('eas.json', 'utf8'));
 
