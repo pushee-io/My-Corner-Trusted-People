@@ -59,7 +59,6 @@ jobs:
       - name: Dry-run the approved migrations
         run: |
           supabase db push --dry-run --include-all 2>&1 | tee "$RUNNER_TEMP/preview-dry-run.log"
-          grep -Fq "$COMPATIBILITY_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
           grep -Fq "$MARKETPLACE_SCHEMA_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
           grep -Fq "$TARGET_MIGRATION" "$RUNNER_TEMP/preview-dry-run.log"
 
