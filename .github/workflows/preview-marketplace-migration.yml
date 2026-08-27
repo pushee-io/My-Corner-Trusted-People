@@ -1,4 +1,5 @@
 name: Apply Marketplace migration to Preview
+# One-time deployment; remove this push trigger after successful verification.
 
 on:
   push:
