@@ -35,7 +35,8 @@ reset role;
 delete from public.marketplace_pickup_requests
 where listing_id in (
   'e4300000-0000-4000-8000-000000000001',
-  'e4300000-0000-4000-8000-000000000002'
+  'e4300000-0000-4000-8000-000000000002',
+  'e4300000-0000-4000-8000-000000000003'
 );
 
 delete from public.marketplace_listings
@@ -117,10 +118,23 @@ values (
   'available',
   'East Legon, general pickup area',
   'Coordinate daytime pickup near a public landmark.',
-  'clean'
+  'not_run'
+);
+
+select pg_temp.assert_denied(
+  $statement$
+    update public.marketplace_listings
+    set moderation_status = 'clean'
+    where id = 'e4300000-0000-4000-8000-000000000001'
+  $statement$,
+  'seller must not self-approve a marketplace listing'
 );
 
 reset role;
+
+update public.marketplace_listings
+set moderation_status = 'clean'
+where id = 'e4300000-0000-4000-8000-000000000001';
 
 insert into public.marketplace_listings (
   id,
@@ -145,12 +159,35 @@ values (
   'blocked'
 );
 
+insert into public.marketplace_listings (
+  id,
+  neighborhood_id,
+  seller_id,
+  title,
+  description,
+  price_ghs,
+  availability,
+  pickup_area,
+  moderation_status
+)
+values (
+  'e4300000-0000-4000-8000-000000000003',
+  'e4100000-0000-4000-8000-000000000001',
+  'e4000000-0000-4000-8000-000000000001',
+  'Pending review test listing',
+  'This listing must remain private until a moderator approves it.',
+  20.00,
+  'available',
+  'East Legon, general pickup area',
+  'not_run'
+);
+
 set role authenticated;
 set request.jwt.claim.sub = 'e4aa1111-1111-4111-8111-111111111111';
 
 select pg_temp.assert_true(
-  (select count(*) from public.marketplace_listings) = 1,
-  'seller should read only non-blocked marketplace listings in their verified neighborhood'
+  (select count(*) from public.marketplace_listings) = 3,
+  'seller should retain review access to all of their own marketplace listings'
 );
 
 reset role;
@@ -210,6 +247,30 @@ select pg_temp.assert_denied(
   'verified member must not request a blocked marketplace listing'
 );
 
+select pg_temp.assert_denied(
+  $statement$
+    insert into public.marketplace_pickup_requests (
+      listing_id,
+      requester_id,
+      message,
+      general_area,
+      proposed_start,
+      proposed_end,
+      status
+    )
+    values (
+      'e4300000-0000-4000-8000-000000000003',
+      'e4000000-0000-4000-8000-000000000002',
+      'I should not be able to request a listing that is still under review.',
+      'East Legon, general pickup area',
+      now() + interval '1 day',
+      now() + interval '1 day 1 hour',
+      'proposed'
+    )
+  $statement$,
+  'verified member must not request a marketplace listing under review'
+);
+
 reset role;
 set role authenticated;
 set request.jwt.claim.sub = 'e4cc3333-3333-4333-8333-333333333333';
@@ -258,8 +319,8 @@ set role authenticated;
 set request.jwt.claim.sub = 'e4dd4444-4444-4444-8444-444444444444';
 
 select pg_temp.assert_true(
-  (select count(*) from public.marketplace_listings) = 2,
-  'moderator should read visible and blocked marketplace listings for review'
+  (select count(*) from public.marketplace_listings) = 3,
+  'moderator should read clean, pending, and blocked marketplace listings for review'
 );
 
 reset role;
