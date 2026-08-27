@@ -2,12 +2,12 @@ name: EAS Preview APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - feat/eas-preview-readiness
-    paths:
-      - '.github/workflows/eas-preview-apk.yml'
+    inputs:
+      founder_approved:
+        description: 'Founder approved this EAS preview build'
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -20,6 +20,7 @@ concurrency:
 jobs:
   submit-preview-build:
     name: Submit Android preview APK
+    if: inputs.founder_approved == true
     runs-on: ubuntu-latest
     defaults:
       run:
