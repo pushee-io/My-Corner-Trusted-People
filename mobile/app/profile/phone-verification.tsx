@@ -4,13 +4,15 @@ import { Screen } from '@/components/Screen';
 import {
   confirmPhoneVerification,
   getPhoneVerificationSession,
+  isTestPhoneVerificationEnabled,
   startPhoneVerification,
 } from '@/lib/phone-verification';
 import { tokens } from '@/theme/tokens';
 
 export default function PhoneVerificationScreen() {
-  const [phone, setPhone] = useState('0240000000');
-  const [code, setCode] = useState('123456');
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const testProviderEnabled = isTestPhoneVerificationEnabled();
   const [session, setSession] = useState(getPhoneVerificationSession());
 
   function sendCode() {
@@ -25,7 +27,9 @@ export default function PhoneVerificationScreen() {
     <Screen title="Phone verification">
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          Test provider only. No real SMS is sent and no paid phone verification is active.
+{testProviderEnabled
+            ? 'Local development test provider. No real SMS is sent.'
+            : 'Real SMS verification is not active. Test codes are disabled in Preview and Production.'}
         </Text>
       </View>
 
@@ -39,7 +43,11 @@ export default function PhoneVerificationScreen() {
         accessibilityLabel="Ghana phone number"
       />
 
-      <Pressable style={styles.button} onPress={sendCode}>
+      <Pressable
+        disabled={!testProviderEnabled}
+        style={[styles.button, !testProviderEnabled ? styles.disabled : null]}
+        onPress={sendCode}
+      >
         <Text style={styles.buttonText}>Send test code</Text>
       </Pressable>
 
@@ -48,7 +56,9 @@ export default function PhoneVerificationScreen() {
           <Text style={styles.title}>Provider: {session.provider}</Text>
           <Text style={styles.body}>Status: {session.status}</Text>
           <Text style={styles.body}>Normalized phone: {session.phoneE164 || 'Invalid Ghana phone number'}</Text>
-          {session.status === 'code_sent' ? <Text style={styles.meta}>Use test code: {session.testCode}</Text> : null}
+          {testProviderEnabled && session.status === 'code_sent' && session.testCode ? (
+            <Text style={styles.meta}>Use local test code: {session.testCode}</Text>
+          ) : null}
         </View>
       ) : null}
 
@@ -61,7 +71,11 @@ export default function PhoneVerificationScreen() {
         accessibilityLabel="Verification code"
       />
 
-      <Pressable style={styles.secondary} onPress={confirmCode}>
+      <Pressable
+        disabled={!testProviderEnabled}
+        style={[styles.secondary, !testProviderEnabled ? styles.disabled : null]}
+        onPress={confirmCode}
+      >
         <Text style={styles.secondaryText}>Confirm code</Text>
       </Pressable>
     </Screen>
@@ -118,6 +132,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '700',
   },
+  disabled: { opacity: 0.5 },
   card: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
