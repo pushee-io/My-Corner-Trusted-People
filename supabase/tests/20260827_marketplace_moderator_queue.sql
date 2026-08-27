@@ -30,11 +30,12 @@ begin
   ) then
     raise exception 'authenticated moderators cannot execute the review RPC';
   end if;
-  if has_table_privilege('authenticated', 'public.audit_events', 'insert')
+  if has_table_privilege('authenticated', 'public.audit_events', 'select')
+    or has_table_privilege('authenticated', 'public.audit_events', 'insert')
     or has_table_privilege('authenticated', 'public.audit_events', 'update')
     or has_table_privilege('authenticated', 'public.audit_events', 'delete')
   then
-    raise exception 'authenticated clients must not mutate audit history directly';
+    raise exception 'authenticated clients must not read or mutate audit history directly';
   end if;
   if not exists (
     select 1 from pg_policies
