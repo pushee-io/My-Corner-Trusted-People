@@ -42,7 +42,8 @@ where listing_id in (
 delete from public.marketplace_listings
 where id in (
   'e4300000-0000-4000-8000-000000000001',
-  'e4300000-0000-4000-8000-000000000002'
+  'e4300000-0000-4000-8000-000000000002',
+  'e4300000-0000-4000-8000-000000000003'
 );
 
 delete from public.neighborhood_memberships
@@ -128,6 +129,28 @@ select pg_temp.assert_denied(
     where id = 'e4300000-0000-4000-8000-000000000001'
   $statement$,
   'seller must not self-approve a marketplace listing'
+);
+
+select pg_temp.assert_denied(
+  $statement$
+    insert into public.marketplace_listing_images (
+      listing_id,
+      owner_profile_id,
+      object_path,
+      mime_type,
+      position,
+      moderation_status
+    )
+    values (
+      'e4300000-0000-4000-8000-000000000001',
+      'e4000000-0000-4000-8000-000000000001',
+      'marketplace_listing/e4000000-0000-4000-8000-000000000001/self-approved.jpg',
+      'image/jpeg',
+      0,
+      'clean'
+    )
+  $statement$,
+  'seller must not self-approve a marketplace image'
 );
 
 reset role;
