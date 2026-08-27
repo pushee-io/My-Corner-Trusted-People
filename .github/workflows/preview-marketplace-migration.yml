@@ -17,7 +17,7 @@ concurrency:
 jobs:
   apply-preview-migration:
     name: Apply approved Marketplace migration to Preview
-    if: github.event.head_commit.message == 'Apply Marketplace moderator migration to Preview (#60)'
+    if: startsWith(github.event.head_commit.message, 'Apply Marketplace moderator migration to Preview')
     environment: preview
     runs-on: ubuntu-latest
     timeout-minutes: 20
