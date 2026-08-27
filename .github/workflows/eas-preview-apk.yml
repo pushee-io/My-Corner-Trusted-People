@@ -1,6 +1,11 @@
 name: EAS Preview APK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/eas-preview-apk.yml'
   workflow_dispatch:
     inputs:
       founder_approved:
@@ -24,7 +29,11 @@ concurrency:
 jobs:
   build-and-verify-preview:
     name: Build and verify Android preview APK
-    if: inputs.founder_approved == true || inputs.existing_build_id != ''
+    if: >-
+      (github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'Build approved EAS Preview APK')) ||
+      (github.event_name == 'workflow_dispatch' &&
+      (inputs.founder_approved == true || inputs.existing_build_id != ''))
     runs-on: ubuntu-latest
     timeout-minutes: 90
     defaults:
@@ -65,7 +74,7 @@ jobs:
           fi
 
       - name: Verify EAS preview Supabase environment
-        if: inputs.existing_build_id == ''
+        if: github.event_name == 'push' || inputs.existing_build_id == ''
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
@@ -75,7 +84,7 @@ jobs:
 
       - name: Submit EAS cloud Android APK build
         id: submit
-        if: inputs.existing_build_id == ''
+        if: github.event_name == 'push' || inputs.existing_build_id == ''
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
@@ -105,7 +114,7 @@ jobs:
       - name: Resolve EAS build ID
         id: build
         env:
-          EXISTING_BUILD_ID: ${{ inputs.existing_build_id }}
+          EXISTING_BUILD_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.existing_build_id || '' }}
           SUBMITTED_BUILD_ID: ${{ steps.submit.outputs.build_id }}
           SUBMITTED_DETAILS_URL: ${{ steps.submit.outputs.details_url }}
         run: |
@@ -189,6 +198,8 @@ jobs:
           strings -a -n 4 "$bundle_path" > "$dump_path"
           grep -Fq 'is_events_feature_enabled' "$dump_path"
           grep -Fq 'Events is not available yet.' "$dump_path"
+          grep -Fq 'Marketplace reports' "$dump_path"
+          grep -Fq 'Block listing' "$dump_path"
 
           supabase_urls="$(grep -Eo 'https://[a-z]{20}\.supabase\.co' "$dump_path" | sort -u || true)"
           expected_supabase_url='https://opeojxwkwwnnncnsuaag.supabase.co'
