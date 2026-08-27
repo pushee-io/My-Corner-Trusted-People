@@ -175,7 +175,7 @@ export default function MarketplaceListingScreen() {
         <Text style={styles.note}>General pickup area: {listing.pickupArea}</Text>
         <Text style={styles.privacyNote}>Exact pickup instructions are not part of this public listing.</Text>
         {listing.moderationStatus !== 'clean' ? (
-          <Text accessibilityRole="status" style={styles.reviewNotice}>
+          <Text accessibilityLiveRegion="polite" style={styles.reviewNotice}>
             This listing is under moderation review. Neighbors cannot view it or propose a pickup.
           </Text>
         ) : null}
