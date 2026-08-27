@@ -48,10 +48,7 @@ export function normalizeGhanaPhone(input: string): string | undefined {
   return undefined;
 }
 
-export function startPhoneVerification(
-  localInput: string,
-  env: Environment = environment(),
-): PhoneVerificationSession {
+export function startPhoneVerification(localInput: string, env: Environment = environment()): PhoneVerificationSession {
   const phoneE164 = normalizeGhanaPhone(localInput);
   const createdAt = new Date().toISOString();
 
