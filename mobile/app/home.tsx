@@ -5,7 +5,7 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getActiveLocationLabel } from '@/lib/location-context';
-import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
+import { isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
@@ -14,7 +14,7 @@ export default function HomeScreen() {
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const [eventsAvailable, setEventsAvailable] = useState(false);
+  const eventsAvailable = isEventsClientEnabled();
   const latest = requests[0];
 
   useEffect(() => {
@@ -22,14 +22,6 @@ export default function HomeScreen() {
       .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
       .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
       .finally(() => setIsLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!isEventsClientEnabled()) return;
-    eventsRuntimeRepository
-      .isEnabled()
-      .then(setEventsAvailable)
-      .catch(() => setEventsAvailable(false));
   }, []);
 
   return (
