@@ -1,11 +1,12 @@
 import { Link, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
-import { getActiveLocationLabel } from '@/lib/location-context';
 import { isEventsClientEnabled } from '@/lib/events-runtime-repository';
+import { getActiveLocationLabel } from '@/lib/location-context';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
@@ -14,14 +15,28 @@ export default function HomeScreen() {
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+
   const eventsAvailable = isEventsClientEnabled();
   const latest = requests[0];
 
   useEffect(() => {
-    listRequesterRequests()
-      .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
-      .finally(() => setIsLoading(false));
+    async function loadRequests() {
+      try {
+        const items = await listRequesterRequests();
+
+        setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+      } catch (caught) {
+        if (__DEV__) {
+          console.error('REQUEST_LOAD_FAILURE', caught);
+        }
+
+        setError(caught instanceof Error ? caught.message : 'Could not load requests.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void loadRequests();
   }, []);
 
   return (
@@ -88,7 +103,13 @@ export default function HomeScreen() {
           <Text style={styles.body}>Checking your live Supabase request history.</Text>
         </View>
       ) : latest ? (
-        <Link href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
+        <Link
+          href={{
+            pathname: '/hire/request/status',
+            params: { requestId: latest.id },
+          }}
+          asChild
+        >
           <Pressable style={styles.panel}>
             <StatusPill status={latest.status} />
             <Text style={styles.title}>{latest.title}</Text>
@@ -106,9 +127,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  grid: { gap: tokens.spacing.md },
+  body: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.body,
+  },
+  title: {
+    color: tokens.color.textPrimary,
+    fontSize: tokens.type.card,
+    fontWeight: '700',
+  },
+  grid: {
+    gap: tokens.spacing.md,
+  },
   panel: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
@@ -125,7 +155,11 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     borderRadius: tokens.radius.md,
   },
-  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
+  buttonText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '700',
+  },
   secondary: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
@@ -135,5 +169,9 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radius.md,
     backgroundColor: tokens.color.surface,
   },
-  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
+  secondaryText: {
+    color: tokens.color.primary,
+    textAlign: 'center',
+    fontWeight: '700',
+  },
 });
