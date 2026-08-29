@@ -2,6 +2,8 @@ import { Buffer } from 'node:buffer';
 
 const expectedRef = 'opeojxwkwwnnncnsuaag';
 const expectedUrl = `https://${expectedRef}.supabase.co`;
+const expectedEventsFlag = 'enabled';
+const expectedEventsRepository = 'supabase';
 
 function fail(message) {
   console.error(`Preview Supabase verification failed: ${message}`);
@@ -23,6 +25,17 @@ function decodeLegacyKey(key) {
 
 const configuredUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '');
 const clientKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const configuredEventsFlag = process.env.EXPO_PUBLIC_FEATURE_EVENTS;
+const configuredEventsRepository = process.env.EXPO_PUBLIC_EVENTS_REPOSITORY;
+
+if (configuredEventsFlag !== expectedEventsFlag) {
+  fail(`EXPO_PUBLIC_FEATURE_EVENTS must be ${expectedEventsFlag}; received ${configuredEventsFlag ?? 'no value'}.`);
+}
+if (configuredEventsRepository !== expectedEventsRepository) {
+  fail(
+    `EXPO_PUBLIC_EVENTS_REPOSITORY must be ${expectedEventsRepository}; received ${configuredEventsRepository ?? 'no value'}.`,
+  );
+}
 
 if (configuredUrl !== expectedUrl) {
   fail(`EXPO_PUBLIC_SUPABASE_URL must be ${expectedUrl}; received ${configuredUrl ?? 'no value'}.`);
@@ -58,4 +71,4 @@ try {
   fail(`Supabase probe failed: ${error instanceof Error ? error.message : String(error)}`);
 }
 
-console.log(`Preview Supabase environment verified for project ${expectedRef}.`);
+console.log(`Preview Supabase and Events environment verified for project ${expectedRef}.`);
