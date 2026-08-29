@@ -1,41 +1,46 @@
 name: EAS Preview APK
 
 on:
-  workflow_dispatch:
   push:
     branches:
-      - feat/eas-preview-readiness
+      - main
     paths:
       - '.github/workflows/eas-preview-apk.yml'
+  workflow_dispatch:
+    inputs:
+      founder_approved:
+        description: 'Founder approved a new paid EAS preview build'
+        required: true
+        default: false
+        type: boolean
+      existing_build_id:
+        description: 'Existing completed EAS build ID to inspect without starting a new build'
+        required: false
+        default: '1597cda3-24a0-4a17-91a6-4b41765c2c77'
+        type: string
 
 permissions:
   contents: read
-  issues: write
-  statuses: write
 
 concurrency:
   group: eas-preview-apk
   cancel-in-progress: false
 
-env:
-  PR_NUMBER: '38'
-
 jobs:
-  submit-preview-build:
-    name: Submit Android preview APK
+  build-and-verify-preview:
+    name: Build and verify Android preview APK
+    if: >-
+      (github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'Build approved EAS Preview APK')) ||
+      (github.event_name == 'workflow_dispatch' &&
+      (inputs.founder_approved == true || inputs.existing_build_id != ''))
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: mobile
 
     steps:
-      - name: Publish submission pending
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          payload="$(jq -n             --arg state pending             --arg context eas-preview-submit             --arg description "Submitting Android preview APK to EAS"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
-
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -49,6 +54,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify Events preview contract
+        run: npm run verify:preview
+
+      - name: Run release gates
+        run: |
+          npm run format
+          npm run lint
+          npm run typecheck
+          npm test -- --runInBand
+
       - name: Require Expo authentication
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -58,47 +73,179 @@ jobs:
             exit 1
           fi
 
-      - name: Submit EAS internal Android APK build
-        id: submit
+      - name: Verify EAS preview Supabase environment
+        if: github.event_name == 'push' || inputs.existing_build_id == ''
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          npx --yes eas-cli@21.4.0 build --platform android --profile preview --non-interactive --no-wait
+          npx --yes eas-cli@22.4.0 env:exec \
+            preview \
+            'node scripts/verify-preview-supabase-env.mjs' \
+            --non-interactive
 
-          for attempt in $(seq 1 10); do
-            builds="$(npx --yes eas-cli@21.4.0 build:list --platform android --limit 10 --json 2>/tmp/eas-list.log)"
-            build="$(printf '%s' "$builds" | jq -c --arg sha "$GITHUB_SHA" 'map(select(.gitCommitHash == $sha)) | first // empty')"
+      - name: Submit EAS cloud Android APK build
+        id: submit
+        if: github.event_name == 'push' || inputs.existing_build_id == ''
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          cloud_log="${RUNNER_TEMP}/eas-submit.log"
+          set +e
+          npx --yes eas-cli@22.4.0 build             --platform android             --profile preview             --non-interactive             --no-wait 2>&1 | tee "$cloud_log"
+          cloud_status=${PIPESTATUS[0]}
+          set -e
 
-            if [ -n "$build" ]; then
-              build_id="$(printf '%s' "$build" | jq -r '.id')"
-              details_url="https://expo.dev/accounts/mycorner/projects/my-corner/builds/${build_id}"
-              echo "build_id=${build_id}" >> "$GITHUB_OUTPUT"
-              echo "details_url=${details_url}" >> "$GITHUB_OUTPUT"
-              exit 0
+          if [ "$cloud_status" -ne 0 ]; then
+            echo "::error::EAS cloud build submission failed."
+            exit "$cloud_status"
+          fi
+
+          details_url="$(grep -Eo             'https://expo\.dev/accounts/[^/]+/projects/[^/]+/builds/[0-9a-f-]{36}'             "$cloud_log" | tail -n 1 || true)"
+          build_id="${details_url##*/}"
+
+          if ! printf '%s' "$build_id" | grep -Eq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
+            echo "::error::The real EAS build ID could not be parsed from submission output."
+            exit 1
+          fi
+
+          echo "build_id=${build_id}" >> "$GITHUB_OUTPUT"
+          echo "details_url=${details_url}" >> "$GITHUB_OUTPUT"
+          echo "Recorded EAS build ID: ${build_id}"
+
+      - name: Resolve EAS build ID
+        id: build
+        env:
+          EXISTING_BUILD_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.existing_build_id || '' }}
+          SUBMITTED_BUILD_ID: ${{ steps.submit.outputs.build_id }}
+          SUBMITTED_DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+        run: |
+          build_id="${EXISTING_BUILD_ID:-$SUBMITTED_BUILD_ID}"
+          if ! printf '%s' "$build_id" | grep -Eq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
+            echo "::error::A valid real EAS build ID is required."
+            exit 1
+          fi
+          details_url="$SUBMITTED_DETAILS_URL"
+          if [ -z "$details_url" ]; then
+            details_url="https://expo.dev/builds/$build_id"
+            echo "Reusing existing EAS build ID: $build_id; no new build submitted."
+          fi
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+          echo "details_url=$details_url" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for final EAS result
+        id: completed
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
+        run: |
+          build_json="${RUNNER_TEMP}/eas-build.json"
+
+          for attempt in $(seq 1 120); do
+            if npx --yes eas-cli@22.4.0 build:view "$BUILD_ID" --json > "$build_json" 2>"${RUNNER_TEMP}/eas-view.log"; then
+              status="$(jq -r '.status // empty' "$build_json")"
+              echo "EAS build status: ${status:-unknown}"
+
+              case "$status" in
+                FINISHED)
+                  artifact_url="$(jq -r '.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty' "$build_json")"
+                  if [ -z "$artifact_url" ]; then
+                    echo "::error::Finished EAS build has no APK artifact URL."
+                    exit 1
+                  fi
+                  echo "artifact_url=${artifact_url}" >> "$GITHUB_OUTPUT"
+                  exit 0
+                  ;;
+                ERRORED|CANCELED)
+                  jq '{id, status, error, gitCommitHash, artifacts}' "$build_json"
+                  echo "::error::EAS build ended with status ${status}."
+                  exit 1
+                  ;;
+              esac
+            else
+              cat "${RUNNER_TEMP}/eas-view.log"
             fi
 
-            sleep 15
+            sleep 30
           done
 
-          cat /tmp/eas-list.log
-          echo "::error::Build was submitted, but its EAS record could not be located."
+          echo "::error::Timed out waiting for final EAS build completion."
           exit 1
 
-      - name: Publish submission success
+      - name: Download completed APK
+        id: artifact
         env:
-          GH_TOKEN: ${{ github.token }}
-          DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+          ARTIFACT_URL: ${{ steps.completed.outputs.artifact_url }}
         run: |
-          payload="$(jq -n             --arg state success             --arg context eas-preview-submit             --arg description "Android preview APK submitted to EAS"             --arg target_url "$DETAILS_URL"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+          apk_path="${RUNNER_TEMP}/my-corner-preview-${GITHUB_SHA::7}.apk"
+          curl --fail --location --retry 4 --retry-all-errors "$ARTIFACT_URL" --output "$apk_path"
+          test -s "$apk_path"
+          echo "apk_path=${apk_path}" >> "$GITHUB_OUTPUT"
 
-          comment="$(jq -n --arg body "Android preview APK submitted to EAS. Build details: ${DETAILS_URL}" '{body: $body}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$comment"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
-
-      - name: Publish submission failure
-        if: failure()
+      - name: Inspect APK provenance and Events bytecode
+        id: verify_apk
         env:
-          GH_TOKEN: ${{ github.token }}
+          APK_PATH: ${{ steps.artifact.outputs.apk_path }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
         run: |
-          payload="$(jq -n             --arg state failure             --arg context eas-preview-submit             --arg description "Android preview APK submission failed"             --arg target_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             '{state: $state, context: $context, description: $description, target_url: $target_url}')"
-          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer ${GH_TOKEN}"             --header "Accept: application/vnd.github+json"             --header "X-GitHub-Api-Version: 2022-11-28"             --data "$payload"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+          unzip -tq "$APK_PATH"
+          unzip -Z1 "$APK_PATH" | grep -Fx 'assets/app.config'
+          unzip -Z1 "$APK_PATH" | grep -Fx 'assets/index.android.bundle'
+
+          bundle_path="${RUNNER_TEMP}/index.android.bundle"
+          dump_path="${RUNNER_TEMP}/index.android.dump"
+          unzip -p "$APK_PATH" assets/index.android.bundle > "$bundle_path"
+          test -s "$bundle_path"
+
+          strings -a -n 4 "$bundle_path" > "$dump_path"
+          grep -Fq 'is_events_feature_enabled' "$dump_path"
+          grep -Fq 'Events is not available yet.' "$dump_path"
+          grep -Fq 'Marketplace reports' "$dump_path"
+          grep -Fq 'Block listing' "$dump_path"
+
+          supabase_urls="$(grep -Eo 'https://[a-z]{20}\.supabase\.co' "$dump_path" | sort -u || true)"
+          expected_supabase_url='https://opeojxwkwwnnncnsuaag.supabase.co'
+          if [ "$supabase_urls" != "$expected_supabase_url" ]; then
+            echo "::error::Expected only staging Supabase URL $expected_supabase_url; found: ${supabase_urls:-none}"
+            exit 1
+          fi
+          supabase_url="$supabase_urls"
+
+          apkanalyzer_path="$(command -v apkanalyzer || find "$ANDROID_HOME" -type f -name apkanalyzer | head -n 1 || true)"
+          if [ -z "$apkanalyzer_path" ]; then
+            echo "::error::apkanalyzer is unavailable."
+            exit 1
+          fi
+          application_id="$("$apkanalyzer_path" manifest application-id "$APK_PATH")"
+          test "$application_id" = 'com.mycorner.trustedpeople'
+
+          apk_sha256="$(sha256sum "$APK_PATH" | awk '{print $1}')"
+          supabase_ref="$(printf '%s' "$supabase_url" | sed -E 's#https://([a-z]{20})\.supabase\.co#\1#')"
+          provenance_path="${RUNNER_TEMP}/preview-provenance.json"
+          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true}'             > "$provenance_path"
+
+          echo "provenance_path=${provenance_path}" >> "$GITHUB_OUTPUT"
+          echo "Verified APK for Supabase project ${supabase_ref}."
+
+      - name: Upload verified APK and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-corner-preview-verified-${{ github.sha }}
+          path: |
+            ${{ steps.artifact.outputs.apk_path }}
+            ${{ steps.verify_apk.outputs.provenance_path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish verified build summary
+        env:
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
+          DETAILS_URL: ${{ steps.build.outputs.details_url }}
+        run: |
+          {
+            echo "## Verified Android preview APK"
+            echo
+            echo "- EAS build ID: \`$BUILD_ID\`"
+            echo "- EAS details: $DETAILS_URL"
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- APK and provenance: workflow artifact"
+          } >> "$GITHUB_STEP_SUMMARY"

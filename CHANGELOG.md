@@ -6,6 +6,10 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Added
 
+- A dedicated Marketplace moderator queue with open, reviewing, resolved, and all filters.
+- Marketplace report detail review with approve, flag, and block-listing controls, controlled reasons, confirmation, and audit history.
+- A forward-only moderator migration with role-gated RPCs, RLS policies, append-only audit records, and pgTAP structural checks.
+
 - RLS-authorized Event comments in the live and seeded detail flows.
 - Retryable, user-safe Events availability states and responsive tablet event cards.
 - A fail-closed Events feature-flag provision migration and database smoke test.
@@ -28,6 +32,9 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 - Recommended Production Verification Services after an Events stabilization milestone, ahead of Push Notifications.
 
 ### Known limitations
+
+- The Marketplace moderator migration is prepared locally but has not been applied to Preview; Preview application and device verification require separate founder approval.
+- Blocking in this slice hides a listing and does not ban or permanently restrict the seller account.
 
 - Events remains fail-closed until both the client flag and the environment-specific database flag are enabled.
 - Development activation and native compact/tablet evidence remain required for this cycle.

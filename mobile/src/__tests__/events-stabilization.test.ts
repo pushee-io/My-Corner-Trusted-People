@@ -42,10 +42,14 @@ describe('Events stabilization gates', () => {
     }
   });
 
-  it('hides the Home shortcut until the runtime flag is enabled', () => {
+  it('hides the Home shortcut until both client and runtime Events gates are enabled', () => {
     const source = readFileSync('app/home.tsx', 'utf8');
     expect(source).toContain('eventsAvailable ?');
-    expect(source).toContain('const eventsAvailable = isEventsClientEnabled();');
+    expect(source).toContain('if (!isEventsClientEnabled()) return;');
+    expect(source).toContain('eventsRuntimeRepository');
+    expect(source).toContain('.isEnabled()');
+    expect(source).toContain('.then(setEventsAvailable)');
+    expect(source).toContain('.catch(() => setEventsAvailable(false))');
   });
 
   it('runs both Events SQL smoke suites from database CI', () => {

@@ -1,12 +1,12 @@
 import { Link, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
-import { isEventsClientEnabled } from '@/lib/events-runtime-repository';
+import { getCurrentProfile } from '@/lib/auth';
 import { getActiveLocationLabel } from '@/lib/location-context';
+import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
@@ -15,8 +15,8 @@ export default function HomeScreen() {
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-
-  const eventsAvailable = isEventsClientEnabled();
+  const [eventsAvailable, setEventsAvailable] = useState(false);
+  const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
   const latest = requests[0];
 
   useEffect(() => {
@@ -37,6 +37,20 @@ export default function HomeScreen() {
     }
 
     void loadRequests();
+  }, []);
+
+  useEffect(() => {
+    getCurrentProfile()
+      .then((profile) => setCanModerateMarketplace(profile.role === 'moderator' || profile.role === 'admin'))
+      .catch(() => setCanModerateMarketplace(false));
+  }, []);
+
+  useEffect(() => {
+    if (!isEventsClientEnabled()) return;
+    eventsRuntimeRepository
+      .isEnabled()
+      .then(setEventsAvailable)
+      .catch(() => setEventsAvailable(false));
   }, []);
 
   return (
@@ -82,6 +96,14 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
+        {canModerateMarketplace ? (
+          <Link href="/marketplace/moderation" asChild>
+            <Pressable accessibilityRole="button" style={styles.secondary}>
+              <Text style={styles.secondaryText}>Marketplace reports</Text>
+            </Pressable>
+          </Link>
+        ) : null}
+
         <Link href="/community/moderation" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Moderation queue</Text>
@@ -103,13 +125,7 @@ export default function HomeScreen() {
           <Text style={styles.body}>Checking your live Supabase request history.</Text>
         </View>
       ) : latest ? (
-        <Link
-          href={{
-            pathname: '/hire/request/status',
-            params: { requestId: latest.id },
-          }}
-          asChild
-        >
+        <Link href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
           <Pressable style={styles.panel}>
             <StatusPill status={latest.status} />
             <Text style={styles.title}>{latest.title}</Text>
@@ -127,18 +143,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.body,
-  },
-  title: {
-    color: tokens.color.textPrimary,
-    fontSize: tokens.type.card,
-    fontWeight: '700',
-  },
-  grid: {
-    gap: tokens.spacing.md,
-  },
+  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
+  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  grid: { gap: tokens.spacing.md },
   panel: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
@@ -155,11 +162,7 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     borderRadius: tokens.radius.md,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '700',
-  },
+  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   secondary: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',
@@ -169,9 +172,5 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radius.md,
     backgroundColor: tokens.color.surface,
   },
-  secondaryText: {
-    color: tokens.color.primary,
-    textAlign: 'center',
-    fontWeight: '700',
-  },
+  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

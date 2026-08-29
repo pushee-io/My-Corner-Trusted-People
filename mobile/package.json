@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:e2e": "jest --testMatch '**/__tests__/**/*.flow.test.ts'"
+    "test:e2e": "jest --testMatch '**/__tests__/**/*.flow.test.ts'",
+    "verify:preview": "node --check scripts/verify-preview-supabase-env.mjs && node scripts/verify-preview-contract.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

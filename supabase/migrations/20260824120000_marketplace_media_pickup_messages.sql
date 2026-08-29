@@ -49,7 +49,9 @@ alter table public.marketplace_pickup_requests
   add column if not exists responded_at timestamptz;
 
 alter table public.marketplace_pickup_requests
-  drop constraint if exists marketplace_pickup_requests_status_check;
+  drop constraint if exists marketplace_pickup_requests_status_check,
+  drop constraint if exists marketplace_pickup_window_valid,
+  drop constraint if exists marketplace_pickup_general_area_length;
 
 update public.marketplace_pickup_requests pr
 set general_area = ml.pickup_area,
