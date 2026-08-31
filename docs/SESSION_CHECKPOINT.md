@@ -7,16 +7,15 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Current verified `main`: `dfea274af7b16f28060b7173e630c468924c23a6`
+- Current verified `main`: `d14742126fa66f4fa31cfe4d569d1cdec0ef90db`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR-head Mobile CI run `33423063650`: success
 - Post-merge Mobile CI run `33451194302`: success
-- Continuity branch: `codex/continuity-after-pr70`
-- Continuity PR: #71
-- Continuity head before this metadata update: `43564e601e5271b6e3ce27d3248b9964b403606a`
+- PR #71: merged
+- Active branch: `codex/native-responsive-accessibility-verification`
 
 ## Manual Replay Passed
 
@@ -31,20 +30,24 @@
 
 ## Current Checkpoint Scope
 
-Restore and reconcile:
+Native compact/tablet/accessibility verification.
 
-- `docs/MY_CORNER_MASTER_HANDOFF.md`
-- `docs/CURRENT_STATE.md`
-- `docs/SESSION_CHECKPOINT.md`
-- `docs/RECOVERY_STATUS.md`
-- `PLANS.md`
-- `CHANGELOG.md`
+First confirmed source defect:
 
-No application code, dependency, migration, secret, EAS, or production change is in scope.
+- `mobile/app.json` locks the app to portrait.
+- Tablet landscape is a required acceptance target.
+- Expo SDK 54 official app-config documentation confirms `orientation: "default"` is the stable no-lock value.
+
+First repair:
+
+- Change orientation to `default`.
+- Add a regression test that also preserves iPad/tablet support.
+- Verify through Mobile CI.
+- Do not claim native device completion from source or CI alone.
 
 ## Exact Next Action
 
-Verify PR #71 diff, CI, and mergeability; merge when green; verify `main`; then start native compact/tablet/accessibility verification on a new branch.
+Commit and push the orientation repair, open its focused PR, verify Mobile CI and the diff, then continue compact/tablet/accessibility inspection. Native device evidence remains outstanding and EAS must not be triggered.
 
 ## Do Not Repeat
 

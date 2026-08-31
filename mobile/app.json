@@ -4,7 +4,7 @@
     "slug": "my-corner",
     "scheme": "mycorner",
     "version": "0.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",

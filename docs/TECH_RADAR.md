@@ -1,6 +1,6 @@
 # Tech Radar
 
-Last reviewed: 2026-08-29
+Last reviewed: 2026-08-31
 Baseline commit: `0b819fd` (preview APK recovery merged through PR #57)
 
 ## Policy
@@ -48,3 +48,10 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 - Expo Router SDK 54 documentation currently recommends `~6.0.24`; the repository remains on `~6.0.23` pending a dedicated dependency update with lockfile and device verification.
 - Supabase documentation reconfirms that exposed tables require both grants and Row Level Security. Marketplace moderation therefore uses authenticated execution grants, moderator checks inside security-definer RPCs, and explicit RLS read policies.
 - No new dependency was added. Preview migration application remains pending separate founder approval.
+
+## 2026-08-31 Native orientation verification note
+
+- Expo SDK 54 app-config documentation was rechecked at https://docs.expo.dev/versions/v54.0.0/config/app/.
+- The stable `orientation` values are `default`, `portrait`, and `landscape`; `default` leaves orientation unlocked.
+- My Corner now selects `default` because tablet portrait and landscape are both required acceptance targets.
+- No dependency, lockfile, EAS build, or production setting changed in this checkpoint.
