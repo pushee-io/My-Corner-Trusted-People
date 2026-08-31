@@ -28,6 +28,7 @@ legacy_tests=(
   supabase/tests/day3_social_groups_broadcasts.sql
   supabase/tests/day3b_social_group_engagement.sql
   supabase/tests/events_feature_flag_smoke.sql
+  supabase/tests/job_safety_sessions_security.sql
 )
 
 for test_file in "${legacy_tests[@]}"; do
