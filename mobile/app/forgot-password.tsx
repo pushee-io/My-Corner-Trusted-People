@@ -1,6 +1,6 @@
-import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { requestPasswordReset } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
@@ -35,11 +35,11 @@ export default function ForgotPasswordScreen() {
             If an account matches that address, My Corner sent a password recovery link. The link expires and can only
             be used to reset access.
           </Text>
-          <Link href="/sign-in" asChild>
+          <WebSafeLink href="/sign-in" asChild>
             <Pressable accessibilityRole="button" style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Back to sign in</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         </View>
       ) : (
         <>
@@ -73,11 +73,11 @@ export default function ForgotPasswordScreen() {
           >
             <Text style={styles.buttonText}>{submitting ? 'Sending...' : 'Send recovery link'}</Text>
           </Pressable>
-          <Link href="/sign-in" asChild>
+          <WebSafeLink href="/sign-in" asChild>
             <Pressable accessibilityRole="button" style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Back to sign in</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         </>
       )}
     </Screen>

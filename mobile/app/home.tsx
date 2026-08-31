@@ -1,6 +1,7 @@
-import { Link, type Href } from 'expo-router';
+import { type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
@@ -58,63 +59,63 @@ export default function HomeScreen() {
       <Text style={styles.body}>{getActiveLocationLabel()}</Text>
 
       <View style={styles.grid}>
-        <Link href="/hire/categories" asChild>
+        <WebSafeLink href="/hire/categories" asChild>
           <Pressable style={styles.button}>
             <Text style={styles.buttonText}>Hire help</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
-        <Link href="/community" asChild>
+        <WebSafeLink href="/community" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Neighborhood feed</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
-        <Link href="/groups" asChild>
+        <WebSafeLink href="/groups" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Groups</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
         {eventsAvailable ? (
-          <Link href={'/events' as Href} asChild>
+          <WebSafeLink href={'/events' as Href} asChild>
             <Pressable accessibilityRole="button" style={styles.secondary}>
               <Text style={styles.secondaryText}>Events</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         ) : null}
 
-        <Link href="/agency-broadcasts" asChild>
+        <WebSafeLink href="/agency-broadcasts" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Agency broadcasts</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
-        <Link href="/marketplace" asChild>
+        <WebSafeLink href="/marketplace" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Marketplace</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
         {canModerateMarketplace ? (
-          <Link href="/marketplace/moderation" asChild>
+          <WebSafeLink href="/marketplace/moderation" asChild>
             <Pressable accessibilityRole="button" style={styles.secondary}>
               <Text style={styles.secondaryText}>Marketplace reports</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         ) : null}
 
-        <Link href="/community/moderation" asChild>
+        <WebSafeLink href="/community/moderation" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Moderation queue</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
 
-        <Link href="/settings" asChild>
+        <WebSafeLink href="/settings" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Settings</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
       </View>
 
       {error ? (
@@ -125,13 +126,13 @@ export default function HomeScreen() {
           <Text style={styles.body}>Checking your live Supabase request history.</Text>
         </View>
       ) : latest ? (
-        <Link href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
+        <WebSafeLink href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
           <Pressable style={styles.panel}>
             <StatusPill status={latest.status} />
             <Text style={styles.title}>{latest.title}</Text>
             <Text style={styles.body}>Track provider response</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
       ) : (
         <View style={styles.panel}>
           <Text style={styles.title}>No active requests</Text>

@@ -1,7 +1,8 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateBlocks';
 import { listMarketplaceModerationQueue } from '@/lib/marketplace-moderation-repository';
@@ -82,7 +83,7 @@ export default function MarketplaceModerationQueueScreen() {
       {!isLoading && !error ? (
         <View style={styles.list}>
           {items.map((item) => (
-            <Link
+            <WebSafeLink
               asChild
               href={{ pathname: '/marketplace/moderation/[reportId]', params: { reportId: item.reportId } }}
               key={item.reportId}
@@ -107,7 +108,7 @@ export default function MarketplaceModerationQueueScreen() {
                   <Text style={styles.meta}>Reported {new Date(item.reportedAt).toLocaleDateString('en-GH')}</Text>
                 </View>
               </Pressable>
-            </Link>
+            </WebSafeLink>
           ))}
         </View>
       ) : null}

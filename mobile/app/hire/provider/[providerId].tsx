@@ -1,7 +1,8 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { getProvider } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
@@ -132,7 +133,7 @@ export default function ProviderProfileScreen() {
       </View>
 
       {canStartRequest && selectedCategoryId ? (
-        <Link
+        <WebSafeLink
           href={{
             pathname: '/hire/request/review',
             params: {
@@ -156,7 +157,7 @@ export default function ProviderProfileScreen() {
           <Pressable style={styles.button}>
             <Text style={styles.buttonText}>Start request</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
       ) : (
         <View style={styles.unavailableBox}>
           <Text style={styles.note}>This provider does not currently have an available service category.</Text>

@@ -1,6 +1,6 @@
-import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { StatusPill } from '@/components/StatusPill';
@@ -36,7 +36,7 @@ export default function ProviderRequestsScreen() {
       ) : (
         <View style={styles.list}>
           {requests.map((request) => (
-            <Link
+            <WebSafeLink
               key={request.id}
               href={{ pathname: '/provider/request/[requestId]', params: { requestId: request.id } }}
               asChild
@@ -49,7 +49,7 @@ export default function ProviderRequestsScreen() {
                   {request.preferredDate} · {request.preferredTime}
                 </Text>
               </Pressable>
-            </Link>
+            </WebSafeLink>
           ))}
         </View>
       )}

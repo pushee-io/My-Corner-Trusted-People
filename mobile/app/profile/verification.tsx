@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { verificationItems } from '@/lib/account';
 import { getDay2BFeedUnlockStatus } from '@/lib/day2b-verification';
@@ -63,12 +63,12 @@ export default function VerificationScreen() {
       <Text style={styles.sectionTitle}>Day 2B flow</Text>
 
       {steps.map((step) => (
-        <Link key={step.href} href={step.href} asChild>
+        <WebSafeLink key={step.href} href={step.href} asChild>
           <Pressable style={styles.card}>
             <Text style={styles.title}>{step.label}</Text>
             <Text style={styles.body}>{step.detail}</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
       ))}
 
       <Text style={styles.sectionTitle}>Existing account signals</Text>

@@ -1,6 +1,7 @@
-import { Link, type Href } from 'expo-router';
+import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EventsFeatureGate } from '@/components/events/EventsFeatureGate';
 import { eventsRuntimeRepository } from '@/lib/events-runtime-repository';
@@ -47,11 +48,11 @@ function EventsContent() {
         Plans shared by verified neighbors. Private addresses stay hidden until an organizer allows access for confirmed
         attendees.
       </Text>
-      <Link href={'/events/new' as Href} asChild>
+      <WebSafeLink href={'/events/new' as Href} asChild>
         <Pressable accessibilityRole="button" style={styles.primary}>
           <Text style={styles.primaryText}>Create event</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
       {loading ? <Text style={styles.meta}>Loading local events...</Text> : null}
       {diagnostics.lastReadUsedCache ? (
         <Text accessibilityRole="alert" style={styles.offline}>
@@ -85,7 +86,7 @@ function EventsContent() {
           <Text style={styles.meta}>Events waiting for moderator approval.</Text>
           <View style={styles.eventGrid}>
             {pendingEvents.map((event) => (
-              <Link
+              <WebSafeLink
                 key={event.id}
                 href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
                 asChild
@@ -96,7 +97,7 @@ function EventsContent() {
                   <Text style={styles.body}>{event.areaLabel}</Text>
                   <Text style={styles.meta}>Status: Pending review</Text>
                 </Pressable>
-              </Link>
+              </WebSafeLink>
             ))}
           </View>
         </View>
@@ -104,7 +105,7 @@ function EventsContent() {
 
       <View style={styles.eventGrid}>
         {upcomingEvents.map((event) => (
-          <Link
+          <WebSafeLink
             key={event.id}
             href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
             asChild
@@ -119,7 +120,7 @@ function EventsContent() {
                 {event.capacity ? ` of ${event.capacity}` : ''} going
               </Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         ))}
       </View>
     </Screen>

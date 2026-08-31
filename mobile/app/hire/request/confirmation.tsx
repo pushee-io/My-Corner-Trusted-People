@@ -1,5 +1,6 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { SuccessState } from '@/components/StateBlocks';
 import { tokens } from '@/theme/tokens';
@@ -13,11 +14,11 @@ export default function ConfirmationScreen() {
         title="Submitted"
         body="The provider can now accept or decline. You can track the status from this prototype."
       />
-      <Link href={{ pathname: '/hire/request/status', params: { requestId: params.requestId ?? 'req-100' } }} asChild>
+      <WebSafeLink href={{ pathname: '/hire/request/status', params: { requestId: params.requestId ?? 'req-100' } }} asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>View status</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }

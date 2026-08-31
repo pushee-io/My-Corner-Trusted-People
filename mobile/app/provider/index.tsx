@@ -1,6 +1,6 @@
-import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
@@ -41,35 +41,35 @@ export default function ProviderHomeScreen() {
         </View>
       ) : null}
 
-      <Link href="/provider/requests" asChild>
+      <WebSafeLink href="/provider/requests" asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Incoming requests</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/community" asChild>
+      <WebSafeLink href="/community" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Neighborhood feed</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/community/moderation" asChild>
+      <WebSafeLink href="/community/moderation" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Moderation queue</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/provider/availability" asChild>
+      <WebSafeLink href="/provider/availability" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Availability</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/provider/profile-preview" asChild>
+      <WebSafeLink href="/provider/profile-preview" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Profile preview</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }
