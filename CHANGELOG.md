@@ -23,6 +23,9 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Changed
 
+- Merged PR #70's systematic web-safe navigation migration after immutable-head, CI, mergeability, and manual browser replay verification.
+- Restored durable project continuity documents and advanced the exact next checkpoint to native compact/tablet/accessibility verification.
+
 - Prepared Events for explicit development activation without enabling staging or production.
 - Reconciled Events documentation with the complete authenticated Supabase runtime repository.
 - Moved posting and post actions out of the Groups directory and into `/groups/[groupId]`.
