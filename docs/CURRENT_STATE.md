@@ -12,6 +12,7 @@
 - PR #71: merged
 - PR #72: merged; post-merge Mobile CI run `33452253404` succeeded
 - Active branch: `codex/shared-retry-accessibility`
+- Active PR: #73
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -36,7 +37,7 @@ Native compact/tablet/accessibility verification. The orientation lock is repair
 
 ## Exact Next Action
 
-Repair the shared retry control, add focused regression coverage, run Mobile CI, and continue the native/accessibility audit without triggering EAS.
+Verify PR #73 Mobile CI and mergeability, merge when green, then continue the native/accessibility audit without triggering EAS.
 
 ## Major Remaining Work
 

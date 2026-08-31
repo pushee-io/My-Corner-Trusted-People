@@ -18,6 +18,7 @@
 - PR #72: merged
 - PR #72 post-merge Mobile CI run `33452253404`: success
 - Active branch: `codex/shared-retry-accessibility`
+- Active PR: #73
 
 ## Manual Replay Passed
 
@@ -54,7 +55,7 @@ Next repair:
 
 ## Exact Next Action
 
-Commit and push the shared retry accessibility repair, open a focused PR, verify Mobile CI and the diff, then continue the native audit. Native device evidence remains outstanding and EAS must not be triggered.
+Verify PR #73 Mobile CI, diff, and mergeability; merge when green; then continue the native audit. Native device evidence remains outstanding and EAS must not be triggered.
 
 ## Do Not Repeat
 
