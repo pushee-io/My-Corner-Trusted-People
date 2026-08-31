@@ -79,6 +79,15 @@ describe('preview device repairs', () => {
     expect(source).toContain('minHeight: tokens.touch.min');
   });
 
+  it('opens sign-in without the web-incompatible Link asChild slot', () => {
+    const source = readFileSync('app/index.tsx', 'utf8');
+
+    expect(source).not.toContain('asChild');
+    expect(source).not.toContain('import { Link');
+    expect(source).toContain("onPress={() => router.push('/sign-in')}");
+    expect(source).toContain('accessibilityLabel="Enter My Corner"');
+  });
+
   it('waits for provider status persistence before navigating and exposes retryable failures', () => {
     const source = readFileSync('app/provider/request/status-update.tsx', 'utf8');
     const updateIndex = source.indexOf('await updateRequestStatus');
