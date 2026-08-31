@@ -27,6 +27,9 @@ legacy_tests=(
   supabase/tests/day2b_verified_neighborhood_access.sql
   supabase/tests/day3_social_groups_broadcasts.sql
   supabase/tests/day3b_social_group_engagement.sql
+  supabase/tests/marketplace_core_rls.sql
+  supabase/tests/20260824_marketplace_vertical_slice.sql
+  supabase/tests/20260827_marketplace_moderator_queue.sql
   supabase/tests/events_feature_flag_smoke.sql
 )
 
