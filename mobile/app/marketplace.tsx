@@ -298,7 +298,13 @@ export default function MarketplaceScreen() {
               {listing.availability} · {listing.sellerName}
             </Text>
             <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
-            <WebSafeLink href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
+            <WebSafeLink
+              href={{
+                pathname: '/marketplace/listing/[listingId]',
+                params: { listingId: listing.id },
+              }}
+              asChild
+            >
               <Pressable accessibilityRole="button" style={styles.button}>
                 <Text style={styles.buttonText}>View listing</Text>
               </Pressable>

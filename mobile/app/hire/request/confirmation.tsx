@@ -14,7 +14,13 @@ export default function ConfirmationScreen() {
         title="Submitted"
         body="The provider can now accept or decline. You can track the status from this prototype."
       />
-      <WebSafeLink href={{ pathname: '/hire/request/status', params: { requestId: params.requestId ?? 'req-100' } }} asChild>
+      <WebSafeLink
+        href={{
+          pathname: '/hire/request/status',
+          params: { requestId: params.requestId ?? 'req-100' },
+        }}
+        asChild
+      >
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>View status</Text>
         </Pressable>
