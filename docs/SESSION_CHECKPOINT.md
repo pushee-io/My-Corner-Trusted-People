@@ -16,6 +16,7 @@
 - Post-merge Mobile CI run `33451194302`: success
 - PR #71: merged
 - Active branch: `codex/native-responsive-accessibility-verification`
+- Active PR: #72
 
 ## Manual Replay Passed
 
@@ -47,7 +48,7 @@ First repair:
 
 ## Exact Next Action
 
-Commit and push the orientation repair, open its focused PR, verify Mobile CI and the diff, then continue compact/tablet/accessibility inspection. Native device evidence remains outstanding and EAS must not be triggered.
+Verify PR #72 Mobile CI, diff, and mergeability; merge when green; then continue compact/tablet/accessibility inspection. Native device evidence remains outstanding and EAS must not be triggered.
 
 ## Do Not Repeat
 

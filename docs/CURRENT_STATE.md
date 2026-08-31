@@ -11,6 +11,7 @@
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
 - Active branch: `codex/native-responsive-accessibility-verification`
+- Active PR: #72
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -35,7 +36,7 @@ Native compact/tablet/accessibility verification. Source inspection found `mobil
 
 ## Exact Next Action
 
-Change Expo orientation to `default`, add a regression test, run Mobile CI, and continue the native/accessibility audit without triggering EAS.
+Verify PR #72 Mobile CI and mergeability, merge when green, then continue the native/accessibility audit without triggering EAS.
 
 ## Major Remaining Work
 
