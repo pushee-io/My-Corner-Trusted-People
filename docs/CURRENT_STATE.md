@@ -6,17 +6,18 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Current verified `main`: `dfea274af7b16f28060b7173e630c468924c23a6`
+- Current verified `main`: `d14742126fa66f4fa31cfe4d569d1cdec0ef90db`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
-- Continuity branch: `codex/continuity-after-pr70`
-- Continuity PR: #71
+- PR #71: merged
+- Active branch: `codex/native-responsive-accessibility-verification`
+- Active PR: #72
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
 ## Most Recent Completed Checkpoint
 
-PR #70 completed the systematic web-safe navigation migration.
+PR #71 restored the durable continuity documents after the verified PR #70 merge.
 
 ## Verification
 
@@ -31,11 +32,11 @@ PR #70 completed the systematic web-safe navigation migration.
 
 ## Active Checkpoint
 
-PR #71 restores and reconciles durable continuity documents.
+Native compact/tablet/accessibility verification. Source inspection found `mobile/app.json` locked to portrait despite the tablet-landscape acceptance target.
 
 ## Exact Next Action
 
-Verify PR #71 CI and mergeability, merge it when green, then create a new branch for native compact/tablet/accessibility verification.
+Verify PR #72 Mobile CI and mergeability, merge when green, then continue the native/accessibility audit without triggering EAS.
 
 ## Major Remaining Work
 

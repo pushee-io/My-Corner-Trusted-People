@@ -71,6 +71,13 @@ describe('preview device repairs', () => {
     expect(requestSource).toContain('value={description}');
   });
 
+  it('allows supported tablets to rotate between portrait and landscape', () => {
+    const appConfig = JSON.parse(readFileSync('app.json', 'utf8'));
+
+    expect(appConfig.expo.ios.supportsTablet).toBe(true);
+    expect(appConfig.expo.orientation).toBe('default');
+  });
+
   it('adapts the welcome lockup for Android font scaling', () => {
     const source = readFileSync('app/index.tsx', 'utf8');
 

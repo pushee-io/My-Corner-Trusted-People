@@ -5,12 +5,14 @@
 - [x] Verify and merge PR #70 at the expected immutable head
 - [x] Verify post-merge `main` and Mobile CI
 - [x] Restore continuity documents on a named branch
-- [x] Open focused continuity PR #71
+- [x] Open and merge focused continuity PR #71
 
 ## Active
 
-- [ ] Verify and merge PR #71
-- [ ] Start native compact/tablet/accessibility verification on a new branch
+- [x] Start native compact/tablet/accessibility verification on a new branch
+- [x] Repair the portrait-only app lock and add regression coverage in PR #72
+- [ ] Verify and merge PR #72
+- [ ] Verify remaining compact/tablet/accessibility behavior and record native-device blockers
 
 ## Next
 
