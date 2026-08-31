@@ -38,12 +38,10 @@ await Promise.all(
 const eas = JSON.parse(await readFile(path.join(root, 'eas.json'), 'utf8'));
 const preview = eas.build?.preview;
 const expected = {
-  easCliVersion: '22.4.0',
+  easCliVersion: '22.6.0',
   distribution: 'internal',
   environment: 'preview',
   androidBuildType: 'apk',
-  featureEvents: 'enabled',
-  eventsRepository: 'supabase',
 };
 
 if (eas.cli?.version !== expected.easCliVersion) {
@@ -58,22 +56,18 @@ if (preview?.environment !== expected.environment) {
 if (preview?.android?.buildType !== expected.androidBuildType) {
   fail('preview Android build type must be apk');
 }
-if (preview?.env?.EXPO_PUBLIC_FEATURE_EVENTS !== expected.featureEvents) {
-  fail('EXPO_PUBLIC_FEATURE_EVENTS must be pinned to enabled in the preview profile');
-}
-if (preview?.env?.EXPO_PUBLIC_EVENTS_REPOSITORY !== expected.eventsRepository) {
-  fail('EXPO_PUBLIC_EVENTS_REPOSITORY must be pinned to supabase in the preview profile');
-}
 
 await Promise.all([
   requireText('app/home.tsx', "'/events'"),
   requireText('src/lib/events-feature.ts', 'EXPO_PUBLIC_FEATURE_EVENTS === enabledValue'),
   requireText('src/lib/events-supabase-repository.ts', "supabase.rpc('is_events_feature_enabled')"),
   requireText('src/lib/events-runtime-repository.ts', 'Events is not available yet.'),
+  requireText('scripts/verify-preview-supabase-env.mjs', 'process.env.EXPO_PUBLIC_FEATURE_EVENTS'),
+  requireText('scripts/verify-preview-supabase-env.mjs', 'process.env.EXPO_PUBLIC_EVENTS_REPOSITORY'),
 ]);
 
 if (!process.exitCode) {
   console.log(
-    'Preview contract verified: Events routes, navigation, repository, RPC, and pinned preview flags are present.',
+    'Preview contract verified: Events routes, navigation, repository, RPC, and named preview environment verification is present.',
   );
 }

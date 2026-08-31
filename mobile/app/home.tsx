@@ -20,10 +20,23 @@ export default function HomeScreen() {
   const latest = requests[0];
 
   useEffect(() => {
-    listRequesterRequests()
-      .then((items) => setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt))))
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load requests.'))
-      .finally(() => setIsLoading(false));
+    async function loadRequests() {
+      try {
+        const items = await listRequesterRequests();
+
+        setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+      } catch (caught) {
+        if (__DEV__) {
+          console.error('REQUEST_LOAD_FAILURE', caught);
+        }
+
+        setError(caught instanceof Error ? caught.message : 'Could not load requests.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void loadRequests();
   }, []);
 
   useEffect(() => {

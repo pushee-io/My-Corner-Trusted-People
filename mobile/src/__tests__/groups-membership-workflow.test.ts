@@ -69,8 +69,7 @@ describe('Groups membership workflow', () => {
     expect(repositorySource).toContain("supabase.rpc('decide_social_group_membership'");
     expect(repositorySource).not.toContain('caught.message');
 
-    expect(easConfig.build.preview.env.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY).toBe('supabase');
-
+    expect(easConfig.build.preview.environment).toBe('preview');
     expect(groupsSource).toContain('Sending request...');
     expect(groupsSource).toContain('Request again');
     expect(groupsSource).toContain('getCurrentProfile');
