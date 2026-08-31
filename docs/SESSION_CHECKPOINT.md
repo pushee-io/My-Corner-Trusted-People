@@ -15,7 +15,8 @@
 - PR-head Mobile CI run `33423063650`: success
 - Post-merge Mobile CI run `33451194302`: success
 - Continuity branch: `codex/continuity-after-pr70`
-- Continuity PR: pending creation from this branch
+- Continuity PR: #71
+- Continuity head before this metadata update: `43564e601e5271b6e3ce27d3248b9964b403606a`
 
 ## Manual Replay Passed
 
@@ -43,7 +44,7 @@ No application code, dependency, migration, secret, EAS, or production change is
 
 ## Exact Next Action
 
-Open the continuity-documentation PR, record its number here, verify its diff and CI, merge when green, then start native compact/tablet/accessibility verification on a new branch.
+Verify PR #71 diff, CI, and mergeability; merge when green; verify `main`; then start native compact/tablet/accessibility verification on a new branch.
 
 ## Do Not Repeat
 

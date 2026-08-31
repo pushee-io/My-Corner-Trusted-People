@@ -10,6 +10,7 @@
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - Continuity branch: `codex/continuity-after-pr70`
+- Continuity PR: #71
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -24,16 +25,17 @@ PR #70 completed the systematic web-safe navigation migration.
 - Expo Doctor at PR head: 18/18
 - Web export at PR head: passed
 - Manual browser replay: passed across Welcome, Hire, Neighborhood feed, Events, Marketplace, Marketplace moderation, requester navigation, and provider navigation
+- Continuity diff: exactly six documentation files
 - EAS: not triggered
 - Production deployment: not triggered
 
 ## Active Checkpoint
 
-Restore and reconcile durable continuity documents in a focused documentation PR.
+PR #71 restores and reconciles durable continuity documents.
 
 ## Exact Next Action
 
-Merge the continuity-documentation PR when its CI is green, then create a new branch for native compact/tablet/accessibility verification.
+Verify PR #71 CI and mergeability, merge it when green, then create a new branch for native compact/tablet/accessibility verification.
 
 ## Major Remaining Work
 

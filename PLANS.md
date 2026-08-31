@@ -5,10 +5,11 @@
 - [x] Verify and merge PR #70 at the expected immutable head
 - [x] Verify post-merge `main` and Mobile CI
 - [x] Restore continuity documents on a named branch
+- [x] Open focused continuity PR #71
 
 ## Active
 
-- [ ] Open, verify, and merge the focused continuity-documentation PR
+- [ ] Verify and merge PR #71
 - [ ] Start native compact/tablet/accessibility verification on a new branch
 
 ## Next
