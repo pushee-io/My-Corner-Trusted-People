@@ -11,7 +11,9 @@
 
 - [x] Start native compact/tablet/accessibility verification on a new branch
 - [x] Repair the portrait-only app lock and add regression coverage in PR #72
-- [ ] Verify and merge PR #72
+- [x] Verify and merge PR #72
+- [x] Repair shared retry semantics and 48 dp target in PR #73
+- [ ] Verify and merge PR #73
 - [ ] Verify remaining compact/tablet/accessibility behavior and record native-device blockers
 
 ## Next
