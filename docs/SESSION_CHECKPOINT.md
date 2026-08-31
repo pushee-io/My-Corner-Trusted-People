@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Current verified `main`: `d14742126fa66f4fa31cfe4d569d1cdec0ef90db`
+- Current verified `main`: `49032490082a5e6e26f5d8e6900641f215e7a59d`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -15,8 +15,9 @@
 - PR-head Mobile CI run `33423063650`: success
 - Post-merge Mobile CI run `33451194302`: success
 - PR #71: merged
-- Active branch: `codex/native-responsive-accessibility-verification`
-- Active PR: #72
+- PR #72: merged
+- PR #72 post-merge Mobile CI run `33452253404`: success
+- Active branch: `codex/shared-retry-accessibility`
 
 ## Manual Replay Passed
 
@@ -33,22 +34,27 @@
 
 Native compact/tablet/accessibility verification.
 
-First confirmed source defect:
+Completed source repair:
 
-- `mobile/app.json` locks the app to portrait.
-- Tablet landscape is a required acceptance target.
-- Expo SDK 54 official app-config documentation confirms `orientation: "default"` is the stable no-lock value.
+- Expo orientation is now unlocked with `default`.
+- PR #72 Mobile CI and post-merge Mobile CI passed.
+- Native device evidence remains outstanding.
 
-First repair:
+Next confirmed source defect:
 
-- Change orientation to `default`.
-- Add a regression test that also preserves iPad/tablet support.
-- Verify through Mobile CI.
-- Do not claim native device completion from source or CI alone.
+- The shared `ErrorState` retry `Pressable` lacks an explicit button role.
+- Its shared style does not enforce the 48 dp minimum touch target.
+- React Native official accessibility guidance confirms button semantics should be communicated with `accessibilityRole="button"`.
+
+Next repair:
+
+- Add the button role and 48 dp minimum.
+- Add focused regression coverage.
+- Do not claim screen-reader or device completion from source or CI alone.
 
 ## Exact Next Action
 
-Verify PR #72 Mobile CI, diff, and mergeability; merge when green; then continue compact/tablet/accessibility inspection. Native device evidence remains outstanding and EAS must not be triggered.
+Commit and push the shared retry accessibility repair, open a focused PR, verify Mobile CI and the diff, then continue the native audit. Native device evidence remains outstanding and EAS must not be triggered.
 
 ## Do Not Repeat
 

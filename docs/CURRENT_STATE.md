@@ -6,12 +6,12 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Current verified `main`: `d14742126fa66f4fa31cfe4d569d1cdec0ef90db`
+- Current verified `main`: `49032490082a5e6e26f5d8e6900641f215e7a59d`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
-- Active branch: `codex/native-responsive-accessibility-verification`
-- Active PR: #72
+- PR #72: merged; post-merge Mobile CI run `33452253404` succeeded
+- Active branch: `codex/shared-retry-accessibility`
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -32,11 +32,11 @@ PR #71 restored the durable continuity documents after the verified PR #70 merge
 
 ## Active Checkpoint
 
-Native compact/tablet/accessibility verification. Source inspection found `mobile/app.json` locked to portrait despite the tablet-landscape acceptance target.
+Native compact/tablet/accessibility verification. The orientation lock is repaired. Source inspection found the shared error-state retry action lacks an explicit button role and 48 dp minimum target.
 
 ## Exact Next Action
 
-Verify PR #72 Mobile CI and mergeability, merge when green, then continue the native/accessibility audit without triggering EAS.
+Repair the shared retry control, add focused regression coverage, run Mobile CI, and continue the native/accessibility audit without triggering EAS.
 
 ## Major Remaining Work
 

@@ -55,3 +55,10 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 - The stable `orientation` values are `default`, `portrait`, and `landscape`; `default` leaves orientation unlocked.
 - My Corner now selects `default` because tablet portrait and landscape are both required acceptance targets.
 - No dependency, lockfile, EAS build, or production setting changed in this checkpoint.
+
+## 2026-08-31 Shared retry accessibility note
+
+- React Native accessibility documentation was rechecked at https://reactnative.dev/docs/accessibility.html.
+- `accessibilityRole="button"` communicates actionable button semantics to VoiceOver and TalkBack.
+- The shared error-state retry action now combines that role with the existing 48 dp design-token minimum.
+- No dependency, lockfile, native build, or production configuration changed.

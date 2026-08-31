@@ -16,7 +16,7 @@ export function ErrorState({ title, body, onRetry }: { title: string; body: stri
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{body}</Text>
       {onRetry ? (
-        <Pressable onPress={onRetry} style={styles.button}>
+        <Pressable accessibilityRole="button" onPress={onRetry} style={styles.button}>
           <Text style={styles.buttonText}>Try again</Text>
         </Pressable>
       ) : null}
@@ -74,7 +74,14 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: tokens.type.card, fontWeight: '700', color: tokens.color.textPrimary },
   body: { fontSize: tokens.type.body, color: tokens.color.textSecondary },
-  button: { backgroundColor: tokens.color.primary, padding: tokens.spacing.md, borderRadius: tokens.radius.md },
+  button: {
+    alignItems: 'center',
+    backgroundColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   offline: { backgroundColor: '#FFF4D6', padding: tokens.spacing.md, borderRadius: tokens.radius.md },
   offlineText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },

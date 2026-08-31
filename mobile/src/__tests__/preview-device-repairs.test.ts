@@ -95,6 +95,14 @@ describe('preview device repairs', () => {
     expect(source).toContain('accessibilityLabel="Enter My Corner"');
   });
 
+  it('exposes shared retry actions as labeled 48 dp buttons', () => {
+    const source = readFileSync('src/components/StateBlocks.tsx', 'utf8');
+    const retryButtonStyle = source.slice(source.indexOf('button: {'), source.indexOf('buttonText:'));
+
+    expect(source).toContain('<Pressable accessibilityRole="button" onPress={onRetry} style={styles.button}>');
+    expect(retryButtonStyle).toContain('minHeight: tokens.touch.min');
+  });
+
   it('waits for provider status persistence before navigating and exposes retryable failures', () => {
     const source = readFileSync('app/provider/request/status-update.tsx', 'utf8');
     const updateIndex = source.indexOf('await updateRequestStatus');

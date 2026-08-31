@@ -23,6 +23,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Changed
 
+- Give shared error-state retry actions explicit button semantics and a 48 dp minimum target.
+
 - Allow supported native tablets to rotate between portrait and landscape by using Expo's stable no-lock orientation setting.
 
 - Merged PR #70's systematic web-safe navigation migration after immutable-head, CI, mergeability, and manual browser replay verification.
