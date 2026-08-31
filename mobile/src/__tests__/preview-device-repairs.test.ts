@@ -78,4 +78,17 @@ describe('preview device repairs', () => {
     expect(source).toContain('heroLogoStacked');
     expect(source).toContain('minHeight: tokens.touch.min');
   });
+
+  it('waits for provider status persistence before navigating and exposes retryable failures', () => {
+    const source = readFileSync('app/provider/request/status-update.tsx', 'utf8');
+    const updateIndex = source.indexOf('await updateRequestStatus');
+    const navigationIndex = source.indexOf('router.replace');
+
+    expect(source).toContain('async function save');
+    expect(updateIndex).toBeGreaterThan(-1);
+    expect(navigationIndex).toBeGreaterThan(updateIndex);
+    expect(source).toContain('disabled={isSaving}');
+    expect(source).toContain('accessibilityLiveRegion="polite"');
+    expect(source).toContain('Check your connection and try again.');
+  });
 });
