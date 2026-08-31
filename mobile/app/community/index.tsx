@@ -1,6 +1,6 @@
-import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState, OfflineBanner } from '@/components/StateBlocks';
 import {
@@ -207,16 +207,16 @@ export default function CommunityFeedScreen() {
           </Text>
         </View>
         <View style={styles.queueLinks}>
-          <Link href="/groups/membership-requests" asChild>
+          <WebSafeLink href="/groups/membership-requests" asChild>
             <Pressable accessibilityRole="button" style={styles.queueButton}>
               <Text style={styles.queueText}>Membership requests</Text>
             </Pressable>
-          </Link>
-          <Link href="/community/moderation" asChild>
+          </WebSafeLink>
+          <WebSafeLink href="/community/moderation" asChild>
             <Pressable accessibilityRole="button" style={styles.queueButton}>
               <Text style={styles.queueText}>Content reports</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         </View>
       </View>
       {error ? <EmptyState title="Feed notice" body={error} /> : null}

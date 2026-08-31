@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { requesterProfile, verificationItems } from '@/lib/account';
 import { tokens } from '@/theme/tokens';
@@ -25,61 +25,61 @@ export default function ProfileScreen() {
         <Text style={styles.body}>Data saver: {requesterProfile.dataSaver ? 'On' : 'Off'}</Text>
       </View>
 
-      <Link href="/profile/verification" asChild>
+      <WebSafeLink href="/profile/verification" asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>
             Verification status: {verifiedCount} of {verificationItems.length}
           </Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/profile/phone-verification" asChild>
+      <WebSafeLink href="/profile/phone-verification" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Phone verification</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/profile/legal-name" asChild>
+      <WebSafeLink href="/profile/legal-name" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Legal name</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href={{ pathname: '/profile/address' }} asChild>
+      <WebSafeLink href={{ pathname: '/profile/address' }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Ghana address</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href={{ pathname: '/profile/map-confirmation' }} asChild>
+      <WebSafeLink href={{ pathname: '/profile/map-confirmation' }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Map confirmation</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/profile/manual-biometric" asChild>
+      <WebSafeLink href="/profile/manual-biometric" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Manual biometric review</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href={{ pathname: '/profile/privacy' }} asChild>
+      <WebSafeLink href={{ pathname: '/profile/privacy' }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Masked profile and map privacy</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href={{ pathname: '/location-privacy' }} asChild>
+      <WebSafeLink href={{ pathname: '/location-privacy' }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Address and identity providers</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href="/report/evidence" asChild>
+      <WebSafeLink href="/report/evidence" asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Report evidence</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }

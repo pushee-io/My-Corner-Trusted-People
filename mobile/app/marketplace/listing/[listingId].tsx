@@ -1,7 +1,8 @@
-import { Link, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateBlocks';
 import {
@@ -250,14 +251,14 @@ export default function MarketplaceListingScreen() {
                   secondary
                 />
               ) : null}
-              <Link
+              <WebSafeLink
                 href={{ pathname: '/messages', params: { requestId: request.id, listingTitle: listing.title } }}
                 asChild
               >
                 <Pressable accessibilityRole="button" style={styles.secondaryButton}>
                   <Text style={styles.secondaryButtonText}>Open messages</Text>
                 </Pressable>
-              </Link>
+              </WebSafeLink>
             </View>
           ))}
         </View>
@@ -272,14 +273,14 @@ export default function MarketplaceListingScreen() {
           ) : (
             <Text style={styles.note}>Precise details remain hidden until the seller confirms pickup.</Text>
           )}
-          <Link
+          <WebSafeLink
             href={{ pathname: '/messages', params: { requestId: myRequest.id, listingTitle: listing.title } }}
             asChild
           >
             <Pressable accessibilityRole="button" style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Message seller</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
           {['proposed', 'accepted', 'confirmed'].includes(myRequest.status) ? (
             <ActionButton
               label="Cancel pickup"

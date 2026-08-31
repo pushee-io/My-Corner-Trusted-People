@@ -1,4 +1,4 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -59,11 +59,14 @@ export default function WelcomeScreen() {
       </View>
       <Text style={styles.body}>No Wahala — Hire without headache.</Text>
       <Text style={styles.body}>Find trusted local help, review visible trust signals, and send a clear request.</Text>
-      <Link href="/sign-in" asChild>
-        <Pressable accessibilityRole="button" style={styles.button}>
-          <Text style={styles.buttonText}>Enter app</Text>
-        </Pressable>
-      </Link>
+      <Pressable
+        accessibilityLabel="Enter My Corner"
+        accessibilityRole="button"
+        onPress={() => router.push('/sign-in')}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Enter app</Text>
+      </Pressable>
     </Screen>
   );
 }

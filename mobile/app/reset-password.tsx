@@ -1,6 +1,7 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { createPasswordRecoverySession, updateRecoveredPassword } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
@@ -79,11 +80,11 @@ export default function ResetPasswordScreen() {
           <Text accessibilityRole="alert" style={styles.text}>
             This password recovery link is invalid or has expired.
           </Text>
-          <Link href="/forgot-password" asChild>
+          <WebSafeLink href="/forgot-password" asChild>
             <Pressable accessibilityRole="button" style={styles.button}>
               <Text style={styles.buttonText}>Request another link</Text>
             </Pressable>
-          </Link>
+          </WebSafeLink>
         </View>
       </Screen>
     );

@@ -1,6 +1,7 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
@@ -67,11 +68,11 @@ export default function RequestStatusScreen() {
         ))}
       </View>
 
-      <Link href={{ pathname: '/hire/request/report-cancel', params: { requestId: request.id } }} asChild>
+      <WebSafeLink href={{ pathname: '/hire/request/report-cancel', params: { requestId: request.id } }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Cancel or report</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }

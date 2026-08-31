@@ -1,4 +1,4 @@
-import { Link, type Href, usePathname } from 'expo-router';
+import { router, type Href, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 import { isEventsClientEnabled } from '@/lib/events-feature';
@@ -35,15 +35,16 @@ export function BottomNavigation() {
         const selected = isSelected(pathname, item);
 
         return (
-          <Link key={String(item.href)} href={item.href} asChild>
-            <Pressable
-              accessibilityRole="tab"
-              accessibilityState={{ selected }}
-              style={[styles.item, selected ? styles.selectedItem : null]}
-            >
-              <Text style={[styles.label, selected ? styles.selectedLabel : null]}>{item.label}</Text>
-            </Pressable>
-          </Link>
+          <Pressable
+            accessibilityLabel={item.label}
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            key={String(item.href)}
+            onPress={() => router.push(item.href)}
+            style={[styles.item, selected ? styles.selectedItem : null]}
+          >
+            <Text style={[styles.label, selected ? styles.selectedLabel : null]}>{item.label}</Text>
+          </Pressable>
         );
       })}
     </View>

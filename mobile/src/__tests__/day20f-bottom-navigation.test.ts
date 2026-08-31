@@ -30,7 +30,14 @@ describe('Day 20F bottom navigation foundation', () => {
     expect(bottomNavigationSource).toContain('accessibilityRole="tablist"');
     expect(bottomNavigationSource).toContain('accessibilityRole="tab"');
     expect(bottomNavigationSource).toContain('accessibilityState={{ selected }}');
+    expect(bottomNavigationSource).toContain('accessibilityLabel={item.label}');
     expect(bottomNavigationSource).toContain('pathname.startsWith(`${route}/`)');
+  });
+
+  it('navigates without the web-incompatible Link asChild slot', () => {
+    expect(bottomNavigationSource).not.toContain('asChild');
+    expect(bottomNavigationSource).not.toContain('import { Link');
+    expect(bottomNavigationSource).toContain('onPress={() => router.push(item.href)}');
   });
 
   it('mounts the bottom navigation from the shared Screen shell by default', () => {

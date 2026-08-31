@@ -1,6 +1,7 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
@@ -52,29 +53,29 @@ export default function ProviderRequestDetailScreen() {
         <Text style={styles.notice}>Exact requester address is not shown in this workflow.</Text>
       </View>
 
-      <Link
+      <WebSafeLink
         href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
         asChild
       >
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Accept request</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link
+      <WebSafeLink
         href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
         asChild
       >
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Decline request</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
 
-      <Link href={{ pathname: '/provider/request/status-update', params: { requestId: request.id } }} asChild>
+      <WebSafeLink href={{ pathname: '/provider/request/status-update', params: { requestId: request.id } }} asChild>
         <Pressable style={styles.secondary}>
           <Text style={styles.secondaryText}>Update status</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }

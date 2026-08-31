@@ -1,6 +1,7 @@
-import { Link, router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
 import { getCurrentProfile } from '@/lib/auth';
@@ -107,16 +108,16 @@ export default function GroupsScreen() {
   return (
     <Screen title="Groups">
       <View style={styles.actionRow}>
-        <Link href="/groups/new" asChild>
+        <WebSafeLink href="/groups/new" asChild>
           <Pressable accessibilityRole="button" style={styles.createButton}>
             <Text style={styles.createButtonText}>Create group</Text>
           </Pressable>
-        </Link>
-        <Link href="/groups/membership-requests" asChild>
+        </WebSafeLink>
+        <WebSafeLink href="/groups/membership-requests" asChild>
           <Pressable accessibilityRole="button" style={styles.reviewButton}>
             <Text style={styles.reviewButtonText}>Review membership requests</Text>
           </Pressable>
-        </Link>
+        </WebSafeLink>
       </View>
 
       <Text style={styles.helper}>Open a group to read posts and take part in the conversation.</Text>

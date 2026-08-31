@@ -1,6 +1,7 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { signInWithEmailPassword } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
@@ -82,11 +83,11 @@ export default function SignInScreen() {
         <Text style={styles.buttonText}>{submitting ? 'Signing in...' : 'Sign in'}</Text>
       </Pressable>
 
-      <Link href="/forgot-password" asChild>
+      <WebSafeLink href="/forgot-password" asChild>
         <Pressable accessibilityRole="button" style={styles.recoveryButton}>
           <Text style={styles.recoveryButtonText}>Forgot password?</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }

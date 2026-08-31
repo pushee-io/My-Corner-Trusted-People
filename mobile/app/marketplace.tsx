@@ -1,10 +1,11 @@
 import { File } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateBlocks';
 import {
@@ -297,11 +298,17 @@ export default function MarketplaceScreen() {
               {listing.availability} · {listing.sellerName}
             </Text>
             <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
-            <Link href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
+            <WebSafeLink
+              href={{
+                pathname: '/marketplace/listing/[listingId]',
+                params: { listingId: listing.id },
+              }}
+              asChild
+            >
               <Pressable accessibilityRole="button" style={styles.button}>
                 <Text style={styles.buttonText}>View listing</Text>
               </Pressable>
-            </Link>
+            </WebSafeLink>
           </View>
         ))}
       </View>

@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { tokens } from '@/theme/tokens';
 
@@ -13,11 +13,11 @@ export default function NeighborhoodScreen() {
           Only your general service area is used for browsing. Exact addresses stay private in this slice.
         </Text>
       </View>
-      <Link href="/home" asChild>
+      <WebSafeLink href="/home" asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Confirm neighborhood</Text>
         </Pressable>
-      </Link>
+      </WebSafeLink>
     </Screen>
   );
 }
