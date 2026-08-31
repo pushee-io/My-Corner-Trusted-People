@@ -14,6 +14,28 @@ export const secureSessionStorage = {
   removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 };
 
+function getBrowserSessionStorage() {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+export const webSessionStorage = {
+  getItem: async (key: string) => getBrowserSessionStorage()?.getItem(key) ?? null,
+  setItem: async (key: string, value: string) => {
+    getBrowserSessionStorage()?.setItem(key, value);
+  },
+  removeItem: async (key: string) => {
+    getBrowserSessionStorage()?.removeItem(key);
+  },
+};
+
+export const authSessionStorage = Platform.OS === 'web' ? webSessionStorage : secureSessionStorage;
+
 const extra = (Constants.expoConfig?.extra ?? {}) as SupabaseExtra;
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extra.supabaseUrl;
@@ -39,7 +61,7 @@ export const supabase = createClient(
       detectSessionInUrl: false,
       lock: processLock,
       persistSession: true,
-      storage: secureSessionStorage,
+      storage: authSessionStorage,
     },
   },
 );
