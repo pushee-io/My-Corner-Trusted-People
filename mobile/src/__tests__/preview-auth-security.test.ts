@@ -24,7 +24,18 @@ describe('preview authentication security', () => {
     expect(supabase).toContain("state === 'active'");
     expect(supabase).toContain('supabase.auth.startAutoRefresh()');
     expect(supabase).toContain('supabase.auth.stopAutoRefresh()');
-    expect(supabase).toContain('storage: secureSessionStorage');
+    expect(supabase).toContain("Platform.OS === 'web' ? webSessionStorage : secureSessionStorage");
+    expect(supabase).toContain('storage: authSessionStorage');
+  });
+
+  it('uses tab-scoped browser storage without calling SecureStore on web', () => {
+    const supabase = readFileSync('src/lib/supabase.ts', 'utf8');
+
+    expect(supabase).toContain("typeof window === 'undefined'");
+    expect(supabase).toContain('window.sessionStorage');
+    expect(supabase).toContain('getBrowserSessionStorage()?.getItem(key)');
+    expect(supabase).toContain('getBrowserSessionStorage()?.setItem(key, value)');
+    expect(supabase).toContain('getBrowserSessionStorage()?.removeItem(key)');
   });
 
   it('pins EAS and binds internal builds to the preview environment', () => {
