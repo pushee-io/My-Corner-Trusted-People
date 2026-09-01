@@ -86,6 +86,12 @@ describe('session restoration', () => {
     expect(profileQuery.eq).toHaveBeenCalledWith('auth_user_id', 'auth-requester');
   });
 
+  it('times out a stalled restoration so the welcome screen remains available', async () => {
+    mockedSupabase.auth.getSession.mockReturnValue(new Promise(() => undefined));
+
+    await expect(restoreSessionProfile(1)).rejects.toThrow('Session restoration timed out. Continue to sign in.');
+  });
+
   it('propagates restoration errors without clearing the stored session', async () => {
     const storageError = new Error('secure storage unavailable');
     mockedSupabase.auth.getSession.mockResolvedValue({
