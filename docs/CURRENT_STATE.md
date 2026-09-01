@@ -13,6 +13,7 @@
 - PR #72: merged; post-merge Mobile CI run `33452253404` succeeded
 - PR #73: merged; post-merge Mobile CI run `33452764182` succeeded
 - Active branch: `codex/native-verification-evidence`
+- Active PR: #74
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -37,7 +38,7 @@ Native compact/tablet/accessibility verification evidence. Source and CI repairs
 
 ## Exact Next Action
 
-Persist and merge the native verification report. Then obtain approved real-device evidence; do not trigger paid EAS without founder approval.
+Verify and merge PR #74. Then obtain approved real-device evidence; do not trigger paid EAS without founder approval.
 
 ## Major Remaining Work
 

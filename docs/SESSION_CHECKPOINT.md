@@ -18,6 +18,7 @@
 - PR #72: merged; post-merge Mobile CI run `33452253404`: success
 - PR #73: merged; post-merge Mobile CI run `33452764182`: success
 - Active branch: `codex/native-verification-evidence`
+- Active PR: #74
 
 ## Manual Replay Passed
 
@@ -51,7 +52,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Merge the native verification evidence PR, then obtain approved native-device results. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Verify and merge PR #74, then obtain approved native-device results. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 
