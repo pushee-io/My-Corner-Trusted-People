@@ -56,10 +56,7 @@ export default function RequestStatusScreen() {
       </View>
 
       {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
-        <WebSafeLink
-          href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }}
-          asChild
-        >
+        <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>
           <Pressable style={styles.primary}>
             <Text style={styles.primaryText}>Open job safety session</Text>
           </Pressable>
