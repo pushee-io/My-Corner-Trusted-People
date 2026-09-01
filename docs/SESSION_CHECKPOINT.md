@@ -1,38 +1,37 @@
 # MY CORNER — SESSION CHECKPOINT
 
 **Updated:** 2026-09-01
-**Status source:** Live GitHub repository, PR, commit, and Actions inspection
+**Status source:** Live GitHub, Actions, EAS, APK, and provenance inspection
 
 ## Current Durable State
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
-- Default branch: `main`
-- Live `main`: `8184523b3d28a98e61ba62c03bb1ac2ee5c84bc0`
-- PR #84: merged as `8184523b3d28a98e61ba62c03bb1ac2ee5c84bc0`
-- PR #84 source head: `85e6a4efd3f9b265c9ba9aec1513abd734dca90b`
-- Mobile CI `33462005901`: success
-- Database CI `33462005870`: success
-- Job Safety Usability `33462005863`: success
-- Post-merge Mobile CI `33462212162`: success
-- Post-merge Database CI `33462212190`: success
-- EAS Preview key sync `33458871834`: success
+- Live `main`: `5eb06091e8352f949f7c78d87674f74b40833011`
+- PR #86: merged
+- EAS Preview workflow `33535507405`: success
+- Mobile CI `33535507482`: success
+- EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`: `FINISHED`
+- Verified GitHub artifact `9811830907`: APK plus provenance
+- Artifact expiry: 2026-09-15
 
-## Completed Checkpoint
+## Build Evidence
 
-PR #84 delivered the Job Safety Session and security verification checkpoint without production deployment or migration application.
+The one founder-authorized paid Android Preview build was submitted exactly once. Preflight formatting, lint, typecheck, tests, Expo authentication, and Preview Supabase validation passed. The workflow downloaded the completed APK, verified the archive, application ID, embedded staging Supabase project, Events and Marketplace bytecode markers, generated provenance, and uploaded the artifact.
 
-The implementation includes consent-based private-location release, assigned-provider authorization, arrival confirmation, one-time-code controls, server-owned status transitions, two-party completion, encrypted sensitive fields, scoped RPCs, audit events, and combined Marketplace/job-safety database verification.
+- Application ID: `com.mycorner.trustedpeople`
+- Supabase ref: `opeojxwkwwnnncnsuaag`
+- APK SHA-256: `6e3f5a5704fbddb1b82165066b7735082fd20704bd24d0e34c1a5faaadd723c4`
 
 ## Remaining Native Evidence
 
-- One approved Android EAS Preview build has not been verified as completed.
-- Samsung SM-G736U installation remains pending.
-- Compact phone, tablet portrait/landscape, large text, screen reader, reduced motion, permission denial, intermittent network, and private-location checks remain pending.
+- Install on Samsung SM-G736U.
+- Execute compact/tablet, rotation, large-text, TalkBack, reduced-motion, permission, network, and private-location checks.
+- Record screenshots and outcomes durably.
 
 ## Exact Next Action
 
-Reconfirm that the recorded one-build authorization remains unused. Submit exactly one Android EAS Preview build, install the verified APK, and execute `docs/NATIVE_VERIFICATION_REPORT.md`. Persist failures as small repair PRs.
+Install artifact `9811830907` on Samsung SM-G736U and execute `docs/NATIVE_VERIFICATION_REPORT.md`. No additional paid build is authorized.
 
 ## Restricted Actions
 
-Do not submit a second paid build, deploy to production, activate real messaging or identity services, apply destructive migrations, process sensitive real-user data, or disclose/change secrets without explicit founder authority.
+Do not submit another paid build, deploy to production, activate real messaging or identity services, apply destructive migrations, process sensitive real-user data, or disclose/change secrets without explicit founder authority.

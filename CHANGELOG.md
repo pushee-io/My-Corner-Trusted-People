@@ -6,6 +6,7 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Added
 
+- A verified Android Preview APK for commit `5eb06091e8352f949f7c78d87674f74b40833011`, EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`, with application, staging-project, bytecode, hash, and provenance checks.
 - A server-controlled Job Safety Session with consent-based exact-location release, assigned-provider authorization, arrival confirmation, expiring one-time codes, server-owned status transitions, two-party completion, encrypted sensitive fields, scoped RPCs, and audit events.
 - Combined Marketplace and job-safety authorization verification in the clean Database CI path.
 - A dedicated Marketplace moderator queue with open, reviewing, resolved, and all filters.
@@ -50,8 +51,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Known limitations
 
-- The single approved paid Android EAS Preview build was not verified as completed during the PR #84 reconciliation; native compact/tablet/accessibility evidence remains pending.
-- Approved EAS preview runs `33455069758` and `33455643194` failed closed before build submission because Supabase rejected the configured preview client key with HTTP 401; no paid build was submitted.
+- The single approved Android Preview build is complete and verified; installation and real-device compact/tablet/accessibility evidence remain pending.
+- Earlier EAS preview runs `33455069758` and `33455643194` failed before submission; the repaired workflow later completed the single authorized build in run `33535507405`.
 
 - The Marketplace moderator migration is prepared locally but has not been applied to Preview; Preview application and device verification require separate founder approval.
 - Blocking in this slice hides a listing and does not ban or permanently restrict the seller account.

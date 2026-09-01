@@ -20,9 +20,9 @@ This addendum supersedes older current-state and resume-point statements below.
 - PR #84 completed the server-controlled Job Safety Session, repaired Trusted Hire safety routing, and placed Marketplace and job-safety authorization checks in Database CI.
 - PR #84 head `85e6a4efd3f9b265c9ba9aec1513abd734dca90b` passed Mobile CI `33462005901`, Database CI `33462005870`, and Job Safety Usability `33462005863`.
 - Post-merge `main` passed Mobile CI `33462212162` and Database CI `33462212190`.
-- EAS Preview public-key sync run `33458871834` succeeded after PRs #79 through #83; no completed paid Android preview build was verified in this reconciliation.
+- PR #86 consumed the single authorized Android Preview build. EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b` finished and workflow `33535507405` verified the APK and provenance.
 - No production deployment, migration deployment, real-user communication, or identity activation was performed.
-- Exact next checkpoint: finish the already-approved single Android EAS Preview build only after confirming the authorization remains unused, then collect the blocked compact-phone, tablet, rotation, large-text, screen-reader, permission, network, and privacy evidence.
+- Exact next checkpoint: install the verified APK and collect the compact-phone, tablet, rotation, large-text, screen-reader, permission, network, and privacy evidence. Do not submit another paid build.
 
 ## 1. Purpose of this handoff
 
