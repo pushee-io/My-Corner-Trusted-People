@@ -9,6 +9,11 @@ export type CurrentProfile = {
   phoneVerified: boolean;
 };
 
+export type CurrentProviderProfile = {
+  id: string;
+  businessName: string;
+};
+
 const passwordRecoveryRedirect = 'mycorner://reset-password';
 
 export async function signInWithEmailPassword(email: string, password: string): Promise<CurrentProfile> {
@@ -132,14 +137,25 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
   };
 }
 
-export async function getCurrentProviderProfileId(): Promise<string> {
+export async function getCurrentProviderProfile(): Promise<CurrentProviderProfile> {
   const profile = await getCurrentProfile();
-  const { data, error } = await supabase.from('provider_profiles').select('id').eq('profile_id', profile.id).single();
+  const { data, error } = await supabase
+    .from('provider_profiles')
+    .select('id, business_name')
+    .eq('profile_id', profile.id)
+    .single();
 
   if (error) throw error;
   if (!data) throw new Error('The signed-in account is not linked to a provider profile.');
 
-  return data.id;
+  return {
+    id: data.id,
+    businessName: data.business_name,
+  };
+}
+
+export async function getCurrentProviderProfileId(): Promise<string> {
+  return (await getCurrentProviderProfile()).id;
 }
 
 function isValidEmail(value: string): boolean {
