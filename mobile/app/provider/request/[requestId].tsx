@@ -53,29 +53,35 @@ export default function ProviderRequestDetailScreen() {
         <Text style={styles.notice}>Exact requester address is not shown in this workflow.</Text>
       </View>
 
-      <WebSafeLink
-        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
-        asChild
-      >
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Accept request</Text>
-        </Pressable>
-      </WebSafeLink>
+      {['Submitted', 'Viewed'].includes(request.status) ? (
+        <>
+          <WebSafeLink
+            href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Accepted' } }}
+            asChild
+          >
+            <Pressable style={styles.button}>
+              <Text style={styles.buttonText}>Accept request</Text>
+            </Pressable>
+          </WebSafeLink>
 
-      <WebSafeLink
-        href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
-        asChild
-      >
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Decline request</Text>
-        </Pressable>
-      </WebSafeLink>
+          <WebSafeLink
+            href={{ pathname: '/provider/request/respond', params: { requestId: request.id, decision: 'Declined' } }}
+            asChild
+          >
+            <Pressable style={styles.secondary}>
+              <Text style={styles.secondaryText}>Decline request</Text>
+            </Pressable>
+          </WebSafeLink>
+        </>
+      ) : null}
 
-      <WebSafeLink href={{ pathname: '/provider/request/status-update', params: { requestId: request.id } }} asChild>
-        <Pressable style={styles.secondary}>
-          <Text style={styles.secondaryText}>Update status</Text>
-        </Pressable>
-      </WebSafeLink>
+      {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
+        <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>
+          <Pressable style={styles.button}>
+            <Text style={styles.buttonText}>Open job safety session</Text>
+          </Pressable>
+        </WebSafeLink>
+      ) : null}
     </Screen>
   );
 }

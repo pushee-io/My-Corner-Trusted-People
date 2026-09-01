@@ -1,0 +1,66 @@
+name: Job Safety Usability
+
+on:
+  pull_request:
+    paths:
+      - 'mobile/app/hire/request/safety-session.tsx'
+      - 'mobile/src/lib/job-safety-repository.ts'
+      - 'scripts/job-safety-usability.mjs'
+      - '.github/workflows/job-safety-usability.yml'
+  workflow_dispatch:
+
+jobs:
+  compact-and-tablet:
+    name: Compact phone and tablet usability
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install locked mobile dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Install pinned browser driver
+        run: npm install --no-save --package-lock=false playwright-core@1.62.0
+
+      - name: Start Expo Web
+        working-directory: mobile
+        env:
+          CI: '1'
+          EXPO_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: fictional-usability-key
+        run: |
+          npx expo start --web --port 8081 > /tmp/my-corner-expo-web.log 2>&1 &
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:8081 >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/my-corner-expo-web.log
+          exit 1
+
+      - name: Exercise compact phone and tablet flows
+        env:
+          APP_URL: http://127.0.0.1:8081
+          USABILITY_OUTPUT_DIR: usability-artifacts
+        run: node scripts/job-safety-usability.mjs
+
+      - name: Upload usability evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-safety-usability
+          path: usability-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

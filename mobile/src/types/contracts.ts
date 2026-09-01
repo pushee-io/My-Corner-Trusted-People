@@ -142,6 +142,58 @@ export type MarketplaceMessage = {
   isOwn: boolean;
 };
 
+export type JobSafetySessionState =
+  | 'awaiting_location'
+  | 'location_shared'
+  | 'provider_arrived'
+  | 'arrival_confirmed'
+  | 'active'
+  | 'completion_pending'
+  | 'completed'
+  | 'cancelled';
+
+export type JobSafetyViewerRole = 'requester' | 'provider';
+
+export type JobSafetySession = {
+  jobRequestId: string;
+  state: JobSafetySessionState;
+  viewerRole: JobSafetyViewerRole;
+  canViewExactLocation: boolean;
+  privateLatitude?: number;
+  privateLongitude?: number;
+  privateLocationLabel?: string;
+  locationSharedAt?: string;
+  providerArrivedAt?: string;
+  arrivalConfirmedAt?: string;
+  activeAt?: string;
+  codeExpiresAt?: string;
+  codeAttemptCount: number;
+  requesterCompletedAt?: string;
+  providerCompletedAt?: string;
+  completedAt?: string;
+};
+
+export type JobSafetyLocationRelease = {
+  jobRequestId: string;
+  state: JobSafetySessionState;
+  oneTimeCode: string;
+  codeExpiresAt: string;
+};
+
+export type JobSafetyStartResult = {
+  started: boolean;
+  state?: 'active';
+  reason?: 'invalid_code' | 'attempt_limit_reached' | 'code_expired';
+  attemptsRemaining?: number;
+};
+
+export type JobSafetyCompletionResult = {
+  state: 'completion_pending' | 'completed';
+  requesterConfirmed: boolean;
+  providerConfirmed: boolean;
+  completed: boolean;
+};
+
 export type MarketplaceModerationDecision = 'approve' | 'flag' | 'block';
 
 export type MarketplaceModerationReportStatus = 'open' | 'reviewing' | 'resolved';

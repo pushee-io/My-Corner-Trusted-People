@@ -55,6 +55,14 @@ export default function RequestStatusScreen() {
         {request.providerMessage ? <Text style={styles.message}>Provider note: {request.providerMessage}</Text> : null}
       </View>
 
+      {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
+        <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>
+          <Pressable style={styles.primary}>
+            <Text style={styles.primaryText}>Open job safety session</Text>
+          </Pressable>
+        </WebSafeLink>
+      ) : null}
+
       <View style={styles.panel}>
         <Text style={styles.section}>Timeline</Text>
         {(request.statusTimeline ?? []).map((event) => (
@@ -91,6 +99,14 @@ const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   note: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   message: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
+  primary: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    backgroundColor: tokens.color.primary,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+  },
+  primaryText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   timelineRow: {
     borderTopColor: tokens.color.border,
     borderTopWidth: 1,
