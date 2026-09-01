@@ -4,12 +4,14 @@ import { WebSafeLink } from '@/components/WebSafeLink';
 import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { StatusPill } from '@/components/StatusPill';
+import { getCurrentProviderProfile } from '@/lib/auth';
 import { listProviderRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 export default function ProviderRequestsScreen() {
   const [requests, setRequests] = useState<JobRequest[]>([]);
+  const [providerBusinessName, setProviderBusinessName] = useState<string>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
@@ -25,9 +27,13 @@ export default function ProviderRequestsScreen() {
       if (showLoading) setIsLoading(true);
 
       try {
-        const nextRequests = await listProviderRequests();
+        const [providerProfile, nextRequests] = await Promise.all([
+          getCurrentProviderProfile(),
+          listProviderRequests(),
+        ]);
         if (!active) return;
 
+        setProviderBusinessName(providerProfile.businessName);
         setRequests(nextRequests);
         setError(undefined);
       } catch (caught) {
@@ -58,6 +64,13 @@ export default function ProviderRequestsScreen() {
   return (
     <Screen title="Incoming requests">
       <OfflineBanner onRetry={refreshRequests} />
+
+      {providerBusinessName ? (
+        <View accessibilityLabel={`Signed in as provider: ${providerBusinessName}`} style={styles.identity}>
+          <Text style={styles.identityLabel}>Signed in as provider</Text>
+          <Text style={styles.identityName}>{providerBusinessName}</Text>
+        </View>
+      ) : null}
 
       {error ? (
         <ErrorState title="Could not load requests" body={error} onRetry={refreshRequests} />
@@ -98,6 +111,16 @@ export default function ProviderRequestsScreen() {
 }
 
 const styles = StyleSheet.create({
+  identity: {
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    gap: tokens.spacing.xs,
+    padding: tokens.spacing.md,
+  },
+  identityLabel: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
+  identityName: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
   list: { gap: tokens.spacing.md },
   refreshButton: {
     alignItems: 'center',
