@@ -110,6 +110,9 @@ describe('preview device repairs', () => {
     expect(source).toContain('}, 10_000)');
     expect(source).toContain('onRetry={refreshRequests}');
     expect(source).toContain('Refresh requests');
+    expect(source).toContain('getCurrentProviderProfile');
+    expect(source).toContain('Signed in as provider');
+    expect(source).toContain('providerBusinessName');
     expect(source).toContain('minHeight: tokens.touch.min');
   });
 
