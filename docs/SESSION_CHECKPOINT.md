@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Current verified `main`: `41da91b8d39fb44c2dca66aefda5eea7846599d4`
+- Native checkpoint evidence baseline: `78a0c01be047af21612d3185bfe6242eb6f53ef8`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -17,8 +17,7 @@
 - PR #71: merged
 - PR #72: merged; post-merge Mobile CI run `33452253404`: success
 - PR #73: merged; post-merge Mobile CI run `33452764182`: success
-- Active branch: `codex/native-verification-evidence`
-- Active PR: #74
+- PR #74: merged; evidence report persisted
 
 ## Manual Replay Passed
 
@@ -52,7 +51,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Verify and merge PR #74, then obtain approved native-device results. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Obtain approved native-device results using existing devices, or request founder approval for one paid EAS preview build. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 
