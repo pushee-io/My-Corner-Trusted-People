@@ -16,6 +16,7 @@
 - PR #75: merged; final blocked state reconciled
 - Founder approval: one paid Android EAS preview build
 - Active branch: `codex/approved-eas-preview-build`
+- Active PR: #76
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -40,7 +41,7 @@ Native compact/tablet/accessibility verification is partially completed. Source 
 
 ## Exact Next Action
 
-Verify and merge the one-build approval PR. Monitor the EAS workflow to a final verified APK, then install it on the Samsung SM-G736U using the founder's connected Android environment.
+Verify PR #76 Mobile CI and mergeability, then merge with the guarded build-trigger title. Monitor the EAS workflow to a final verified APK, then install it on the Samsung SM-G736U using the founder's connected Android environment.
 
 ## Major Remaining Work
 

@@ -22,6 +22,7 @@
 - Founder approval: exactly one paid Android EAS preview build
 - Target device reported available: Samsung SM-G736U
 - Active branch: `codex/approved-eas-preview-build`
+- Active PR: #76
 
 ## Manual Replay Passed
 
@@ -55,7 +56,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Run the guarded one-time EAS preview workflow from the approved `main` merge, verify the APK provenance and artifact, then install and replay on the Samsung SM-G736U through the founder's connected Android environment. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Verify and merge PR #76, then run the guarded one-time EAS preview workflow from the approved `main` merge, verify the APK provenance and artifact, then install and replay on the Samsung SM-G736U through the founder's connected Android environment. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 

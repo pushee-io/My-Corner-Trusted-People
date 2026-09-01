@@ -16,6 +16,7 @@
 - [x] Verify and merge PR #73
 - [x] Record the native verification matrix and blockers in PR #74
 - [x] Verify and merge PR #74
+- [ ] Verify and merge build-authorization PR #76
 - [ ] Complete the one approved paid EAS Android preview build
 - [ ] Install the verified APK on Samsung SM-G736U
 - [ ] Obtain real-device compact/tablet/accessibility evidence
