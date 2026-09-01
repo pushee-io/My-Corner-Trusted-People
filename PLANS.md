@@ -13,8 +13,10 @@
 - [x] Repair the portrait-only app lock and add regression coverage in PR #72
 - [x] Verify and merge PR #72
 - [x] Repair shared retry semantics and 48 dp target in PR #73
-- [ ] Verify and merge PR #73
-- [ ] Verify remaining compact/tablet/accessibility behavior and record native-device blockers
+- [x] Verify and merge PR #73
+- [x] Record the native verification matrix and blockers in PR #74
+- [ ] Verify and merge PR #74
+- [ ] Obtain approved real-device compact/tablet/accessibility evidence
 
 ## Next
 

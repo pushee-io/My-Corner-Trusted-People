@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Current verified `main`: `49032490082a5e6e26f5d8e6900641f215e7a59d`
+- Current verified `main`: `41da91b8d39fb44c2dca66aefda5eea7846599d4`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -15,10 +15,10 @@
 - PR-head Mobile CI run `33423063650`: success
 - Post-merge Mobile CI run `33451194302`: success
 - PR #71: merged
-- PR #72: merged
-- PR #72 post-merge Mobile CI run `33452253404`: success
-- Active branch: `codex/shared-retry-accessibility`
-- Active PR: #73
+- PR #72: merged; post-merge Mobile CI run `33452253404`: success
+- PR #73: merged; post-merge Mobile CI run `33452764182`: success
+- Active branch: `codex/native-verification-evidence`
+- Active PR: #74
 
 ## Manual Replay Passed
 
@@ -33,29 +33,26 @@
 
 ## Current Checkpoint Scope
 
-Native compact/tablet/accessibility verification.
+Persist native compact/tablet/accessibility verification evidence.
 
-Completed source repair:
+Completed:
 
-- Expo orientation is now unlocked with `default`.
-- PR #72 Mobile CI and post-merge Mobile CI passed.
-- Native device evidence remains outstanding.
+- Removed the portrait-only orientation lock in PR #72.
+- Added shared retry button semantics and 48 dp minimum target in PR #73.
+- Mobile CI and post-merge Mobile CI passed for both repairs.
+- No EAS build or production action occurred.
 
-Next confirmed source defect:
+Blocked:
 
-- The shared `ErrorState` retry `Pressable` lacks an explicit button role.
-- Its shared style does not enforce the 48 dp minimum touch target.
-- React Native official accessibility guidance confirms button semantics should be communicated with `accessibilityRole="button"`.
+- No connected native phone or tablet.
+- Paid EAS is outside current authorization.
+- Real-device, screen-reader, rotation, permission, network, and privacy checks remain unexecuted.
 
-Next repair:
-
-- Add the button role and 48 dp minimum.
-- Add focused regression coverage.
-- Do not claim screen-reader or device completion from source or CI alone.
+The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPORT.md`.
 
 ## Exact Next Action
 
-Verify PR #73 Mobile CI, diff, and mergeability; merge when green; then continue the native audit. Native device evidence remains outstanding and EAS must not be triggered.
+Verify and merge PR #74, then obtain approved native-device results. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 
