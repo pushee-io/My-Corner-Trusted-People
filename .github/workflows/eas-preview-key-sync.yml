@@ -38,6 +38,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install locked mobile dependencies
+        run: npm ci
+
       - name: Require management credentials
         run: |
           if [ -z "$EXPO_TOKEN" ]; then
