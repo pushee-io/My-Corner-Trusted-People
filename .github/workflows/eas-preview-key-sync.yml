@@ -56,31 +56,32 @@ jobs:
             "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/api-keys?reveal=true" \
             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
 
-          current_key="$(printf '%s' "$keys_json" | jq -r '
+          current_key=''
+          while IFS= read -r candidate; do
+            [ -n "$candidate" ] || continue
+            echo "::add-mask::$candidate"
+
+            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+              "https://\${SUPABASE_PROJECT_REF}.supabase.co/rest/v1/" \
+              --header "apikey: \${candidate}")"
+            if [ "$status" = "200" ]; then
+              current_key="$candidate"
+              break
+            fi
+          done < <(printf '%s' "$keys_json" | jq -r '
             [
               .[]
               | select(.type == "publishable")
               | select(.api_key | type == "string")
               | select(.api_key | startswith("sb_publishable_"))
             ]
-            | sort_by(.updated_at // .inserted_at // "")
-            | last
-            | .api_key // empty
-          ')"
-          unset keys_json
+            | sort_by(.name != "default")
+            | .[].api_key
+          ')
+          unset candidate keys_json
 
           if [ -z "$current_key" ]; then
-            echo "::error::No current Supabase publishable key was returned for the approved project."
-            exit 1
-          fi
-
-          echo "::add-mask::$current_key"
-
-          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
-            "https://${SUPABASE_PROJECT_REF}.supabase.co/rest/v1/" \
-            --header "apikey: ${current_key}")"
-          if [ "$status" != "200" ]; then
-            echo "::error::Supabase rejected the retrieved publishable key with HTTP ${status}."
+            echo "::error::Supabase rejected every current publishable-key candidate for the approved project."
             exit 1
           fi
 
