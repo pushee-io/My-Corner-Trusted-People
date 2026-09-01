@@ -2,7 +2,7 @@
 
 **Updated:** 2026-08-31
 **Repository baseline:** `41da91b8d39fb44c2dca66aefda5eea7846599d4`
-**Status:** Partially completed; native device evidence blocked
+**Status:** Partially completed; one paid Android preview build approved
 
 ## Objective
 
@@ -60,21 +60,23 @@ The following release-gating evidence remains unexecuted:
 
 ## Blocking Conditions
 
-- No native phone or tablet is connected to this execution environment.
+- The founder reports a Samsung SM-G736U and Android Studio are available locally.
+- The cloud execution container cannot access that local `adb` device or Android Studio directly.
 - The container cannot clone GitHub through its outbound proxy.
-- A paid EAS preview build is explicitly outside current authorization.
+- The founder approved exactly one paid Android EAS preview build for this checkpoint.
 - No production deployment or real-user communication is needed or authorized.
 
 ## Safe Unblock Paths
 
-1. Use the founder's existing local repository and physical devices to run the matrix without a paid build when Expo Go is compatible.
-2. Supply captured device results and screenshots as durable GitHub evidence.
-3. Alternatively, explicitly approve one EAS preview build; this is a restricted paid gate and has not been triggered.
-4. Record failures as separate small PRs, one root cause per checkpoint.
+1. Run the approved one-time EAS Android preview build through the fail-closed GitHub workflow.
+2. Verify the completed APK provenance, application ID, staging Supabase reference, hash, and workflow artifact.
+3. Install the APK on the Samsung SM-G736U through the founder's connected Android environment.
+4. Supply captured device results and screenshots as durable GitHub evidence.
+5. Record failures as separate small PRs, one root cause per checkpoint.
 
 ## Exact Next Action
 
-Obtain native device evidence through an approved path. Do not mark this checkpoint complete until the matrix above is executed. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
+Complete the approved EAS build, install it on the Samsung SM-G736U, and execute the native matrix. Do not mark this checkpoint complete until the matrix above is executed. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
 
 ## Defect Classification
 

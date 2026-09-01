@@ -6,13 +6,17 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Native checkpoint evidence baseline: `78a0c01be047af21612d3185bfe6242eb6f53ef8`
+- Live `main` before approved build checkpoint: `191ec82687410069b330e632230eb3d750417653`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
 - PR #72: merged; post-merge Mobile CI run `33452253404` succeeded
 - PR #73: merged; post-merge Mobile CI run `33452764182` succeeded
 - PR #74: merged; native verification evidence persisted
+- PR #75: merged; final blocked state reconciled
+- Founder approval: one paid Android EAS preview build
+- Active branch: `codex/approved-eas-preview-build`
+- Active PR: #76
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -37,7 +41,7 @@ Native compact/tablet/accessibility verification is partially completed. Source 
 
 ## Exact Next Action
 
-Obtain approved real-device evidence using existing devices, or request founder approval for one paid EAS preview build. Do not proceed past this P1 release gate by assumption.
+Verify PR #76 Mobile CI and mergeability, then merge with the guarded build-trigger title. Monitor the EAS workflow to a final verified APK, then install it on the Samsung SM-G736U using the founder's connected Android environment.
 
 ## Major Remaining Work
 

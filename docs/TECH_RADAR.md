@@ -62,3 +62,10 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 - `accessibilityRole="button"` communicates actionable button semantics to VoiceOver and TalkBack.
 - The shared error-state retry action now combines that role with the existing 48 dp design-token minimum.
 - No dependency, lockfile, native build, or production configuration changed.
+
+## 2026-09-01 approved EAS preview build note
+
+- Official Expo APK and internal-distribution guidance was rechecked at https://docs.expo.dev/build-reference/apk/ and https://docs.expo.dev/build/internal-distribution/.
+- The repository preview profile already uses `distribution: "internal"` and `android.buildType: "apk"`, matching the supported installable-device path.
+- EAS CLI remains pinned at `22.6.0` for the existing verified workflow; no dependency or lockfile change is included.
+- Founder approval covers exactly one paid Android preview build for the native verification checkpoint.

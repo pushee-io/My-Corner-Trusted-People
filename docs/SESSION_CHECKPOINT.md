@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Native checkpoint evidence baseline: `78a0c01be047af21612d3185bfe6242eb6f53ef8`
+- Live `main` before approved build checkpoint: `191ec82687410069b330e632230eb3d750417653`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -18,6 +18,11 @@
 - PR #72: merged; post-merge Mobile CI run `33452253404`: success
 - PR #73: merged; post-merge Mobile CI run `33452764182`: success
 - PR #74: merged; evidence report persisted
+- PR #75: merged; blocked state reconciled
+- Founder approval: exactly one paid Android EAS preview build
+- Target device reported available: Samsung SM-G736U
+- Active branch: `codex/approved-eas-preview-build`
+- Active PR: #76
 
 ## Manual Replay Passed
 
@@ -43,15 +48,15 @@ Completed:
 
 Blocked:
 
-- No connected native phone or tablet.
-- Paid EAS is outside current authorization.
+- The cloud execution container cannot access the founder's local `adb` or Android Studio.
+- One paid Android EAS preview build is now authorized.
 - Real-device, screen-reader, rotation, permission, network, and privacy checks remain unexecuted.
 
 The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPORT.md`.
 
 ## Exact Next Action
 
-Obtain approved native-device results using existing devices, or request founder approval for one paid EAS preview build. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Verify and merge PR #76, then run the guarded one-time EAS preview workflow from the approved `main` merge, verify the APK provenance and artifact, then install and replay on the Samsung SM-G736U through the founder's connected Android environment. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 
