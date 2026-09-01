@@ -2,7 +2,7 @@
 
 **Updated:** 2026-08-31
 **Repository baseline:** `41da91b8d39fb44c2dca66aefda5eea7846599d4`
-**Status:** Blocked before build submission by rejected preview client key
+**Status:** Key replacement authorized; secure environment update still required
 
 ## Objective
 
@@ -72,7 +72,7 @@ The following release-gating evidence remains unexecuted:
 
 ## Safe Unblock Paths
 
-1. With founder approval, replace the EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` with the current public client key for project `opeojxwkwwnnncnsuaag`; never log or commit the value.
+1. Replace the EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` under the recorded founder authorization with the current public client key for project `opeojxwkwwnnncnsuaag`; never log or commit the value.
 2. Rerun the approved one-time EAS Android preview build through the fail-closed GitHub workflow.
 3. Verify the completed APK provenance, application ID, staging Supabase reference, hash, and workflow artifact.
 4. Install the APK on the Samsung SM-G736U through the founder's connected Android environment.
@@ -81,7 +81,7 @@ The following release-gating evidence remains unexecuted:
 
 ## Exact Next Action
 
-Approve and complete the EAS preview client-key update, complete the approved build, install it on the Samsung SM-G736U, and execute the native matrix. Do not mark this checkpoint complete until the matrix above is executed. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
+Complete the authorized EAS preview client-key update through a secure environment-management path, complete the approved build, install it on the Samsung SM-G736U, and execute the native matrix. Do not mark this checkpoint complete until the matrix above is executed. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
 
 ## Defect Classification
 

@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Live `main`: `00c3ca23efe1a707f2f3b8f68d0175da34246363`
+- Live `main` after blocker persistence: `28804f7746e901590c3caeeda2449bfb940275e9`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -31,7 +31,9 @@
 - EAS retry run `33455643194`: failed closed before EAS submission
 - Repeat failure: configured preview client key rejected by Supabase with HTTP 401
 - Paid build submitted: no
-- Active branch: `codex/eas-preview-key-blocker`
+- PR #78: merged
+- Founder authorized replacement of the EAS preview public client key
+- Active branch: `codex/eas-key-replacement-authorized`
 
 ## Manual Replay Passed
 
@@ -65,7 +67,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Obtain founder approval to replace the EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` with the current public client key for Supabase project `opeojxwkwwnnncnsuaag`. Do not log the key. After the environment update, rerun the unused one-build workflow. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Use a connected EAS/Supabase management path, or have the founder update the EAS `preview` value outside chat, with the current public client key for Supabase project `opeojxwkwwnnncnsuaag`. Do not log or commit the key. After confirmation, rerun the unused one-build workflow. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 

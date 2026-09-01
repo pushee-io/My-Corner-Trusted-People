@@ -6,7 +6,7 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Live `main`: `00c3ca23efe1a707f2f3b8f68d0175da34246363`
+- Live `main` after blocker persistence: `28804f7746e901590c3caeeda2449bfb940275e9`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
@@ -22,7 +22,9 @@
 - Mobile CI run `33455643225`: success
 - EAS retry run `33455643194`: failed closed before build submission
 - Paid EAS builds submitted in this checkpoint: 0
-- Active branch: `codex/eas-preview-key-blocker`
+- PR #78: merged; key blocker persisted
+- Founder authorization: replace the rejected EAS preview public client key
+- Active branch: `codex/eas-key-replacement-authorized`
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -47,7 +49,7 @@ Native compact/tablet/accessibility verification is partially completed. Source 
 
 ## Exact Next Action
 
-Founder approval is required to replace the rejected EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` with the current public client key for project `opeojxwkwwnnncnsuaag`. Then rerun the still-unused one-build authorization.
+Connect an EAS/Supabase environment-management path or update the EAS `preview` value outside chat using the current public client key for project `opeojxwkwwnnncnsuaag`. The value is not present in the repository and must not be logged or committed. Then rerun the unused one-build authorization.
 
 ## Major Remaining Work
 

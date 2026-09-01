@@ -21,7 +21,8 @@
 - [x] Repair publishable-key verification in PR #77
 - [x] Verify and merge PR #77
 - [x] Retry the unused one-build authorization; run `33455643194` failed before submission
-- [ ] Obtain approval and replace the rejected EAS preview public client key
+- [x] Obtain approval to replace the rejected EAS preview public client key
+- [ ] Complete the replacement through a connected EAS/Supabase management path
 - [ ] Complete the one approved paid EAS Android preview build
 - [ ] Install the verified APK on Samsung SM-G736U
 - [ ] Obtain real-device compact/tablet/accessibility evidence
