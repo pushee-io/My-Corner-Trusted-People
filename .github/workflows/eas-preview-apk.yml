@@ -1,6 +1,7 @@
 name: EAS Preview APK
-# One paid Android preview build approved by the founder for the native verification checkpoint.
-# Retry authorized because run 33455069758 failed before EAS submission on publishable-key verification.
+# One paid Android preview build authorized by the founder for the native verification checkpoint.
+# Authorization renewed on 2026-09-01 after PR #84 security verification and PR #85 continuity reconciliation.
+# Runs 33455069758 and 33455643194 failed before EAS submission; the single paid build remained unused.
 
 on:
   push:
