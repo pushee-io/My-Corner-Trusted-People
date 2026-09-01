@@ -66,7 +66,10 @@ export default function ProviderRequestsScreen() {
       <OfflineBanner onRetry={refreshRequests} />
 
       {providerBusinessName ? (
-        <View accessibilityLabel={`Signed in as provider: ${providerBusinessName}`} style={styles.identity}>
+        <View
+          accessibilityLabel={`Signed in as provider: ${providerBusinessName}`}
+          style={styles.identity}
+        >
           <Text style={styles.identityLabel}>Signed in as provider</Text>
           <Text style={styles.identityName}>{providerBusinessName}</Text>
         </View>
