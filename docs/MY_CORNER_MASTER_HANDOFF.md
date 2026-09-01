@@ -11,6 +11,18 @@
 
 ---
 
+## 2026-09-01 Provider Fixture Addendum
+
+This addendum supersedes older current-state and resume-point statements below.
+
+- Live `main`: `1e29550a4dba12d5676ee73302dec1768b113702`.
+- PR #92 aligned the fictional Preview provider account with the documented Kwame PipeCare seed profile.
+- Branch Database CI `33569681822`, pull-request Database CI `33569725510`, and post-merge Database CI `33570023910` passed.
+- Supabase Preview check `100061862877` succeeded for project `opeojxwkwwnnncnsuaag`.
+- Provider profiles and request history were preserved; no existing request was reassigned.
+- Exact next action: sign the provider out and in, confirm Kwame PipeCare, submit a new requester request to Kwame PipeCare, and verify provider response propagation.
+- No further paid Android build is authorized.
+
 ## 2026-09-01 Live-State Addendum
 
 This addendum supersedes older current-state and resume-point statements below.

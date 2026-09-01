@@ -6,13 +6,15 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Starting live `main`: `456928459f416fe398c1fca7aba1aafdd0133056`
+- Live `main`: `1e29550a4dba12d5676ee73302dec1768b113702`
 - PR #88 bounded session restoration during Preview network failure.
 - PR #89 added provider-inbox polling and manual refresh.
 - PR #91 added stable fictional seed identities and retired duplicate provider listings without deleting history.
-- PR #91 post-merge Mobile CI `33564231661`: success.
-- PR #91 post-merge Database CI `33564231657`: success.
-- Supabase Preview check `100043750620`: success.
+- PR #92 aligned the fictional Preview provider account with the documented Kwame PipeCare fixture.
+- PR #92 branch Database CI `33569681822`: success.
+- PR #92 pull-request Database CI `33569725510`: success.
+- PR #92 post-merge Database CI `33570023910`: success.
+- Supabase Preview check `100061862877`: success for project `opeojxwkwwnnncnsuaag`.
 - Repository visibility: public.
 - Branch protection on `main`: not enabled.
 
@@ -20,19 +22,17 @@
 
 The verified APK from commit `5eb06091e8352f949f7c78d87674f74b40833011` was installed on Samsung SM-G736U. Device evidence confirmed:
 
-- offline network failures no longer justify an indefinite session-restoration wait;
-- requester submission and status persistence work;
-- provider inbox synchronization required a refresh path;
-- the Preview provider test account was linked to Ama Spark Works while the documented fixture is Kwame PipeCare;
-- selecting Naa HomeFix or Kwame PipeCare therefore produced a request the signed-in provider could not read, as Row Level Security correctly enforced provider isolation.
+- requester submission and request-status persistence work;
+- PR #88 prevents indefinite session restoration during network failure;
+- PR #89 adds provider-inbox synchronization and manual refresh;
+- RLS correctly hid requests assigned to a different provider;
+- Preview had linked the fictional provider account to Ama Spark Works while repository documentation specified Kwame PipeCare.
 
-## Active Repair
-
-Branch `codex/reconcile-provider-test-contract` adds a forward-only, idempotent migration that links the fictional `provider.test` account to the documented Kwame PipeCare seed profile. It preserves all provider profiles and job requests, clears only the previous fictional account link, and records an audit event.
+PR #92 repaired the fixture mapping without deleting provider profiles or reassigning requests. The migration is deployed to Preview and its clean-reset regression is green.
 
 ## Exact Next Action
 
-Verify the repair PR in Mobile CI and Database CI. After merge, apply the non-destructive migration to Preview through the approved migration path, confirm the provider inbox identifies Kwame PipeCare, then submit a new requester test request to Kwame PipeCare and verify accept/decline propagation.
+On the provider device, sign out and sign back in so the refreshed profile mapping is loaded. Confirm the inbox identifies `Kwame PipeCare`. On the requester device, create a new request specifically for Kwame PipeCare. Verify the request appears, then accept or decline it and confirm the requester sees the persisted status.
 
 ## Known Gates
 
