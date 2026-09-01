@@ -77,14 +77,33 @@ export async function signOutFromDevice(): Promise<void> {
   if (error) throw error;
 }
 
-export async function restoreSessionProfile(): Promise<CurrentProfile | null> {
+const sessionRestoreTimeoutMs = 8_000;
+
+export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs): Promise<CurrentProfile | null> {
   assertSupabaseConfigured();
 
+  return withTimeout(restoreSessionProfileWithoutTimeout(), timeoutMs);
+}
+
+async function restoreSessionProfileWithoutTimeout(): Promise<CurrentProfile | null> {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   if (!data.session) return null;
 
   return getCurrentProfile();
+}
+
+async function withTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error('Session restoration timed out. Continue to sign in.')), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([operation, deadline]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 
 export async function getCurrentProfile(): Promise<CurrentProfile> {
