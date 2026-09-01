@@ -23,6 +23,7 @@ psql "$database_url" \
 
 legacy_tests=(
   supabase/tests/module1_rls_smoke.sql
+  supabase/tests/seeded_provider_idempotency.sql
   supabase/tests/day2b_live_read_smoke.sql
   supabase/tests/day2b_verified_neighborhood_access.sql
   supabase/tests/day3_social_groups_broadcasts.sql
