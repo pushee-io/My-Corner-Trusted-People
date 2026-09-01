@@ -23,7 +23,7 @@ create temporary table seeded_provider_canonical_map (
   business_name text not null,
   provider_id uuid not null,
   profile_id uuid not null
-) on commit drop;
+);
 
 insert into seeded_provider_canonical_map (seed_key, business_name, provider_id, profile_id)
 with seeded_businesses (seed_key, business_name) as (
