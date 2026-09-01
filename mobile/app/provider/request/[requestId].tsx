@@ -76,16 +76,12 @@ export default function ProviderRequestDetailScreen() {
       ) : null}
 
       {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
-        <WebSafeLink
-          href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }}
-          asChild
-        >
+        <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>
           <Pressable style={styles.button}>
             <Text style={styles.buttonText}>Open job safety session</Text>
           </Pressable>
         </WebSafeLink>
       ) : null}
-
     </Screen>
   );
 }
