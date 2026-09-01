@@ -55,12 +55,14 @@ if (legacyPayload?.ref && legacyPayload.ref !== expectedRef) {
   fail(`legacy client key belongs to Supabase project ${legacyPayload.ref}, not ${expectedRef}.`);
 }
 
+const probeHeaders = { apikey: clientKey };
+if (legacyPayload) {
+  probeHeaders.authorization = `Bearer ${clientKey}`;
+}
+
 try {
   const response = await fetch(`${expectedUrl}/rest/v1/`, {
-    headers: {
-      apikey: clientKey,
-      authorization: `Bearer ${clientKey}`,
-    },
+    headers: probeHeaders,
     signal: AbortSignal.timeout(15_000),
   });
 

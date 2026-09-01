@@ -38,6 +38,15 @@ describe('preview authentication security', () => {
     expect(supabase).toContain('getBrowserSessionStorage()?.removeItem(key)');
   });
 
+  it('keeps Supabase publishable keys out of the JWT bearer header', () => {
+    const verifier = readFileSync('scripts/verify-preview-supabase-env.mjs', 'utf8');
+
+    expect(verifier).toContain('const probeHeaders = { apikey: clientKey }');
+    expect(verifier).toContain('if (legacyPayload)');
+    expect(verifier).toContain('probeHeaders.authorization = `Bearer ${clientKey}`');
+    expect(verifier).toContain('headers: probeHeaders');
+  });
+
   it('pins EAS and binds internal builds to the preview environment', () => {
     const eas = JSON.parse(readFileSync('eas.json', 'utf8'));
 

@@ -7,7 +7,7 @@
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
 - Default branch: `main`
-- Live `main` before approved build checkpoint: `191ec82687410069b330e632230eb3d750417653`
+- Live `main`: `2867aef1ae404d661450311987442a470016aa43`
 - PR #68: merged
 - PR #69: merged
 - PR #70: merged
@@ -21,8 +21,12 @@
 - PR #75: merged; blocked state reconciled
 - Founder approval: exactly one paid Android EAS preview build
 - Target device reported available: Samsung SM-G736U
-- Active branch: `codex/approved-eas-preview-build`
-- Active PR: #76
+- PR #76: merged
+- Mobile CI run `33455069815`: success
+- EAS workflow run `33455069758`: failed closed before EAS submission
+- Failure: preview publishable client key was incorrectly sent as a Bearer JWT and received HTTP 401
+- Paid build submitted: no
+- Active branch: `codex/eas-publishable-key-verifier`
 
 ## Manual Replay Passed
 
@@ -56,7 +60,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Verify and merge PR #76, then run the guarded one-time EAS preview workflow from the approved `main` merge, verify the APK provenance and artifact, then install and replay on the Samsung SM-G736U through the founder's connected Android environment. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Repair the publishable-key probe without changing environment values, verify Mobile CI, retry the guarded workflow, then verify and install the resulting APK on Samsung SM-G736U. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 
@@ -66,4 +70,4 @@ Verify and merge PR #76, then run the guarded one-time EAS preview workflow from
 
 ## Restricted Actions
 
-Do not trigger EAS, production deployment, real SMS/push, identity activation, destructive migrations, sensitive-data processing, or secret changes without founder approval.
+Do not submit more than the one approved EAS build, deploy to production, real SMS/push, identity activation, destructive migrations, sensitive-data processing, or secret changes without founder approval.

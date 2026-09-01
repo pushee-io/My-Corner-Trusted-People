@@ -23,6 +23,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Changed
 
+- Correct preview Supabase verification so publishable API keys are not sent as Bearer JWTs; legacy anon JWT verification remains supported.
+
 - Recorded founder approval for one paid Android EAS preview build and its fail-closed verification workflow.
 
 - Added a durable native verification report separating passed source/CI evidence from blocked real-device evidence.
