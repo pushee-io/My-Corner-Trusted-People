@@ -61,7 +61,7 @@ if (legacyPayload) {
 }
 
 try {
-  const response = await fetch(`${expectedUrl}/rest/v1/`, {
+  const response = await fetch(`${expectedUrl}/auth/v1/settings`, {
     headers: probeHeaders,
     signal: AbortSignal.timeout(15_000),
   });
