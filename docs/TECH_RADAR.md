@@ -69,3 +69,11 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 - The repository preview profile already uses `distribution: "internal"` and `android.buildType: "apk"`, matching the supported installable-device path.
 - EAS CLI remains pinned at `22.6.0` for the existing verified workflow; no dependency or lockfile change is included.
 - Founder approval covers exactly one paid Android preview build for the native verification checkpoint.
+
+## 2026-09-01 Supabase publishable-key verification note
+
+- Official Supabase API-key guidance was rechecked at https://supabase.com/docs/guides/auth/signing-keys.
+- A publishable `sb_publishable_...` key belongs in the `apikey` header; a Bearer authorization value must be a JWT.
+- EAS run `33455069758` failed before build submission because the verifier sent every client key as a Bearer JWT.
+- The repair preserves legacy anon JWT verification while omitting the Bearer header for publishable keys.
+- No EAS environment value, GitHub secret, dependency, or lockfile is changed.

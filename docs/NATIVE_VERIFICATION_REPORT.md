@@ -2,7 +2,7 @@
 
 **Updated:** 2026-08-31
 **Repository baseline:** `41da91b8d39fb44c2dca66aefda5eea7846599d4`
-**Status:** Partially completed; one paid Android preview build approved
+**Status:** Partially completed; approved build not yet submitted
 
 ## Objective
 
@@ -64,11 +64,12 @@ The following release-gating evidence remains unexecuted:
 - The cloud execution container cannot access that local `adb` device or Android Studio directly.
 - The container cannot clone GitHub through its outbound proxy.
 - The founder approved exactly one paid Android EAS preview build for this checkpoint.
+- Workflow run `33455069758` failed closed during preview-key verification before EAS submission, so the one-build allowance remains unused.
 - No production deployment or real-user communication is needed or authorized.
 
 ## Safe Unblock Paths
 
-1. Run the approved one-time EAS Android preview build through the fail-closed GitHub workflow.
+1. Merge the publishable-key verifier repair and rerun the approved one-time EAS Android preview build through the fail-closed GitHub workflow.
 2. Verify the completed APK provenance, application ID, staging Supabase reference, hash, and workflow artifact.
 3. Install the APK on the Samsung SM-G736U through the founder's connected Android environment.
 4. Supply captured device results and screenshots as durable GitHub evidence.
