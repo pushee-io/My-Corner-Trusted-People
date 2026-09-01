@@ -27,6 +27,7 @@
 - Failure: preview publishable client key was incorrectly sent as a Bearer JWT and received HTTP 401
 - Paid build submitted: no
 - Active branch: `codex/eas-publishable-key-verifier`
+- Active PR: #77
 
 ## Manual Replay Passed
 
@@ -60,7 +61,7 @@ The full matrix and unblock paths are recorded in `docs/NATIVE_VERIFICATION_REPO
 
 ## Exact Next Action
 
-Repair the publishable-key probe without changing environment values, verify Mobile CI, retry the guarded workflow, then verify and install the resulting APK on Samsung SM-G736U. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
+Verify and merge PR #77 without changing environment values, retry the guarded workflow, then verify and install the resulting APK on Samsung SM-G736U. Do not mark the checkpoint complete or proceed to release-candidate claims until the missing matrix is executed. Do not trigger EAS without founder approval.
 
 ## Do Not Repeat
 

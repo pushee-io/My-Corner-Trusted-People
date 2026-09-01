@@ -18,7 +18,9 @@
 - [x] Verify and merge PR #74
 - [x] Verify and merge build-authorization PR #76
 - [x] Diagnose fail-closed EAS run `33455069758` before submission
-- [ ] Repair publishable-key verification and retry the unused one-build authorization
+- [x] Repair publishable-key verification in PR #77
+- [ ] Verify and merge PR #77
+- [ ] Retry the unused one-build authorization
 - [ ] Complete the one approved paid EAS Android preview build
 - [ ] Install the verified APK on Samsung SM-G736U
 - [ ] Obtain real-device compact/tablet/accessibility evidence

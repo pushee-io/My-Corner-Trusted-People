@@ -19,6 +19,7 @@
 - Mobile CI run `33455069815`: success
 - EAS workflow run `33455069758`: failed closed before build submission
 - Active branch: `codex/eas-publishable-key-verifier`
+- Active PR: #77
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -43,7 +44,7 @@ Native compact/tablet/accessibility verification is partially completed. Source 
 
 ## Exact Next Action
 
-Fix the preview verifier so publishable API keys are not sent as Bearer JWTs, verify CI, and retry the still-unused one-build authorization.
+Verify PR #77 Mobile CI and mergeability, then retry the still-unused one-build authorization.
 
 ## Major Remaining Work
 
