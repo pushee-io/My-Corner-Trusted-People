@@ -45,6 +45,7 @@ describe('preview authentication security', () => {
     expect(verifier).toContain('if (legacyPayload)');
     expect(verifier).toContain('probeHeaders.authorization = `Bearer ${clientKey}`');
     expect(verifier).toContain('headers: probeHeaders');
+    expect(verifier).toContain('/auth/v1/settings');
   });
 
   it('pins EAS and binds internal builds to the preview environment', () => {
