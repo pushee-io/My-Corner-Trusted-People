@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
-import { EmptyState, OfflineBanner } from '@/components/StateBlocks';
+import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { StatusPill } from '@/components/StatusPill';
 import { listProviderRequests } from '@/lib/repository';
@@ -12,27 +12,67 @@ export default function ProviderRequestsScreen() {
   const [requests, setRequests] = useState<JobRequest[]>([]);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    listProviderRequests()
-      .then(setRequests)
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load incoming requests.'))
-      .finally(() => setIsLoading(false));
-  }, []);
+    let active = true;
+    let inFlight = false;
+
+    async function loadRequests(showLoading = false) {
+      if (inFlight) return;
+
+      inFlight = true;
+      if (showLoading) setIsLoading(true);
+
+      try {
+        const nextRequests = await listProviderRequests();
+        if (!active) return;
+
+        setRequests(nextRequests);
+        setError(undefined);
+      } catch (caught) {
+        if (!active) return;
+
+        setError(caught instanceof Error ? caught.message : 'Could not load incoming requests.');
+      } finally {
+        inFlight = false;
+        if (active) setIsLoading(false);
+      }
+    }
+
+    void loadRequests(true);
+    const refreshInterval = setInterval(() => {
+      if (AppState.currentState === 'active') void loadRequests();
+    }, 10_000);
+
+    return () => {
+      active = false;
+      clearInterval(refreshInterval);
+    };
+  }, [reloadKey]);
+
+  function refreshRequests() {
+    setReloadKey((current) => current + 1);
+  }
 
   return (
     <Screen title="Incoming requests">
-      <OfflineBanner />
+      <OfflineBanner onRetry={refreshRequests} />
 
       {error ? (
-        <EmptyState title="Could not load requests" body={error} />
+        <ErrorState title="Could not load requests" body={error} onRetry={refreshRequests} />
       ) : isLoading ? (
         <EmptyState title="Loading requests" body="Checking live Supabase request assignments." />
       ) : requests.length === 0 ? (
-        <EmptyState
-          title="No incoming requests"
-          body="Matching requester jobs will appear here for this test provider."
-        />
+        <>
+          <EmptyState
+            title="No incoming requests"
+            body="Matching requester jobs will appear here for this test provider."
+          />
+          <Pressable accessibilityRole="button" onPress={refreshRequests} style={styles.refreshButton}>
+            <Text style={styles.refreshButtonText}>Refresh requests</Text>
+          </Pressable>
+        </>
       ) : (
         <View style={styles.list}>
           {requests.map((request) => (
@@ -59,6 +99,16 @@ export default function ProviderRequestsScreen() {
 
 const styles = StyleSheet.create({
   list: { gap: tokens.spacing.md },
+  refreshButton: {
+    alignItems: 'center',
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: tokens.touch.min,
+    padding: tokens.spacing.md,
+  },
+  refreshButtonText: { color: tokens.color.primary, fontWeight: '700' },
   card: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,

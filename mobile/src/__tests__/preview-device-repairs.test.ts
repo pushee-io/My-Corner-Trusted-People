@@ -103,6 +103,16 @@ describe('preview device repairs', () => {
     expect(retryButtonStyle).toContain('minHeight: tokens.touch.min');
   });
 
+  it('keeps the provider inbox synchronized and manually refreshable', () => {
+    const source = readFileSync('app/provider/requests.tsx', 'utf8');
+
+    expect(source).toContain("AppState.currentState === 'active'");
+    expect(source).toContain('}, 10_000)');
+    expect(source).toContain('onRetry={refreshRequests}');
+    expect(source).toContain('Refresh requests');
+    expect(source).toContain('minHeight: tokens.touch.min');
+  });
+
   it('routes provider status changes through the shared safety session', () => {
     const source = readFileSync('app/provider/request/status-update.tsx', 'utf8');
 
