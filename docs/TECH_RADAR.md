@@ -1,6 +1,6 @@
 # Tech Radar
 
-Last reviewed: 2026-08-31
+Last reviewed: 2026-09-01
 Baseline commit: `0b819fd` (preview APK recovery merged through PR #57)
 
 ## Policy
@@ -77,3 +77,10 @@ The committed `mobile/package-lock.json` is the reproducible dependency authorit
 - EAS run `33455069758` failed before build submission because the verifier sent every client key as a Bearer JWT.
 - The repair preserves legacy anon JWT verification while omitting the Bearer header for publishable keys.
 - No EAS environment value, GitHub secret, dependency, or lockfile is changed.
+
+
+## 2026-09-01 implementation-cycle verification note
+
+Official stable-release sources were rechecked before this repair. Expo SDK 57 is the current stable SDK, React Native 0.87 is the current active stable line, Supabase JS 2.111.0 is the latest stable release shown by the official repository, and TypeScript 7.0 is stable while TypeScript 6.0 remains the compatibility API for tools that embed the compiler.
+
+This checkpoint intentionally keeps the repository's verified Expo SDK 54 / React Native 0.81 / TypeScript 5.9 compatibility set unchanged. Upgrading an unsupported native baseline is important, but it requires a dedicated compatibility checkpoint, lockfile update, Expo Doctor, full CI, and new founder approval before another paid native build. The provider-account repair adds no dependency and uses only PostgreSQL migration behavior already covered by Database CI.

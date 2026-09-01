@@ -1,36 +1,32 @@
 # MY CORNER — SESSION CHECKPOINT
 
 **Updated:** 2026-09-01
-**Status source:** Live GitHub, Actions, EAS, APK, and provenance inspection
+**Status source:** Live GitHub, Actions, Supabase Preview check, and founder-supplied device/database evidence
 
-## Current Durable State
+## Starting State
 
 - Repository: `pushee-io/My-Corner-Trusted-People`
-- Live `main`: `5eb06091e8352f949f7c78d87674f74b40833011`
-- PR #86: merged
-- EAS Preview workflow `33535507405`: success
-- Mobile CI `33535507482`: success
-- EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`: `FINISHED`
-- Verified GitHub artifact `9811830907`: APK plus provenance
-- Artifact expiry: 2026-09-15
+- Live `main`: `456928459f416fe398c1fca7aba1aafdd0133056`
+- PR #91: merged.
+- Mobile CI `33564231661`: success.
+- Database CI `33564231657`: success.
+- Supabase Preview check `100043750620`: success.
 
-## Build Evidence
+## Confirmed Root Cause
 
-The one founder-authorized paid Android Preview build was submitted exactly once. Preflight formatting, lint, typecheck, tests, Expo authentication, and Preview Supabase validation passed. The workflow downloaded the completed APK, verified the archive, application ID, embedded staging Supabase project, Events and Marketplace bytecode markers, generated provenance, and uploaded the artifact.
+The documented provider fixture is Kwame PipeCare, but `provider.test@mycorner.example` is linked in Preview to Ama Spark Works. The prior reconciliation only preferred Naa HomeFix when the account was already linked to a Naa HomeFix duplicate, so it could not repair the observed state. Requests assigned to another provider remain correctly hidden by RLS.
 
-- Application ID: `com.mycorner.trustedpeople`
-- Supabase ref: `opeojxwkwwnnncnsuaag`
-- APK SHA-256: `6e3f5a5704fbddb1b82165066b7735082fd20704bd24d0e34c1a5faaadd723c4`
+## Active Checkpoint
 
-## Remaining Native Evidence
-
-- Install on Samsung SM-G736U.
-- Execute compact/tablet, rotation, large-text, TalkBack, reduced-motion, permission, network, and private-location checks.
-- Record screenshots and outcomes durably.
+- Branch: `codex/reconcile-provider-test-contract`
+- Scope: fictional Preview test-account mapping only.
+- Migration: `20260901230500_seeded_provider_test_account_contract.sql`.
+- Regression: recreates the Ama-to-Kwame mismatch, reruns the migration, verifies Kwame ownership, audit persistence, and zero request/provider deletion.
+- No dependency, secret, production, EAS build, or real-user action.
 
 ## Exact Next Action
 
-Install artifact `9811830907` on Samsung SM-G736U and execute `docs/NATIVE_VERIFICATION_REPORT.md`. No additional paid build is authorized.
+Open the focused PR, wait for Mobile CI and Database CI, review the immutable head, and merge only when green. Preview migration application and the requester/provider device retest remain separate explicit steps.
 
 ## Restricted Actions
 

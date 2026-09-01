@@ -4,6 +4,13 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ## Unreleased
 
+### Fixed
+
+- Reconciled the fictional Preview provider account with the documented Kwame PipeCare seed profile through a forward-only, idempotent migration.
+- Preserved all provider profiles and request history while auditing the previous fictional account-link removal.
+- Added a database regression that recreates the observed Ama Spark Works mismatch and verifies the repaired provider contract.
+
+
 ### Added
 
 - A verified Android Preview APK for commit `5eb06091e8352f949f7c78d87674f74b40833011`, EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`, with application, staging-project, bytecode, hash, and provenance checks.
