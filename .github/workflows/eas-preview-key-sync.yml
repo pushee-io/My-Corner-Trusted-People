@@ -18,6 +18,7 @@ concurrency:
 jobs:
   sync:
     name: Replace and verify preview client key
+    environment: preview
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
