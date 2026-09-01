@@ -11,6 +11,19 @@
 
 ---
 
+## 2026-09-01 Live-State Addendum
+
+This addendum supersedes older current-state and resume-point statements below.
+
+- Live `main`: `8184523b3d28a98e61ba62c03bb1ac2ee5c84bc0`.
+- PR #70 through PR #84 are merged.
+- PR #84 completed the server-controlled Job Safety Session, repaired Trusted Hire safety routing, and placed Marketplace and job-safety authorization checks in Database CI.
+- PR #84 head `85e6a4efd3f9b265c9ba9aec1513abd734dca90b` passed Mobile CI `33462005901`, Database CI `33462005870`, and Job Safety Usability `33462005863`.
+- Post-merge `main` passed Mobile CI `33462212162` and Database CI `33462212190`.
+- EAS Preview public-key sync run `33458871834` succeeded after PRs #79 through #83; no completed paid Android preview build was verified in this reconciliation.
+- No production deployment, migration deployment, real-user communication, or identity activation was performed.
+- Exact next checkpoint: finish the already-approved single Android EAS Preview build only after confirming the authorization remains unused, then collect the blocked compact-phone, tablet, rotation, large-text, screen-reader, permission, network, and privacy evidence.
+
 ## 1. Purpose of this handoff
 
 This document is the durable source of continuity for My Corner development after multiple long-running Founder CoPilot sessions reached conversation or environment limits.

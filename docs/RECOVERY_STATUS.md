@@ -1,35 +1,21 @@
 # MY CORNER — RECOVERY STATUS
 
-**Updated:** 2026-08-31
+**Updated:** 2026-09-01
 
-## Recovery Conclusion
+## Recovered Source Of Truth
 
-Externally persisted GitHub state is authoritative. Temporary workspace state is not required to resume the project.
+- Repository: `pushee-io/My-Corner-Trusted-People`
+- Live `main`: `8184523b3d28a98e61ba62c03bb1ac2ee5c84bc0`
+- Latest merged checkpoint: PR #84, Job Safety Session and security verification
+- PR #84 head checks: Mobile CI, Database CI, and Job Safety Usability all passed
+- Post-merge checks: Mobile CI `33462212162` and Database CI `33462212190` passed
 
-## Durable Controls
+## Continuity Status
 
-- One named branch and focused PR per checkpoint
-- Commit and push every coherent change
-- Update `docs/SESSION_CHECKPOINT.md` and `docs/CURRENT_STATE.md`
-- Record the exact next action before stopping
-- Commit before long builds or external workflows
-- Maximum two evidence-based repairs for one identical failure
-- Stop and persist instead of guessing
-- Never store secrets or private user data in continuity files
+The uploaded 2026-08-31 continuity pack was valid for PR #70, but the live repository had advanced through PR #84. This file and the other continuity documents now use live GitHub state as authoritative.
 
-## Current Recovery Position
+No product code, migration, secret, EAS build, or production state changed during this recovery checkpoint.
 
-- PR #68: merged and verified
-- PR #69: merged and verified
-- PR #70: merged and verified
-- Current `main`: `dfea274af7b16f28060b7173e630c468924c23a6`
-- Post-merge Mobile CI run `33451194302`: success
-- Continuity documents: being restored on `codex/continuity-after-pr70`
+## Resume Point
 
-## Exact Next Action
-
-Merge the continuity-documentation PR when green. Then begin native compact/tablet/accessibility verification as a separate checkpoint.
-
-## External Constraint
-
-The local container cannot clone GitHub through its outbound proxy. The connected GitHub app has repository admin/write access and is the durable read/write path for this session.
+Confirm the one approved Android EAS Preview build remains unused, complete that single build, and collect the native device/accessibility evidence defined in `docs/NATIVE_VERIFICATION_REPORT.md`.
