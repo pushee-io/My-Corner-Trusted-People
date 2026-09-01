@@ -6,42 +6,37 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Live `main`: `5eb06091e8352f949f7c78d87674f74b40833011`
-- PR #84: Job Safety Session and security verification merged
-- PR #85: continuity reconciliation merged
-- PR #86: single Android Preview authorization merged
-- Repository visibility: public
-- Branch protection on `main`: not enabled
+- Starting live `main`: `456928459f416fe398c1fca7aba1aafdd0133056`
+- PR #88 bounded session restoration during Preview network failure.
+- PR #89 added provider-inbox polling and manual refresh.
+- PR #91 added stable fictional seed identities and retired duplicate provider listings without deleting history.
+- PR #91 post-merge Mobile CI `33564231661`: success.
+- PR #91 post-merge Database CI `33564231657`: success.
+- Supabase Preview check `100043750620`: success.
+- Repository visibility: public.
+- Branch protection on `main`: not enabled.
 
-## Verified Android Preview Build
+## Native Evidence
 
-- GitHub Actions run: `33535507405`, success
-- Mobile CI run: `33535507482`, success
-- EAS build ID: `2f82dcdc-df32-459e-9690-5a236ec4d46b`
-- EAS status: `FINISHED`
-- Application ID: `com.mycorner.trustedpeople`
-- Git commit: `5eb06091e8352f949f7c78d87674f74b40833011`
-- Supabase project: `opeojxwkwwnnncnsuaag`
-- APK SHA-256: `6e3f5a5704fbddb1b82165066b7735082fd20704bd24d0e34c1a5faaadd723c4`
-- Events bytecode verification: passed
-- GitHub artifact: `9811830907`, retained until 2026-09-15
+The verified APK from commit `5eb06091e8352f949f7c78d87674f74b40833011` was installed on Samsung SM-G736U. Device evidence confirmed:
 
-The single approved paid Android Preview build has been consumed. Do not submit another paid build without new founder approval.
+- offline network failures no longer justify an indefinite session-restoration wait;
+- requester submission and status persistence work;
+- provider inbox synchronization required a refresh path;
+- the Preview provider test account was linked to Ama Spark Works while the documented fixture is Kwame PipeCare;
+- selecting Naa HomeFix or Kwame PipeCare therefore produced a request the signed-in provider could not read, as Row Level Security correctly enforced provider isolation.
 
-## Remaining Native Evidence
+## Active Repair
 
-- Install the verified APK on Samsung SM-G736U.
-- Execute compact phone and tablet portrait/landscape checks.
-- Execute large-text, TalkBack, reduced-motion, permission-denial, intermittent-network, exact-address, and private-pickup-location checks.
-- iPhone and VoiceOver evidence remain blocked until an iOS device/build is separately available and approved.
+Branch `codex/reconcile-provider-test-contract` adds a forward-only, idempotent migration that links the fictional `provider.test` account to the documented Kwame PipeCare seed profile. It preserves all provider profiles and job requests, clears only the previous fictional account link, and records an audit event.
 
 ## Exact Next Action
 
-Install the verified APK artifact from workflow `33535507405` on Samsung SM-G736U and execute `docs/NATIVE_VERIFICATION_REPORT.md`. Persist each defect as a small repair PR. Do not submit another paid build.
+Verify the repair PR in Mobile CI and Database CI. After merge, apply the non-destructive migration to Preview through the approved migration path, confirm the provider inbox identifies Kwame PipeCare, then submit a new requester test request to Kwame PipeCare and verify accept/decline propagation.
 
 ## Known Gates
 
-- No production deployment or migration application.
-- No real SMS, push, identity, residence, address-provider, or sensitive-data activation.
+- The single paid Android Preview build authorization is consumed; do not submit another paid build without founder approval.
+- Do not deploy to production or activate real SMS, push, identity, residence, address-provider, or sensitive-data processing.
 - Production database state remains unverified.
 - Founder confirmation is required before treating public repository visibility as intentional for private operational material.

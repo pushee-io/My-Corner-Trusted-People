@@ -31,6 +31,8 @@ npm run web
 - Requester: Akosua Mensah
 - Provider: Kwame PipeCare
 
+The fictional Preview provider account must resolve to the provider/profile pair with seed key `pilot-provider-kwame-pipecare`. Migration `20260901230500_seeded_provider_test_account_contract.sql` repairs older Preview data without deleting or reassigning requests.
+
 These are fictional seeded identities for prototype testing only.
 
 A Preview moderator account must have `profiles.role` set to `moderator` or `admin`. Moderator credentials are never committed. Successful moderator sign-in routes directly to the Marketplace report queue.
