@@ -6,14 +6,13 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Current verified `main`: `41da91b8d39fb44c2dca66aefda5eea7846599d4`
+- Native checkpoint evidence baseline: `78a0c01be047af21612d3185bfe6242eb6f53ef8`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
 - PR #72: merged; post-merge Mobile CI run `33452253404` succeeded
 - PR #73: merged; post-merge Mobile CI run `33452764182` succeeded
-- Active branch: `codex/native-verification-evidence`
-- Active PR: #74
+- PR #74: merged; native verification evidence persisted
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -34,11 +33,11 @@ PR #71 restored the durable continuity documents after the verified PR #70 merge
 
 ## Active Checkpoint
 
-Native compact/tablet/accessibility verification evidence. Source and CI repairs are complete for the portrait lock and shared retry target. Real-device evidence remains blocked.
+Native compact/tablet/accessibility verification is partially completed. Source and CI repairs are complete for the portrait lock and shared retry target. Real-device evidence is blocked at an authorization/environment gate.
 
 ## Exact Next Action
 
-Verify and merge PR #74. Then obtain approved real-device evidence; do not trigger paid EAS without founder approval.
+Obtain approved real-device evidence using existing devices, or request founder approval for one paid EAS preview build. Do not proceed past this P1 release gate by assumption.
 
 ## Major Remaining Work
 
