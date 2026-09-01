@@ -1,8 +1,8 @@
 # Native Compact, Tablet, and Accessibility Verification Report
 
-**Updated:** 2026-08-31
-**Repository baseline:** `41da91b8d39fb44c2dca66aefda5eea7846599d4`
-**Status:** Blocked before build submission by rejected preview client key
+**Updated:** 2026-09-01
+**Repository baseline:** `5eb06091e8352f949f7c78d87674f74b40833011`
+**Status:** Verified Android Preview build complete; real-device matrix pending
 
 ## Objective
 
@@ -40,7 +40,7 @@ Verify My Corner on compact phones, tablets in portrait and landscape, large tex
 
 These statements do not prove real-device rendering or assistive-technology behavior.
 
-## Blocked Native Evidence
+## Pending Native Evidence
 
 The following release-gating evidence remains unexecuted:
 
@@ -58,30 +58,32 @@ The following release-gating evidence remains unexecuted:
 - Rotation while a request form is partially completed
 - Keyboard and focus behavior on supported tablets
 
-## Blocking Conditions
+## Verified Build Evidence
 
-- The founder reports a Samsung SM-G736U and Android Studio are available locally.
-- The cloud execution container cannot access that local `adb` device or Android Studio directly.
-- The container cannot clone GitHub through its outbound proxy.
-- The founder approved exactly one paid Android EAS preview build for this checkpoint.
-- Workflow run `33455069758` failed closed during preview-key verification before EAS submission.
-- PR #77 repaired publishable-key header handling and passed Mobile CI.
-- Retry run `33455643194` still received HTTP 401 from Supabase before EAS submission.
-- No paid build has been submitted, so the one-build allowance remains unused.
-- No production deployment or real-user communication is needed or authorized.
+- PR #86 recorded the renewed founder authorization and triggered exactly one paid Android Preview build.
+- Workflow `33535507405`: success.
+- Mobile CI `33535507482`: success.
+- EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`: `FINISHED`.
+- Application ID: `com.mycorner.trustedpeople`.
+- Supabase project: `opeojxwkwwnnncnsuaag`.
+- APK SHA-256: `6e3f5a5704fbddb1b82165066b7735082fd20704bd24d0e34c1a5faaadd723c4`.
+- Events bytecode verification: passed.
+- GitHub artifact `9811830907` contains the APK and provenance and expires 2026-09-15.
+- No production deployment, migration application, real-user communication, or identity activation occurred.
+- The single paid-build authorization is consumed; no additional build is authorized.
 
 ## Safe Unblock Paths
 
-1. With founder approval, replace the EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` with the current public client key for project `opeojxwkwwnnncnsuaag`; never log or commit the value.
-2. Rerun the approved one-time EAS Android preview build through the fail-closed GitHub workflow.
-3. Verify the completed APK provenance, application ID, staging Supabase reference, hash, and workflow artifact.
-4. Install the APK on the Samsung SM-G736U through the founder's connected Android environment.
-5. Supply captured device results and screenshots as durable GitHub evidence.
+1. Download GitHub artifact `9811830907` before 2026-09-15.
+2. Install the verified APK on Samsung SM-G736U through the founder's connected Android environment.
+3. Execute the compact-phone, rotation, large-text, TalkBack, reduced-motion, permission, network, and privacy matrix.
+4. Execute tablet portrait/landscape and keyboard/focus checks on an available tablet.
+5. Supply captured results and screenshots as durable GitHub evidence.
 6. Record failures as separate small PRs, one root cause per checkpoint.
 
 ## Exact Next Action
 
-Approve and complete the EAS preview client-key update, complete the approved build, install it on the Samsung SM-G736U, and execute the native matrix. Do not mark this checkpoint complete until the matrix above is executed. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
+Install artifact `9811830907` on Samsung SM-G736U and execute the native matrix. Do not submit another paid build. Do not mark this checkpoint complete until the pending device evidence is recorded. Once the native gate is green, continue to the app-shell checkpoint: Create menu, notification center, profile destination, and authorized deep links.
 
 ## Defect Classification
 
