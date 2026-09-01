@@ -30,6 +30,7 @@ legacy_tests=(
   supabase/tests/marketplace_core_rls.sql
   supabase/tests/20260824_marketplace_vertical_slice.sql
   supabase/tests/20260827_marketplace_moderator_queue.sql
+  supabase/tests/job_safety_sessions_security.sql
   supabase/tests/events_feature_flag_smoke.sql
 )
 
