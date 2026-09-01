@@ -4,20 +4,21 @@
 
 - [x] Merge and verify PR #70 web-safe navigation
 - [x] Complete Job Safety Session and combined security verification in PR #84
-- [x] Build and verify one authorized Android Preview APK
-- [x] Install and exercise the APK on Samsung SM-G736U
+- [x] Build, verify, and install one authorized Android Preview APK
 - [x] Bound offline session restoration in PR #88
 - [x] Add provider-inbox synchronization in PR #89
 - [x] Add stable fictional seed identities and idempotent seeding in PR #91
-- [x] Confirm PR #91 post-merge Mobile CI, Database CI, and Supabase Preview checks
+- [x] Reconcile the fictional provider test account with Kwame PipeCare in PR #92
+- [x] Verify PR #92 in branch, pull-request, and post-merge Database CI
+- [x] Apply the forward migration through the successful Supabase Preview check
 
 ## Active
 
-- [ ] Reconcile the fictional provider test account with the documented Kwame PipeCare profile
-- [ ] Verify the forward migration preserves requests and provider profiles
-- [ ] Merge the focused repair after CI passes
-- [ ] Apply the non-destructive migration to Preview through the approved path
-- [ ] Retest requester submission to Kwame PipeCare and provider accept/decline propagation
+- [ ] Provider signs out/in and confirms the Kwame PipeCare identity banner
+- [ ] Requester submits a new request specifically to Kwame PipeCare
+- [ ] Provider sees and accepts or declines the request
+- [ ] Requester sees the persisted provider response
+- [ ] Persist the two-device result and any confirmed defect
 
 ## Next
 
