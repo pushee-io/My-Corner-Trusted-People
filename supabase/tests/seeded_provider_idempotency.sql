@@ -67,6 +67,18 @@ select pg_temp.assert_true(
 
 select pg_temp.assert_true(
   not exists (
+    select lower(btrim(business_name))
+    from public.provider_profiles
+    where accepting_requests
+      and seed_key like 'pilot-provider-%'
+    group by lower(btrim(business_name))
+    having count(*) > 1
+  ),
+  'fictional providers must have one active listing per normalized business name'
+);
+
+select pg_temp.assert_true(
+  not exists (
     select seed_key
     from public.provider_profiles
     where seed_key is not null
