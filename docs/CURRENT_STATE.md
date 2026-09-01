@@ -6,7 +6,7 @@
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Live `main`: `2867aef1ae404d661450311987442a470016aa43`
+- Live `main`: `00c3ca23efe1a707f2f3b8f68d0175da34246363`
 - PR #70: merged by squash
 - PR #70 source head: `7f0fcf8e14d75c958d22ef4ce384f155da54b6b0`
 - PR #71: merged
@@ -18,8 +18,11 @@
 - PR #76: merged
 - Mobile CI run `33455069815`: success
 - EAS workflow run `33455069758`: failed closed before build submission
-- Active branch: `codex/eas-publishable-key-verifier`
-- Active PR: #77
+- PR #77: merged
+- Mobile CI run `33455643225`: success
+- EAS retry run `33455643194`: failed closed before build submission
+- Paid EAS builds submitted in this checkpoint: 0
+- Active branch: `codex/eas-preview-key-blocker`
 - Repository visibility: public
 - Repository access for this checkpoint: admin/write confirmed
 
@@ -35,7 +38,7 @@ PR #71 restored the durable continuity documents after the verified PR #70 merge
 - Web export at PR head: passed
 - Manual browser replay: passed across Welcome, Hire, Neighborhood feed, Events, Marketplace, Marketplace moderation, requester navigation, and provider navigation
 - Continuity diff: exactly six documentation files
-- Paid EAS build submission: not reached; authorization remains unused
+- Paid EAS build submission: not reached in runs `33455069758` or `33455643194`; authorization remains unused
 - Production deployment: not triggered
 
 ## Active Checkpoint
@@ -44,7 +47,7 @@ Native compact/tablet/accessibility verification is partially completed. Source 
 
 ## Exact Next Action
 
-Verify PR #77 Mobile CI and mergeability, then retry the still-unused one-build authorization.
+Founder approval is required to replace the rejected EAS preview `EXPO_PUBLIC_SUPABASE_ANON_KEY` with the current public client key for project `opeojxwkwwnnncnsuaag`. Then rerun the still-unused one-build authorization.
 
 ## Major Remaining Work
 

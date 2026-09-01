@@ -46,6 +46,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Known limitations
 
+- Approved EAS preview runs `33455069758` and `33455643194` failed closed before build submission because Supabase rejected the configured preview client key with HTTP 401; no paid build was submitted.
+
 - The Marketplace moderator migration is prepared locally but has not been applied to Preview; Preview application and device verification require separate founder approval.
 - Blocking in this slice hides a listing and does not ban or permanently restrict the seller account.
 
