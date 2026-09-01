@@ -30,9 +30,9 @@ After Events stabilization, local verification passed formatting, lint with zero
 | Module 1/Day 2B/Day 3 RLS | Existing SQL smoke suites | Invoked by `scripts/db-smoke-test.sh` |
 | Events RLS | Three Events pgTAP suites | Passed locally with 31 assertions and enforced by Database CI through pinned Supabase CLI `2.111.0` |
 | Native build | Android and iOS preview build | No evidence available |
-| Compact/tablet UI | Screenshots and interaction log | Not executed; later uploaded screenshots were unavailable |
+| Compact/tablet UI | Screenshots and interaction log | Source/CI repairs passed in PRs #72 and #73; real-device evidence remains blocked |
 | Offline/failure behavior | Network failure and retry scenarios | Events retry/offline behavior not implemented |
-| Accessibility | Screen reader, text scaling, focus, 48 dp targets | Source review only |
+| Accessibility | Screen reader, text scaling, focus, 48 dp targets | Source regression coverage passed; TalkBack/VoiceOver and device evidence remain blocked |
 
 ## Existing Events automated coverage
 
@@ -141,3 +141,11 @@ Run each scenario with real `request.jwt.claim.sub` values and seeded profiles:
 - A compact Android device and tablet flow pass with verified and unverified accounts.
 - The migration and rollback plan are reviewed in staging.
 - Founder approval is recorded before any production migration, customer notification, or production verification integration.
+
+## 2026-08-31 native verification checkpoint
+
+See `docs/NATIVE_VERIFICATION_REPORT.md`.
+
+- Orientation and shared retry accessibility defects were repaired and passed Mobile CI.
+- Real-device compact, tablet, rotation, large-text, screen-reader, reduced-motion, network, permission, and privacy evidence remains required.
+- No paid EAS build was authorized or triggered.

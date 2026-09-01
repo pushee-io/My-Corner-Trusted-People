@@ -23,6 +23,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Changed
 
+- Added a durable native verification report separating passed source/CI evidence from blocked real-device evidence.
+
 - Give shared error-state retry actions explicit button semantics and a 48 dp minimum target.
 
 - Allow supported native tablets to rotate between portrait and landscape by using Expo's stable no-lock orientation setting.
