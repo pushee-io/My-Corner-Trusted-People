@@ -6,6 +6,9 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Fixed
 
+- Reject new requests that target inactive or retired provider profiles, preventing stale cached provider IDs from creating unreachable assignments.
+- Validate provider availability before mobile submission and instruct the requester to refresh when a cached provider is no longer active.
+
 - Reconciled the fictional Preview provider account with the documented Kwame PipeCare seed profile through a forward-only, idempotent migration.
 - Preserved all provider profiles and request history while auditing the previous fictional account-link removal.
 - Added a database regression that recreates the observed Ama Spark Works mismatch and verifies the repaired provider contract.

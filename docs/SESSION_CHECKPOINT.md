@@ -28,9 +28,16 @@ The fictional Preview provider account is now linked by forward migration to the
 
 No app dependency, secret, EAS build, production deployment, or real-user communication changed.
 
+## Confirmed Follow-up Defect
+
+The provider still sees the canonical seed request but not the new requester submission. This proves the provider auth mapping is correct and identifies a stale duplicate provider UUID on the new request. The server currently permits requester inserts for inactive provider profiles.
+
+Active repair: `codex/reject-inactive-provider-requests`. The checkpoint rejects inactive providers in RLS, adds client refresh guidance, and adds focused database/mobile regressions. Existing requests are preserved.
+
 ## Exact Next Action
 
-Run the two-device requester/provider retest against Preview:
+
+Verify the inactive-provider repair in Mobile CI and Database CI, merge it, confirm Preview migration success, then repeat the two-device retest:
 
 1. Provider signs out and back in and confirms `Signed in as provider: Kwame PipeCare`.
 2. Requester creates a new request for Kwame PipeCare.
