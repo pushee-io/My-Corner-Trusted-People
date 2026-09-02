@@ -30,9 +30,15 @@ The verified APK from commit `5eb06091e8352f949f7c78d87674f74b40833011` was inst
 
 PR #92 repaired the fixture mapping without deleting provider profiles or reassigning requests. The migration is deployed to Preview and its clean-reset regression is green.
 
+## Confirmed Follow-up Defect
+
+Two-device evidence after PR #92 shows the provider can read the canonical Kwame PipeCare seed request, proving the auth mapping and provider RLS path are correct. The new requester submission is absent because the requester used a retired duplicate provider UUID cached before PR #91. The request insert policy currently checks requester ownership but not provider availability.
+
+Branch `codex/reject-inactive-provider-requests` adds a server-enforced active-provider requirement, a client preflight with refresh guidance, and database/mobile regressions. The existing unreachable request remains intact and may be cancelled by its requester; it is not silently reassigned.
+
 ## Exact Next Action
 
-On the provider device, sign out and sign back in so the refreshed profile mapping is loaded. Confirm the inbox identifies `Kwame PipeCare`. On the requester device, create a new request specifically for Kwame PipeCare. Verify the request appears, then accept or decline it and confirm the requester sees the persisted status.
+Verify and merge the inactive-provider guard. After its Preview migration succeeds, cancel the unreachable test request, fully restart the requester app to clear its cached provider list, and submit one replacement request to canonical Kwame PipeCare.
 
 ## Known Gates
 

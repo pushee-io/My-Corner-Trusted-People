@@ -230,6 +230,18 @@ export async function getProvider(providerId: string): Promise<Provider | undefi
 
 export async function createJobRequest(input: JobRequestDraftInput): Promise<JobRequest> {
   const profile = await getCurrentProfile();
+  const { data: providerRows, error: providerError } = await supabase
+    .from('provider_profiles')
+    .select('id')
+    .eq('id', input.providerId)
+    .eq('accepting_requests', true)
+    .limit(1);
+
+  if (providerError) throw providerError;
+  if (!providerRows?.length) {
+    throw new Error('This provider is no longer accepting requests. Refresh providers and choose again.');
+  }
+
   const { data: neighborhoods, error: neighborhoodError } = await supabase
     .from('neighborhoods')
     .select('id')

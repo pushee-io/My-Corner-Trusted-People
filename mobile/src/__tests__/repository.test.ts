@@ -234,8 +234,35 @@ describe('Module 1 repository', () => {
     expect(requests[0]?.providerId).toBe('provider-profile-auth');
   });
 
+  it('rejects a cached provider that is no longer accepting requests', async () => {
+    useTableQueries({
+      provider_profiles: [createQuery({ data: [], error: null })],
+    });
+
+    await expect(
+      createJobRequest({
+        requesterName: 'Akosua Mensah',
+        providerId: 'retired-provider',
+        categoryId: 'plumbing',
+        neighborhood: 'East Legon',
+        areaLabel: 'East Legon, general area only',
+        title: 'Cached provider request',
+        description: 'A request created from an outdated provider result.',
+        originalUserText: 'Cached provider request',
+        urgency: 'soon',
+        preferredDate: '2026-09-02',
+        preferredTime: 'Morning',
+        contactPreference: 'app_update',
+        photoCount: 0,
+      }),
+    ).rejects.toThrow('This provider is no longer accepting requests. Refresh providers and choose again.');
+
+    expect(mockedSupabase.from).not.toHaveBeenCalledWith('job_requests');
+  });
+
   it('creates a request and lets provider accept it', async () => {
     useTableQueries({
+      provider_profiles: [createQuery({ data: [{ id: 'prov-01' }], error: null })],
       neighborhoods: [
         createQuery({
           data: [{ id: 'east-legon' }],

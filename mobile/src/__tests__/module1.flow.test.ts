@@ -119,6 +119,7 @@ describe('Module 1 happy path', () => {
 
   it('requester submits and provider declines with a visible status update', async () => {
     useTableQueries({
+      provider_profiles: [createQuery({ data: [{ id: 'prov-01' }], error: null })],
       neighborhoods: [
         createQuery({
           data: [{ id: 'east-legon' }],
