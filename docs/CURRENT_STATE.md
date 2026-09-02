@@ -1,48 +1,45 @@
 # MY CORNER — CURRENT STATE
 
-**Updated:** 2026-09-01
+**Updated:** 2026-09-02
 **Evidence timezone:** Africa/Accra
 
 ## Repository
 
 - GitHub: `pushee-io/My-Corner-Trusted-People`
-- Live `main`: `1e29550a4dba12d5676ee73302dec1768b113702`
-- PR #88 bounded session restoration during Preview network failure.
-- PR #89 added provider-inbox polling and manual refresh.
-- PR #91 added stable fictional seed identities and retired duplicate provider listings without deleting history.
-- PR #92 aligned the fictional Preview provider account with the documented Kwame PipeCare fixture.
-- PR #92 branch Database CI `33569681822`: success.
-- PR #92 pull-request Database CI `33569725510`: success.
-- PR #92 post-merge Database CI `33570023910`: success.
-- Supabase Preview check `100061862877`: success for project `opeojxwkwwnnncnsuaag`.
+- Live `main`: `922a7c4671078ffc94e74141c2cff794c46764ef`
+- PR #92 aligned the fictional Preview provider account with canonical Kwame PipeCare.
+- PR #93 persisted that checkpoint.
+- PR #94 rejects new requests targeting inactive or retired provider profiles.
+- PR #94 final Mobile CI `33574967156`: success.
+- PR #94 final Database CI `33574967154` and `33574965187`: success.
+- PR #94 post-merge Mobile CI `33575181099`: success.
+- PR #94 post-merge Database CI `33575181081`: success.
+- Supabase Preview check `100077604509`: success for project `opeojxwkwwnnncnsuaag`.
 - Repository visibility: public.
 - Branch protection on `main`: not enabled.
 
-## Native Evidence
+## Verified Defect And Repair
 
-The verified APK from commit `5eb06091e8352f949f7c78d87674f74b40833011` was installed on Samsung SM-G736U. Device evidence confirmed:
+Device evidence proved the provider account could read the canonical Kwame PipeCare seed request while a new requester submission was absent. The requester had used a retired duplicate Kwame provider UUID cached before PR #91.
 
-- requester submission and request-status persistence work;
-- PR #88 prevents indefinite session restoration during network failure;
-- PR #89 adds provider-inbox synchronization and manual refresh;
-- RLS correctly hid requests assigned to a different provider;
-- Preview had linked the fictional provider account to Ama Spark Works while repository documentation specified Kwame PipeCare.
+PR #94 now enforces two boundaries:
 
-PR #92 repaired the fixture mapping without deleting provider profiles or reassigning requests. The migration is deployed to Preview and its clean-reset regression is green.
+- PostgreSQL rejects requester inserts unless the provider profile is currently accepting requests.
+- Current mobile source checks provider availability before submission and tells the requester to refresh stale provider results.
 
-## Confirmed Follow-up Defect
-
-Two-device evidence after PR #92 shows the provider can read the canonical Kwame PipeCare seed request, proving the auth mapping and provider RLS path are correct. The new requester submission is absent because the requester used a retired duplicate provider UUID cached before PR #91. The request insert policy currently checks requester ownership but not provider availability.
-
-Branch `codex/reject-inactive-provider-requests` adds a server-enforced active-provider requirement, a client preflight with refresh guidance, and database/mobile regressions. The existing unreachable request remains intact and may be cancelled by its requester; it is not silently reassigned.
+The existing unreachable request was preserved and was not silently reassigned.
 
 ## Exact Next Action
 
-Verify and merge the inactive-provider guard. After its Preview migration succeeds, cancel the unreachable test request, fully restart the requester app to clear its cached provider list, and submit one replacement request to canonical Kwame PipeCare.
+1. Requester cancels the unreachable “Leaking pipes in the bathroom” test request.
+2. Requester fully closes and reopens My Corner to clear the cached provider result.
+3. Requester selects Kwame PipeCare again and submits one replacement titled “Bathroom pipe retest.”
+4. Provider fully closes and reopens My Corner once.
+5. Provider confirms the request appears, accepts or declines, and requester verifies the persisted status.
 
 ## Known Gates
 
 - The single paid Android Preview build authorization is consumed; do not submit another paid build without founder approval.
+- The installed APK predates the later client refresh and validation code, so full close/reopen remains necessary for this test.
 - Do not deploy to production or activate real SMS, push, identity, residence, address-provider, or sensitive-data processing.
 - Production database state remains unverified.
-- Founder confirmation is required before treating public repository visibility as intentional for private operational material.
