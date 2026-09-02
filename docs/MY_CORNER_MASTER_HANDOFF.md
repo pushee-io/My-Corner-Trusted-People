@@ -11,6 +11,18 @@
 
 ---
 
+## 2026-09-02 Inactive Provider Assignment Addendum
+
+This addendum supersedes older current-state and resume-point statements below.
+
+- Live `main`: `922a7c4671078ffc94e74141c2cff794c46764ef`.
+- PR #94 prevents new requests from targeting inactive or retired provider profiles.
+- Final Mobile CI `33574967156`, Database CI `33574967154` and `33574965187`, post-merge Mobile CI `33575181099`, and post-merge Database CI `33575181081` passed.
+- Supabase Preview check `100077604509` succeeded for project `opeojxwkwwnnncnsuaag`.
+- Existing requests were preserved and not reassigned.
+- Exact next action: cancel the unreachable request, restart both apps, submit “Bathroom pipe retest” to freshly loaded Kwame PipeCare, and verify provider response propagation.
+- No additional paid Android build is authorized.
+
 ## 2026-09-01 Provider Fixture Addendum
 
 This addendum supersedes older current-state and resume-point statements below.

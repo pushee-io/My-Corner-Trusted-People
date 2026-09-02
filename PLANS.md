@@ -2,38 +2,36 @@
 
 ## Completed
 
-- [x] Merge and verify PR #70 web-safe navigation
-- [x] Complete Job Safety Session and combined security verification in PR #84
+- [x] Complete Job Safety Session and security verification
 - [x] Build, verify, and install one authorized Android Preview APK
 - [x] Bound offline session restoration in PR #88
 - [x] Add provider-inbox synchronization in PR #89
-- [x] Add stable fictional seed identities and idempotent seeding in PR #91
-- [x] Reconcile the fictional provider test account with Kwame PipeCare in PR #92
-- [x] Verify PR #92 in branch, pull-request, and post-merge Database CI
-- [x] Apply the forward migration through the successful Supabase Preview check
+- [x] Add stable fictional seed identities in PR #91
+- [x] Link the test provider account to canonical Kwame PipeCare in PR #92
+- [x] Reject inactive or retired provider assignments in PR #94
+- [x] Verify PR #94 through Mobile CI, Database CI, post-merge CI, and Supabase Preview
 
 ## Active
 
-- [ ] Provider signs out/in and confirms the Kwame PipeCare identity banner
-- [ ] Requester submits a new request specifically to Kwame PipeCare
+- [ ] Cancel the unreachable cached-provider request
+- [ ] Restart requester and provider apps
+- [ ] Submit “Bathroom pipe retest” to freshly loaded Kwame PipeCare
 - [ ] Provider sees and accepts or declines the request
 - [ ] Requester sees the persisted provider response
-- [ ] Persist the two-device result and any confirmed defect
+- [ ] Persist the completed two-device evidence
 
 ## Next
 
-- [ ] Complete the remaining native compact/tablet/accessibility matrix
-- [ ] Complete Create menu, notification center, profile destination, and authorized deep links
-- [ ] Complete shared video/media, emoji reactions, mentions, sharing, and neighbor invitations
-- [ ] Complete unified in-app and push notification architecture
-- [ ] Complete organization verification and agency publishing workflows
-- [ ] Complete production verification adapters with fail-closed security
-- [ ] Complete observability, dependency-security remediation, branch protection, and release-candidate verification
+- [ ] Complete remaining compact/tablet/accessibility verification
+- [ ] Complete app shell and authorized deep links
+- [ ] Complete shared media and social features
+- [ ] Complete unified notifications
+- [ ] Complete organization and agency publishing
+- [ ] Complete production verification adapters and release hardening
 
 ## Rules
 
-- The paid Android Preview authorization is consumed; do not submit another build without founder approval.
+- No additional paid build without founder approval.
 - One coherent checkpoint per branch and PR.
-- Extend existing modules; do not rebuild them.
-- Every checkpoint must be committed, pushed, tested, diff-reviewed, and documented.
+- Existing requests are never silently reassigned.
 - Production, secrets, real messaging, real identity, and sensitive-data actions require founder approval.
