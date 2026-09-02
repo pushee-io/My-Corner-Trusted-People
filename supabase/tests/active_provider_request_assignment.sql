@@ -15,14 +15,22 @@ update public.profiles
 set auth_user_id = '55555555-5555-4555-8555-555555555555'::uuid
 where seed_key = 'pilot-requester-akosua-mensah';
 
-insert into public.provider_profiles (
-  profile_id, business_name, headline, general_area, availability, accepting_requests
+create temporary table inactive_provider_context (provider_id uuid not null);
+grant select on inactive_provider_context to authenticated;
+
+with inserted_provider as (
+  insert into public.provider_profiles (
+    profile_id, business_name, headline, general_area, availability, accepting_requests
+  )
+  select profile.id, 'Retired Provider Fixture',
+    'Inactive provider used only by the database regression',
+    'East Legon', 'Unavailable', false
+  from public.profiles profile
+  where profile.seed_key = 'pilot-provider-ama-spark-works'
+  returning id
 )
-select profile.id, 'Retired Provider Fixture',
-  'Inactive provider used only by the database regression',
-  'East Legon', 'Unavailable', false
-from public.profiles profile
-where profile.seed_key = 'pilot-provider-ama-spark-works';
+insert into inactive_provider_context (provider_id)
+select id from inserted_provider;
 
 set role authenticated;
 set request.jwt.claim.sub = '55555555-5555-4555-8555-555555555555';
@@ -34,13 +42,13 @@ begin
     urgency, preferred_date, preferred_time, contact_preference, neighborhood_id,
     general_area_label, status
   )
-  select requester.id, provider.id, 'plumbing',
+  select requester.id, inactive_provider.provider_id, 'plumbing',
     'Inactive provider assignment must fail',
     'This write must be rejected by the active-provider assignment policy.',
     'Inactive provider assignment', 'soon', date '2026-09-02', 'Morning',
     'app_update', neighborhood.id, 'East Legon, general area only', 'Submitted'
   from public.profiles requester
-  join public.provider_profiles provider on provider.business_name = 'Retired Provider Fixture'
+  cross join inactive_provider_context inactive_provider
   join public.neighborhoods neighborhood on neighborhood.name = 'East Legon'
   where requester.seed_key = 'pilot-requester-akosua-mensah';
 
