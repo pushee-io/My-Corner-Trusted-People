@@ -48,6 +48,11 @@ export default function MarketplaceModerationQueueScreen() {
 
   return (
     <Screen title="Marketplace reports">
+      <WebSafeLink href="/hire/moderation" asChild>
+        <Pressable accessibilityRole="button" style={styles.secondaryButton}>
+          <Text style={styles.secondaryButtonText}>Job reports</Text>
+        </Pressable>
+      </WebSafeLink>
       <Text style={styles.intro}>Review reported listings and record a reason for every decision.</Text>
 
       <View accessibilityRole="tablist" style={styles.filters}>

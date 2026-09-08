@@ -1,4 +1,5 @@
 import { getCurrentProfile, getCurrentProviderProfileId } from '@/lib/auth';
+import { submitJobReport } from '@/lib/job-report-repository';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { JobRequest, JobRequestDraftInput, Provider, RequestStatus, StatusEvent } from '@/types/contracts';
 
@@ -367,8 +368,13 @@ export async function cancelRequest(requestId: string): Promise<JobRequest | und
   return updateRequestStatus(requestId, 'Cancelled');
 }
 
-export async function reportRequest(requestId: string): Promise<JobRequest | undefined> {
-  return updateRequestStatus(requestId, 'Reported');
+export async function reportRequest(
+  requestId: string,
+  details = 'Safety concern reported by the requester.',
+): Promise<JobRequest | undefined> {
+  assertSupabaseConfigured();
+  await submitJobReport(requestId, details);
+  return getRequest(requestId);
 }
 
 export async function getRequest(requestId: string): Promise<JobRequest | undefined> {

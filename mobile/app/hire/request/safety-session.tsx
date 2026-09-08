@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { EmptyState } from '@/components/StateBlocks';
 import {
   acknowledgeJobSafetyCompletion,
@@ -159,6 +160,13 @@ export default function JobSafetySessionScreen() {
 
   return (
     <Screen title="Job safety session">
+      {isRequester && !['completed', 'cancelled'].includes(session.state) ? (
+        <WebSafeLink href={{ pathname: '/hire/request/report-cancel', params: { requestId } }} asChild>
+          <Pressable accessibilityRole="button" style={styles.panel}>
+            <Text style={styles.sectionTitle}>Report a safety concern</Text>
+          </Pressable>
+        </WebSafeLink>
+      ) : null}
       <View style={styles.statusPanel}>
         <Text style={styles.eyebrow}>{isRequester ? 'REQUESTER VIEW' : 'PROVIDER VIEW'}</Text>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
