@@ -2,7 +2,7 @@
 
 - Requester reporting, moderator review, audit history and requester outcomes are connected in the focused repair branch.
 - Local mobile verification passes: 68 suites / 329 tests, typecheck, formatting, and lint with zero errors / 15 existing warnings.
-- Database and application CI are pending on the repair commit.
+- Application, database/RLS, and existing browser usability CI passed on application commit `50b4df5` in PR #97. Expo Doctor passed 18/18 checks.
 - Native two-device acceptance remains pending; no new Android build was started.
 - See `docs/ANDROID_JOB_SAFETY_MODERATION_VERIFICATION.md` for checkpoint status.
 
