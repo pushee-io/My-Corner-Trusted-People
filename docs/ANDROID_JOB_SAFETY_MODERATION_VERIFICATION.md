@@ -16,7 +16,7 @@ The detailed verification report is retained privately for the founder. Device i
 | Same approved APK on both targets | PENDING |
 | Environment parity | PENDING |
 | Requester and moderator account readiness | PENDING |
-| Current source checks | IN PROGRESS |
+| Current source checks | PASS: Preview contract, formatting, TypeScript, Expo Doctor 18/18, Jest 313/313; lint zero errors, 15 warnings |
 | Native Job Safety and moderation flow | NOT EXECUTED |
 | Device privacy and role-isolation checks | NOT EXECUTED |
 | End-to-end result | NOT VERIFIED |
@@ -24,3 +24,7 @@ The detailed verification report is retained privately for the founder. Device i
 ## Next action
 
 Finish source checks and privately confirm installed application metadata and test prerequisites with the founder. Record native results only after execution. This documentation does not authorize a build or change any application or backend behavior.
+
+## Source validation limits
+
+Targeted tests passed: 21 suites, 112 tests. Full suite passed: 65 suites, 313 tests. Dependencies were installed from the existing lockfile. Database/RLS was not rerun locally because this runner lacks its required database tools. Native behavior, live environment parity and the connected interaction remain unverified. Existing dependency and lint warnings were preserved. `git diff --check` passed.
