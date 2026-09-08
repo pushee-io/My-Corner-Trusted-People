@@ -1,5 +1,13 @@
 # MY CORNER — SESSION CHECKPOINT
 
+## Active Android Verification Checkpoint — 2026-09-08
+
+Two authorized Android targets were confirmed in founder-supplied terminal output. Native application identity, environment parity, account readiness and the full interaction test remain unverified. Source checks passed: Preview contract, formatting, TypeScript, Expo Doctor 18/18 and Jest 313/313. Lint has zero errors and 15 existing warnings. Database/RLS was not rerun locally; native behavior remains unverified.
+
+Detailed device and verification findings are retained privately for the founder. The public [verification record](ANDROID_JOB_SAFETY_MODERATION_VERIFICATION.md) deliberately contains no device identifiers or detailed security findings. No product code, backend state, installation or build was changed by this documentation checkpoint.
+
+## Previous Checkpoint — 2026-09-02
+
 **Updated:** 2026-09-02
 **Status source:** Live GitHub, Actions, Supabase Preview, and founder-supplied two-device evidence
 
