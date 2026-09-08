@@ -1,3 +1,14 @@
+## 2026-09-08 — Job Safety key configuration checkpoint
+
+- The three pending provider-account, active-provider assignment, and job-report migrations are verified in Preview. Existing account links and roles are preserved.
+- The internal Job Safety key helper now supports a named Supabase Vault secret when the existing server setting is absent. Existing configured keys retain precedence, and a missing or invalid key still fails closed.
+- Founder-approved Preview key provisioning and a fresh-transaction AES-256 round trip passed. Client roles remain denied direct access to the helper and decrypted Vault values. No key values are present in this repository.
+- The supporting migration only enables key lookup; it does not create or rotate secrets. The repository migration version matches the deployment record.
+- Added isolated SQL coverage for missing configuration, Vault fallback, encryption/decryption, existing-setting precedence, invalid settings, and client denial. Database CI results are recorded on this repair PR.
+- The installed Android build remains usable. Native fictional moderator sign-in and the complete requester/provider/moderator interaction are still pending.
+
+Earlier checkpoints follow; this status supersedes their pending migration and encryption-configuration gates.
+
 ## 2026-09-08 — Android launch and provider-account guard checkpoint
 
 - The approved Android Preview APK is installed on the emulator and physical phone; installed artifact identity matches on both.
