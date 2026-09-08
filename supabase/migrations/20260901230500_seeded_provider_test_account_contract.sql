@@ -2,7 +2,10 @@ do $migration$
 declare
   provider_test_user_id uuid;
   previous_profile_id uuid;
+  previous_profile_role text;
   target_profile_id uuid;
+  target_auth_user_id uuid;
+  target_profile_role text;
 begin
   select auth_user.id
   into provider_test_user_id
@@ -23,11 +26,30 @@ begin
     return;
   end if;
 
-  select profile.id
-  into previous_profile_id
+  -- Lock and inspect the destination before detaching any existing account.
+  select profile.auth_user_id, profile.role::text
+  into target_auth_user_id, target_profile_role
+  from public.profiles profile
+  where profile.id = target_profile_id
+  for update;
+
+  if (target_auth_user_id is not null and target_auth_user_id <> provider_test_user_id)
+    or target_profile_role is distinct from 'provider' then
+    raise warning 'Skipped fictional provider reconciliation: destination is occupied or is not a provider. Existing account links and roles were preserved.';
+    return;
+  end if;
+
+  select profile.id, profile.role::text
+  into previous_profile_id, previous_profile_role
   from public.profiles profile
   where profile.auth_user_id = provider_test_user_id
-  limit 1;
+  limit 1
+  for update;
+
+  if previous_profile_id is not null and previous_profile_role is distinct from 'provider' then
+    raise warning 'Skipped fictional provider reconciliation: current account is not a provider. Existing account links and roles were preserved.';
+    return;
+  end if;
 
   if previous_profile_id is not distinct from target_profile_id then
     return;

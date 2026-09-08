@@ -1,3 +1,15 @@
+## 2026-09-08 — Android launch and provider-account guard checkpoint
+
+- The approved Android Preview APK is installed on the emulator and physical phone; installed artifact identity matches on both.
+- Both devices report successful starts of the app's explicit launcher activity. The emulator reused an existing activity; the phone completed a cold launch. Visible-screen confirmation and the full native requester/provider/moderator flow remain pending.
+- Pending provider-test reconciliation now locks and checks the destination before detaching any account. It skips occupied destinations and non-provider source/destination roles while preserving existing access.
+- SQL regression cases cover occupied moderator/provider destinations, unlinked non-provider destinations, non-provider source accounts, successful reconciliation, audit behavior, and repeated application. Database CI verifies the complete SQL/RLS suite; consult this repair PR's check results.
+- Typecheck passes. Lint has zero errors and 15 existing warnings on the unchanged mobile tree.
+- Preview migration deployment, fictional moderator readiness, and private-location encryption configuration remain prerequisites for native acceptance. Repository CI and device launch receipts do not establish live backend readiness.
+- The existing approved APK remains the application test artifact because this repair changes SQL, tests, and documentation only. No additional Android build was submitted.
+
+Earlier checkpoints follow; the current status above supersedes conflicting historical next actions.
+
 ## 2026-09-08 — Job report review repair checkpoint
 
 - Requester reporting, moderator review, audit history and requester outcomes are connected in the focused repair branch.

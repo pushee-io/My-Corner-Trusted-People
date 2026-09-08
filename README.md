@@ -31,7 +31,7 @@ npm run web
 - Requester: Akosua Mensah
 - Provider: Kwame PipeCare
 
-The fictional Preview provider account must resolve to the provider/profile pair with seed key `pilot-provider-kwame-pipecare`. Migration `20260901230500_seeded_provider_test_account_contract.sql` repairs older Preview data without deleting or reassigning requests.
+The default fictional provider fixture is the provider/profile pair with seed key `pilot-provider-kwame-pipecare`. Migration `20260901230500_seeded_provider_test_account_contract.sql` reconciles the documented test login only when the destination is an unoccupied provider profile (or already belongs to that login) and the login does not have a different role. If either check fails, it preserves existing account links and roles and prints a warning. Inspect the login's actual active provider before choosing a provider in device tests; do not overwrite another account to match a fixture name. Requests are never deleted or reassigned by this reconciliation.
 
 These are fictional seeded identities for prototype testing only.
 
