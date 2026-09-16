@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -13,6 +13,11 @@ import {
   releaseJobSafetyLocation,
   startJobSafetySession,
 } from '@/lib/job-safety-repository';
+import {
+  arrivalCodeForJobSafetyRoute,
+  sessionForJobSafetyRoute,
+  type RouteBoundArrivalCode,
+} from '@/lib/job-safety-route-state';
 import { tokens } from '@/theme/tokens';
 import type { JobSafetySession } from '@/types/contracts';
 
@@ -29,12 +34,16 @@ const stateLabels: Record<JobSafetySession['state'], string> = {
 
 export default function JobSafetySessionScreen() {
   const { requestId } = useLocalSearchParams<{ requestId?: string }>();
-  const [session, setSession] = useState<JobSafetySession>();
+  const activeRequestId = useRef(requestId);
+  activeRequestId.current = requestId;
+  const [loadedSession, setLoadedSession] = useState<JobSafetySession>();
+  const session = sessionForJobSafetyRoute(loadedSession, requestId);
   const [latitude, setLatitude] = useState('5.650450');
   const [longitude, setLongitude] = useState('-0.154120');
   const [locationLabel, setLocationLabel] = useState('');
   const [code, setCode] = useState('');
-  const [issuedCode, setIssuedCode] = useState<string>();
+  const [issuedCodeState, setIssuedCodeState] = useState<RouteBoundArrivalCode>();
+  const issuedCode = arrivalCodeForJobSafetyRoute(issuedCodeState, requestId);
   const [locationConsentAccepted, setLocationConsentAccepted] = useState(false);
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
@@ -44,13 +53,30 @@ export default function JobSafetySessionScreen() {
   const refresh = useCallback(async () => {
     if (!requestId) return;
     const nextSession = await getJobSafetySession(requestId);
-    setSession(nextSession);
+    if (activeRequestId.current !== requestId) return;
+    if (nextSession && nextSession.jobRequestId !== requestId) {
+      throw new Error('The returned safety session did not match this request.');
+    }
+    setLoadedSession(nextSession);
     if (nextSession?.privateLocationLabel) setLocationLabel(nextSession.privateLocationLabel);
     if (nextSession?.privateLatitude !== undefined) setLatitude(String(nextSession.privateLatitude));
     if (nextSession?.privateLongitude !== undefined) setLongitude(String(nextSession.privateLongitude));
   }, [requestId]);
 
   useEffect(() => {
+    const routeRequestId = requestId;
+    setLoadedSession(undefined);
+    setIssuedCodeState(undefined);
+    setCode('');
+    setLocationConsentAccepted(false);
+    setLocationLabel('');
+    setLatitude('5.650450');
+    setLongitude('-0.154120');
+    setMessage(undefined);
+    setError(undefined);
+    setIsSaving(false);
+    setIsLoading(Boolean(routeRequestId));
+
     if (!requestId) {
       setError('No request ID was provided.');
       setIsLoading(false);
@@ -58,22 +84,32 @@ export default function JobSafetySessionScreen() {
     }
 
     refresh()
-      .catch((caught) => setError(errorMessage(caught, 'Could not load the job safety session.')))
-      .finally(() => setIsLoading(false));
+      .catch((caught) => {
+        if (activeRequestId.current === routeRequestId) {
+          setError(errorMessage(caught, 'Could not load the job safety session.'));
+        }
+      })
+      .finally(() => {
+        if (activeRequestId.current === routeRequestId) setIsLoading(false);
+      });
   }, [refresh, requestId]);
 
   async function runAction(action: () => Promise<void>, successMessage: string) {
+    const actionRequestId = requestId;
     setError(undefined);
     setMessage(undefined);
     setIsSaving(true);
     try {
       await action();
+      if (activeRequestId.current !== actionRequestId) return;
       await refresh();
-      setMessage(successMessage);
+      if (activeRequestId.current === actionRequestId) setMessage(successMessage);
     } catch (caught) {
-      setError(errorMessage(caught, 'That safety step could not be completed.'));
+      if (activeRequestId.current === actionRequestId) {
+        setError(errorMessage(caught, 'That safety step could not be completed.'));
+      }
     } finally {
-      setIsSaving(false);
+      if (activeRequestId.current === actionRequestId) setIsSaving(false);
     }
   }
 
@@ -101,7 +137,7 @@ export default function JobSafetySessionScreen() {
         locationLabel: locationLabel.trim(),
         consentVersion: 'job_safety_location_v1',
       });
-      setIssuedCode(result.oneTimeCode);
+      setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
     }, 'The exact service pin is now available to the assigned provider.');
   }
 
@@ -129,7 +165,7 @@ export default function JobSafetySessionScreen() {
   async function replaceCode() {
     await runAction(async () => {
       const result = await regenerateJobSafetyCode(requestId!);
-      setIssuedCode(result.oneTimeCode);
+      setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
     }, 'A new arrival code was issued. The previous code no longer works.');
   }
 
