@@ -1,3 +1,13 @@
+## 2026-09-16 — Job Safety route-isolation repair
+
+- Native warm deep-link testing found that a failed lookup for a different request could leave the previously loaded Job Safety session visible, including its exact service location.
+- The Job Safety screen now binds every rendered session and one-time arrival code to the current request ID before render, resets all route-local fields when that ID changes, and ignores late reads or actions from an earlier route.
+- Regression coverage proves that private session details and one-time codes from an earlier request are withheld on a different or nonexistent request route.
+- The full mobile suite's existing event-creation fixture had crossed its hard-coded September 2026 start date; moving that test-only fixture forward restores its intended future-date precondition without changing product behavior.
+- This source repair requires automated checks and a new approved Android build before native acceptance. It does not change the backend schema or access policies.
+
+Earlier checkpoints follow; this status supersedes their Job Safety client-state isolation assumptions.
+
 ## 2026-09-08 — Job Safety key configuration checkpoint
 
 - The three pending provider-account, active-provider assignment, and job-report migrations are verified in Preview. Existing account links and roles are preserved.
@@ -30,6 +40,7 @@ Status: focused repair checkpoint; native acceptance remains pending.
 The job-report workflow now connects requester submission, moderator review, a persisted resolution and audit history, and a limited requester outcome. It reuses the existing reports and moderation-case tables and existing resolution states.
 
 Local verification:
+
 - Initial reporting regression failed against the previous implementation.
 - The three new regression suites pass: 16 tests.
 - The full mobile suite passes: 68 suites, 329 tests.

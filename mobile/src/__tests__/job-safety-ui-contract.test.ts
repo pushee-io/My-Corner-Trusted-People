@@ -34,4 +34,13 @@ describe('Job Safety Session UI contract', () => {
     expect(source).toContain('acknowledgeJobSafetyCompletion');
     expect(source).toContain('Two-party completion');
   });
+
+  it('withholds route-bound private state before loading another request', () => {
+    const source = readFileSync(join(root, 'app/hire/request/safety-session.tsx'), 'utf8');
+
+    expect(source).toContain('sessionForJobSafetyRoute(loadedSession, requestId)');
+    expect(source).toContain('arrivalCodeForJobSafetyRoute(issuedCodeState, requestId)');
+    expect(source).toContain('setLoadedSession(undefined)');
+    expect(source).toContain('activeRequestId.current !== requestId');
+  });
 });
