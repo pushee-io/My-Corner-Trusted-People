@@ -1,4 +1,6 @@
+import NetInfo from '@react-native-community/netinfo';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
+import { isNetworkOffline } from '@/lib/network-status';
 import {
   clearCachedSessionProfile,
   readCachedSessionProfile,
@@ -95,6 +97,9 @@ export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs)
   assertSupabaseConfigured();
   const context: { authUserId?: string } = {};
 
+  const offlineProfile = await cachedProfileIfDeviceOffline();
+  if (offlineProfile !== undefined) return offlineProfile;
+
   try {
     return await withTimeout(restoreSessionProfileWithoutTimeout(context), timeoutMs);
   } catch (caught) {
@@ -106,12 +111,27 @@ async function restoreSessionProfileWithoutTimeout(context: { authUserId?: strin
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   if (!data.session) {
+    const offlineProfile = await cachedProfileIfDeviceOffline();
+    if (offlineProfile !== undefined) return offlineProfile;
+
     await clearCachedSessionProfile();
     return null;
   }
 
   context.authUserId = data.session.user.id;
   return getCurrentProfile();
+}
+
+async function cachedProfileIfDeviceOffline(): Promise<CurrentProfile | null | undefined> {
+  try {
+    const networkState = await NetInfo.fetch();
+    if (!isNetworkOffline(networkState)) return undefined;
+
+    return readCachedSessionProfile();
+  } catch {
+    // Unknown reachability falls through to Supabase's normal session restoration.
+    return undefined;
+  }
 }
 
 async function cachedProfileForOfflineRestore(caught: unknown, authUserId?: string): Promise<CurrentProfile> {

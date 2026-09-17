@@ -2,6 +2,11 @@ import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import { clearCachedSessionProfile } from '@/lib/session-profile-cache';
 import { createPasswordRecoverySession, requestPasswordReset, updateRecoveredPassword } from '../auth';
 
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: { fetch: jest.fn() },
+}));
+
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
   supabase: {
