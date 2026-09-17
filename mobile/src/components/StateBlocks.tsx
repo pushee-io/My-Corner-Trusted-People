@@ -1,4 +1,6 @@
+import { useNetInfo } from '@react-native-community/netinfo';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { isNetworkOffline } from '@/lib/network-status';
 import { tokens } from '@/theme/tokens';
 
 export function EmptyState({ title, body }: { title: string; body: string }) {
@@ -49,6 +51,10 @@ export function OfflineBanner({
   message?: string;
   onRetry?: () => void;
 }) {
+  const networkState = useNetInfo();
+
+  if (!isNetworkOffline(networkState)) return null;
+
   return (
     <View style={styles.offline}>
       <Text accessibilityLiveRegion="polite" style={styles.offlineText}>

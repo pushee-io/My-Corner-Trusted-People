@@ -1,4 +1,5 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
+import { clearCachedSessionProfile } from '@/lib/session-profile-cache';
 import { createPasswordRecoverySession, requestPasswordReset, updateRecoveredPassword } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
@@ -13,7 +14,14 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
+jest.mock('@/lib/session-profile-cache', () => ({
+  clearCachedSessionProfile: jest.fn(),
+  readCachedSessionProfile: jest.fn(),
+  writeCachedSessionProfile: jest.fn(),
+}));
+
 const mockedAssertSupabaseConfigured = jest.mocked(assertSupabaseConfigured);
+const mockedClearCachedSessionProfile = jest.mocked(clearCachedSessionProfile);
 const mockedSupabase = supabase as unknown as {
   auth: {
     resetPasswordForEmail: jest.Mock;
@@ -26,6 +34,7 @@ const mockedSupabase = supabase as unknown as {
 describe('password recovery', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedClearCachedSessionProfile.mockResolvedValue();
   });
 
   it('normalizes the email and sends recovery back to the registered app scheme', async () => {
@@ -76,6 +85,7 @@ describe('password recovery', () => {
 
     expect(mockedSupabase.auth.updateUser).toHaveBeenCalledWith({ password: 'new-password-123' });
     expect(mockedSupabase.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+    expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
   });
 
   it('rejects short passwords and does not pretend failed updates succeeded', async () => {

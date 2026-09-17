@@ -1,4 +1,9 @@
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
+import {
+  clearCachedSessionProfile,
+  readCachedSessionProfile,
+  writeCachedSessionProfile,
+} from '@/lib/session-profile-cache';
 import type { UserRole } from '@/types/contracts';
 
 export type CurrentProfile = {
@@ -80,22 +85,47 @@ export async function signOutFromDevice(): Promise<void> {
 
   const { error } = await supabase.auth.signOut({ scope: 'local' });
   if (error) throw error;
+
+  await clearCachedSessionProfile();
 }
 
 const sessionRestoreTimeoutMs = 8_000;
 
 export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs): Promise<CurrentProfile | null> {
   assertSupabaseConfigured();
+  const context: { authUserId?: string } = {};
 
-  return withTimeout(restoreSessionProfileWithoutTimeout(), timeoutMs);
+  try {
+    return await withTimeout(restoreSessionProfileWithoutTimeout(context), timeoutMs);
+  } catch (caught) {
+    return cachedProfileForOfflineRestore(caught, context.authUserId);
+  }
 }
 
-async function restoreSessionProfileWithoutTimeout(): Promise<CurrentProfile | null> {
+async function restoreSessionProfileWithoutTimeout(context: { authUserId?: string }): Promise<CurrentProfile | null> {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
-  if (!data.session) return null;
+  if (!data.session) {
+    await clearCachedSessionProfile();
+    return null;
+  }
 
+  context.authUserId = data.session.user.id;
   return getCurrentProfile();
+}
+
+async function cachedProfileForOfflineRestore(caught: unknown, authUserId?: string): Promise<CurrentProfile> {
+  if (!isOfflineRestoreError(caught)) throw caught;
+
+  const cachedProfile = await readCachedSessionProfile();
+  if (!cachedProfile || (authUserId && cachedProfile.authUserId !== authUserId)) throw caught;
+
+  return cachedProfile;
+}
+
+function isOfflineRestoreError(caught: unknown): boolean {
+  const message = caught instanceof Error ? caught.message : String(caught);
+  return /network|fetch|offline|timed out|timeout|connection/i.test(message);
 }
 
 async function withTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
@@ -128,13 +158,20 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
   if (error) throw error;
   if (!data) throw new Error('No My Corner profile is linked to this account.');
 
-  return {
+  const profile: CurrentProfile = {
     id: data.id,
     authUserId: data.auth_user_id,
     displayName: data.display_name,
     role: data.role,
     phoneVerified: data.phone_verified,
   };
+
+  try {
+    await writeCachedSessionProfile(profile);
+  } catch {
+    // A cache write must not block an otherwise valid online session.
+  }
+  return profile;
 }
 
 export async function getCurrentProviderProfile(): Promise<CurrentProviderProfile> {
