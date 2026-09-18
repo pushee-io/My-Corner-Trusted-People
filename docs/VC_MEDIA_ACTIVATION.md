@@ -28,7 +28,7 @@ Parent policies and runtime schema were inspected. The local foundation extends 
 
 ## Current checkpoint and evidence
 
-The foundation is approved for publication to draft PR #102, whose prior documentation-only head was `d262317cf3d8c828aae10f0f4ec37343b7fb317e`. Publication and exact-head CI verification are the current action; PR status must be checked from the remote branch.
+The foundation was published in draft PR #102 as `f17ad80f8e00c443b4afb35b266e96cbe9654d01`. Its tree `f609578292a7db1da509125035ed595f78780888` matches the reviewed local implementation. Mobile, Database and Media Functions workflows are attached to the PR; consult the latest head for their current results.
 
 Local checks pass: 74 mobile suites / 374 tests, five server and PostgreSQL tests, mobile/processor typechecks, formatting, web export and Expo Doctor 18/18. Lint retains 15 baseline warnings with zero errors. Processor tests decode a sanitized synthetic H.264/AAC clip and verify removal of injected location/device tags. PostgreSQL tests apply the actual new migration to a reduced fixture schema; they do not replace the full Supabase integration suite.
 
@@ -36,7 +36,7 @@ No media migrations, functions or flags are deployed; no product screen is conne
 
 ## Resume with recorded approval
 
-1. Publish the approved foundation to `pushee-io/My-Corner-Trusted-People` / PR #102 and verify the remote tree and exact-head checks. The founder has supplied direct chat approval.
-2. Resolve the documented cleanup and integration gaps, preserve the passing tests, and publish the reviewed checkpoint.
+1. Verify the latest checks on the published foundation in PR #102. The founder has supplied direct chat approval, and the initial published tree was verified.
+2. Resolve the documented cleanup and integration gaps and update the draft with focused tests and review evidence.
 3. Run full database and application CI, then perform Preview processing/storage verification before enabling a surface.
 4. Continue the Profile, Feed, Hire, Groups, Events and Marketplace checkpoints only within the confirmed media scope. A compatible native artifact and device observations are separate prerequisites for media acceptance.

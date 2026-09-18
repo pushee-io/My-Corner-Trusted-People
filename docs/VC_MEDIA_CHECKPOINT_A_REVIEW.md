@@ -2,7 +2,7 @@
 
 Prepared 2026-09-18 against main `debd1995ce5f599549d16ea932a04e639b1f411d`.
 
-**Status: approved for publication as a draft, not deployed or merge-ready.** The founder explicitly adopted the media directive and approved publishing this foundation in [PR #102](https://github.com/pushee-io/My-Corner-Trusted-People/pull/102) on 2026-09-18. Its prior documentation-only head was `d262317cf3d8c828aae10f0f4ec37343b7fb317e`; check the remote PR for the publication head and CI results.
+**Status: published as a draft, not deployed or merge-ready.** The founder explicitly adopted the directive and approved publication in [PR #102](https://github.com/pushee-io/My-Corner-Trusted-People/pull/102). Foundation commit `f17ad80f8e00c443b4afb35b266e96cbe9654d01` was published on 2026-09-18; its tree `f609578292a7db1da509125035ed595f78780888` matches the reviewed local implementation. Consult the latest PR head for current Mobile, Database and Media Functions CI results.
 
 ## Problem and proposed behavior
 
@@ -22,7 +22,7 @@ The uploaded VC media directive requests checkpoints A–H. This draft covers pa
 | `supabase/migrations/20260918035400_shared_media_foundation.sql` | Disabled server flag, private original/processed buckets, upload quota, owner reservations, parent-bound authorization and attachment limits. No client permission to mark media ready. |
 | `supabase/functions/process-media/index.ts`, `_shared/sanitize-media.ts` | Authenticate owner; re-encode JPEG pixels; rebuild supported H.264/AAC MP4 tracks; sanitize poster; expose only processed assets. |
 | Mobile media tests, server tests, `supabase/tests/shared_media_security.sql` | Retry/account-transition races; parser/metadata fixtures; PostgreSQL permission, ownership, membership and limit cases. |
-| `.github/workflows/media-functions-ci.yml`, `scripts/db-smoke-test.sh` | Proposed processor and database verification gates. Not yet executed by remote CI for implementation. |
+| `.github/workflows/media-functions-ci.yml`, `scripts/db-smoke-test.sh` | Processor and database verification gates; published implementation triggers remote CI. Consult the latest PR checks for results. |
 
 Limits in this draft: images up to 6 MiB and 1920 pixels; video up to 20 MiB, 30 seconds and 1920 pixels. Server video processing supports standard unfragmented H.264 MP4, optionally with AAC-LC audio. Unsupported formats fail with an actionable error; no general transcoding service is implemented.
 
@@ -40,7 +40,7 @@ Limits in this draft: images up to 6 MiB and 1920 pixels; video up to 20 MiB, 30
 | Synthetic video decode | FFmpeg decoded sanitized H.264/AAC output, retaining audio/video and excluding injected GPS/device tags. |
 | Real PostgreSQL via PGlite | Actual migration passed against reduced prerequisite fixtures and current authorization helpers. Owner, assigned provider, outsider, neighbor, removed group member, event invitee, missing-profile, storage path, processing, replacement, count, retry and disabled-flag cases passed. |
 
-The PostgreSQL harness does not exercise Supabase Auth, PostgREST, Storage HTTP or deployed Edge Functions. Full Database CI and Preview integration are pending. No device media behavior has been verified.
+The PostgreSQL harness does not exercise Supabase Auth, PostgREST, Storage HTTP or deployed Edge Functions. Full Database CI runs on the PR; Preview service integration remains pending. No device media behavior has been verified.
 
 ## Remaining work before foundation activation
 
@@ -53,4 +53,4 @@ The PostgreSQL harness does not exercise Supabase Auth, PostgREST, Storage HTTP 
 
 ## Next authorized action
 
-Publish the approved shared-media foundation to `pushee-io/My-Corner-Trusted-People` in PR #102, verify its exact-head checks, and finish the listed foundation gaps before merging or activating a surface. No production deployment or paid build is included.
+Verify the published draft’s latest checks and finish the listed foundation gaps before merging or activating a surface. Publication approval is already recorded and does not need to be requested again. No production deployment or paid build is included.

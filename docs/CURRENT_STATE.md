@@ -1,12 +1,12 @@
-## 2026-09-18 — Media directive adopted; foundation publication approved
+## 2026-09-18 — Approved media foundation published in draft PR #102
 
 This checkpoint supersedes older next-action statements below.
 
 - The founder explicitly adopted the uploaded VC media directive in chat and approved publishing the shared-media foundation to `pushee-io/My-Corner-Trusted-People` in PR #102. The earlier authorization block is resolved; do not request this approval again.
 - Baseline main: `debd1995ce5f599549d16ea932a04e639b1f411d`. Active branch: `codex/vc-media-foundation`; PR #102 remains draft pending foundation review and CI.
-- The publication includes private media upload/attachment policies, JPEG/MP4 processing, shared native controls, account-transition guards, and tests. Product-surface integration is pending.
+- Published foundation commit: `f17ad80f8e00c443b4afb35b266e96cbe9654d01`; verified tree `f609578292a7db1da509125035ed595f78780888` matches the reviewed local implementation. It includes private media upload/attachment policies, JPEG/MP4 processing, native controls, account-transition guards and tests. Product-surface integration is pending.
 - Local verification: 74 mobile suites / 374 tests and five server/SQL tests passed; TypeScript, Deno, formatting, web export and Expo Doctor 18/18 passed. Lint: zero errors / 15 baseline warnings.
-- Publish the approved local checkpoint, verify the remote tree and exact-head CI, and record results. Storage cleanup, complete Supabase service verification and native media acceptance remain open review gates in `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
+- Remote Mobile, Database and Media Functions workflows run on the PR. Check the latest PR head for authoritative results before merging; publication alone does not close technical gates. Storage cleanup, complete Supabase service verification and native media acceptance remain open in `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
 - No media deployment, flag activation or new APK is part of this publication. Paid EAS builds and production require separate approval.
 
 ## 2026-09-08 — Job Safety key configuration checkpoint
