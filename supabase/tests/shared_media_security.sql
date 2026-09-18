@@ -35,9 +35,13 @@ insert into public.social_group_posts(id,group_id,author_profile_id,body) values
 insert into public.marketplace_listings(id,neighborhood_id,seller_id,title,description,availability,pickup_area) values
  ('78000000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','Fictional table','Test item','available','General area');
 insert into public.neighborhood_clusters(id,name,region_id) values('72100000-0000-4000-8000-000000000001','Media test cluster','greater-accra');
+insert into public.neighborhood_cluster_members(neighborhood_id,cluster_id) values('72000000-0000-4000-8000-000000000001','72100000-0000-4000-8000-000000000001');
+-- The real Event insert trigger derives its owner and cluster from this context.
+set local request.jwt.claim.sub='71000000-0000-4000-8000-000000000001';
 insert into public.events(id,neighborhood_id,cluster_id,organizer_profile_id,organizer_display_name,title,description,starts_at,area_label,visibility,status,moderation_status) values
  ('78100000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000001','72100000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','Fictional Organizer','Fictional private event','Fictional event for access verification',now()+interval '1 day','General area','invite_only','scheduled','approved');
 insert into public.event_organizers(event_id,profile_id,role) values('78100000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','owner') on conflict do nothing;
+update public.events set status='scheduled',moderation_status='approved' where id='78100000-0000-4000-8000-000000000001';
 -- Reserve drafts through the authenticated RPC, then simulate only the trusted
 -- processor's metadata update. No authenticated client receives that grant.
 set local role authenticated;
@@ -91,7 +95,10 @@ select pg_temp.media_assert((select count(*) from public.media_assets)=0,'outsid
 select pg_temp.media_assert((select count(*) from storage.objects)=0,'outsider cannot read signed-object paths');
 select pg_temp.media_denied($q$select public.begin_media_upload('profile','image','79000000-0000-4000-8000-000000000001')$q$,'another owner reused upload id');
 reset role;
-insert into public.event_invitations(event_id,inviter_profile_id,invitee_profile_id,status,expires_at) values('78100000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000002','accepted',now()+interval '2 days');
+set local request.jwt.claim.sub='71000000-0000-4000-8000-000000000001';
+insert into public.event_invitations(event_id,inviter_profile_id,invitee_profile_id,status,expires_at) values('78100000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000002','pending',now()+interval '2 days');
+-- Seed the accepted state after the invitation trigger has prepared it.
+update public.event_invitations set status='accepted' where event_id='78100000-0000-4000-8000-000000000001' and invitee_profile_id='71000000-0000-4000-8000-000000000002';
 set local role authenticated;
 set local request.jwt.claim.sub='71000000-0000-4000-8000-000000000002';
 select pg_temp.media_assert(exists(select 1 from public.media_assets where parent_type='event'),'accepted invitee can read private event media');

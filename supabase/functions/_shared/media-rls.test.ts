@@ -20,6 +20,9 @@ test("real PostgreSQL enforces media parent, ownership, storage, processing and 
       "is_events_feature_enabled",
       "can_manage_event",
       "can_view_event",
+      "prepare_event_insert",
+      "prepare_event_invitation",
+      "validate_event_lifecycle_transition",
     ];
     for (const name of names) {
       let definition: string | undefined;
@@ -38,6 +41,15 @@ test("real PostgreSQL enforces media parent, ownership, storage, processing and 
       if (!definition) throw new Error(`Missing existing helper: ${name}`);
       await db.exec(definition);
     }
+    // Preserve the existing Event fixture constraints that full Database CI uses.
+    await db.exec(`
+      create trigger events_prepare_insert before insert on public.events
+        for each row execute function public.prepare_event_insert();
+      create trigger event_invitations_prepare before insert on public.event_invitations
+        for each row execute function public.prepare_event_invitation();
+      create trigger events_validate_lifecycle before update on public.events
+        for each row execute function public.validate_event_lifecycle_transition();
+    `);
     await db.exec(
       readFileSync(
         resolve(migrations, "20260918035400_shared_media_foundation.sql"),
