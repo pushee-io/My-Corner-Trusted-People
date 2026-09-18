@@ -39,6 +39,7 @@ legacy_tests=(
   supabase/tests/events_feature_flag_smoke.sql
   supabase/tests/shared_media_security.sql
   supabase/tests/shared_media_cleanup.sql
+  supabase/tests/shared_media_worker_security.sql
 )
 
 for test_file in "${legacy_tests[@]}"; do

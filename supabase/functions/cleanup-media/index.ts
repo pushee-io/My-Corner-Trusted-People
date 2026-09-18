@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { runMediaCleanup } from "../_shared/cleanup-media.ts";
 
 // Scheduled server-to-server endpoint. JWT gateway verification is disabled
-// ONLY because this body verifies a dedicated, Vault-backed worker credential.
-// A user JWT or the public project key never authorizes a cleanup run.
+// ONLY because this body atomically consumes a short-lived worker ticket.
+// A user JWT, a public key or a replayed ticket never authorizes a cleanup run.
 Deno.serve(async (request) => {
   const reply = (body: unknown, status = 200) =>
     Response.json(body, {

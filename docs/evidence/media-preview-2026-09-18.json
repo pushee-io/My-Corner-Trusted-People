@@ -6,7 +6,9 @@
   "migrations": [
     "20260918045854_shared_media_foundation",
     "20260918045911_shared_media_cleanup",
-    "20260918045921_shared_media_cleanup_schedule"
+    "20260918045921_shared_media_cleanup_schedule",
+    "20260918051919_media_cleanup_queue_privileges",
+    "20260918052240_media_cleanup_single_use_tickets"
   ],
   "http_assertions": [
     {
@@ -144,5 +146,13 @@
     "http_status": 200,
     "claimed": 0,
     "deferred": 0
+  },
+  "worker_ticket_security": {
+    "valid_ticket_accepted": true,
+    "replay_rejected": true,
+    "expired_ticket_rejected": true,
+    "client_ticket_table_access": false,
+    "reusable_credential_removed": true,
+    "verified_against": "Preview PostgreSQL"
   }
 }
