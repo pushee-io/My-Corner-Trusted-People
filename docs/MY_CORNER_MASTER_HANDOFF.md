@@ -1,3 +1,13 @@
+## 2026-09-18 — VC media activation in progress
+
+This checkpoint supersedes older next-action statements below.
+
+- Audited live main: `debd1995ce5f599549d16ea932a04e639b1f411d` (PR #101 merged); post-merge Mobile CI `35300550471` passed.
+- Founder reports the corrected APK passed offline restoration/reconnect, Create request network banner, explicit sign-out across offline restart/reconnect, and account isolation on Samsung phone and Pixel Tablet emulator. Previous native compact/tablet/accessibility verification is complete.
+- New authorized scope: `docs/VC_MEDIA_ACTIVATION_DIRECTIVE.md`. Implement shared images/video, then Profile, Feed, Hire, Groups, Events, Marketplace, followed by privacy/performance/device verification.
+- Active branch: `codex/vc-media-foundation`. No media code has been deployed yet. See `docs/VC_MEDIA_ACTIVATION.md` for audit and exact resume point.
+- Safe Preview implementation, migrations, PRs and green checkpoint merges are authorized. Paid EAS builds, production deployment, real messaging and sensitive identity processing require separate approval.
+
 # MY CORNER — MASTER PROJECT HANDOFF
 
 **Handoff version:** 2026-08-31  
