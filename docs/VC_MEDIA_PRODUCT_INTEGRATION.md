@@ -1,6 +1,6 @@
 # Connected media: Preview checkpoint
 
-Date: 2026-09-18. PR #102 remains draft. The founder authorized connecting product screens and one new Android Preview APK; that build is complete. The device pass found the three failures below. The source repairs require a corrected APK and focused device retest before acceptance. Production and merging are outside this checkpoint.
+Date: 2026-09-18. PR #102 remains draft. The first connected-screen APK exposed the three device failures below. The founder-approved corrected APK from `62e3cec` is now built and verified, including repair commit `e36ed2b`. Installation and focused phone/tablet retesting remain pending. Production and merging are outside this checkpoint.
 
 ## Device failures and source repair
 
@@ -43,6 +43,22 @@ Hire media stays in memory across Create and Review. File paths are not placed i
 - Preview readback confirmed two private shared-media buckets and zero pending cleanup jobs. Earlier foundation verification covered 22 live HTTP cases and eight Storage API cleanup jobs with fictional fixtures.
 - No new database migrations or processor deployments are required for this integration.
 
+## Corrected build checkpoint — device retest pending
+
+The founder approved one corrected APK for the phone/tablet retest on 2026-09-18. That build completed successfully:
+
+- Source commit: `62e3cecc286203a6da28c3bf8805e20cc068944a`, including repair commit `e36ed2b6d3b161772ee0fa65ea25ba4a23bbac03`.
+- EAS build: `7cbb3fcf-36e0-4ce7-85dc-620a3b8ba68c`.
+- [Verified build workflow](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35388377487).
+- [Download corrected APK](https://expo.dev/artifacts/eas/CA1jH16x1ROl4Fma24VA-b03eI58kWLHWOXZoVnXZDE.apk).
+- Filename: `my-corner-preview-62e3cec.apk`; size: 69,509,354 bytes.
+- APK SHA-256: `440daca1dc2e760e0bd7bbce7a77b914ff2a8541439e9693711af0683ee4c01a`.
+- Workflow artifact: `my-corner-preview-verified-62e3cecc286203a6da28c3bf8805e20cc068944a`, containing the APK and `preview-provenance.json`.
+- Workflow verified the EAS source commit, product-media bytecode, Preview backend and application ID `com.mycorner.trustedpeople`. Mobile CI (push and PR), Database CI, Media Functions CI and EAS Preview APK all passed on this source commit.
+- Direct download passed full archive integrity and application ID checks. Its embedded bundle contains the responsive media viewport and repaired Hire attachment flow; the old photo-placeholder marker is absent. The only embedded Supabase URL is the expected Preview project.
+
+This consumes the approval for one corrected build. Install with `adb install -r` on physical phone `R5CX10FFDQF` and tablet emulator `emulator-5554` to retain app data. Device rendering, native playback lifecycle and Hire media acceptance are still unverified on this APK.
+
 ## Previous build checkpoint — device gate failed
 
 The one authorized build completed successfully and passed artifact verification:
@@ -56,7 +72,7 @@ The one authorized build completed successfully and passed artifact verification
 - Workflow verified the EAS source commit, product-media bytecode, Preview backend and Android application ID `com.mycorner.trustedpeople`. A direct download also passed archive integrity validation.
 - Mobile CI (push and PR), Database CI, Media Functions CI and EAS Preview APK all passed on this source commit.
 
-The repairs above are newer than this APK and are not installed on either test device yet. On 2026-09-18 the founder approved one corrected APK for the phone/tablet retest. The next build uses the repaired draft branch through `.github/workflows/eas-preview-apk.yml`; its source commit, artifact and checksum must be verified before installation. Repair commit `e36ed2b` passed Mobile, Database and Media Functions CI.
+This previous APK does not contain the repairs. Use the corrected `62e3cec` artifact above for retesting.
 
 The existing shared-media feature flag is enabled in Preview for this device pass. Keep PR #102 draft until the device evidence below is reviewed.
 
