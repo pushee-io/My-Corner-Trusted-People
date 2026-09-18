@@ -129,3 +129,18 @@ describe('resilient Events runtime repository', () => {
     expect(repository.getDiagnostics().pendingWriteCount).toBe(0);
   });
 });
+
+it('keeps media event drafts in the form instead of queueing an unattached optimistic event', async () => {
+  const inner = createInnerRepository();
+  const write = jest
+    .fn()
+    .mockRejectedValueOnce(new EventsRuntimeError('offline', 'offline', true))
+    .mockResolvedValue(event);
+  inner.createEvent = write;
+  const repository = createResilientEventsRepository(inner);
+  const draft = { ...event, clientRequestId: 'media-event-id', requireOnline: true };
+  await expect(repository.createEvent(draft)).rejects.toMatchObject({ code: 'offline' });
+  expect(repository.getDiagnostics().pendingWriteCount).toBe(0);
+  await expect(repository.createEvent(draft)).resolves.toEqual(event);
+  expect(write.mock.calls.map((call) => call[0].clientRequestId)).toEqual(['media-event-id', 'media-event-id']);
+});

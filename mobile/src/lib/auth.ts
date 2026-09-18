@@ -1,4 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
+import { invalidateMediaSession } from '@/lib/media-session';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import { isNetworkOffline } from '@/lib/network-status';
 import {
@@ -37,6 +38,7 @@ function assertCurrentSession(revision: number): void {
 function changeSession(operation: () => Promise<void>): Promise<void> {
   // Invalidate in-flight reads synchronously, before the first auth/storage await.
   sessionRevision += 1;
+  invalidateMediaSession();
   pendingSessionChanges += 1;
   const result = sessionChangeQueue
     .then(async () => {

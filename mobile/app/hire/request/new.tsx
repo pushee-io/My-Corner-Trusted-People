@@ -2,6 +2,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { MediaComposer } from '@/components/media/MediaComposer';
+import { useRequestMedia } from '@/components/media/RequestMediaProvider';
 import { OfflineBanner } from '@/components/StateBlocks';
 import { structureServiceRequest } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
@@ -44,7 +46,9 @@ export default function NewRequestScreen() {
   const [preferredTime, setPreferredTime] = useState('Afternoon');
   const [urgency, setUrgency] = useState<RequestUrgency>('soon');
   const [contactPreference, setContactPreference] = useState<ContactPreference>('app_update');
-  const [photoCount, setPhotoCount] = useState(0);
+  const { media, submission } = useRequestMedia();
+  const photoCount = media.drafts.filter((item) => item.kind === 'image').length;
+  const editingDisabled = submission.busy || submission.locked;
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [error, setError] = useState('');
 
@@ -102,6 +106,7 @@ export default function NewRequestScreen() {
   );
 
   function reviewRequest() {
+    if (submission.busy || media.busy) return;
     const validation = validateRequestDraft(draft, consentAccepted);
 
     if (!validation.valid) {
@@ -125,6 +130,7 @@ export default function NewRequestScreen() {
   }
 
   async function useAiStructurer() {
+    if (editingDisabled) return;
     if (!featureFlags.ai_service_request_structurer) {
       setError('AI structuring is currently off. You can still submit the request manually.');
       return;
@@ -150,6 +156,7 @@ export default function NewRequestScreen() {
         style={styles.input}
         placeholder="Example: Kitchen sink leak"
         accessibilityLabel="Job title"
+        editable={!editingDisabled}
       />
 
       <Text style={styles.label}>Description</Text>
@@ -160,9 +167,10 @@ export default function NewRequestScreen() {
         style={[styles.input, styles.multiline]}
         placeholder="Describe what you need, where generally, and any access notes."
         accessibilityLabel="Job description"
+        editable={!editingDisabled}
       />
 
-      <Pressable onPress={useAiStructurer} style={styles.secondaryButton}>
+      <Pressable disabled={editingDisabled} onPress={useAiStructurer} style={styles.secondaryButton}>
         <Text style={styles.secondaryText}>Structure with AI</Text>
       </Pressable>
 
@@ -175,6 +183,7 @@ export default function NewRequestScreen() {
         onChangeText={setPreferredDate}
         style={styles.input}
         accessibilityLabel="Preferred date"
+        editable={!editingDisabled}
       />
 
       <Text style={styles.label}>Preferred time</Text>
@@ -183,6 +192,7 @@ export default function NewRequestScreen() {
         onChangeText={setPreferredTime}
         style={styles.input}
         accessibilityLabel="Preferred time"
+        editable={!editingDisabled}
       />
 
       <Text style={styles.label}>Urgency</Text>
@@ -190,6 +200,7 @@ export default function NewRequestScreen() {
         {urgencyOptions.map((option) => (
           <Pressable
             key={option.value}
+            disabled={editingDisabled}
             onPress={() => setUrgency(option.value)}
             style={[styles.chip, urgency === option.value ? styles.chipSelected : null]}
           >
@@ -203,6 +214,7 @@ export default function NewRequestScreen() {
         {contactOptions.map((option) => (
           <Pressable
             key={option.value}
+            disabled={editingDisabled}
             onPress={() => setContactPreference(option.value)}
             style={[styles.chip, contactPreference === option.value ? styles.chipSelected : null]}
           >
@@ -211,11 +223,13 @@ export default function NewRequestScreen() {
         ))}
       </View>
 
-      <Pressable onPress={() => setPhotoCount((count) => Math.min(count + 1, 3))} style={styles.photoBox}>
-        <Text style={styles.photoText}>Optional photos: {photoCount}. Add photo placeholder</Text>
-      </Pressable>
+      <MediaComposer controller={media} title="Photos or video of the work" disabled={editingDisabled} />
+      <Text style={styles.help}>Attachments are private to you and the assigned provider.</Text>
+      {submission.locked ? (
+        <Text style={styles.help}>Continue to Review to finish this same request and its attachments.</Text>
+      ) : null}
 
-      <Pressable onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
+      <Pressable disabled={editingDisabled} onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
         <Text style={styles.noticeText}>
           {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee
           provider conduct.
@@ -224,7 +238,7 @@ export default function NewRequestScreen() {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable onPress={reviewRequest} style={styles.button}>
+      <Pressable disabled={submission.busy || media.busy} onPress={reviewRequest} style={styles.button}>
         <Text style={styles.buttonText}>Review request</Text>
       </Pressable>
     </Screen>
@@ -261,16 +275,7 @@ const styles = StyleSheet.create({
   },
   chipSelected: { backgroundColor: '#FFF4D6', borderColor: tokens.color.primary },
   chipText: { color: tokens.color.textPrimary, fontWeight: '700' },
-  photoBox: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
-    padding: tokens.spacing.md,
-  },
-  photoText: { color: tokens.color.textPrimary },
+  help: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   notice: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',

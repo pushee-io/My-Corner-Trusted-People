@@ -1,3 +1,4 @@
+import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile, getCurrentProviderProfileId } from '@/lib/auth';
 import { submitJobReport } from '@/lib/job-report-repository';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
@@ -5,6 +6,7 @@ import type { JobRequest, JobRequestDraftInput, Provider, RequestStatus, StatusE
 
 type ProviderRow = {
   id: string;
+  profile_id?: string;
   business_name: string;
   headline: string;
   general_area: string;
@@ -101,6 +103,7 @@ function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: 
 
   return {
     id: row.id,
+    profileId: row.profile_id,
     name: row.business_name,
     headline: row.headline,
     serviceLabel: firstService?.service_label ?? 'Local service',
@@ -163,6 +166,7 @@ async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> 
 
     return {
       requesterName: 'Signed-in requester',
+      requesterProfileId: row.requester_id,
       providerId: row.provider_id,
       categoryId: row.category_id,
       neighborhood: 'Selected neighborhood',
@@ -200,7 +204,7 @@ export async function listProvidersByCategory(categoryId: string): Promise<Provi
   const { data, error } = await supabase
     .from('provider_profiles')
     .select(
-      'id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
+      'id, profile_id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
     )
     .in('id', providerIds)
     .eq('accepting_requests', true)
@@ -215,7 +219,7 @@ export async function getProvider(providerId: string): Promise<Provider | undefi
   const { data, error } = await supabase
     .from('provider_profiles')
     .select(
-      'id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
+      'id, profile_id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
     )
     .eq('id', providerId)
     .single();
@@ -229,7 +233,7 @@ export async function getProvider(providerId: string): Promise<Provider | undefi
   return providers[0];
 }
 
-export async function createJobRequest(input: JobRequestDraftInput): Promise<JobRequest> {
+export async function createJobRequest(input: JobRequestDraftInput, clientId?: string): Promise<JobRequest> {
   const profile = await getCurrentProfile();
   const { data: providerRows, error: providerError } = await supabase
     .from('provider_profiles')
@@ -251,9 +255,9 @@ export async function createJobRequest(input: JobRequestDraftInput): Promise<Job
 
   if (neighborhoodError) throw neighborhoodError;
 
-  const { data, error } = await supabase
-    .from('job_requests')
-    .insert({
+  const { row: data, reused } = await insertOwnedOnce<JobRequestRow>(
+    'job_requests',
+    {
       requester_id: profile.id,
       provider_id: input.providerId,
       category_id: input.categoryId,
@@ -268,15 +272,13 @@ export async function createJobRequest(input: JobRequestDraftInput): Promise<Job
       general_area_label: input.areaLabel,
       status: 'Submitted',
       moderation_status: 'not_run',
-    })
-    .select(
-      'id, requester_id, provider_id, category_id, title, description, original_user_text, urgency, preferred_date, preferred_time, contact_preference, general_area_label, status, moderation_status, created_at',
-    )
-    .single();
-
-  if (error) throw error;
-
-  await insertStatusEvent(data.id, 'Submitted', profile.id);
+    },
+    'id, requester_id, provider_id, category_id, title, description, original_user_text, urgency, preferred_date, preferred_time, contact_preference, general_area_label, status, moderation_status, created_at',
+    'requester_id',
+    profile.id,
+    clientId,
+  );
+  if (!reused) await insertStatusEvent(data.id, 'Submitted', profile.id);
   const [request] = await loadRequestDetails([data as JobRequestRow]);
   return request;
 }

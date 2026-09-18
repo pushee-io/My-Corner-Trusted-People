@@ -1,3 +1,27 @@
+## 2026-09-18 — Media cleanup and Preview service verification
+
+This checkpoint supersedes earlier media deployment/cleanup status.
+
+- Draft PR #102 now adds durable Storage API cleanup for removal/replacement, failed or abandoned uploads, deleted parents, and deleted profiles. A worker authenticated by expiring, single-use tickets runs every five minutes; failures retry under leased queue entries.
+- Preview `opeojxwkwwnnncnsuaag` received the foundation, cleanup, and scheduling migrations plus `process-media` and `cleanup-media`. Repository migration filenames match the versions recorded by deployment; remote history was preserved.
+- All 22 authenticated HTTP assertions passed with fictional media and two temporary identities: upload, retry, processing, metadata removal, parent attachment, cross-account denial, malformed input, immediate read denial after removal, and worker authentication.
+- Storage API cleanup completed eight jobs covering four stored objects; no test objects remained. Only fixture job eligibility was accelerated. The real signed-upload/processing retention windows remain intact.
+- Temporary accounts, profiles, neighborhood and post were removed. `shared_media_uploads` is off. Delayed deletion receipts remain to catch any late signed PUTs.
+- Local checks: 75 mobile suites / 376 tests; six server/PostgreSQL tests; TypeScript and Deno passed. Lint has zero errors and 15 baseline warnings. Latest PR CI remains the merge gate.
+- Product screens remain disconnected. No APK was built. Next: review this checkpoint and its CI, then integrate one surface with parent-submit retry/text-preservation tests. Maximum-size/low-end-device performance and native picker/playback/cache behavior remain acceptance gates.
+- Evidence: `docs/VC_MEDIA_PREVIEW_VERIFICATION.md` and `docs/evidence/media-preview-2026-09-18.json`.
+
+## 2026-09-18 — Approved media foundation published in draft PR #102
+
+This checkpoint supersedes older next-action statements below.
+
+- The founder explicitly adopted the uploaded VC media directive in chat and approved publishing the shared-media foundation to `pushee-io/My-Corner-Trusted-People` in PR #102. The earlier authorization block is resolved; do not request this approval again.
+- Baseline main: `debd1995ce5f599549d16ea932a04e639b1f411d`. Active branch: `codex/vc-media-foundation`; PR #102 remains draft pending foundation review and CI.
+- Published foundation commit: `f17ad80f8e00c443b4afb35b266e96cbe9654d01`; verified tree `f609578292a7db1da509125035ed595f78780888` matches the reviewed local implementation. It includes private media upload/attachment policies, JPEG/MP4 processing, native controls, account-transition guards and tests. Product-surface integration is pending.
+- Local verification: 74 mobile suites / 374 tests and five server/SQL tests passed; TypeScript, Deno, formatting, web export and Expo Doctor 18/18 passed. Lint: zero errors / 15 baseline warnings.
+- Remote Mobile, Database and Media Functions workflows run on the PR. Check the latest PR head for authoritative results before merging; publication alone does not close technical gates. Storage cleanup, complete Supabase service verification and native media acceptance remain open in `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
+- No media deployment, flag activation or new APK is part of this publication. Paid EAS builds and production require separate approval.
+
 # MY CORNER — MASTER PROJECT HANDOFF
 
 **Handoff version:** 2026-08-31  

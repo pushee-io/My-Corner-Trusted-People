@@ -1,3 +1,4 @@
+import { MediaThumbnail } from '@/components/media/MediaThumbnail';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -129,6 +130,8 @@ export default function GroupsScreen() {
         <View style={styles.list}>
           {sections.map((section) => (
             <View key={section.group.id} style={[styles.card, width >= 600 ? styles.cardMedium : null]}>
+              <MediaThumbnail parent="group_cover" parentId={section.group.id} />
+              <MediaThumbnail parent="group_avatar" parentId={section.group.id} round />
               <Pressable
                 accessibilityHint="Opens group posts and actions"
                 accessibilityLabel={`${section.group.name}, ${section.group.memberCount} members`}

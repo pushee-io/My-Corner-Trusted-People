@@ -217,7 +217,7 @@ export function createResilientEventsRepository(inner: EventsRuntimeRepository):
       try {
         return remember(await inner.createEvent(stableDraft));
       } catch (caught) {
-        if (!offline(caught)) throw caught;
+        if (!offline(caught) || draft.requireOnline) throw caught;
         const optimistic = optimisticDraft(stableDraft, context);
         details.set(optimistic.id, optimistic);
         cachedList = [optimistic, ...(cachedList ?? [])];

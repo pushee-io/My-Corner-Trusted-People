@@ -1,3 +1,5 @@
+import { MediaAvatar } from '@/components/media/MediaAvatar';
+import { MediaGallery } from '@/components/media/MediaGallery';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -54,6 +56,7 @@ export default function RequestStatusScreen() {
         </View>
       ) : null}
       <View style={styles.panel}>
+        <MediaAvatar profileId={provider?.profileId} name={provider?.name ?? 'Provider'} />
         <StatusPill status={request.status} />
         <Text style={styles.title}>{request.title}</Text>
         <Text style={styles.body}>
@@ -61,6 +64,8 @@ export default function RequestStatusScreen() {
         </Text>
         {request.providerMessage ? <Text style={styles.message}>Provider note: {request.providerMessage}</Text> : null}
       </View>
+
+      <MediaGallery parent="service_request" parentId={request.id} />
 
       {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
         <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>

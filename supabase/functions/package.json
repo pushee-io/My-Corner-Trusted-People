@@ -1,0 +1,16 @@
+{
+  "name": "my-corner-media-functions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test _shared/*.test.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.75.0",
+    "jpeg-js": "0.4.4",
+    "mp4box": "2.4.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

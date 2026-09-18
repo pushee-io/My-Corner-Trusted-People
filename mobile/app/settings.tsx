@@ -1,3 +1,4 @@
+import { WebSafeLink } from '@/components/WebSafeLink';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -52,6 +53,11 @@ export default function SettingsScreen() {
 
       <View style={styles.panel}>
         <Text style={styles.label}>Account</Text>
+        <WebSafeLink href="/profile" asChild>
+          <Pressable accessibilityRole="button" style={styles.signOutButton}>
+            <Text style={{ color: tokens.color.primary, fontWeight: '700' }}>Edit profile and picture</Text>
+          </Pressable>
+        </WebSafeLink>
         <Text style={styles.note}>Sign out removes the saved session from this device.</Text>
         {signOutError ? (
           <Text accessibilityRole="alert" style={styles.error}>

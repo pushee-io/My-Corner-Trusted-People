@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "mp4box": "npm:mp4box@2.4.1",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.75.0",
+    "jpeg-js": "npm:jpeg-js@0.4.4"
+  },
+  "compilerOptions": {
+    "strict": true
+  }
+}

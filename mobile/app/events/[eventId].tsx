@@ -1,3 +1,5 @@
+import { MediaGallery } from '@/components/media/MediaGallery';
+import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { router, type Href, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -149,7 +151,9 @@ function EventDetailsContent() {
           You are offline. Showing cached event details. Changes will retry when this screen reconnects.
         </Text>
       ) : null}
+      <MediaAvatar profileId={event.organizerProfileId} name={event.organizerDisplayName} />
       <Text style={styles.body}>{event.description}</Text>
+      <MediaGallery parent="event" parentId={event.id} />
       <View accessibilityLabel="Event information" style={styles.card}>
         <Text style={styles.label}>Status</Text>
         <Text style={styles.body}>{eventStatusLabel(event)}</Text>
@@ -224,6 +228,7 @@ function EventDetailsContent() {
             <View style={styles.commentList}>
               {event.comments.map((comment) => (
                 <View key={comment.id} style={styles.comment}>
+                  <MediaAvatar profileId={comment.authorProfileId} name={comment.authorDisplayName} size={32} />
                   <Text style={styles.commentAuthor}>{comment.authorDisplayName}</Text>
                   <Text style={styles.body}>{comment.body}</Text>
                   <Text style={styles.meta}>

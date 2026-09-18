@@ -1,3 +1,4 @@
+import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile } from '@/lib/auth';
 import { seededCommunityActionsRepository } from '@/lib/community-actions-repository';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
@@ -24,7 +25,7 @@ export type SocialGroupReportResult = 'reported' | 'already_reported';
 
 export type SocialGroupDetailRepository = {
   listPosts: (groupId: string) => Promise<SocialGroupPostDetail[]>;
-  createPost: (groupId: string, body: string) => Promise<SocialGroupPostDetail>;
+  createPost: (groupId: string, body: string, clientId?: string) => Promise<SocialGroupPostDetail>;
   createComment: (postId: string, body: string) => Promise<SocialGroupPostComment>;
   toggleLike: (post: SocialGroupPostDetail) => Promise<Pick<SocialGroupPostDetail, 'likeCount' | 'likedByMe'>>;
   reportPost: (postId: string, reason: string) => Promise<SocialGroupReportResult>;
@@ -244,22 +245,23 @@ const supabaseRepository: SocialGroupDetailRepository = {
     );
   },
 
-  async createPost(groupId, body) {
+  async createPost(groupId, body, clientId) {
     assertSupabaseConfigured();
     const profile = await getCurrentProfile();
-    const { data, error } = await supabase
-      .from('social_group_posts')
-      .insert({
+    const { row } = await insertOwnedOnce<SocialGroupPostRow>(
+      'social_group_posts',
+      {
         group_id: groupId,
         author_profile_id: profile.id,
         body: body.trim(),
         moderation_status: 'not_run',
-      })
-      .select('id,group_id,author_profile_id,body,created_at,moderation_status')
-      .single();
-
-    if (error || !data) throw new Error('Could not publish this group post.');
-    return mapPostRow(data as SocialGroupPostRow, profile, [], [], false);
+      },
+      'id,group_id,author_profile_id,body,created_at,moderation_status',
+      'author_profile_id',
+      profile.id,
+      clientId,
+    );
+    return mapPostRow(row, profile, [], [], false);
   },
 
   async createComment(postId, body) {

@@ -39,6 +39,7 @@ export type TrustSignal = {
 
 export type Provider = {
   id: string;
+  profileId?: string;
   name: string;
   headline: string;
   serviceLabel: string;
@@ -83,6 +84,7 @@ export type StatusEvent = {
 };
 
 export type JobRequest = JobRequestDraftInput & {
+  requesterProfileId?: string;
   id: string;
   status: RequestStatus;
   moderationStatus: ModerationStatus;
