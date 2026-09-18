@@ -1,8 +1,8 @@
 # My Corner — VC media activation
 
-## Baseline and authority
+## Baseline and requested scope
 
-Live main inspected 2026-09-18: `debd1995ce5f599549d16ea932a04e639b1f411d`. The implementation directive is preserved alongside this file. Preview project: `opeojxwkwwnnncnsuaag`. No production change or paid EAS build is authorized.
+Live main inspected 2026-09-18: `debd1995ce5f599549d16ea932a04e639b1f411d`. The uploaded directive is preserved alongside this file. The founder explicitly adopted it in chat and approved publication to PR #102 on 2026-09-18. Preview project: `opeojxwkwwnnncnsuaag`. No production change or paid EAS build is authorized.
 
 ## Architecture audit
 
@@ -24,10 +24,19 @@ Do not duplicate Marketplace or add six upload systems. Extend shared contracts/
 
 Create shared draft/asset contracts and practical limits, private quarantine plus processed storage, authenticated parent authorization, server-controlled feature flag, safe metadata processing, shared upload state and picker/gallery. Restrict image outputs to sanitized JPEG and short supported MP4 video. Never expose unprocessed bytes to an audience. Retry must preserve form text and not duplicate parents. Short-lived signed URLs and logout/account-switch clearing are required.
 
-Before implementation, finish checking live parent policies/schema and supported Expo 54 video dependency. Then generate a forward-only migration with the Supabase CLI and implement focused validation/privacy tests. CI provides a clean local Supabase database; remote Preview deployment happens only after review/checks.
+Parent policies and runtime schema were inspected. The local foundation extends the existing shared image contracts with private storage, RPCs, processing and reusable components. Existing Marketplace photo behavior remains unchanged; consolidation of its preparation code still needs review.
 
-## Evidence status
+## Current checkpoint and evidence
 
-- Audit: complete enough to identify shared reuse; parent-policy reconciliation in progress.
-- Implementation, new media tests and staging flags: pending.
-- Phone/tablet media verification: pending a compatible Preview artifact. Do not reuse the previous native gate as proof that new media works.
+The foundation is approved for publication to draft PR #102, whose prior documentation-only head was `d262317cf3d8c828aae10f0f4ec37343b7fb317e`. Publication and exact-head CI verification are the current action; PR status must be checked from the remote branch.
+
+Local checks pass: 74 mobile suites / 374 tests, five server and PostgreSQL tests, mobile/processor typechecks, formatting, web export and Expo Doctor 18/18. Lint retains 15 baseline warnings with zero errors. Processor tests decode a sanitized synthetic H.264/AAC clip and verify removal of injected location/device tags. PostgreSQL tests apply the actual new migration to a reduced fixture schema; they do not replace the full Supabase integration suite.
+
+No media migrations, functions or flags are deployed; no product screen is connected to these new components; no new APK or native media verification has occurred. Checkpoint A is not merge-ready. See `VC_MEDIA_CHECKPOINT_A_REVIEW.md` for concrete files, risks and remaining work.
+
+## Resume with recorded approval
+
+1. Publish the approved foundation to `pushee-io/My-Corner-Trusted-People` / PR #102 and verify the remote tree and exact-head checks. The founder has supplied direct chat approval.
+2. Resolve the documented cleanup and integration gaps, preserve the passing tests, and publish the reviewed checkpoint.
+3. Run full database and application CI, then perform Preview processing/storage verification before enabling a surface.
+4. Continue the Profile, Feed, Hire, Groups, Events and Marketplace checkpoints only within the confirmed media scope. A compatible native artifact and device observations are separate prerequisites for media acceptance.

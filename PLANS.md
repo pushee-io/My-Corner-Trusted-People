@@ -1,9 +1,9 @@
 # My Corner — implementation plan
 
-## Active: VC media activation
+## Active: approved VC media activation
 
 - [x] Inspect live main and Preview media/storage contracts.
-- [ ] A: Shared media foundation, private storage, validation, reusable picker/gallery and tests.
+- [ ] A: Local shared foundation and tests prepared; publication explicitly approved in chat. Cleanup, full integration and CI remain pending.
 - [ ] B: Profile pictures, replacement/removal and consistent avatars.
 - [ ] C: Neighborhood Feed images and video.
 - [ ] D: Hire request media restricted to participants.
@@ -11,6 +11,8 @@
 - [ ] F: Event cover/gallery/video under existing audience rules.
 - [ ] G: Marketplace video preserving existing images and pickup privacy.
 - [ ] H: Cross-surface security/performance and Android device verification.
+
+The founder explicitly adopted the directive and approved publishing the foundation in PR #102 on 2026-09-18. Publish it and verify exact-head CI; keep the PR draft until technical gates pass. See `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
 
 Each checkpoint requires targeted tests, formatting, lint, typecheck, privacy review, pushed PR and successful CI before merge. Maintain continuity before long operations. No paid EAS build or production deployment is authorized for this milestone.
 

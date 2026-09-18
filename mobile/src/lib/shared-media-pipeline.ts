@@ -262,3 +262,8 @@ function extensionForMimeType(mimeType: string): string {
   if (mimeType === 'image/heif') return 'heif';
   return 'jpg';
 }
+
+// The legacy Marketplace photo contract remains compatible while every new
+// surface shares the media contract and transport.
+export { mediaLimits, mediaFileLimits, validateMediaDrafts } from './media-contract';
+export type { MediaParent, MediaKind, MediaDraft, MediaAsset, DisplayMedia } from './media-contract';
