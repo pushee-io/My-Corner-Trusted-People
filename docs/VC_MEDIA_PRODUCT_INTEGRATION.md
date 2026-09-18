@@ -56,7 +56,7 @@ The one authorized build completed successfully and passed artifact verification
 - Workflow verified the EAS source commit, product-media bytecode, Preview backend and Android application ID `com.mycorner.trustedpeople`. A direct download also passed archive integrity validation.
 - Mobile CI (push and PR), Database CI, Media Functions CI and EAS Preview APK all passed on this source commit.
 
-The repairs above are newer than this APK and are not installed on either test device yet. This repair commit does not trigger another paid build. A corrected Preview build requires the next founder-approved build checkpoint in `.github/workflows/eas-preview-apk.yml`.
+The repairs above are newer than this APK and are not installed on either test device yet. On 2026-09-18 the founder approved one corrected APK for the phone/tablet retest. The next build uses the repaired draft branch through `.github/workflows/eas-preview-apk.yml`; its source commit, artifact and checksum must be verified before installation. Repair commit `e36ed2b` passed Mobile, Database and Media Functions CI.
 
 The existing shared-media feature flag is enabled in Preview for this device pass. Keep PR #102 draft until the device evidence below is reviewed.
 

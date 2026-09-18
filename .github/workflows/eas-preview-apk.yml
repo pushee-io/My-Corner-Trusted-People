@@ -1,6 +1,7 @@
 name: EAS Preview APK
-# Founder authorized one new Android Preview APK on 2026-09-18:
-# "Connect product screens. build new APK". Keep PR #102 draft and build its branch.
+# Founder approved one corrected Android Preview APK on 2026-09-18:
+# "I approve one corrected APK for the phone/tablet retest".
+# Includes the native media/Hire repairs in e36ed2b. Keep PR #102 draft.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:

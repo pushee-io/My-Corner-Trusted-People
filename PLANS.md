@@ -21,12 +21,15 @@ Product integration passed 407 mobile tests and six media function/security test
 - [x] Publish connected screens at `5d801dd`; Mobile, Database and Media Functions CI passed.
 - [x] Build and verify the one approved Preview APK: EAS `214b0a28-2476-4271-aabc-2c07faa4c1a3`; APK and provenance published by the successful build workflow.
 - [x] Trace the reported one-sided video frame, Close video exit and missing Hire picker against that APK source. Repair source and add 12 regression cases, including lifecycle and request-flow isolation.
-- [ ] Obtain the next build approval and produce one corrected Preview APK; the installed `5d801dd` APK does not contain the device repairs.
+- [x] Founder approved one corrected APK for the phone/tablet retest on 2026-09-18. Repair commit `e36ed2b` passed Mobile, Database and Media Functions CI.
+- [ ] Build and verify that one corrected Preview APK; the installed `5d801dd` APK does not contain the device repairs.
 - [ ] Verify the connected media screens on the physical phone and tablet emulator before merge.
 
 The founder explicitly adopted the directive and approved publishing the foundation in PR #102 on 2026-09-18. The initial implementation is published at `f17ad80`; verify the latest PR checks and keep the PR draft until technical gates pass. See `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
 
 Each checkpoint requires targeted tests, formatting, lint, typecheck, privacy review, pushed PR and successful CI before merge. Maintain continuity before long operations. On 2026-09-18 the founder authorized one new Android Preview build with “Connect product screens. build new APK”. Build the draft branch through the approval-gated workflow; do not merge or deploy to production.
+
+The founder subsequently approved “one corrected APK for the phone/tablet retest”. Use one build from the repaired draft branch, verify the resulting APK and source commit, and record its provenance before device retesting.
 
 ## Completed verification
 
