@@ -1,3 +1,14 @@
+## 2026-09-18 — Foundation review repairs
+
+This checkpoint supersedes earlier next-action statements. Keep PR #102 draft; product-screen integration remains pending.
+
+- **Private viewer:** an expanded photo closes immediately when its authorization refresh starts. The viewer must match the current account, parent, authorization check and readable asset list. Removed assets, failed refreshes and late responses cannot preserve or reopen the previous photo. An expired-URL lookup that finds lost access also clears stale thumbnails.
+- **Upload retry:** an owner reservation reuses the same asset ID and immutable object paths. A specific Storage 400/409 duplicate response while signing an upload resumes processing instead of blocking retry. Videos can resume with the missing poster. Uploads explicitly remain non-upserting; permission errors, unrelated conflicts and account changes still fail.
+- Added five real-React gallery regressions and seven transport regressions. Against review head `dc1518d`, eight tests failed and eleven passed in the two focused suites; after repair all 19 pass. These are component/transport tests with mocked native services, not device acceptance.
+- Local verification: 76 mobile suites / 388 tests passed; TypeScript and formatting passed; lint has zero errors and the same 15 baseline warnings. The new renderer dependencies are development-only. Check CI on the latest published PR head before progressing.
+- The earlier 22 Preview HTTP assertions remain service evidence from the previous checkpoint; they did not exercise the newly repaired client retry preflight. No new Preview mutation, flag activation or APK build accompanies these client repairs.
+- Next: re-review these repairs and their CI before choosing a first product surface. Native media behavior, full parent-submit retry/text preservation and maximum-size/low-end performance remain acceptance work.
+
 ## 2026-09-18 — Media cleanup and Preview service verification
 
 This checkpoint supersedes earlier media deployment/cleanup status.

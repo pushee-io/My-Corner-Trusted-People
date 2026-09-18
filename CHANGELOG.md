@@ -6,6 +6,7 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Verification and active work (2026-09-18)
 
+- Repaired both PR #102 review findings and added 12 component/transport regressions; keep the PR draft before product-screen integration.
 - Added durable private media cleanup, scheduled worker authenticated by single-use tickets, and safe local picker-cache disposal.
 - Verified 22 Preview HTTP cases and eight Storage API deletion jobs with fictional fixtures; removed test accounts and restored the upload flag to off.
 - Matched repository migration filenames to the recorded Preview deployment versions without rewriting remote migration history.
@@ -17,6 +18,8 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Fixed
 
+- Close expanded private photos during authorization refresh; reject stale selections and late responses after access, parent or account changes.
+- Resume media processing or a missing video poster when signed-upload preflight reports an already-uploaded original, preserving immutable paths and non-upserting uploads.
 - Reject new requests that target inactive or retired provider profiles, preventing stale cached provider IDs from creating unreachable assignments.
 - Validate provider availability before mobile submission and instruct the requester to refresh when a cached provider is no longer active.
 

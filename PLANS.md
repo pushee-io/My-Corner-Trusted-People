@@ -6,6 +6,8 @@
 - [ ] A: Foundation and durable cleanup published in draft PR #102. Preview upload/access/cleanup verification passed; current PR CI/review and native media acceptance remain gates.
   - [x] Durable cleanup and temporary picker-file disposal.
   - [x] Controlled Preview Auth/Storage/processor/worker verification; fixture cleanup; uploads disabled afterward.
+  - [x] Repair review findings: invalidate expanded photos on authorization refresh; resume completed-original upload retries. Add 12 component/transport regression cases.
+  - [ ] Re-review the repair diff and current-head CI while keeping PR #102 draft, before product-screen integration.
 - [ ] B: Profile pictures, replacement/removal and consistent avatars.
 - [ ] C: Neighborhood Feed images and video.
 - [ ] D: Hire request media restricted to participants.

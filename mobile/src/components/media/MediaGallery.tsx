@@ -31,6 +31,7 @@ export function useParentMedia(parent: MediaParent, parentId: string | undefined
     }, [key, parent, parentId]),
   );
   return {
+    authorizationKey: key,
     items: result.key === key ? result.items : [],
     error: result.key === key ? result.error : undefined,
     reload: () => setReload((value) => value + 1),
@@ -76,22 +77,30 @@ export function MediaGallery({
   const [selected, setSelected] = useState<{
     id: string;
     revision: number;
+    authorizationKey: string;
     parent: MediaParent;
     parentId: string | undefined;
     url: string;
     kind: 'image' | 'video';
   }>();
+  // A viewer belongs to the authorization check that opened it. Hide it in the
+  // first refresh render, before effects run, and require current membership in
+  // the readable list. Signed URLs alone never keep a removed photo on screen.
   const visible =
-    selected?.revision === revision && selected.parent === parent && selected.parentId === parentId
+    selected?.revision === revision &&
+    selected.authorizationKey === media.authorizationKey &&
+    selected.parent === parent &&
+    selected.parentId === parentId &&
+    media.items.some((item) => item.id === selected.id)
       ? selected
       : undefined;
   useFocusEffect(
     useCallback(
       () => () => {
         focusGeneration.current += 1;
-        setSelected(undefined);
+        setSelected((current) => (current?.authorizationKey === media.authorizationKey ? undefined : current));
       },
-      [],
+      [media.authorizationKey],
     ),
   );
   async function open(item: DisplayMedia) {
@@ -99,10 +108,22 @@ export function MediaGallery({
     try {
       const current =
         item.expiresAt > Date.now() ? item : (await listMedia(parent, [parentId!])).find((next) => next.id === item.id);
-      if (!current || revision !== mediaSessionRevision() || generation !== focusGeneration.current) return;
-      setSelected({ id: item.id, revision, parent, parentId, url: current.url, kind: current.media_type });
+      if (revision !== mediaSessionRevision() || generation !== focusGeneration.current) return;
+      if (!current) {
+        media.reload();
+        return;
+      }
+      setSelected({
+        id: item.id,
+        revision,
+        authorizationKey: media.authorizationKey,
+        parent,
+        parentId,
+        url: current.url,
+        kind: current.media_type,
+      });
     } catch {
-      media.reload();
+      if (revision === mediaSessionRevision() && generation === focusGeneration.current) media.reload();
     }
   }
   if (media.error)

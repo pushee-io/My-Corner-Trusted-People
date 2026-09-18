@@ -18,6 +18,10 @@ export async function mediaEnabled() {
   return !error && data?.enabled === true;
 }
 
+function isExistingUpload(status: unknown, message: string) {
+  return (String(status) === '400' || String(status) === '409') && /\balready exists\b|\bduplicate\b/i.test(message);
+}
+
 async function uploadFile(
   path: string,
   uri: string,
@@ -26,9 +30,19 @@ async function uploadFile(
   revision: number,
 ) {
   assertMediaSession(revision);
-  const { data, error } = await supabase.storage.from('media-originals').createSignedUploadUrl(path);
-  if (error || !data) throw new Error('Could not start the upload. Check your connection and retry.');
+  const { data, error } = await supabase.storage.from('media-originals').createSignedUploadUrl(path, { upsert: false });
   assertMediaSession(revision);
+  // Signing itself probes INSERT permission and can reject an existing object.
+  // The owning reservation supplies this immutable path, so resume processing
+  // (or upload the missing video poster) without granting overwrite/read access.
+  if (error) {
+    const status = 'status' in error ? error.status : 'statusCode' in error ? error.statusCode : undefined;
+    if (isExistingUpload(status, error.message)) {
+      progress(1);
+      return;
+    }
+  }
+  if (error || !data) throw new Error('Could not start the upload. Check your connection and retry.');
   if (Platform.OS !== 'web') {
     const task = FileSystem.createUploadTask(
       data.signedUrl,
@@ -51,10 +65,7 @@ async function uploadFile(
     try {
       const result = await task.uploadAsync();
       assertMediaSession(revision);
-      if (
-        !result ||
-        (result.status >= 300 && !(result.status === 409 || /already exists|duplicate/i.test(result.body)))
-      )
+      if (!result || ((result.status < 200 || result.status >= 300) && !isExistingUpload(result.status, result.body)))
         throw new Error('Upload interrupted. Your text is safe; tap Retry.');
     } finally {
       clearTimeout(timeout);
@@ -77,7 +88,7 @@ async function uploadFile(
       };
       xhr.onload = () => {
         unsubscribe();
-        if (xhr.status < 300 || xhr.status === 409 || /already exists|duplicate/i.test(xhr.responseText)) resolve();
+        if ((xhr.status >= 200 && xhr.status < 300) || isExistingUpload(xhr.status, xhr.responseText)) resolve();
         else reject(new Error('Upload interrupted. Tap Retry.'));
       };
       xhr.onerror =
