@@ -1,6 +1,8 @@
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/__tests__/**/*.test.ts'],
+  // Native cache contract tests exercise SecureStore's real JS validation.
+  transformIgnorePatterns: ['node_modules/(?!expo-secure-store/)'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

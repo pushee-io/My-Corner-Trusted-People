@@ -35,7 +35,7 @@ describe('verified session profile cache', () => {
     await writeCachedSessionProfile(requesterProfile);
 
     expect(mockedStorage.setItem).toHaveBeenCalledWith(
-      'my-corner:last-verified-profile:v1',
+      'my-corner.last-verified-profile.v1',
       JSON.stringify(requesterProfile),
     );
   });
@@ -53,6 +53,6 @@ describe('verified session profile cache', () => {
   it('removes the routing profile on local sign-out', async () => {
     await clearCachedSessionProfile();
 
-    expect(mockedStorage.removeItem).toHaveBeenCalledWith('my-corner:last-verified-profile:v1');
+    expect(mockedStorage.removeItem).toHaveBeenCalledWith('my-corner.last-verified-profile.v1');
   });
 });

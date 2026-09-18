@@ -9,14 +9,16 @@ export type CachedSessionProfile = {
   phoneVerified: boolean;
 };
 
-const cacheKey = 'my-corner:last-verified-profile:v1';
+// SecureStore keys allow only alphanumeric characters, dots, hyphens and underscores.
+// The previous colon-delimited key could never be persisted on native devices.
+const cacheKey = 'my-corner.last-verified-profile.v1';
 const roles: UserRole[] = ['requester', 'provider', 'moderator', 'admin'];
 
 export async function readCachedSessionProfile(): Promise<CachedSessionProfile | null> {
-  const value = await authSessionStorage.getItem(cacheKey);
-  if (!value) return null;
-
   try {
+    const value = await authSessionStorage.getItem(cacheKey);
+    if (!value) return null;
+
     const parsed = JSON.parse(value) as Partial<CachedSessionProfile>;
     if (
       typeof parsed.id !== 'string' ||
@@ -30,6 +32,8 @@ export async function readCachedSessionProfile(): Promise<CachedSessionProfile |
 
     return parsed as CachedSessionProfile;
   } catch {
+    // An unreadable or malformed routing cache must not restore an identity.
+    // Leave storage intact so a transient read failure can recover on retry.
     return null;
   }
 }
