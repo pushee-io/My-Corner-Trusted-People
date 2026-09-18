@@ -14,6 +14,8 @@ const mockFetchNetwork = jest.fn();
 const mockGetSession = jest.fn();
 const mockGetUser = jest.fn();
 const mockSignOut = jest.fn();
+const mockSignIn = jest.fn();
+const mockSetSession = jest.fn();
 const mockSingle = jest.fn();
 
 jest.mock('expo-secure-store', () => jest.requireActual('expo-secure-store/src/SecureStore'));
@@ -40,7 +42,13 @@ jest.mock('@react-native-community/netinfo', () => ({
 jest.mock('@supabase/supabase-js', () => ({
   processLock: jest.fn(),
   createClient: () => ({
-    auth: { getSession: mockGetSession, getUser: mockGetUser, signOut: mockSignOut },
+    auth: {
+      getSession: mockGetSession,
+      getUser: mockGetUser,
+      signOut: mockSignOut,
+      signInWithPassword: mockSignIn,
+      setSession: mockSetSession,
+    },
     from: () => ({ select: () => ({ eq: () => ({ single: mockSingle }) }) }),
   }),
 }));
@@ -57,6 +65,35 @@ function goOffline() {
   mockFetchNetwork.mockResolvedValue({ isConnected: false, isInternetReachable: false });
 }
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
+function profileResponse(profile: CurrentProfile) {
+  return {
+    data: {
+      id: profile.id,
+      auth_user_id: profile.authUserId,
+      display_name: profile.displayName,
+      role: profile.role,
+      phone_verified: profile.phoneVerified,
+    },
+    error: null,
+  };
+}
+
+const requester: CurrentProfile = {
+  ...provider,
+  id: 'profile-requester',
+  authUserId: 'auth-requester',
+  displayName: 'QA Requester',
+  role: 'requester',
+};
+
 describe('native profile cache and startup contract', () => {
   beforeEach(() => {
     jest.resetModules();
@@ -66,6 +103,8 @@ describe('native profile cache and startup contract', () => {
     mockGetSession.mockResolvedValue({ data: { session: { user: { id: provider.authUserId } } }, error: null });
     mockGetUser.mockResolvedValue({ data: { user: { id: provider.authUserId } }, error: null });
     mockSignOut.mockResolvedValue({ error: null });
+    mockSignIn.mockResolvedValue({ error: null });
+    mockSetSession.mockResolvedValue({ error: null });
     mockSingle.mockResolvedValue({
       data: {
         id: provider.id,
@@ -151,7 +190,178 @@ describe('native profile cache and startup contract', () => {
     await auth.restoreSessionProfile();
     mockNativeDelete.mockRejectedValueOnce(new Error('Device storage temporarily unavailable'));
     await expect(auth.signOutFromDevice()).rejects.toThrow('Device storage temporarily unavailable');
+    expect(mockSignOut).not.toHaveBeenCalled();
     await auth.signOutFromDevice();
+    expect(mockDisk.size).toBe(0);
+  });
+
+  it.each(['getUser', 'profile'] as const)(
+    'rejects a delayed %s response after sign-out instead of restoring the old profile',
+    async (stage) => {
+      const started = deferred<void>();
+      const response = deferred<unknown>();
+      const mockRequest = stage === 'getUser' ? mockGetUser : mockSingle;
+      mockRequest.mockImplementationOnce(() => {
+        started.resolve();
+        return response.promise;
+      });
+      const auth = await import('../auth');
+      const lateProfile = auth.getCurrentProfile();
+      const rejected = expect(lateProfile).rejects.toThrow('Your session changed');
+      await started.promise;
+      await auth.signOutFromDevice();
+      response.resolve(
+        stage === 'getUser' ? { data: { user: { id: provider.authUserId } }, error: null } : profileResponse(provider),
+      );
+      await rejected;
+      expect(mockDisk.size).toBe(0);
+      expect(mockNativeWrite).not.toHaveBeenCalled();
+      jest.resetModules();
+      goOffline();
+      const restarted = await import('../auth');
+      await expect(restarted.restoreSessionProfile()).resolves.toBeNull();
+    },
+  );
+
+  it('waits for a native write already in progress before completing cache removal', async () => {
+    const started = deferred<void>();
+    const releaseWrite = deferred<void>();
+    mockNativeWrite.mockImplementationOnce(async (value, key) => {
+      started.resolve();
+      await releaseWrite.promise;
+      mockDisk.set(key, value);
+    });
+    const auth = await import('../auth');
+    const lateProfile = auth.getCurrentProfile();
+    const rejected = expect(lateProfile).rejects.toThrow('Your session changed');
+    await started.promise;
+    const signingOut = auth.signOutFromDevice();
+    expect(mockSignOut).not.toHaveBeenCalled();
+    releaseWrite.resolve();
+    await signingOut;
+    await rejected;
+    expect(mockDisk.size).toBe(0);
+    expect(mockNativeWrite.mock.invocationCallOrder[0]).toBeLessThan(mockNativeDelete.mock.invocationCallOrder[0]);
+    jest.resetModules();
+    goOffline();
+    const restarted = await import('../auth');
+    await expect(restarted.restoreSessionProfile()).resolves.toBeNull();
+  });
+
+  it('prevents an old account response from overwriting a newly signed-in account', async () => {
+    const started = deferred<void>();
+    const response = deferred<ReturnType<typeof profileResponse>>();
+    mockSingle.mockImplementationOnce(() => {
+      started.resolve();
+      return response.promise;
+    });
+    const auth = await import('../auth');
+    const lateProfile = auth.getCurrentProfile();
+    const rejected = expect(lateProfile).rejects.toThrow('Your session changed');
+    await started.promise;
+    mockGetUser.mockResolvedValue({ data: { user: { id: requester.authUserId } }, error: null });
+    mockSingle.mockResolvedValue(profileResponse(requester));
+    await expect(auth.signInWithEmailPassword('qa@example.com', 'test-password')).resolves.toEqual(requester);
+    response.resolve(profileResponse(provider));
+    await rejected;
+    jest.resetModules();
+    goOffline();
+    const restarted = await import('../auth');
+    await expect(restarted.restoreSessionProfile()).resolves.toEqual(requester);
+  });
+
+  it('does not retain the old cache when a replacement account profile fails to load', async () => {
+    const auth = await import('../auth');
+    await auth.getCurrentProfile();
+    mockGetUser.mockResolvedValue({ data: { user: { id: requester.authUserId } }, error: null });
+    mockSingle.mockResolvedValue({ data: null, error: new Error('Network request failed') });
+    await expect(auth.signInWithEmailPassword('qa@example.com', 'test-password')).rejects.toThrow('Network');
+    goOffline();
+    await expect(auth.restoreSessionProfile()).resolves.toBeNull();
+  });
+
+  it('blocks profile reads during a session change and serializes a following sign-in', async () => {
+    const started = deferred<void>();
+    const releaseSignOut = deferred<void>();
+    mockSignOut.mockImplementationOnce(async () => {
+      started.resolve();
+      await releaseSignOut.promise;
+      return { error: null };
+    });
+    const auth = await import('../auth');
+    const signingOut = auth.signOutFromDevice();
+    await started.promise;
+    await expect(auth.getCurrentProfile()).rejects.toThrow('Your session changed');
+    await expect(auth.restoreSessionProfile()).rejects.toThrow('Your session changed');
+    expect(mockGetUser).not.toHaveBeenCalled();
+    mockGetUser.mockResolvedValue({ data: { user: { id: requester.authUserId } }, error: null });
+    mockSingle.mockResolvedValue(profileResponse(requester));
+    const signingIn = auth.signInWithEmailPassword('qa@example.com', 'test-password');
+    expect(mockSignIn).not.toHaveBeenCalled();
+    releaseSignOut.resolve();
+    await signingOut;
+    await expect(signingIn).resolves.toEqual(requester);
+    goOffline();
+    await expect(auth.restoreSessionProfile()).resolves.toEqual(requester);
+  });
+
+  it('rejects an offline cache read that finishes after sign-out', async () => {
+    const auth = await import('../auth');
+    await auth.getCurrentProfile();
+    goOffline();
+    const started = deferred<void>();
+    const releaseRead = deferred<void>();
+    mockNativeRead.mockImplementationOnce(async (key) => {
+      const oldValue = mockDisk.get(key) ?? null;
+      started.resolve();
+      await releaseRead.promise;
+      return oldValue;
+    });
+    const lateRestore = auth.restoreSessionProfile();
+    const rejected = expect(lateRestore).rejects.toThrow('Your session changed');
+    await started.promise;
+    await auth.signOutFromDevice();
+    releaseRead.resolve();
+    await rejected;
+    await expect(auth.restoreSessionProfile()).resolves.toBeNull();
+  });
+
+  it('rejects an old startup result instead of clearing a newly signed-in account cache', async () => {
+    const started = deferred<void>();
+    const response = deferred<unknown>();
+    mockGetSession.mockImplementationOnce(() => {
+      started.resolve();
+      return response.promise;
+    });
+    const auth = await import('../auth');
+    const lateRestore = auth.restoreSessionProfile();
+    const rejected = expect(lateRestore).rejects.toThrow('Your session changed');
+    await started.promise;
+    mockGetUser.mockResolvedValue({ data: { user: { id: requester.authUserId } }, error: null });
+    mockSingle.mockResolvedValue(profileResponse(requester));
+    await auth.signInWithEmailPassword('qa@example.com', 'test-password');
+    response.resolve({ data: { session: null }, error: null });
+    await rejected;
+    goOffline();
+    await expect(auth.restoreSessionProfile()).resolves.toEqual(requester);
+  });
+
+  it('invalidates old profile requests when a recovery link replaces the session', async () => {
+    const started = deferred<void>();
+    const response = deferred<ReturnType<typeof profileResponse>>();
+    mockSingle.mockImplementationOnce(() => {
+      started.resolve();
+      return response.promise;
+    });
+    const auth = await import('../auth');
+    const lateProfile = auth.getCurrentProfile();
+    const rejected = expect(lateProfile).rejects.toThrow('Your session changed');
+    await started.promise;
+    await auth.createPasswordRecoverySession(
+      'mycorner://reset-password#access_token=qa-token&refresh_token=qa-refresh&type=recovery',
+    );
+    response.resolve(profileResponse(provider));
+    await rejected;
     expect(mockDisk.size).toBe(0);
   });
 

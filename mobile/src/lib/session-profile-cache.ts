@@ -13,6 +13,14 @@ export type CachedSessionProfile = {
 // The previous colon-delimited key could never be persisted on native devices.
 const cacheKey = 'my-corner.last-verified-profile.v1';
 const roles: UserRole[] = ['requester', 'provider', 'moderator', 'admin'];
+let pendingMutation: Promise<void> = Promise.resolve();
+
+function mutateCache(operation: () => Promise<void>): Promise<void> {
+  const result = pendingMutation.then(operation);
+  // Keep the queue usable after a storage failure; the caller still receives it.
+  pendingMutation = result.catch(() => undefined);
+  return result;
+}
 
 export async function readCachedSessionProfile(): Promise<CachedSessionProfile | null> {
   try {
@@ -38,10 +46,16 @@ export async function readCachedSessionProfile(): Promise<CachedSessionProfile |
   }
 }
 
-export async function writeCachedSessionProfile(profile: CachedSessionProfile): Promise<void> {
-  await authSessionStorage.setItem(cacheKey, JSON.stringify(profile));
+export async function writeCachedSessionProfile(
+  profile: CachedSessionProfile,
+  isCurrent: () => boolean = () => true,
+): Promise<void> {
+  await mutateCache(async () => {
+    if (isCurrent()) await authSessionStorage.setItem(cacheKey, JSON.stringify(profile));
+  });
 }
 
 export async function clearCachedSessionProfile(): Promise<void> {
-  await authSessionStorage.removeItem(cacheKey);
+  // A write already inside SecureStore must finish before removal can complete.
+  await mutateCache(() => authSessionStorage.removeItem(cacheKey));
 }

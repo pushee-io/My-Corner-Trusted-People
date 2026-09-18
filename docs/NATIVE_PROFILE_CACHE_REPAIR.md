@@ -19,13 +19,30 @@ and therefore did not exercise this validation.
 - Return no cached identity for unreadable or malformed storage; preserve the
   stored value so a transient read failure can recover on a later attempt.
 - Keep write/removal failures observable to callers. Existing online profile
-  loading remains usable if its optional cache write fails; sign-out still
-  reports cache-removal failure instead of reporting success.
+  loading remains usable if its optional cache write fails. Cache removal now
+  finishes before an auth change; if removal fails, sign-out/account switching
+  stops and reports the error without changing the Supabase session.
 - No native migration from the invalid key is possible or needed: SecureStore
   rejected every write. Open the corrected app online once to populate the key.
   Web session storage also starts using the new key after online profile loading.
 - The profile supports startup routing only. Live authorization and private
   job data still require the existing authenticated server checks.
+
+## Review blocker resolved: delayed writes after sign-out
+
+Review reproduced an old profile request completing after successful sign-out,
+recreating the deleted cache and restoring that identity on offline startup.
+
+Profile requests and startup restores now capture a session revision and reject
+results after that revision changes. Sign-in, local sign-out and password
+recovery invalidate pending work immediately and block new profile reads while
+the session changes. Auth changes are serialized so overlapping sign-out/sign-in
+operations cannot interleave their cache cleanup.
+
+Cache mutations are also serialized. A queued write checks that its session is
+still current before writing; a write already inside SecureStore finishes before
+removal. Sign-out cannot report success ahead of that removal. An old startup
+response cannot delete or return a newer account's cached profile.
 
 ## Automated verification
 
@@ -38,7 +55,13 @@ by offline module restart, cache removal on local sign-out, failed read/retry,
 failed removal/retry, and an empty cache on a fresh offline installation.
 Reintroducing the old key made both restart regression tests fail.
 
-- Full Jest suite: 72 suites, 355 tests passed.
+Nine additional regressions cover delayed user/profile responses, in-progress
+native writes, account switching, replacement-profile load failure, stale cache
+reads/startup responses, recovery-session replacement, and overlapping auth
+changes. The eight race cases tested against the previous source all failed
+there and pass with this repair.
+
+- Full Jest suite: 72 suites, 364 tests passed.
 - Typecheck, formatting and preview contract: passed.
 - Lint: zero errors; 15 existing warnings in unrelated files.
 

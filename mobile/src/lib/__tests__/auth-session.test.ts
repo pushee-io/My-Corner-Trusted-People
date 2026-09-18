@@ -113,13 +113,16 @@ describe('session restoration', () => {
 
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
     expect(profileQuery.eq).toHaveBeenCalledWith('auth_user_id', 'auth-requester');
-    expect(mockedWriteCachedSessionProfile).toHaveBeenCalledWith({
-      id: 'profile-requester',
-      authUserId: 'auth-requester',
-      displayName: 'Ama Mensah',
-      role: 'requester',
-      phoneVerified: true,
-    });
+    expect(mockedWriteCachedSessionProfile).toHaveBeenCalledWith(
+      {
+        id: 'profile-requester',
+        authUserId: 'auth-requester',
+        displayName: 'Ama Mensah',
+        role: 'requester',
+        phoneVerified: true,
+      },
+      expect.any(Function),
+    );
   });
 
   it('restores the verified routing profile before Supabase refresh when the device is offline', async () => {
@@ -289,6 +292,6 @@ describe('session restoration', () => {
     mockedSupabase.auth.signOut.mockResolvedValue({ error: signOutError });
 
     await expect(signOutFromDevice()).rejects.toBe(signOutError);
-    expect(mockedClearCachedSessionProfile).not.toHaveBeenCalled();
+    expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
   });
 });
