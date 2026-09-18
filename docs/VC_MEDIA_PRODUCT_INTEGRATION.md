@@ -15,6 +15,8 @@ Date: 2026-09-18. PR #102 remains draft. The founder authorized connecting produ
 
 Photo/video limits, processing, private buckets, signed reads and cleanup remain in the reviewed shared foundation. Preview Groups uses the live repository so media attaches to authorized database parents.
 
+Hire attachments are selected on **Review before sending**. The older optional-photo counter on Create request is still a prototype control, not an attachment picker; it does not represent uploaded files.
+
 ## Retry and privacy behavior
 
 - A form keeps one client submission ID and captures its text when saving begins. An uncertain create response retries the same owned parent; failed attachment does not create a second parent.
@@ -33,7 +35,18 @@ Photo/video limits, processing, private buckets, signed reads and cleanup remain
 
 ## Build checkpoint
 
-The one authorized build is pending publication of this commit. The workflow accepts the draft branch and requires the explicit approval commit prefix. It runs release gates before submitting EAS, then verifies the APK source commit, application ID, Preview backend, product-media bytecode and SHA-256. A following documentation commit records the completed build without triggering another one.
+The one authorized build completed successfully and passed artifact verification:
+
+- Source commit: `5d801ddcaa9c9ef8de23dcec8a2fa8be43470359`.
+- EAS build: `214b0a28-2476-4271-aabc-2c07faa4c1a3`.
+- [Verified build workflow](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35344084493).
+- [Download APK](https://expo.dev/artifacts/eas/tlArF0nKtWv1vqDWRwiojU8wgsVROgMGlKf-fIiQnl0.apk).
+- Filename: `my-corner-preview-5d801dd.apk`; size: 69,507,494 bytes.
+- APK SHA-256: `6eee664e7bbe760d8bb778f334a1ab54bbb7af20ad450757743d6a2fea875a6d`.
+- Workflow verified the EAS source commit, product-media bytecode, Preview backend and Android application ID `com.mycorner.trustedpeople`. A direct download also passed archive integrity validation.
+- Mobile CI (push and PR), Database CI, Media Functions CI and EAS Preview APK all passed on this source commit.
+
+This following documentation update does not change app code or trigger another APK. No native device acceptance is claimed.
 
 The existing shared-media feature flag is enabled in Preview for this device pass. Keep PR #102 draft until the device evidence below is reviewed.
 

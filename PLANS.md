@@ -18,6 +18,10 @@
 
 Product integration has 407 passing mobile tests and six passing media function/security tests. Native acceptance of the connected screens remains pending. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the current build and device checkpoint; keep PR #102 draft.
 
+- [x] Publish connected screens at `5d801dd`; Mobile, Database and Media Functions CI passed.
+- [x] Build and verify the one approved Preview APK: EAS `214b0a28-2476-4271-aabc-2c07faa4c1a3`; APK and provenance published by the successful build workflow.
+- [ ] Verify the connected media screens on the physical phone and tablet emulator before merge.
+
 The founder explicitly adopted the directive and approved publishing the foundation in PR #102 on 2026-09-18. The initial implementation is published at `f17ad80`; verify the latest PR checks and keep the PR draft until technical gates pass. See `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
 
 Each checkpoint requires targeted tests, formatting, lint, typecheck, privacy review, pushed PR and successful CI before merge. Maintain continuity before long operations. On 2026-09-18 the founder authorized one new Android Preview build with “Connect product screens. build new APK”. Build the draft branch through the approval-gated workflow; do not merge or deploy to production.
