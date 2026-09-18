@@ -7,10 +7,10 @@ import { assertMediaSession, mediaSessionRevision, subscribeMediaSession } from 
 export function useMediaSubmission<T extends { id: string }>(media: MediaComposerController, scope = '') {
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
   const [generation, setGeneration] = useState(0);
-  const [busyKey, setBusyKey] = useState<string>();
+  const [busyKey, setBusyKey] = useState<object>();
   const [, redraw] = useState(0);
   const mounted = useRef(false);
-  const key = `${revision}:${scope}:${generation}`;
+  const key = useMemo(() => ({ revision, scope, generation }), [revision, scope, generation]);
   const currentKey = useRef(key);
   currentKey.current = key;
   useEffect(() => {

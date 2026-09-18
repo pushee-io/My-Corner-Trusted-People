@@ -1,6 +1,16 @@
 # Connected media: Preview checkpoint
 
-Date: 2026-09-18. PR #102 remains draft. The founder authorized connecting product screens and one new Android Preview APK. Production and merging are outside this checkpoint.
+Date: 2026-09-18. PR #102 remains draft. The founder authorized connecting product screens and one new Android Preview APK; that build is complete. The device pass found the three failures below. The source repairs require a corrected APK and focused device retest before acceptance. Production and merging are outside this checkpoint.
+
+## Device failures and source repair
+
+| Reported on APK `5d801dd` | Source finding and repair |
+| --- | --- |
+| Portrait video preview sits to one side on phone and tablet | The image combined full width, aspect ratio and a maximum height. Move the height cap to a measured full-width viewport; poster and video both use centered, uncropped containment and recalculate after a width change. |
+| Close video exits the app | Expo owns native player release. The app's later passive cleanup called `pause()` on the released player. Remove that call and detach background listeners before release, including queued-event protection. The regression reproduced the exception before the repair. |
+| Hire has no useful media picker on Create request | Replace the prototype photo counter with the shared photo/video composer. Create and Review share local selections and one submission identity; Back retains the draft, attachment retries complete the same request, and leaving the flow or switching provider/account discards attachments and rejects late results. |
+
+The lifecycle test models the installed Expo SDK's native-object release ordering. Layout tests drive compact/tablet container widths and rotation; they do not replace native rendering or crash-log verification. No device pass is claimed for these source repairs. Private media policies, database schema and storage processing are unchanged.
 
 ## Connected screens
 
@@ -8,14 +18,14 @@ Date: 2026-09-18. PR #102 remains draft. The founder authorized connecting produ
 | --- | --- | --- |
 | Profile | Settings → Edit profile and picture | Add, replace or remove the current account picture; shared avatars with initials fallback |
 | Neighborhood Feed | Community composer | Up to four photos and one video; media inherits post audience |
-| Hire | Review before sending | Up to four photos and one video; request status and provider detail show attachments only under participant authorization |
+| Hire | Create request → Photos or video of the work → Add media; also editable in Review before submission | Up to four photos and one video; request status and provider detail show attachments only under participant authorization |
 | Groups | Member post composer; owner controls on group detail | Post gallery/video plus group avatar and cover; existing membership rules apply |
 | Events | New event; organizer edit screen | First photo is the cover, up to six photos and one video, under existing event audience rules |
 | Marketplace | Listing composer; owner listing detail | One shared video alongside the existing eight-photo flow; pickup privacy unchanged |
 
 Photo/video limits, processing, private buckets, signed reads and cleanup remain in the reviewed shared foundation. Preview Groups uses the live repository so media attaches to authorized database parents.
 
-Hire attachments are selected on **Review before sending**. The older optional-photo counter on Create request is still a prototype control, not an attachment picker; it does not represent uploaded files.
+Hire media stays in memory across Create and Review. File paths are not placed in navigation parameters or persistent storage. Once parent creation begins, the request text and media are locked so retry keeps the original request and attachment set.
 
 ## Retry and privacy behavior
 
@@ -27,13 +37,13 @@ Hire attachments are selected on **Review before sending**. The older optional-p
 
 ## Verification
 
-- Mobile: 80 suites, 407 tests passed, including real Feed/Hire screen retry regressions, all five create-parent submission paths, account changes, duplicate taps, and Marketplace lost-response recovery.
-- Media functions: six processing and database-policy tests passed, including EXIF/video processing, parent ownership, visibility, limits and durable cleanup.
+- Source repair mobile checks: 81 suites, 419 tests, including 12 new cases for released-player cleanup, compact/tablet media frames, Hire Create/Review/Back, retry, cancellation, account/provider changes and stale async results after leaving and returning.
+- The preceding integration passed six media processing/database-policy tests. Those functions and policies are unchanged by this device repair.
 - Type checking, formatting and the Preview contract passed. Lint has zero errors and 15 existing warnings. The build workflow repeats all release gates before submitting EAS.
 - Preview readback confirmed two private shared-media buckets and zero pending cleanup jobs. Earlier foundation verification covered 22 live HTTP cases and eight Storage API cleanup jobs with fictional fixtures.
 - No new database migrations or processor deployments are required for this integration.
 
-## Build checkpoint
+## Previous build checkpoint — device gate failed
 
 The one authorized build completed successfully and passed artifact verification:
 
@@ -46,7 +56,7 @@ The one authorized build completed successfully and passed artifact verification
 - Workflow verified the EAS source commit, product-media bytecode, Preview backend and Android application ID `com.mycorner.trustedpeople`. A direct download also passed archive integrity validation.
 - Mobile CI (push and PR), Database CI, Media Functions CI and EAS Preview APK all passed on this source commit.
 
-This following documentation update does not change app code or trigger another APK. No native device acceptance is claimed.
+The repairs above are newer than this APK and are not installed on either test device yet. This repair commit does not trigger another paid build. A corrected Preview build requires the next founder-approved build checkpoint in `.github/workflows/eas-preview-apk.yml`.
 
 The existing shared-media feature flag is enabled in Preview for this device pass. Keep PR #102 draft until the device evidence below is reviewed.
 
@@ -54,6 +64,7 @@ The existing shared-media feature flag is enabled in Preview for this device pas
 
 Use fictional photos/videos and test accounts on the physical phone and tablet emulator. Verify:
 
+0. On the corrected APK, retest the three reported failures first: centered portrait/landscape video before and during playback, repeated Play/Close plus background/return without exiting the app, and Hire photo/video selection in Create followed by Review, Back, submission and authorized readback. Record the corrected source commit with the results.
 1. Profile replacement/removal and avatar fallback; photo picker cancellation and camera permission denial/recovery preserve the screen.
 2. Feed, Hire and Group photo/video creation, upload progress, interrupted-upload retry, readback and expanded viewing/playback. Unrelated accounts cannot see private Hire or restricted Group media.
 3. Event cover/gallery/video and Marketplace existing photos plus video; retry creates one parent and no duplicate attachments.

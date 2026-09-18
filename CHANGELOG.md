@@ -6,6 +6,7 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Verification and active work (2026-09-18)
 
+- Repaired the connected-media device findings in source: center portrait video previews/playback in a responsive frame, avoid pausing an already released native player on Close video, and replace the Hire Create request photo placeholder with real photo/video selection shared through Review. Added 12 regression cases (419 tests across 81 mobile suites). These changes require a corrected Preview APK and device retest; PR #102 stays draft.
 - Connected shared media to Profile, Neighborhood Feed, Hire, Groups, Events and Marketplace; PR #102 remains draft pending connected-screen device acceptance.
 - Added retry-safe parent submission, immutable Marketplace photo retry paths, and protection against account changes and repeated submission taps. Mobile regression coverage now totals 407 tests across 80 suites; six media processing/security tests also pass.
 - Built and verified the authorized Preview APK from `5d801dd`, EAS build `214b0a28-2476-4271-aabc-2c07faa4c1a3`. Source-commit, product-media bytecode, application ID, Preview environment and archive checks passed. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the download, checksum and outstanding device checks.

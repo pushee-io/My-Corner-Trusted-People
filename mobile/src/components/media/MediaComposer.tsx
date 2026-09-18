@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { mediaLimits, validateMediaDrafts, type MediaDraft, type MediaParent } from '@/lib/media-contract';
 import { pickMedia } from '@/lib/media-picker';
@@ -7,8 +7,12 @@ import { attachMedia, mediaEnabled, removeMedia, uploadMediaDraft } from '@/lib/
 import { assertMediaSession, mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
 import { tokens } from '@/theme/tokens';
 
-export function useMediaComposer(parent: MediaParent) {
+export function useMediaComposer(parent: MediaParent, scope: string | null = '') {
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
+  // Object identity also rejects a delayed operation after A → B → A routing.
+  const key = useMemo(() => ({ revision, parent, scope }), [revision, parent, scope]);
+  const activeKey = useRef(key);
+  activeKey.current = key;
   const [enabled, setEnabled] = useState(false);
   const [drafts, setDrafts] = useState<MediaDraft[]>([]);
   const [error, setError] = useState<string>();
@@ -16,7 +20,18 @@ export function useMediaComposer(parent: MediaParent) {
   const current = useRef(drafts);
   const working = useRef(false);
   const mounted = useRef(false);
-  const [draftRevision, setDraftRevision] = useState(revision);
+  const [draftKey, setDraftKey] = useState(key);
+  const isCurrent = () =>
+    mounted.current && activeKey.current === key && mediaSessionRevision() === revision && scope !== null;
+  const assertCurrent = () => {
+    assertMediaSession(revision);
+    if (!isCurrent()) throw new Error('The media form was closed.');
+  };
+  const finish = () => {
+    if (!isCurrent()) return;
+    working.current = false;
+    setBusy(false);
+  };
   const update = (next: MediaDraft[]) => {
     void releaseLocalMedia(
       current.current.filter((item) => !next.some((other) => other.id === item.id)).map((item) => item.id),
@@ -31,25 +46,29 @@ export function useMediaComposer(parent: MediaParent) {
     current.current = [];
     setDrafts([]);
     setError(undefined);
-    setDraftRevision(revision);
+    setDraftKey(key);
     setEnabled(false);
-    void mediaEnabled()
-      .then((value) => {
-        if (live) setEnabled(value);
-      })
-      .catch(() => {});
+    working.current = false;
+    setBusy(false);
+    if (scope !== null)
+      void mediaEnabled()
+        .then((value) => {
+          if (live) setEnabled(value);
+        })
+        .catch(() => {});
     return () => {
       live = false;
       mounted.current = false;
       void releaseLocalMedia(current.current.map((item) => item.id));
+      current.current = [];
     };
-  }, [revision]);
+  }, [key, scope]);
   const patch = (id: string, change: Partial<MediaDraft>) => {
-    assertMediaSession(revision);
+    if (!isCurrent()) return;
     update(current.current.map((item) => (item.id === id ? { ...item, ...change } : item)));
   };
   async function choose(source: 'camera' | 'library', kind: 'image' | 'video', replaceId?: string) {
-    if (working.current) return;
+    if (!isCurrent() || working.current) return;
     working.current = true;
     setBusy(true);
     setError(undefined);
@@ -57,8 +76,7 @@ export function useMediaComposer(parent: MediaParent) {
     try {
       const draft = await pickMedia(parent, source, kind);
       selected = draft;
-      assertMediaSession(revision);
-      if (!mounted.current) throw new Error('The media form was closed.');
+      assertCurrent();
       if (!draft) return;
       const next = replaceId
         ? current.current.map((item) => (item.id === replaceId ? draft : item))
@@ -67,29 +85,29 @@ export function useMediaComposer(parent: MediaParent) {
       if (validation) throw new Error(validation);
       if (replaceId && current.current.find((x) => x.id === replaceId)?.status !== 'selected')
         await removeMedia(replaceId);
-      assertMediaSession(revision);
+      assertCurrent();
       update(next);
       selected = null;
     } catch (caught) {
       if (selected) void releaseLocalMedia([selected.id]);
-      if (mediaSessionRevision() === revision)
-        setError(caught instanceof Error ? caught.message : 'Could not select media.');
+      if (isCurrent()) setError(caught instanceof Error ? caught.message : 'Could not select media.');
     } finally {
-      working.current = false;
-      setBusy(false);
+      finish();
     }
   }
   async function upload(item: MediaDraft) {
     try {
+      assertCurrent();
       await uploadMediaDraft(parent, item, (change) => patch(item.id, change));
+      assertCurrent();
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : 'Upload failed. Tap Retry.';
-      if (mediaSessionRevision() === revision) patch(item.id, { status: 'failed', error: message });
+      if (isCurrent()) patch(item.id, { status: 'failed', error: message });
       throw caught;
     }
   }
   async function uploadAll(): Promise<string[]> {
-    assertMediaSession(revision);
+    assertCurrent();
     if (working.current) throw new Error('Wait for media preparation to finish.');
     if (!current.current.length) return [];
     if (!enabled) throw new Error('Media is temporarily unavailable. Your text is safe.');
@@ -98,16 +116,15 @@ export function useMediaComposer(parent: MediaParent) {
     setError(undefined);
     try {
       for (const item of current.current) if (item.status !== 'ready') await upload(item);
-      assertMediaSession(revision);
+      assertCurrent();
       return current.current.map((item) => item.id);
     } finally {
-      working.current = false;
-      setBusy(false);
+      finish();
     }
   }
   async function retry(id: string) {
     const item = current.current.find((item) => item.id === id);
-    if (!item || working.current) return;
+    if (!isCurrent() || !item || working.current) return;
     working.current = true;
     setBusy(true);
     try {
@@ -115,30 +132,27 @@ export function useMediaComposer(parent: MediaParent) {
     } catch {
       /* The item displays the retryable error. */
     } finally {
-      working.current = false;
-      setBusy(false);
+      finish();
     }
   }
   async function remove(id: string) {
-    if (working.current) return;
+    if (!isCurrent() || working.current) return;
     working.current = true;
     setBusy(true);
     try {
       // A selection that has never uploaded has no server record to remove.
       if (current.current.find((item) => item.id === id)?.status !== 'selected') await removeMedia(id);
-      assertMediaSession(revision);
+      assertCurrent();
       update(current.current.filter((item) => item.id !== id));
       setError(undefined);
     } catch (caught) {
-      if (mediaSessionRevision() === revision)
-        setError(caught instanceof Error ? caught.message : 'Could not remove media.');
+      if (isCurrent()) setError(caught instanceof Error ? caught.message : 'Could not remove media.');
     } finally {
-      working.current = false;
-      setBusy(false);
+      finish();
     }
   }
   function move(id: string, direction: -1 | 1) {
-    if (working.current) return;
+    if (!isCurrent() || working.current) return;
     const next = [...current.current];
     const from = next.findIndex((item) => item.id === id);
     const to = from + direction;
@@ -148,17 +162,22 @@ export function useMediaComposer(parent: MediaParent) {
   }
   return {
     parent,
-    enabled: revision === draftRevision && enabled,
-    drafts: revision === draftRevision ? drafts : [],
-    error: revision === draftRevision ? error : undefined,
-    busy,
+    enabled: scope !== null && key === draftKey && enabled,
+    drafts: key === draftKey ? drafts : [],
+    error: key === draftKey ? error : undefined,
+    busy: key === draftKey && busy,
     choose,
     retry,
     remove,
     move,
     uploadAll,
-    attach: (id: string, ids: string[], replace = false) => attachMedia(parent, id, ids, replace),
+    attach: async (id: string, ids: string[], replace = false) => {
+      assertCurrent();
+      await attachMedia(parent, id, ids, replace);
+      assertCurrent();
+    },
     clear: () => {
+      if (!isCurrent()) return;
       update([]);
       setError(undefined);
     },

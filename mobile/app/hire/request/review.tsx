@@ -1,5 +1,5 @@
-import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
-import { useMediaSubmission } from '@/components/media/useMediaSubmission';
+import { MediaComposer } from '@/components/media/MediaComposer';
+import { useRequestMedia } from '@/components/media/RequestMediaProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -10,14 +10,13 @@ import { featureFlags } from '@/lib/feature-flags';
 import { moderateText } from '@/lib/moderation';
 import { trackEvent } from '@/lib/analytics';
 import { tokens } from '@/theme/tokens';
-import type { ContactPreference, JobRequest, Provider, RequestUrgency } from '@/types/contracts';
+import type { ContactPreference, Provider, RequestUrgency } from '@/types/contracts';
 
 export default function RequestReviewScreen() {
   const params = useLocalSearchParams<Record<string, string>>();
   const [provider, setProvider] = useState<Provider>();
   const [error, setError] = useState<string>();
-  const media = useMediaComposer('service_request');
-  const submission = useMediaSubmission<JobRequest>(media, params.providerId);
+  const { media, submission } = useRequestMedia();
   const isSubmitting = submission.busy || media.busy;
 
   useEffect(() => {
@@ -99,7 +98,11 @@ export default function RequestReviewScreen() {
         </Text>
       </View>
 
-      <MediaComposer controller={media} title="Photos or video of the work" disabled={submission.busy} />
+      <MediaComposer
+        controller={media}
+        title="Photos or video of the work"
+        disabled={submission.busy || submission.locked}
+      />
       <Text style={styles.notice}>Attachments are private to you and the assigned provider.</Text>
       {submission.locked ? (
         <Text style={styles.notice}>Retry completes this same request and its attachments.</Text>

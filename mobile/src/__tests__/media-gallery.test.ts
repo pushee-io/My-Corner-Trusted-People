@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { Image, Modal, Pressable } from 'react-native';
+import { AppState, Image, Modal, Pressable, View } from 'react-native';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { listMedia } from '@/lib/media-repository';
 import { invalidateMediaSession } from '@/lib/media-session';
@@ -23,7 +23,40 @@ jest.mock('expo-router', () => ({
     React.useEffect(effect, [effect]);
   },
 }));
-jest.mock('expo-video', () => ({ useVideoPlayer: jest.fn(), VideoView: 'VideoView' }));
+jest.mock('expo-video', () => {
+  const React = jest.requireActual<typeof import('react')>('react');
+  const players: { released: boolean; muted: boolean; play: jest.Mock; pause: jest.Mock }[] = [];
+  return {
+    VideoView: 'VideoView',
+    players,
+    useVideoPlayer: (source: { uri: string }, setup: (player: (typeof players)[number]) => void) => {
+      const player = React.useMemo(() => {
+        const instance = {
+          released: false,
+          muted: false,
+          play: jest.fn(),
+          pause: jest.fn(() => {
+            if (instance.released) throw new Error('Native player has already been released');
+          }),
+        };
+        setup(instance);
+        players.push(instance);
+        return instance;
+        // Expo owns one player per source, not per setup callback.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [source.uri]);
+      // Match Expo's useReleasingSharedObject: its passive cleanup is registered
+      // before the consuming component's effects and releases on unmount.
+      React.useEffect(
+        () => () => {
+          player.released = true;
+        },
+        [player],
+      );
+      return player;
+    },
+  };
+});
 jest.mock('@/lib/media-repository', () => ({ listMedia: jest.fn() }));
 jest.mock('@/components/media/MediaComposer', () => ({
   MediaAction: ({ label, action }: { label: string; action: () => void }) => {
@@ -34,6 +67,11 @@ jest.mock('@/components/media/MediaComposer', () => ({
 }));
 
 const read = jest.mocked(listMedia);
+const players = (
+  jest.requireMock('expo-video') as {
+    players: { released: boolean; muted: boolean; play: jest.Mock; pause: jest.Mock }[];
+  }
+).players;
 const photo: DisplayMedia = {
   id: 'fictional-photo',
   owner_profile_id: 'owner',
@@ -95,6 +133,7 @@ beforeAll(() => {
 });
 beforeEach(() => {
   jest.clearAllMocks();
+  players.length = 0;
   invalidateMediaSession();
   read.mockReset().mockResolvedValue([photo]);
 });
@@ -165,4 +204,69 @@ test('clears the expanded photo on an account transition', async () => {
   });
   expectClosed();
   expect(renderer!.root.findAllByType(Image)).toHaveLength(0);
+});
+
+test('closing and reopening video never calls a released native player', async () => {
+  read.mockResolvedValue([{ ...photo, media_type: 'video', duration_seconds: 14 }]);
+  await render();
+  await press('Play video 1, starts muted');
+  expect(players[0].muted).toBe(true);
+  expect(players[0].play).toHaveBeenCalledTimes(1);
+  await press('Close video');
+  expect(players[0].released).toBe(true);
+  expect(players[0].pause).not.toHaveBeenCalled();
+  await press('Play video 1, starts muted');
+  expect(players).toHaveLength(2);
+  const onStateChange = jest.mocked(AppState.addEventListener).mock.calls.at(-1)![1];
+  await act(async () => onStateChange('background'));
+  expect(players[1].pause).toHaveBeenCalledTimes(1);
+  await press('Close video');
+  expect(players[1].released).toBe(true);
+  // A native event queued before unsubscription must also be harmless.
+  await act(async () => onStateChange('background'));
+  expect(players[1].pause).toHaveBeenCalledTimes(1);
+});
+
+test('authorization refresh releases a playing video without reopening it', async () => {
+  read.mockResolvedValue([{ ...photo, media_type: 'video', duration_seconds: 14 }]);
+  await render();
+  await press('Play video 1, starts muted');
+  await render(1);
+  expect(players[0].released).toBe(true);
+  expect(players[0].pause).not.toHaveBeenCalled();
+  expect(renderer!.root.findAllByType(Pressable).some((node) => node.props.accessibilityLabel === 'Close video')).toBe(
+    false,
+  );
+});
+
+test.each([
+  { width: 720, height: 1280, container: 340, expectedHeight: 400 },
+  { width: 720, height: 1280, container: 820, expectedHeight: 400 },
+  { width: 1920, height: 1080, container: 340, expectedHeight: 191.25 },
+  { width: 1920, height: 1080, container: 820, expectedHeight: 400 },
+])('poster and playback fill the centered frame at $container dp for $width × $height media', async (size) => {
+  read.mockResolvedValue([{ ...photo, media_type: 'video', width: size.width, height: size.height }]);
+  await render();
+  const viewport = () =>
+    renderer!.root.findAllByType(View).find((node) => node.props.testID === `media-viewport-${photo.id}`)!;
+  const measure = async (width: number) => {
+    await act(async () => viewport().props.onLayout({ nativeEvent: { layout: { width } } }));
+    return Object.assign({}, ...viewport().props.style);
+  };
+  expect(await measure(size.container)).toMatchObject({
+    width: '100%',
+    height: size.expectedHeight,
+    alignItems: 'center',
+  });
+  const poster = renderer!.root.findByType(Image);
+  expect(poster.props.resizeMode).toBe('contain');
+  expect(poster.props.style).toEqual({ width: '100%', height: '100%' });
+  const posterStyle = poster.props.style;
+  await press('Play video 1, starts muted');
+  expect(await measure(size.container)).toMatchObject({ width: '100%', height: size.expectedHeight });
+  const video = renderer!.root.findByType(jest.requireMock('expo-video').VideoView);
+  expect(video.props.contentFit).toBe('contain');
+  expect(video.props.style).toEqual(posterStyle);
+  // Container changes after rotation must update height without fixing width.
+  expect(await measure(240)).toMatchObject({ width: '100%', height: Math.min((240 * size.height) / size.width, 400) });
 });
