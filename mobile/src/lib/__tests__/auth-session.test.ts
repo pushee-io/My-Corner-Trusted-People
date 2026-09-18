@@ -1,4 +1,10 @@
+import NetInfo from '@react-native-community/netinfo';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
+import {
+  clearCachedSessionProfile,
+  readCachedSessionProfile,
+  writeCachedSessionProfile,
+} from '@/lib/session-profile-cache';
 import { restoreSessionProfile, signOutFromDevice } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
@@ -13,6 +19,17 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: { fetch: jest.fn() },
+}));
+
+jest.mock('@/lib/session-profile-cache', () => ({
+  clearCachedSessionProfile: jest.fn(),
+  readCachedSessionProfile: jest.fn(),
+  writeCachedSessionProfile: jest.fn(),
+}));
+
 type ProfileQuery = {
   select: jest.Mock;
   eq: jest.Mock;
@@ -20,6 +37,10 @@ type ProfileQuery = {
 };
 
 const mockedAssertSupabaseConfigured = jest.mocked(assertSupabaseConfigured);
+const mockedNetInfoFetch = jest.mocked(NetInfo.fetch);
+const mockedClearCachedSessionProfile = jest.mocked(clearCachedSessionProfile);
+const mockedReadCachedSessionProfile = jest.mocked(readCachedSessionProfile);
+const mockedWriteCachedSessionProfile = jest.mocked(writeCachedSessionProfile);
 const mockedSupabase = supabase as unknown as {
   auth: {
     getSession: jest.Mock;
@@ -37,6 +58,13 @@ const profileQuery: ProfileQuery = {
 describe('session restoration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedNetInfoFetch.mockResolvedValue({
+      isConnected: true,
+      isInternetReachable: true,
+    } as Awaited<ReturnType<typeof NetInfo.fetch>>);
+    mockedClearCachedSessionProfile.mockResolvedValue();
+    mockedReadCachedSessionProfile.mockResolvedValue(null);
+    mockedWriteCachedSessionProfile.mockResolvedValue();
     profileQuery.select.mockReturnValue(profileQuery);
     profileQuery.eq.mockReturnValue(profileQuery);
     mockedSupabase.from.mockReturnValue(profileQuery);
@@ -52,6 +80,7 @@ describe('session restoration', () => {
 
     expect(mockedAssertSupabaseConfigured).toHaveBeenCalledTimes(1);
     expect(mockedSupabase.auth.getUser).not.toHaveBeenCalled();
+    expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
   });
 
   it('validates a restored session and loads its My Corner profile', async () => {
@@ -84,12 +113,158 @@ describe('session restoration', () => {
 
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
     expect(profileQuery.eq).toHaveBeenCalledWith('auth_user_id', 'auth-requester');
+    expect(mockedWriteCachedSessionProfile).toHaveBeenCalledWith(
+      {
+        id: 'profile-requester',
+        authUserId: 'auth-requester',
+        displayName: 'Ama Mensah',
+        role: 'requester',
+        phoneVerified: true,
+      },
+      expect.any(Function),
+    );
   });
 
-  it('times out a stalled restoration so the welcome screen remains available', async () => {
-    mockedSupabase.auth.getSession.mockReturnValue(new Promise(() => undefined));
+  it('restores the verified routing profile before Supabase refresh when the device is offline', async () => {
+    mockedNetInfoFetch.mockResolvedValue({
+      isConnected: false,
+      isInternetReachable: false,
+    } as Awaited<ReturnType<typeof NetInfo.fetch>>);
+    mockedReadCachedSessionProfile.mockResolvedValue({
+      id: 'profile-provider',
+      authUserId: 'auth-provider',
+      displayName: 'Naa HomeFix',
+      role: 'provider',
+      phoneVerified: true,
+    });
 
-    await expect(restoreSessionProfile(1)).rejects.toThrow('Session restoration timed out. Continue to sign in.');
+    await expect(restoreSessionProfile()).resolves.toMatchObject({
+      authUserId: 'auth-provider',
+      role: 'provider',
+    });
+    expect(mockedSupabase.auth.getSession).not.toHaveBeenCalled();
+    expect(mockedClearCachedSessionProfile).not.toHaveBeenCalled();
+  });
+
+  it('preserves the routing cache when the device is offline but has no verified profile yet', async () => {
+    mockedNetInfoFetch.mockResolvedValue({
+      isConnected: false,
+      isInternetReachable: false,
+    } as Awaited<ReturnType<typeof NetInfo.fetch>>);
+
+    await expect(restoreSessionProfile()).resolves.toBeNull();
+    expect(mockedSupabase.auth.getSession).not.toHaveBeenCalled();
+    expect(mockedClearCachedSessionProfile).not.toHaveBeenCalled();
+  });
+
+  it('uses the verified profile if connectivity drops while Supabase is initializing', async () => {
+    mockedNetInfoFetch
+      .mockResolvedValueOnce({
+        isConnected: true,
+        isInternetReachable: true,
+      } as Awaited<ReturnType<typeof NetInfo.fetch>>)
+      .mockResolvedValueOnce({
+        isConnected: false,
+        isInternetReachable: false,
+      } as Awaited<ReturnType<typeof NetInfo.fetch>>);
+    mockedSupabase.auth.getSession.mockResolvedValue({ data: { session: null }, error: null });
+    mockedReadCachedSessionProfile.mockResolvedValue({
+      id: 'profile-provider',
+      authUserId: 'auth-provider',
+      displayName: 'Naa HomeFix',
+      role: 'provider',
+      phoneVerified: true,
+    });
+
+    await expect(restoreSessionProfile()).resolves.toMatchObject({
+      authUserId: 'auth-provider',
+      role: 'provider',
+    });
+    expect(mockedClearCachedSessionProfile).not.toHaveBeenCalled();
+  });
+
+  it('keeps a valid online session usable when the routing cache cannot be written', async () => {
+    mockedSupabase.auth.getSession.mockResolvedValue({
+      data: { session: { user: { id: 'auth-requester' } } },
+      error: null,
+    });
+    mockedSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'auth-requester' } },
+      error: null,
+    });
+    profileQuery.single.mockResolvedValue({
+      data: {
+        id: 'profile-requester',
+        auth_user_id: 'auth-requester',
+        display_name: 'Ama Mensah',
+        role: 'requester',
+        phone_verified: true,
+      },
+      error: null,
+    });
+    mockedWriteCachedSessionProfile.mockRejectedValue(new Error('secure storage unavailable'));
+
+    await expect(restoreSessionProfile()).resolves.toMatchObject({
+      authUserId: 'auth-requester',
+      role: 'requester',
+    });
+  });
+
+  it('uses the last verified profile when an offline refresh stalls session restoration', async () => {
+    mockedSupabase.auth.getSession.mockReturnValue(new Promise(() => undefined));
+    mockedReadCachedSessionProfile.mockResolvedValue({
+      id: 'profile-requester',
+      authUserId: 'auth-requester',
+      displayName: 'Ama Mensah',
+      role: 'requester',
+      phoneVerified: true,
+    });
+
+    await expect(restoreSessionProfile(1)).resolves.toEqual({
+      id: 'profile-requester',
+      authUserId: 'auth-requester',
+      displayName: 'Ama Mensah',
+      role: 'requester',
+      phoneVerified: true,
+    });
+  });
+
+  it('uses a matching verified profile when remote user validation fails offline', async () => {
+    mockedSupabase.auth.getSession.mockResolvedValue({
+      data: { session: { user: { id: 'auth-requester' } } },
+      error: null,
+    });
+    mockedSupabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: new Error('Network request failed'),
+    });
+    mockedReadCachedSessionProfile.mockResolvedValue({
+      id: 'profile-requester',
+      authUserId: 'auth-requester',
+      displayName: 'Ama Mensah',
+      role: 'requester',
+      phoneVerified: true,
+    });
+
+    await expect(restoreSessionProfile()).resolves.toMatchObject({ authUserId: 'auth-requester', role: 'requester' });
+  });
+
+  it('does not restore a cached profile belonging to another session', async () => {
+    const networkError = new Error('Network request failed');
+    mockedSupabase.auth.getSession.mockResolvedValue({
+      data: { session: { user: { id: 'auth-provider' } } },
+      error: null,
+    });
+    mockedSupabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: networkError });
+    mockedReadCachedSessionProfile.mockResolvedValue({
+      id: 'profile-requester',
+      authUserId: 'auth-requester',
+      displayName: 'Ama Mensah',
+      role: 'requester',
+      phoneVerified: true,
+    });
+
+    await expect(restoreSessionProfile()).rejects.toBe(networkError);
   });
 
   it('propagates restoration errors without clearing the stored session', async () => {
@@ -109,6 +284,7 @@ describe('session restoration', () => {
 
     expect(mockedAssertSupabaseConfigured).toHaveBeenCalledTimes(1);
     expect(mockedSupabase.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+    expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
   });
 
   it('reports sign-out failures so the app does not pretend the session was cleared', async () => {
@@ -116,5 +292,6 @@ describe('session restoration', () => {
     mockedSupabase.auth.signOut.mockResolvedValue({ error: signOutError });
 
     await expect(signOutFromDevice()).rejects.toBe(signOutError);
+    expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
   });
 });

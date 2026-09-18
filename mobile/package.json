@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
+    "@react-native-community/netinfo": "11.4.1",
     "@supabase/supabase-js": "2.75.0",
     "@tanstack/react-query": "5.90.5",
     "expo": "~54.0.37",

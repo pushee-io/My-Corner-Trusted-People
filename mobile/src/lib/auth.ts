@@ -1,4 +1,11 @@
+import NetInfo from '@react-native-community/netinfo';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
+import { isNetworkOffline } from '@/lib/network-status';
+import {
+  clearCachedSessionProfile,
+  readCachedSessionProfile,
+  writeCachedSessionProfile,
+} from '@/lib/session-profile-cache';
 import type { UserRole } from '@/types/contracts';
 
 export type CurrentProfile = {
@@ -15,6 +22,35 @@ export type CurrentProviderProfile = {
 };
 
 const passwordRecoveryRedirect = 'mycorner://reset-password';
+let sessionRevision = 0;
+let pendingSessionChanges = 0;
+let sessionChangeQueue: Promise<void> = Promise.resolve();
+
+function isCurrentSession(revision: number): boolean {
+  return revision === sessionRevision && pendingSessionChanges === 0;
+}
+
+function assertCurrentSession(revision: number): void {
+  if (!isCurrentSession(revision)) throw new Error('Your session changed. Please try again.');
+}
+
+function changeSession(operation: () => Promise<void>): Promise<void> {
+  // Invalidate in-flight reads synchronously, before the first auth/storage await.
+  sessionRevision += 1;
+  pendingSessionChanges += 1;
+  const result = sessionChangeQueue
+    .then(async () => {
+      // If removal fails, do not change accounts or claim successful sign-out.
+      await clearCachedSessionProfile();
+      await operation();
+    })
+    .finally(() => {
+      sessionRevision += 1;
+      pendingSessionChanges -= 1;
+    });
+  sessionChangeQueue = result.catch(() => undefined);
+  return result;
+}
 
 export async function signInWithEmailPassword(email: string, password: string): Promise<CurrentProfile> {
   assertSupabaseConfigured();
@@ -24,11 +60,13 @@ export async function signInWithEmailPassword(email: string, password: string): 
     throw new Error('Enter your email and password.');
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: normalizedEmail,
-    password,
+  await changeSession(async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+    if (error) throw error;
   });
-  if (error) throw error;
 
   return getCurrentProfile();
 }
@@ -51,15 +89,18 @@ export async function createPasswordRecoverySession(url: string): Promise<void> 
   assertSupabaseConfigured();
 
   const parameters = recoveryParameters(url);
-  if (parameters.type !== 'recovery' || !parameters.accessToken || !parameters.refreshToken) {
+  const { accessToken, refreshToken } = parameters;
+  if (parameters.type !== 'recovery' || !accessToken || !refreshToken) {
     throw new Error('This password recovery link is invalid or has expired.');
   }
 
-  const { error } = await supabase.auth.setSession({
-    access_token: parameters.accessToken,
-    refresh_token: parameters.refreshToken,
+  await changeSession(async () => {
+    const { error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    if (error) throw new Error('This password recovery link is invalid or has expired.');
   });
-  if (error) throw new Error('This password recovery link is invalid or has expired.');
 }
 
 export async function updateRecoveredPassword(password: string): Promise<void> {
@@ -78,24 +119,79 @@ export async function updateRecoveredPassword(password: string): Promise<void> {
 export async function signOutFromDevice(): Promise<void> {
   assertSupabaseConfigured();
 
-  const { error } = await supabase.auth.signOut({ scope: 'local' });
-  if (error) throw error;
+  await changeSession(async () => {
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) throw error;
+  });
 }
 
 const sessionRestoreTimeoutMs = 8_000;
 
 export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs): Promise<CurrentProfile | null> {
   assertSupabaseConfigured();
+  const context: { authUserId?: string; revision: number } = { revision: sessionRevision };
+  assertCurrentSession(context.revision);
 
-  return withTimeout(restoreSessionProfileWithoutTimeout(), timeoutMs);
+  const offlineProfile = await cachedProfileIfDeviceOffline();
+  assertCurrentSession(context.revision);
+  if (offlineProfile !== undefined) return offlineProfile;
+
+  try {
+    const profile = await withTimeout(restoreSessionProfileWithoutTimeout(context), timeoutMs);
+    assertCurrentSession(context.revision);
+    return profile;
+  } catch (caught) {
+    assertCurrentSession(context.revision);
+    const profile = await cachedProfileForOfflineRestore(caught, context.authUserId);
+    assertCurrentSession(context.revision);
+    return profile;
+  }
 }
 
-async function restoreSessionProfileWithoutTimeout(): Promise<CurrentProfile | null> {
+async function restoreSessionProfileWithoutTimeout(context: {
+  authUserId?: string;
+  revision: number;
+}): Promise<CurrentProfile | null> {
   const { data, error } = await supabase.auth.getSession();
+  assertCurrentSession(context.revision);
   if (error) throw error;
-  if (!data.session) return null;
+  if (!data.session) {
+    const offlineProfile = await cachedProfileIfDeviceOffline();
+    assertCurrentSession(context.revision);
+    if (offlineProfile !== undefined) return offlineProfile;
 
+    await clearCachedSessionProfile();
+    return null;
+  }
+
+  context.authUserId = data.session.user.id;
   return getCurrentProfile();
+}
+
+async function cachedProfileIfDeviceOffline(): Promise<CurrentProfile | null | undefined> {
+  try {
+    const networkState = await NetInfo.fetch();
+    if (!isNetworkOffline(networkState)) return undefined;
+
+    return readCachedSessionProfile();
+  } catch {
+    // Unknown reachability falls through to Supabase's normal session restoration.
+    return undefined;
+  }
+}
+
+async function cachedProfileForOfflineRestore(caught: unknown, authUserId?: string): Promise<CurrentProfile> {
+  if (!isOfflineRestoreError(caught)) throw caught;
+
+  const cachedProfile = await readCachedSessionProfile();
+  if (!cachedProfile || (authUserId && cachedProfile.authUserId !== authUserId)) throw caught;
+
+  return cachedProfile;
+}
+
+function isOfflineRestoreError(caught: unknown): boolean {
+  const message = caught instanceof Error ? caught.message : String(caught);
+  return /network|fetch|offline|timed out|timeout|connection/i.test(message);
 }
 
 async function withTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
@@ -113,7 +209,10 @@ async function withTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise
 
 export async function getCurrentProfile(): Promise<CurrentProfile> {
   assertSupabaseConfigured();
+  const revision = sessionRevision;
+  assertCurrentSession(revision);
   const { data: userData, error: userError } = await supabase.auth.getUser();
+  assertCurrentSession(revision);
   if (userError) throw userError;
   if (!userData.user) {
     throw new Error('Sign in before using live data.');
@@ -125,16 +224,25 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
     .eq('auth_user_id', userData.user.id)
     .single();
 
+  assertCurrentSession(revision);
   if (error) throw error;
   if (!data) throw new Error('No My Corner profile is linked to this account.');
 
-  return {
+  const profile: CurrentProfile = {
     id: data.id,
     authUserId: data.auth_user_id,
     displayName: data.display_name,
     role: data.role,
     phoneVerified: data.phone_verified,
   };
+
+  try {
+    await writeCachedSessionProfile(profile, () => isCurrentSession(revision));
+  } catch {
+    // A cache write must not block an otherwise valid online session.
+  }
+  assertCurrentSession(revision);
+  return profile;
 }
 
 export async function getCurrentProviderProfile(): Promise<CurrentProviderProfile> {
