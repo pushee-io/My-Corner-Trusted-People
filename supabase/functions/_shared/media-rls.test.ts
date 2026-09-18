@@ -1,5 +1,5 @@
 import { test } from "node:test";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 
@@ -26,9 +26,11 @@ test("real PostgreSQL enforces media parent, ownership, storage, processing and 
     ];
     for (const name of names) {
       let definition: string | undefined;
-      for (const path of readdirSync(migrations)
-        .filter((x) => x.endsWith(".sql"))
-        .sort()) {
+      for (
+        const path of readdirSync(migrations)
+          .filter((x) => x.endsWith(".sql"))
+          .sort()
+      ) {
         const source = readFileSync(resolve(migrations, path), "utf8");
         const match = source.match(
           new RegExp(
@@ -52,12 +54,21 @@ test("real PostgreSQL enforces media parent, ownership, storage, processing and 
     `);
     await db.exec(
       readFileSync(
-        resolve(migrations, "20260918035400_shared_media_foundation.sql"),
+        resolve(migrations, "20260918045854_shared_media_foundation.sql"),
         "utf8",
       ),
     );
     await db.exec(
       readFileSync(resolve("../tests/shared_media_security.sql"), "utf8"),
+    );
+    await db.exec(
+      readFileSync(
+        resolve(migrations, "20260918045911_shared_media_cleanup.sql"),
+        "utf8",
+      ),
+    );
+    await db.exec(
+      readFileSync(resolve("../tests/shared_media_cleanup.sql"), "utf8"),
     );
   } finally {
     await db.close();

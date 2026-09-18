@@ -3,7 +3,9 @@
 ## Active: approved VC media activation
 
 - [x] Inspect live main and Preview media/storage contracts.
-- [ ] A: Shared foundation and tests published in draft PR #102 after explicit chat approval. Cleanup, full integration and CI remain pending.
+- [ ] A: Foundation and durable cleanup published in draft PR #102. Preview upload/access/cleanup verification passed; current PR CI/review and native media acceptance remain gates.
+  - [x] Durable cleanup and temporary picker-file disposal.
+  - [x] Controlled Preview Auth/Storage/processor/worker verification; fixture cleanup; uploads disabled afterward.
 - [ ] B: Profile pictures, replacement/removal and consistent avatars.
 - [ ] C: Neighborhood Feed images and video.
 - [ ] D: Hire request media restricted to participants.

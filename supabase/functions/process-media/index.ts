@@ -138,6 +138,8 @@ Deno.serve(async (request) => {
         { error: "This upload changed while processing. Please retry." },
         409,
       );
+    // Immediate best effort; the durable database queue repeats this after all
+    // signed PUT tokens expire, including a late upload after this removal.
     await admin.storage
       .from("media-originals")
       .remove([asset.storage_path, ...(poster ? [posterPath] : [])]);

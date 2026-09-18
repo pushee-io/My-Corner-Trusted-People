@@ -6,6 +6,10 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Verification and active work (2026-09-18)
 
+- Added durable private media cleanup, Vault-authenticated scheduled worker, and safe local picker-cache disposal.
+- Verified 22 Preview HTTP cases and eight Storage API deletion jobs with fictional fixtures; removed test accounts and restored the upload flag to off.
+- Matched repository migration filenames to the recorded Preview deployment versions without rewriting remote migration history.
+
 - Recorded completed native verification and the PR #101 offline-session repair.
 - Prepared the requested shared media foundation locally, with private storage/RPC policies, metadata processing, native controls and focused tests.
 - Published the founder-approved media foundation in draft PR #102 at `f17ad80`. Media deployment and a new APK remain separate checkpoints.

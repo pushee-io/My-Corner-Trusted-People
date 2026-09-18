@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { mediaLimits, validateMediaDrafts, type MediaDraft, type MediaParent } from '@/lib/media-contract';
 import { pickMedia } from '@/lib/media-picker';
+import { releaseLocalMedia } from '@/lib/media-local-files';
 import { attachMedia, mediaEnabled, removeMedia, uploadMediaDraft } from '@/lib/media-repository';
 import { assertMediaSession, mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
 import { tokens } from '@/theme/tokens';
@@ -14,13 +15,19 @@ export function useMediaComposer(parent: MediaParent) {
   const [busy, setBusy] = useState(false);
   const current = useRef(drafts);
   const working = useRef(false);
+  const mounted = useRef(false);
   const [draftRevision, setDraftRevision] = useState(revision);
   const update = (next: MediaDraft[]) => {
+    void releaseLocalMedia(
+      current.current.filter((item) => !next.some((other) => other.id === item.id)).map((item) => item.id),
+    );
     current.current = next;
     setDrafts(next);
   };
   useEffect(() => {
     let live = true;
+    mounted.current = true;
+    void releaseLocalMedia(current.current.map((item) => item.id));
     current.current = [];
     setDrafts([]);
     setError(undefined);
@@ -33,6 +40,8 @@ export function useMediaComposer(parent: MediaParent) {
       .catch(() => {});
     return () => {
       live = false;
+      mounted.current = false;
+      void releaseLocalMedia(current.current.map((item) => item.id));
     };
   }, [revision]);
   const patch = (id: string, change: Partial<MediaDraft>) => {
@@ -44,20 +53,25 @@ export function useMediaComposer(parent: MediaParent) {
     working.current = true;
     setBusy(true);
     setError(undefined);
+    let selected: MediaDraft | null = null;
     try {
       const draft = await pickMedia(parent, source, kind);
+      selected = draft;
       assertMediaSession(revision);
+      if (!mounted.current) throw new Error('The media form was closed.');
       if (!draft) return;
       const next = replaceId
         ? current.current.map((item) => (item.id === replaceId ? draft : item))
         : [...current.current, draft];
       const validation = validateMediaDrafts(parent, next);
       if (validation) throw new Error(validation);
-      if (replaceId && current.current.find((x) => x.id === replaceId)?.status === 'ready')
+      if (replaceId && current.current.find((x) => x.id === replaceId)?.status !== 'selected')
         await removeMedia(replaceId);
       assertMediaSession(revision);
       update(next);
+      selected = null;
     } catch (caught) {
+      if (selected) void releaseLocalMedia([selected.id]);
       if (mediaSessionRevision() === revision)
         setError(caught instanceof Error ? caught.message : 'Could not select media.');
     } finally {

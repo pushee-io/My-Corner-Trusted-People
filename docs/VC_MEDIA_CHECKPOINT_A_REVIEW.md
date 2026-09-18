@@ -1,3 +1,16 @@
+## 2026-09-18 — Media cleanup and Preview service verification
+
+This checkpoint supersedes earlier media deployment/cleanup status.
+
+- Draft PR #102 now adds durable Storage API cleanup for removal/replacement, failed or abandoned uploads, deleted parents, and deleted profiles. A Vault-authenticated worker runs every five minutes; failures retry under leased queue entries.
+- Preview `opeojxwkwwnnncnsuaag` received the foundation, cleanup, and scheduling migrations plus `process-media` and `cleanup-media`. Repository migration filenames match the versions recorded by deployment; remote history was preserved.
+- All 22 authenticated HTTP assertions passed with fictional media and two temporary identities: upload, retry, processing, metadata removal, parent attachment, cross-account denial, malformed input, immediate read denial after removal, and worker authentication.
+- Storage API cleanup completed eight jobs covering four stored objects; no test objects remained. Only fixture job eligibility was accelerated. The real signed-upload/processing retention windows remain intact.
+- Temporary accounts, profiles, neighborhood and post were removed. `shared_media_uploads` is off. Delayed deletion receipts remain to catch any late signed PUTs.
+- Local checks: 75 mobile suites / 376 tests; six server/PostgreSQL tests; TypeScript and Deno passed. Lint has zero errors and 15 baseline warnings. Latest PR CI remains the merge gate.
+- Product screens remain disconnected. No APK was built. Next: review this checkpoint and its CI, then integrate one surface with parent-submit retry/text-preservation tests. Maximum-size/low-end-device performance and native picker/playback/cache behavior remain acceptance gates.
+- Evidence: `docs/VC_MEDIA_PREVIEW_VERIFICATION.md` and `docs/evidence/media-preview-2026-09-18.json`.
+
 # My Corner — local media foundation review
 
 Prepared 2026-09-18 against main `debd1995ce5f599549d16ea932a04e639b1f411d`.
@@ -19,7 +32,7 @@ The uploaded VC media directive requests checkpoints A–H. This draft covers pa
 | `mobile/src/components/media/MediaComposer.tsx`, `MediaGallery.tsx` | Reusable preview/retry/remove/replace/reorder controls; user-triggered muted playback; clearing on account/route changes. Not yet mounted in product screens. |
 | `mobile/src/lib/auth.ts`, `mobile/app/_layout.tsx` | Invalidate outstanding media operations on explicit sign-out/account transitions and Auth sign-out events. |
 | `mobile/app.json`, mobile dependency manifests | Expo 54 video/thumbnails modules and camera/microphone permission descriptions; background playback/Picture in Picture disabled. |
-| `supabase/migrations/20260918035400_shared_media_foundation.sql` | Disabled server flag, private original/processed buckets, upload quota, owner reservations, parent-bound authorization and attachment limits. No client permission to mark media ready. |
+| `supabase/migrations/20260918045854_shared_media_foundation.sql` | Disabled server flag, private original/processed buckets, upload quota, owner reservations, parent-bound authorization and attachment limits. No client permission to mark media ready. |
 | `supabase/functions/process-media/index.ts`, `_shared/sanitize-media.ts` | Authenticate owner; re-encode JPEG pixels; rebuild supported H.264/AAC MP4 tracks; sanitize poster; expose only processed assets. |
 | Mobile media tests, server tests, `supabase/tests/shared_media_security.sql` | Retry/account-transition races; parser/metadata fixtures; PostgreSQL permission, ownership, membership and limit cases. |
 | `.github/workflows/media-functions-ci.yml`, `scripts/db-smoke-test.sh` | Processor and database verification gates; published implementation triggers remote CI. Consult the latest PR checks for results. |
@@ -30,24 +43,24 @@ Limits in this draft: images up to 6 MiB and 1920 pixels; video up to 20 MiB, 30
 
 | Check | Result |
 | --- | --- |
-| Mobile Jest | 74 suites / 374 tests passed. |
+| Mobile Jest | 75 suites / 376 tests passed. |
 | Mobile TypeScript / Prettier | Passed. |
 | ESLint | Zero errors; 15 unchanged baseline warnings. |
 | Expo web export | Passed; existing app bundles successfully. Unmounted media components are typechecked but this export does not prove their end-to-end behavior. |
 | Expo Doctor | 18/18 passed. |
 | Processor Deno check | Passed. |
-| Server tests | Five passed: PostgreSQL authorization matrix, JPEG metadata removal, invalid image inputs, AVC payload validation, MP4 rebuilding/playability/metadata removal. |
+| Server tests | Six passed: cleanup worker failures/path scope and PostgreSQL authorization matrix, JPEG metadata removal, invalid image inputs, AVC payload validation, MP4 rebuilding/playability/metadata removal. |
 | Synthetic video decode | FFmpeg decoded sanitized H.264/AAC output, retaining audio/video and excluding injected GPS/device tags. |
 | Real PostgreSQL via PGlite | Actual migration passed against reduced prerequisite fixtures and current authorization helpers. Owner, assigned provider, outsider, neighbor, removed group member, event invitee, missing-profile, storage path, processing, replacement, count, retry and disabled-flag cases passed. |
 
-The PostgreSQL harness does not exercise Supabase Auth, PostgREST, Storage HTTP or deployed Edge Functions. Full Database CI runs on the PR; Preview service integration remains pending. No device media behavior has been verified.
+The PostgreSQL harness remains isolated. Separate Preview HTTP verification now passed 22 assertions, and the deployed cleanup worker completed eight jobs through the Storage API. See `VC_MEDIA_PREVIEW_VERIFICATION.md`. No device media behavior has been verified.
 
 ## Remaining work before foundation activation
 
-1. **Storage lifecycle:** removal and replacement revoke database/storage-policy reads, but deleted/abandoned processed objects still need a tested cleanup mechanism. Successful processing removes originals; processing failure and expired drafts need retention/cleanup handling. Local picker temporary-file disposal also needs review.
+1. **Storage lifecycle — implemented and service-verified:** leased deletion queue, retry, abandonment expiry, parent/profile cascades, and Vault-authenticated scheduling. Read access closes immediately; deletion waits out upload tokens and in-flight processing. Local picker disposal is implemented and unit-tested; device behavior remains part of native acceptance.
 2. **Parent submission integration:** connect each surface without duplicate parent creation when upload or attachment retry fails. Text preservation currently follows the composer's separation from form state; complete forms are not yet exercised.
 3. **Existing image consolidation:** reuse the shared preparation path in Marketplace where safe, preserving its existing photo behavior and migration compatibility.
-4. **Full service verification:** run clean Supabase Database CI and authenticated upload/process/read/remove tests against Preview, including account/permission changes while work is pending. Measure function memory/CPU and playback on representative low-end devices.
+4. **Service/performance verification:** basic Preview upload/process/read/remove and outsider isolation passed. Full Database CI remains required on the current PR head. Maximum-size clips, live account/permission transitions during playback, and memory/CPU/playback on representative low-end devices remain unverified.
 5. **Privacy window:** already issued signed URLs remain bearer capabilities for up to 60 seconds. The UI invalidates account-scoped results and rechecks access on entry, but this is not immediate server revocation of an issued URL. Confirm the intended policy before activation.
 6. **Native acceptance:** new video modules require a compatible APK. Camera/picker denial and recovery, thumbnails, playback, rotation, large text, TalkBack and device performance remain unverified. A paid EAS build needs separate approval.
 

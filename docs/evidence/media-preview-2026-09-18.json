@@ -1,0 +1,148 @@
+{
+  "verified_at": "2026-09-18",
+  "environment": "Preview",
+  "project_ref": "opeojxwkwwnnncnsuaag",
+  "scope": "Service HTTP verification with two temporary fictional identities; no product screens or new APK",
+  "migrations": [
+    "20260918045854_shared_media_foundation",
+    "20260918045911_shared_media_cleanup",
+    "20260918045921_shared_media_cleanup_schedule"
+  ],
+  "http_assertions": [
+    {
+      "name": "unfinished upload stays retryable",
+      "passed": true
+    },
+    {
+      "name": "raw original unreadable even by owner",
+      "passed": true
+    },
+    {
+      "name": "other account cannot process upload",
+      "passed": true
+    },
+    {
+      "name": "image processed",
+      "passed": true,
+      "detail": "6287 ms"
+    },
+    {
+      "name": "processing retry is idempotent",
+      "passed": true
+    },
+    {
+      "name": "image signed read",
+      "passed": true
+    },
+    {
+      "name": "JPEG metadata stripped and pixels decodable",
+      "passed": true
+    },
+    {
+      "name": "JPEG server output differs from original",
+      "passed": true
+    },
+    {
+      "name": "other account cannot mint read URL",
+      "passed": true
+    },
+    {
+      "name": "other account cannot read metadata",
+      "passed": true
+    },
+    {
+      "name": "forged original path denied",
+      "passed": true
+    },
+    {
+      "name": "client cannot write processed bucket",
+      "passed": true
+    },
+    {
+      "name": "ready photo attaches to owning profile",
+      "passed": true
+    },
+    {
+      "name": "video processed",
+      "passed": true,
+      "detail": "1496 ms"
+    },
+    {
+      "name": "video signed read",
+      "passed": true
+    },
+    {
+      "name": "MP4 location and device tags removed",
+      "passed": true
+    },
+    {
+      "name": "video attaches to authorized Feed parent",
+      "passed": true
+    },
+    {
+      "name": "outsider denied attached Feed media",
+      "passed": true
+    },
+    {
+      "name": "spoofed JPEG rejected without publishing",
+      "passed": true
+    },
+    {
+      "name": "invalid media has no readable output",
+      "passed": true
+    },
+    {
+      "name": "removed media immediately denies new signed reads",
+      "passed": true
+    },
+    {
+      "name": "cleanup rejects public key and forged worker credential",
+      "passed": true
+    }
+  ],
+  "storage_cleanup": {
+    "http_status": 200,
+    "claimed": 8,
+    "completed": 8,
+    "deferred": 0,
+    "objects_before": 4,
+    "objects_after": 0,
+    "expiry_accelerated_for_fixture_jobs_only": true
+  },
+  "post_verification": {
+    "upload_flag_enabled": false,
+    "temporary_auth_users": 0,
+    "temporary_profiles": 0,
+    "temporary_storage_objects": 0,
+    "deletion_receipts_retained_for_late_signed_put": true
+  },
+  "media_decode": {
+    "video": "h264",
+    "audio": "aac",
+    "width": 640,
+    "height": 360,
+    "ffmpeg_decode": "passed"
+  },
+  "local_validation": {
+    "mobile_suites": 75,
+    "mobile_tests": 376,
+    "server_tests": 6,
+    "typescript": "passed",
+    "deno": "passed",
+    "lint_errors": 0,
+    "baseline_lint_warnings": 15
+  },
+  "limits": [
+    "Small fictional clip and photo only; no maximum-size/device performance claim",
+    "Real expiration delays tested in SQL; Preview deletion used accelerated fixture eligibility",
+    "Existing signed read links may remain usable until their 60-second expiry",
+    "Native picker/cache disposal requires later device verification"
+  ],
+  "scheduled_worker": {
+    "observed_at": "2026-09-18T05:10:00Z",
+    "cron_status": "succeeded",
+    "http_status": 200,
+    "claimed": 0,
+    "deferred": 0
+  }
+}
