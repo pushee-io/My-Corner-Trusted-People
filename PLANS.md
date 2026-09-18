@@ -7,18 +7,20 @@
   - [x] Durable cleanup and temporary picker-file disposal.
   - [x] Controlled Preview Auth/Storage/processor/worker verification; fixture cleanup; uploads disabled afterward.
   - [x] Repair review findings: invalidate expanded photos on authorization refresh; resume completed-original upload retries. Add 12 component/transport regression cases.
-  - [ ] Re-review the repair diff and current-head CI while keeping PR #102 draft, before product-screen integration.
-- [ ] B: Profile pictures, replacement/removal and consistent avatars.
-- [ ] C: Neighborhood Feed images and video.
-- [ ] D: Hire request media restricted to participants.
-- [ ] E: Group avatar/cover and member post media.
-- [ ] F: Event cover/gallery/video under existing audience rules.
-- [ ] G: Marketplace video preserving existing images and pickup privacy.
+  - [x] Re-reviewed the repaired foundation at `705e83c`; its CI passed. Founder authorized product-screen integration and one new Preview APK.
+- [x] B implementation: Profile pictures, replacement/removal and shared avatars.
+- [x] C implementation: Neighborhood Feed images and video.
+- [x] D implementation: Hire request media restricted to participants.
+- [x] E implementation: Group avatar/cover and member post media.
+- [x] F implementation: Event cover/gallery/video under existing audience rules.
+- [x] G implementation: Marketplace video preserving existing images and pickup privacy.
 - [ ] H: Cross-surface security/performance and Android device verification.
+
+Product integration has 407 passing mobile tests and six passing media function/security tests. Native acceptance of the connected screens remains pending. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the current build and device checkpoint; keep PR #102 draft.
 
 The founder explicitly adopted the directive and approved publishing the foundation in PR #102 on 2026-09-18. The initial implementation is published at `f17ad80`; verify the latest PR checks and keep the PR draft until technical gates pass. See `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
 
-Each checkpoint requires targeted tests, formatting, lint, typecheck, privacy review, pushed PR and successful CI before merge. Maintain continuity before long operations. No paid EAS build or production deployment is authorized for this milestone.
+Each checkpoint requires targeted tests, formatting, lint, typecheck, privacy review, pushed PR and successful CI before merge. Maintain continuity before long operations. On 2026-09-18 the founder authorized one new Android Preview build with “Connect product screens. build new APK”. Build the draft branch through the approval-gated workflow; do not merge or deploy to production.
 
 ## Completed verification
 

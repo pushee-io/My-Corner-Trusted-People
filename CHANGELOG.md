@@ -6,7 +6,10 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ### Verification and active work (2026-09-18)
 
-- Repaired both PR #102 review findings and added 12 component/transport regressions; keep the PR draft before product-screen integration.
+- Connected shared media to Profile, Neighborhood Feed, Hire, Groups, Events and Marketplace; PR #102 remains draft pending connected-screen device acceptance.
+- Added retry-safe parent submission, immutable Marketplace photo retry paths, and protection against account changes and repeated submission taps. Mobile regression coverage now totals 407 tests across 80 suites; six media processing/security tests also pass.
+- Authorized one new Preview APK from the draft branch, with source-commit, product-media bytecode, application ID and Preview environment verification. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the build checkpoint.
+- Repaired both PR #102 foundation review findings and added 12 component/transport regressions before product-screen integration.
 - Added durable private media cleanup, scheduled worker authenticated by single-use tickets, and safe local picker-cache disposal.
 - Verified 22 Preview HTTP cases and eight Storage API deletion jobs with fictional fixtures; removed test accounts and restored the upload flag to off.
 - Matched repository migration filenames to the recorded Preview deployment versions without rewriting remote migration history.

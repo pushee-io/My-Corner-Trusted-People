@@ -1,12 +1,13 @@
 name: EAS Preview APK
-# One paid Android preview build authorized by the founder for the native verification checkpoint.
-# Authorization renewed on 2026-09-16 after PR #100 route-isolation repair and green release checks.
-# This approval authorizes one new paid Android preview build from merged main.
+# Founder authorized one new Android Preview APK on 2026-09-18:
+# "Connect product screens. build new APK". Keep PR #102 draft and build its branch.
+# Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:
   push:
     branches:
       - main
+      - codex/vc-media-foundation
     paths:
       - '.github/workflows/eas-preview-apk.yml'
   workflow_dispatch:
@@ -184,12 +185,17 @@ jobs:
           test -s "$apk_path"
           echo "apk_path=${apk_path}" >> "$GITHUB_OUTPUT"
 
-      - name: Inspect APK provenance and Events bytecode
+      - name: Inspect APK provenance and product media bytecode
         id: verify_apk
         env:
           APK_PATH: ${{ steps.artifact.outputs.apk_path }}
           BUILD_ID: ${{ steps.build.outputs.build_id }}
         run: |
+          recorded_commit="$(jq -r '.gitCommitHash // empty' "${RUNNER_TEMP}/eas-build.json")"
+          if [ "$recorded_commit" != "$GITHUB_SHA" ]; then
+            echo "::error::EAS source commit does not match the checked-out build commit."
+            exit 1
+          fi
           unzip -tq "$APK_PATH"
           unzip -Z1 "$APK_PATH" | grep -Fx 'assets/app.config'
           unzip -Z1 "$APK_PATH" | grep -Fx 'assets/index.android.bundle'
@@ -204,6 +210,9 @@ jobs:
           grep -Fq 'Events is not available yet.' "$dump_path"
           grep -Fq 'Marketplace reports' "$dump_path"
           grep -Fq 'Block listing' "$dump_path"
+          for marker in 'begin_media_upload' 'attach_media' 'process-media' 'Group photos and video' 'Listing video' 'Photos or video of the work' 'Event cover, photos and video' 'Add or change profile picture'; do
+            grep -Fq "$marker" "$dump_path"
+          done
 
           supabase_urls="$(grep -Eo 'https://[a-z]{20}\.supabase\.co' "$dump_path" | sort -u || true)"
           expected_supabase_url='https://opeojxwkwwnnncnsuaag.supabase.co'
@@ -224,7 +233,7 @@ jobs:
           apk_sha256="$(sha256sum "$APK_PATH" | awk '{print $1}')"
           supabase_ref="$(printf '%s' "$supabase_url" | sed -E 's#https://([a-z]{20})\.supabase\.co#\1#')"
           provenance_path="${RUNNER_TEMP}/preview-provenance.json"
-          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true}'             > "$provenance_path"
+          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true, productMediaBytecodeVerified: true, sourceCommitVerified: true}'             > "$provenance_path"
 
           echo "provenance_path=${provenance_path}" >> "$GITHUB_OUTPUT"
           echo "Verified APK for Supabase project ${supabase_ref}."

@@ -1,3 +1,5 @@
+import { MediaAvatar } from '@/components/media/MediaAvatar';
+import { MediaGallery } from '@/components/media/MediaGallery';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -43,6 +45,7 @@ export default function ProviderRequestDetailScreen() {
   return (
     <Screen title="Request detail">
       <View style={styles.panel}>
+        <MediaAvatar profileId={request.requesterProfileId} name={request.requesterName} />
         <StatusPill status={request.status} />
         <Text style={styles.title}>{request.title}</Text>
         <Text style={styles.body}>{request.description}</Text>
@@ -74,6 +77,8 @@ export default function ProviderRequestDetailScreen() {
           </WebSafeLink>
         </>
       ) : null}
+
+      <MediaGallery parent="service_request" parentId={request.id} />
 
       {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
         <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>

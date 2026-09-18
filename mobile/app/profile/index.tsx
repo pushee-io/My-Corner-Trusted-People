@@ -1,35 +1,60 @@
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { getCurrentProfile, type CurrentProfile } from '@/lib/auth';
+import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
-import { requesterProfile, verificationItems } from '@/lib/account';
 import { tokens } from '@/theme/tokens';
 
 export default function ProfileScreen() {
-  const verifiedCount = verificationItems.filter((item) => item.status === 'verified').length;
+  const [profile, setProfile] = useState<CurrentProfile>();
+  const [error, setError] = useState<string>();
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      setProfile(undefined);
+      void getCurrentProfile()
+        .then((value) => {
+          if (active) {
+            setProfile(value);
+            setError(undefined);
+          }
+        })
+        .catch(() => {
+          if (active) setError('Could not load your profile. Reconnect and reopen this page.');
+        });
+      return () => {
+        active = false;
+        setProfile(undefined);
+      };
+    }, []),
+  );
 
   return (
     <Screen title="Profile">
-      <View style={styles.panel}>
-        <Text style={styles.name}>{requesterProfile.name}</Text>
-        <Text style={styles.body}>{requesterProfile.role}</Text>
-        <Text style={styles.body}>
-          {requesterProfile.neighborhood} · {requesterProfile.city}, {requesterProfile.country}
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.body}>
+          {error}
         </Text>
-      </View>
-
-      <View style={styles.panel}>
-        <Text style={styles.title}>Account details</Text>
-        <Text style={styles.body}>Phone: {requesterProfile.phone}</Text>
-        <Text style={styles.body}>Email: {requesterProfile.email}</Text>
-        <Text style={styles.body}>Language: {requesterProfile.language}</Text>
-        <Text style={styles.body}>Data saver: {requesterProfile.dataSaver ? 'On' : 'Off'}</Text>
-      </View>
+      ) : null}
+      {profile ? (
+        <View style={styles.panel}>
+          <Text style={styles.name}>{profile.displayName}</Text>
+          <Text style={styles.body}>{profile.role}</Text>
+          <ParentMediaEditor
+            key={profile.id}
+            parent="profile"
+            parentId={profile.id}
+            title="Profile picture"
+            name={profile.displayName}
+          />
+        </View>
+      ) : null}
 
       <WebSafeLink href="/profile/verification" asChild>
         <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>
-            Verification status: {verifiedCount} of {verificationItems.length}
-          </Text>
+          <Text style={styles.buttonText}>Verification status</Text>
         </Pressable>
       </WebSafeLink>
 

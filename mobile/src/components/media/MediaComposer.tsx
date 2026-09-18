@@ -168,13 +168,16 @@ export type MediaComposerController = ReturnType<typeof useMediaComposer>;
 export function MediaComposer({
   controller,
   title = 'Add media',
+  disabled = false,
 }: {
   controller: MediaComposerController;
   title?: string;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   if (!controller.enabled) return null;
   const policy = mediaLimits[controller.parent];
+  const busy = controller.busy || disabled;
   return (
     <View style={styles.panel}>
       <Text accessibilityRole="header" style={styles.title}>
@@ -187,8 +190,8 @@ export function MediaComposer({
       </Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{ expanded: open, disabled: controller.busy }}
-        disabled={controller.busy}
+        accessibilityState={{ expanded: open, disabled: busy }}
+        disabled={busy}
         onPress={() => setOpen(!open)}
         style={styles.button}
       >
@@ -198,30 +201,14 @@ export function MediaComposer({
         <View style={styles.actions}>
           {policy.images > 0 ? (
             <>
-              <MediaAction
-                label="Take photo"
-                disabled={controller.busy}
-                action={() => controller.choose('camera', 'image')}
-              />
-              <MediaAction
-                label="Choose photo"
-                disabled={controller.busy}
-                action={() => controller.choose('library', 'image')}
-              />
+              <MediaAction label="Take photo" disabled={busy} action={() => controller.choose('camera', 'image')} />
+              <MediaAction label="Choose photo" disabled={busy} action={() => controller.choose('library', 'image')} />
             </>
           ) : null}
           {policy.videos > 0 ? (
             <>
-              <MediaAction
-                label="Record video"
-                disabled={controller.busy}
-                action={() => controller.choose('camera', 'video')}
-              />
-              <MediaAction
-                label="Choose video"
-                disabled={controller.busy}
-                action={() => controller.choose('library', 'video')}
-              />
+              <MediaAction label="Record video" disabled={busy} action={() => controller.choose('camera', 'video')} />
+              <MediaAction label="Choose video" disabled={busy} action={() => controller.choose('library', 'video')} />
             </>
           ) : null}
         </View>
@@ -247,28 +234,20 @@ export function MediaComposer({
                     : item.error}
           </Text>
           <View style={styles.actions}>
-            <MediaAction
-              label={`Remove ${index + 1}`}
-              disabled={controller.busy}
-              action={() => controller.remove(item.id)}
-            />
+            <MediaAction label={`Remove ${index + 1}`} disabled={busy} action={() => controller.remove(item.id)} />
             <MediaAction
               label={`Replace ${index + 1}`}
-              disabled={controller.busy}
+              disabled={busy}
               action={() => controller.choose('library', item.kind, item.id)}
             />
             {index > 0 ? (
-              <MediaAction
-                label="Move earlier"
-                disabled={controller.busy}
-                action={() => controller.move(item.id, -1)}
-              />
+              <MediaAction label="Move earlier" disabled={busy} action={() => controller.move(item.id, -1)} />
             ) : null}
             {index < controller.drafts.length - 1 ? (
-              <MediaAction label="Move later" disabled={controller.busy} action={() => controller.move(item.id, 1)} />
+              <MediaAction label="Move later" disabled={busy} action={() => controller.move(item.id, 1)} />
             ) : null}
             {item.status === 'failed' ? (
-              <MediaAction label="Retry upload" disabled={controller.busy} action={() => controller.retry(item.id)} />
+              <MediaAction label="Retry upload" disabled={busy} action={() => controller.retry(item.id)} />
             ) : null}
           </View>
         </View>

@@ -9,6 +9,8 @@ import { MediaAction } from '@/components/media/MediaComposer';
 import { tokens } from '@/theme/tokens';
 
 export function useParentMedia(parent: MediaParent, parentId: string | undefined, refreshKey = 0) {
+  parentId =
+    parentId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parentId) ? parentId : undefined;
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
   const [reload, setReload] = useState(0);
   const key = `${revision}:${parent}:${parentId ?? ''}:${refreshKey}:${reload}`;

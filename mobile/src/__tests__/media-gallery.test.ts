@@ -38,7 +38,7 @@ const photo: DisplayMedia = {
   id: 'fictional-photo',
   owner_profile_id: 'owner',
   parent_type: 'group_post',
-  parent_id: 'post',
+  parent_id: '00000000-0000-4000-8000-000000000001',
   media_type: 'image',
   storage_path: 'owner/photo/media.jpg',
   poster_path: null,
@@ -66,7 +66,11 @@ function deferred<T>() {
 }
 async function render(refreshKey = 0) {
   await act(async () => {
-    const tree = createElement(MediaGallery, { parent: 'group_post', parentId: 'post', refreshKey });
+    const tree = createElement(MediaGallery, {
+      parent: 'group_post',
+      parentId: '00000000-0000-4000-8000-000000000001',
+      refreshKey,
+    });
     if (renderer) renderer.update(tree);
     else renderer = create(tree);
   });
