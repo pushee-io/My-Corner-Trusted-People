@@ -1,3 +1,10 @@
+## 2026-09-21 — Replacement-icon Preview APK authorized
+
+- Founder explicitly approved one new APK after PR #105 merged: "i approve a new APK build".
+- Build latest merged main with the supplied Hire and Neighborhood icons, retaining the existing Preview backend, signing configuration and automatic Android version increment. Preview AI remains enabled.
+- One explicit build-trigger commit submits the APK. Release gates and APK checks include byte-for-byte verification of the bundled replacement icon font.
+- Build result and download evidence pending. Phone/tablet acceptance remains pending; no production deployment is included.
+
 ## 2026-09-21 — Founder-supplied navigation artwork
 
 - Replaced the Hire footer glyph with the supplied person/checkmark and the Community footer glyph with the supplied Neighborhood hands/heart artwork.

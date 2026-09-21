@@ -1,8 +1,7 @@
 name: EAS Preview APK
 # Founder approved one new Android Preview APK on 2026-09-21:
-# "Merge PR and I approve new APK build".
-# PRs #102 and #103 are merged. This build retests reliability/UX on phone and tablet.
-# AI server configuration remains pending; manual request submission stays available.
+# "i approve a new APK build" (after the replacement-icon PR #105 merged).
+# Includes the supplied Hire and Neighborhood icons. Preview AI is enabled.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:
@@ -232,10 +231,24 @@ jobs:
           application_id="$("$apkanalyzer_path" manifest application-id "$APK_PATH")"
           test "$application_id" = 'com.mycorner.trustedpeople'
 
+          # Verify the new icon font is embedded unchanged in the actual APK.
+          python3 - <<'PYFONT'
+          import os, zipfile
+          from pathlib import Path
+          expected = Path('assets/navigation/MyCornerNavigation.ttf').read_bytes()
+          with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
+              matches = [entry.filename for entry in apk.infolist()
+                         if entry.file_size == len(expected) and apk.read(entry) == expected]
+          if not matches:
+              raise SystemExit('Replacement navigation font missing or different in APK')
+          print('Verified replacement navigation font:', ', '.join(matches))
+          PYFONT
+          grep -Fq 'MyCornerNavigation' "$dump_path"
+
           apk_sha256="$(sha256sum "$APK_PATH" | awk '{print $1}')"
           supabase_ref="$(printf '%s' "$supabase_url" | sed -E 's#https://([a-z]{20})\.supabase\.co#\1#')"
           provenance_path="${RUNNER_TEMP}/preview-provenance.json"
-          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true, productMediaBytecodeVerified: true, sourceCommitVerified: true}'             > "$provenance_path"
+          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true, productMediaBytecodeVerified: true, sourceCommitVerified: true, navigationFontVerified: true}'             > "$provenance_path"
 
           echo "provenance_path=${provenance_path}" >> "$GITHUB_OUTPUT"
           echo "Verified APK for Supabase project ${supabase_ref}."
