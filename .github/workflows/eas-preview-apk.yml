@@ -1,7 +1,8 @@
 name: EAS Preview APK
-# Founder approved one corrected Android Preview APK on 2026-09-18:
-# "I approve one corrected APK for the phone/tablet retest".
-# Includes the native media/Hire repairs in e36ed2b. Keep PR #102 draft.
+# Founder approved one new Android Preview APK on 2026-09-21:
+# "Merge PR and I approve new APK build".
+# PRs #102 and #103 are merged. This build retests reliability/UX on phone and tablet.
+# AI server configuration remains pending; manual request submission stays available.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:

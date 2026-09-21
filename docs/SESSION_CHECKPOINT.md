@@ -1,3 +1,12 @@
+## 2026-09-21 — Merge complete; one new Preview APK authorized
+
+- Founder explicitly requested merge and approved one new APK build after the three media retests passed.
+- PR #102 merged at `35cfdda2469dec6ff8385c0f8c9770b8a0c8482f`; PR #103 merged into main at `6e29fbebf13d48870660fd80cc7dcc76e71e3031`.
+- Merged source tree `7e4fa61dca3e1dd61fb80c951fe2c1c7167e21b9` exactly matches the tested PR #103 tree. Mobile, Database, Media Functions and Job Safety CI passed at `2e964e0`.
+- This build authorization supersedes earlier draft/build holds. The explicit build-trigger commit starts exactly one EAS Preview APK using the existing workflow and signing credentials, with an incremented Android version.
+- New phone/tablet acceptance remains pending. AI runtime configuration still returned 503; its database flag remains off and manual request submission is supported. No production deployment is authorized.
+- Build provenance and the completed download will be recorded after verification. Do not resubmit a paid build to recover monitoring alone.
+
 ## 2026-09-21 — Focused media retest passed; reliability/UX implementation
 
 - Founder reported all three corrected `62e3cec` APK retests passed: video centering, playback/close/background stability, and Hire attachment Review/Back/submit/readback.

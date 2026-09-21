@@ -4,6 +4,8 @@ Date: 2026-09-21. Baseline main: `debd1995ce5f599549d16ea932a04e639b1f411d`.
 Implementation base: PR #102, `d26d7abb14417f4d0bb4811fdeb1d929fe41625c`.
 This checkpoint supersedes stale next-action statements in older handoffs.
 
+Merge/build authorization update: founder explicitly approved merge and one new Preview APK. PR #102 merged at `35cfdda`; PR #103 merged into main at `6e29fbe`, with the same tested tree. Earlier draft and build holds below are superseded. Native acceptance and live AI configuration remain outstanding.
+
 ## Founder-reported media acceptance
 
 The founder reported YES for all three focused checks on the corrected `62e3cec` APK: centered portrait/landscape video before/during playback; repeated Play/Close and background/return; Hire photo/video → Review → Back → submit → attachment readback. These are founder-observed device results, not direct device control or proof of every broader media acceptance item. The new changes below are not in that APK.
