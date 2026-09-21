@@ -54,7 +54,6 @@ export default function WelcomeScreen() {
         </View>
         <View style={styles.heroText}>
           <Text style={styles.logoName}>My Corner</Text>
-          <Text style={styles.logoDescriptor}>Trusted People</Text>
         </View>
       </View>
       <Text style={styles.body}>No Wahala — Hire without headache.</Text>
@@ -65,7 +64,15 @@ export default function WelcomeScreen() {
         onPress={() => router.push('/sign-in')}
         style={styles.button}
       >
-        <Text style={styles.buttonText}>Enter app</Text>
+        <Text style={styles.buttonText}>Enter My Corner</Text>
+      </Pressable>
+      <Pressable
+        accessibilityLabel="Create Account"
+        accessibilityRole="button"
+        onPress={() => router.push('/create-account')}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Create Account</Text>
       </Pressable>
     </Screen>
   );

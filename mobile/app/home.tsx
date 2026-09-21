@@ -1,5 +1,9 @@
 import { type Href } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { getCurrentCapabilities } from '@/lib/capabilities';
+import { partitionRequests, requestUpdatedAt } from '@/lib/active-requests';
+import { categories } from '@/lib/mock-data';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
@@ -8,37 +12,52 @@ import { StatusPill } from '@/components/StatusPill';
 import { getCurrentProfile } from '@/lib/auth';
 import { getActiveLocationLabel } from '@/lib/location-context';
 import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
-import { listRequesterRequests } from '@/lib/repository';
+import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 export default function HomeScreen() {
-  const [requests, setRequests] = useState<JobRequest[]>([]);
-  const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(true);
+  const resource = useProtectedResource(
+    useCallback(async () => {
+      const requests = await listRequesterRequests();
+      const providers = await Promise.all(
+        [...new Set(requests.map((r) => r.providerId))].map(
+          async (id) => [id, (await getProvider(id))?.name ?? 'Selected provider'] as const,
+        ),
+      );
+      return { requests, providers: Object.fromEntries(providers) };
+    }, []),
+    10_000,
+  );
+  const { error, loading: isLoading } = resource;
+  const { active, past } = partitionRequests(resource.data?.requests ?? []);
+  const capabilities = useProtectedResource(getCurrentCapabilities);
   const [eventsAvailable, setEventsAvailable] = useState(false);
   const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
-  const latest = requests[0];
 
-  useEffect(() => {
-    async function loadRequests() {
-      try {
-        const items = await listRequesterRequests();
-
-        setRequests([...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-      } catch (caught) {
-        if (__DEV__) {
-          console.error('REQUEST_LOAD_FAILURE', caught);
-        }
-
-        setError(caught instanceof Error ? caught.message : 'Could not load requests.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadRequests();
-  }, []);
+  function requestCard(request: JobRequest) {
+    return (
+      <WebSafeLink
+        key={request.id}
+        href={{ pathname: '/hire/request/status', params: { requestId: request.id } }}
+        asChild
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${request.title}, ${request.status}`}
+          style={styles.panel}
+        >
+          <StatusPill status={request.status} />
+          <Text style={styles.title}>{request.title}</Text>
+          <Text style={styles.body}>{resource.data?.providers[request.providerId]}</Text>
+          <Text style={styles.body}>
+            {categories.find((c) => c.id === request.categoryId)?.name ?? 'Service'} · {request.areaLabel}
+          </Text>
+          <Text style={styles.body}>Updated {new Date(requestUpdatedAt(request)).toLocaleString('en-GH')}</Text>
+        </Pressable>
+      </WebSafeLink>
+    );
+  }
 
   useEffect(() => {
     getCurrentProfile()
@@ -55,9 +74,22 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <Screen title="My Corner home">
+    <Screen
+      title="My Corner home"
+      onRefresh={() => {
+        void resource.refresh();
+      }}
+      refreshing={isLoading}
+    >
       <Text style={styles.body}>{getActiveLocationLabel()}</Text>
 
+      {capabilities.data?.provider ? (
+        <WebSafeLink href="/provider/requests" asChild>
+          <Pressable accessibilityRole="button" style={styles.button}>
+            <Text style={styles.buttonText}>Provider inbox</Text>
+          </Pressable>
+        </WebSafeLink>
+      ) : null}
       <View style={styles.grid}>
         <WebSafeLink href="/hire/categories" asChild>
           <Pressable style={styles.button}>
@@ -65,38 +97,41 @@ export default function HomeScreen() {
           </Pressable>
         </WebSafeLink>
 
-        <WebSafeLink href="/community" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Neighborhood feed</Text>
-          </Pressable>
-        </WebSafeLink>
+        {capabilities.data?.community ? (
+          <>
+            <WebSafeLink href="/community" asChild>
+              <Pressable style={styles.secondary}>
+                <Text style={styles.secondaryText}>Neighborhood feed</Text>
+              </Pressable>
+            </WebSafeLink>
 
-        <WebSafeLink href="/groups" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Groups</Text>
-          </Pressable>
-        </WebSafeLink>
+            <WebSafeLink href="/groups" asChild>
+              <Pressable style={styles.secondary}>
+                <Text style={styles.secondaryText}>Groups</Text>
+              </Pressable>
+            </WebSafeLink>
 
-        {eventsAvailable ? (
-          <WebSafeLink href={'/events' as Href} asChild>
-            <Pressable accessibilityRole="button" style={styles.secondary}>
-              <Text style={styles.secondaryText}>Events</Text>
-            </Pressable>
-          </WebSafeLink>
+            {eventsAvailable ? (
+              <WebSafeLink href={'/events' as Href} asChild>
+                <Pressable accessibilityRole="button" style={styles.secondary}>
+                  <Text style={styles.secondaryText}>Events</Text>
+                </Pressable>
+              </WebSafeLink>
+            ) : null}
+
+            <WebSafeLink href="/agency-broadcasts" asChild>
+              <Pressable style={styles.secondary}>
+                <Text style={styles.secondaryText}>Agency broadcasts</Text>
+              </Pressable>
+            </WebSafeLink>
+
+            <WebSafeLink href="/marketplace" asChild>
+              <Pressable style={styles.secondary}>
+                <Text style={styles.secondaryText}>Marketplace</Text>
+              </Pressable>
+            </WebSafeLink>
+          </>
         ) : null}
-
-        <WebSafeLink href="/agency-broadcasts" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Agency broadcasts</Text>
-          </Pressable>
-        </WebSafeLink>
-
-        <WebSafeLink href="/marketplace" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Marketplace</Text>
-          </Pressable>
-        </WebSafeLink>
-
         {canModerateMarketplace ? (
           <WebSafeLink href="/marketplace/moderation" asChild>
             <Pressable accessibilityRole="button" style={styles.secondary}>
@@ -105,11 +140,13 @@ export default function HomeScreen() {
           </WebSafeLink>
         ) : null}
 
-        <WebSafeLink href="/community/moderation" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Moderation queue</Text>
-          </Pressable>
-        </WebSafeLink>
+        {canModerateMarketplace ? (
+          <WebSafeLink href="/community/moderation" asChild>
+            <Pressable style={styles.secondary}>
+              <Text style={styles.secondaryText}>Moderation queue</Text>
+            </Pressable>
+          </WebSafeLink>
+        ) : null}
 
         <WebSafeLink href="/settings" asChild>
           <Pressable style={styles.secondary}>
@@ -118,26 +155,29 @@ export default function HomeScreen() {
         </WebSafeLink>
       </View>
 
+      <Text accessibilityRole="header" style={styles.title}>
+        Active Requests
+      </Text>
       {error ? (
         <EmptyState title="Could not load requests" body={error} />
       ) : isLoading ? (
-        <View style={styles.panel}>
-          <Text style={styles.title}>Loading requests</Text>
-          <Text style={styles.body}>Checking your live Supabase request history.</Text>
-        </View>
-      ) : latest ? (
-        <WebSafeLink href={{ pathname: '/hire/request/status', params: { requestId: latest.id } }} asChild>
-          <Pressable style={styles.panel}>
-            <StatusPill status={latest.status} />
-            <Text style={styles.title}>{latest.title}</Text>
-            <Text style={styles.body}>Track provider response</Text>
-          </Pressable>
-        </WebSafeLink>
+        <Text style={styles.body}>Loading your requests…</Text>
       ) : (
-        <View style={styles.panel}>
-          <Text style={styles.title}>No active requests</Text>
-          <Text style={styles.body}>Start with Hire help to test the first flow.</Text>
-        </View>
+        <>
+          {active.length ? (
+            active.map(requestCard)
+          ) : (
+            <EmptyState title="No active requests" body="Choose Hire help to get started." />
+          )}
+          {past.length ? (
+            <>
+              <Text accessibilityRole="header" style={styles.title}>
+                Past Requests
+              </Text>
+              {past.map(requestCard)}
+            </>
+          ) : null}
+        </>
       )}
     </Screen>
   );

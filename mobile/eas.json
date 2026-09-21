@@ -12,7 +12,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY": "supabase"
+        "EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY": "supabase",
+        "EXPO_PUBLIC_AI_SERVICE_REQUEST_STRUCTURER": "true"
       }
     },
     "production": {

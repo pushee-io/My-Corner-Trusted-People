@@ -40,7 +40,7 @@ describe('Job Safety Session UI contract', () => {
 
     expect(source).toContain('sessionForJobSafetyRoute(loadedSession, requestId)');
     expect(source).toContain('arrivalCodeForJobSafetyRoute(issuedCodeState, requestId)');
-    expect(source).toContain('setLoadedSession(undefined)');
-    expect(source).toContain('activeRequestId.current !== requestId');
+    expect(source).toContain('const loadedSession = resource.data');
+    expect(source).toContain('useProtectedResource');
   });
 });

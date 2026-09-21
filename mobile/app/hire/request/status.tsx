@@ -24,13 +24,20 @@ export default function RequestStatusScreen() {
       const provider = await getProvider(request.providerId);
       return { request, provider, report };
     }, [requestId]),
+    10_000,
   );
   const { error, loading: isLoading } = resource;
   const { request, provider, report } = resource.data ?? {};
 
   if (error || isLoading || !request) {
     return (
-      <Screen title="Request status">
+      <Screen
+        title="Request status"
+        onRefresh={() => {
+          void resource.refresh();
+        }}
+        refreshing={isLoading}
+      >
         <EmptyState
           title={isLoading ? 'Loading request' : 'Request not found'}
           body={error ?? 'Checking live Supabase status.'}
@@ -41,7 +48,13 @@ export default function RequestStatusScreen() {
   }
 
   return (
-    <Screen title="Request status">
+    <Screen
+      title="Request status"
+      onRefresh={() => {
+        void resource.refresh();
+      }}
+      refreshing={isLoading}
+    >
       <ReportButton label="Refresh status" disabled={isLoading} onPress={() => void resource.refresh()} />
       {report ? (
         <View style={styles.panel}>

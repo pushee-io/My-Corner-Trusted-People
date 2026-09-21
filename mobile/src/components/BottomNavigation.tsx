@@ -1,5 +1,8 @@
 import { router, type Href, usePathname } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { getCurrentCapabilities } from '@/lib/capabilities';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 import { isEventsClientEnabled } from '@/lib/events-feature';
 
@@ -7,19 +10,21 @@ type BottomNavigationItem = {
   label: string;
   href: Href;
   match: string[];
+  icon: keyof typeof Ionicons.glyphMap;
 };
 
 export const bottomNavigationItems: BottomNavigationItem[] = [
-  { label: 'Home', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
-  { label: 'Hire', href: '/hire/categories', match: ['/hire'] },
-  { label: 'Search', href: '/search', match: ['/search'] },
+  { label: 'Home', icon: 'home-outline', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
+  { label: 'Hire', icon: 'construct-outline', href: '/hire/categories', match: ['/hire'] },
+  { label: 'Search', icon: 'search-outline', href: '/search', match: ['/search'] },
   {
     label: 'Community',
+    icon: 'people-outline',
     href: '/community',
     match: ['/community', '/groups', '/agency-broadcasts', ...(isEventsClientEnabled() ? ['/events'] : [])],
   },
-  { label: 'Market', href: '/marketplace', match: ['/marketplace'] },
-  { label: 'Settings', href: '/settings', match: ['/settings'] },
+  { label: 'Market', icon: 'storefront-outline', href: '/marketplace', match: ['/marketplace'] },
+  { label: 'Settings', icon: 'settings-outline', href: '/settings', match: ['/settings'] },
 ];
 
 function isSelected(pathname: string, item: BottomNavigationItem) {
@@ -28,10 +33,14 @@ function isSelected(pathname: string, item: BottomNavigationItem) {
 
 export function BottomNavigation() {
   const pathname = usePathname();
+  const capabilities = useProtectedResource(getCurrentCapabilities);
+  const items = bottomNavigationItems.filter(
+    (item) => !['Community', 'Market'].includes(item.label) || capabilities.data?.community,
+  );
 
   return (
     <View accessibilityRole="tablist" style={styles.container}>
-      {bottomNavigationItems.map((item) => {
+      {items.map((item) => {
         const selected = isSelected(pathname, item);
 
         return (
@@ -40,10 +49,21 @@ export function BottomNavigation() {
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             key={String(item.href)}
-            onPress={() => router.push(item.href)}
+            onPress={() =>
+              router.push(
+                item.label === 'Home' && capabilities.data?.provider && !capabilities.data.community
+                  ? '/provider/requests'
+                  : item.href,
+              )
+            }
             style={[styles.item, selected ? styles.selectedItem : null]}
           >
-            <Text style={[styles.label, selected ? styles.selectedLabel : null]}>{item.label}</Text>
+            <Ionicons
+              name={item.icon}
+              size={24}
+              color={selected ? '#FFFFFF' : tokens.color.textSecondary}
+              accessible={false}
+            />
           </Pressable>
         );
       })}

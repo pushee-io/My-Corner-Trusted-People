@@ -37,7 +37,7 @@ describe('Day 20F bottom navigation foundation', () => {
   it('navigates without the web-incompatible Link asChild slot', () => {
     expect(bottomNavigationSource).not.toContain('asChild');
     expect(bottomNavigationSource).not.toContain('import { Link');
-    expect(bottomNavigationSource).toContain('onPress={() => router.push(item.href)}');
+    expect(bottomNavigationSource).toContain('router.push(');
   });
 
   it('mounts the bottom navigation from the shared Screen shell by default', () => {

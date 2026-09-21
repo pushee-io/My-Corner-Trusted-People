@@ -73,6 +73,31 @@ export async function signInWithEmailPassword(email: string, password: string): 
   return getCurrentProfile();
 }
 
+export async function registerWithEmailPassword(
+  displayName: string,
+  email: string,
+  password: string,
+): Promise<boolean> {
+  assertSupabaseConfigured();
+  const name = displayName.trim();
+  const normalizedEmail = email.trim().toLowerCase();
+  if (name.length < 2 || name.length > 80 || !isValidEmail(normalizedEmail) || password.length < 8) {
+    throw new Error('Enter your name, a valid email, and a password with at least 8 characters.');
+  }
+  let signedIn = false;
+  await changeSession(async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email: normalizedEmail,
+      password,
+      options: { data: { display_name: name, my_corner_signup: true } },
+    });
+    if (error)
+      throw new Error('Account creation could not be completed. Try again or sign in if you already have an account.');
+    signedIn = Boolean(data.session);
+  });
+  return signedIn;
+}
+
 export async function requestPasswordReset(email: string): Promise<void> {
   assertSupabaseConfigured();
 

@@ -4,11 +4,13 @@ export type ResourceState<T> = { data?: T; error?: string; loading: boolean };
 export function createProtectedResource<T>(load: () => Promise<T>, publish: (state: ResourceState<T>) => void) {
   let generation = 0;
   let disposed = false;
+  let inFlight = false;
   return {
-    async refresh() {
-      if (disposed) return;
+    async refresh(background = false) {
+      if (disposed || (background && inFlight)) return;
       const current = ++generation;
-      publish({ loading: true });
+      inFlight = true;
+      if (!background) publish({ loading: true });
       try {
         const data = await load();
         if (!disposed && current === generation) publish({ data, loading: false });
@@ -19,10 +21,13 @@ export function createProtectedResource<T>(load: () => Promise<T>, publish: (sta
             loading: false,
           });
         }
+      } finally {
+        if (current === generation) inFlight = false;
       }
     },
     clear() {
       generation++;
+      inFlight = false;
       if (!disposed) publish({ loading: false });
     },
     dispose() {
