@@ -13,3 +13,17 @@ $$;
 revoke all on function private.provision_self_registered_profile() from public, anon, authenticated;
 create trigger my_corner_self_registered_profile after insert on auth.users
 for each row execute function private.provision_self_registered_profile();
+
+-- Self-registration must not let a client promote its own verification status.
+create function private.protect_profile_phone_verification()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+  if current_user in ('authenticated', 'anon') and new.phone_verified is distinct from old.phone_verified then
+    raise exception 'phone verification is server controlled' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function private.protect_profile_phone_verification() from public, anon, authenticated;
+create trigger protect_profile_phone_verification before update on public.profiles
+for each row execute function private.protect_profile_phone_verification();

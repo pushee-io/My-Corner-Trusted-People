@@ -50,7 +50,15 @@ Local mobile typecheck and Preview contract passed. Existing full mobile suite p
 
 Ten server/PostgreSQL tests passed locally, including the existing media processing/access suites, actual registration/allowance migrations, invalid/refused/incomplete AI responses and private quota permissions. Deno check passed for the structurer. Repository Database CI must verify the full migration/reset and existing privacy suites.
 
-Pending: live Preview deployment/readback, AI secret/model availability, current PR CI/review, and native acceptance of all new UI and synchronization. There is no new APK authorization in this directive. The prior corrected media APK build authorization is consumed. No new EAS build, production deployment, real SMS/push or store publication was performed.
+Published [PR #103](https://github.com/pushee-io/My-Corner-Trusted-People/pull/103), stacked on #102. Implementation `c4c23ca` passed [Mobile CI](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35606749352), [Database CI](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35606749482), [Media Functions CI](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35606749486), and [Job Safety Usability](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35606749373). Mobile suite: 446 tests; local lint zero errors / 15 existing warnings, typecheck, Preview contract and web export passed.
+
+Preview deployment: `20260921133831_preview_self_registration` and `20260921133843_request_structuring_allowance`; source filenames aligned with actual remote history. Function `structure-service-request` version 1 ACTIVE, JWT required. Registration and allowance rollback SQL passed on Preview. Registration now also rejects client edits to `phone_verified`, closing an existing update-permission gap without altering account states. A temporary authenticated fixture confirmed that denial. Both temporary Auth user and profile were removed and zero remaining fixture rows verified.
+
+Authenticated HTTP availability returned **503** even with the AI flag enabled and readable by the test user. Server key/model configuration is therefore still a release blocker; runtime secret values are not exposed through the connected tools. The database flag was restored to false. No OpenAI request, confirmation email, SMS or push was sent. Configure `OPENAI_API_KEY` and `OPENAI_REQUEST_STRUCTURER_MODEL` securely in Preview, then enable the flag and verify a fictional request before calling AI ready. Do not paste secrets into chat.
+
+Security advisor comparison: no new WARN/ERROR finding; only the expected private quota table with RLS and no client policy ([Supabase explanation](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy)). Existing advisor findings were not changed by this checkpoint.
+
+Pending: AI configuration and live successful suggestion, final-head CI/review, and native acceptance of all new UI and synchronization. There is no new APK authorization in this directive. The prior corrected media APK build authorization is consumed. No new EAS build, production deployment, real SMS/push or store publication was performed.
 
 ## Required two-device pass after a separately approved build
 
