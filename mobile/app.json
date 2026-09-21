@@ -20,7 +20,25 @@
       },
       "package": "com.mycorner.trustedpeople"
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow My Corner to use the photos and videos you choose.",
+          "cameraPermission": "Allow My Corner to take a photo or record a video.",
+          "microphonePermission": "Allow My Corner to record audio with your videos."
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": false
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

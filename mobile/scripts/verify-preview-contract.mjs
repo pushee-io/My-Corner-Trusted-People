@@ -25,6 +25,13 @@ async function requireText(relativePath, expected) {
 
 await Promise.all(
   [
+    'src/components/media/MediaComposer.tsx',
+    'src/components/media/MediaGallery.tsx',
+    'app/profile/index.tsx',
+    'app/community/index.tsx',
+    'app/hire/request/review.tsx',
+    'app/groups/[groupId].tsx',
+    'app/marketplace.tsx',
     'app/events/index.tsx',
     'app/events/new.tsx',
     'app/events/[eventId].tsx',
@@ -52,6 +59,9 @@ if (preview?.distribution !== expected.distribution) {
 }
 if (preview?.environment !== expected.environment) {
   fail('preview environment must be preview');
+}
+if (preview?.env?.EXPO_PUBLIC_COMMUNITY_ACTIONS_REPOSITORY !== 'supabase') {
+  fail('Preview Groups must use the live repository for authorized media parents.');
 }
 if (preview?.android?.buildType !== expected.androidBuildType) {
   fail('preview Android build type must be apk');

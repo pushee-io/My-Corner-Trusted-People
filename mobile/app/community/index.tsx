@@ -1,3 +1,7 @@
+import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
+import { useMediaSubmission } from '@/components/media/useMediaSubmission';
+import { MediaGallery } from '@/components/media/MediaGallery';
+import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -26,7 +30,10 @@ export default function CommunityFeedScreen() {
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const [isPosting, setIsPosting] = useState(false);
+  const media = useMediaComposer('neighborhood_post');
+  const submission = useMediaSubmission<NeighborhoodFeedPost>(media, neighborhood?.id);
+  const isPosting = submission.busy || media.busy;
+  const [mediaRefresh, setMediaRefresh] = useState(0);
   const [busyId, setBusyId] = useState<string>();
   const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>('reconnecting');
 
@@ -91,10 +98,12 @@ export default function CommunityFeedScreen() {
     if (!neighborhood || !body.trim()) return;
 
     setError(undefined);
-    setIsPosting(true);
 
     try {
-      const post = await createNeighborhoodFeedPost(neighborhood.id, body);
+      const post = await submission.submit((id) => createNeighborhoodFeedPost(neighborhood.id, body, id));
+      if (!post) return;
+      submission.clear();
+      setMediaRefresh((value) => value + 1);
       setBody('');
       setPosts((currentPosts) => {
         if (currentPosts.some((currentPost) => currentPost.id === post.id)) return currentPosts;
@@ -102,8 +111,6 @@ export default function CommunityFeedScreen() {
       });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not publish post.');
-    } finally {
-      setIsPosting(false);
     }
   }
 
@@ -224,6 +231,7 @@ export default function CommunityFeedScreen() {
       <View style={styles.composer}>
         <Text style={styles.label}>Share a local update</Text>
         <TextInput
+          editable={!isPosting && !submission.locked}
           value={body}
           onChangeText={setBody}
           multiline
@@ -233,7 +241,16 @@ export default function CommunityFeedScreen() {
           accessibilityLabel="Neighborhood feed post"
         />
         <Text style={styles.helper}>Keep exact addresses and private contact details out of public posts.</Text>
-        <Pressable disabled={isPosting || body.trim().length < 2} onPress={publishPost} style={styles.button}>
+        <MediaComposer controller={media} title="Photos and video" disabled={submission.busy} />
+        {submission.locked ? (
+          <Text style={styles.helper}>Retry this submission to finish saving the post and its media.</Text>
+        ) : null}
+        <Pressable
+          accessibilityRole="button"
+          disabled={isPosting || body.trim().length < 2}
+          onPress={publishPost}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>{isPosting ? 'Posting...' : 'Post to feed'}</Text>
         </Pressable>
       </View>
@@ -241,68 +258,82 @@ export default function CommunityFeedScreen() {
       {posts.length === 0 ? (
         <EmptyState title="No posts yet" body="Verified neighborhood posts will appear here live." />
       ) : (
-        <View style={styles.list}>
-          {posts.map((post) => (
-            <View key={post.id} style={styles.card}>
-              <Text style={styles.author}>{post.authorName}</Text>
-              <Text style={styles.body}>{post.body}</Text>
-              <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
+        <MediaAvatarCollection
+          profileIds={posts.flatMap((post) => [
+            post.authorId ?? '',
+            ...post.comments.map((comment) => comment.authorId ?? ''),
+          ])}
+        >
+          <View style={styles.list}>
+            {posts.map((post) => (
+              <View key={post.id} style={styles.card}>
+                <MediaAvatar profileId={post.authorId} name={post.authorName} />
+                <Text style={styles.author}>{post.authorName}</Text>
+                <Text style={styles.body}>{post.body}</Text>
+                <MediaGallery parent="neighborhood_post" parentId={post.id} refreshKey={mediaRefresh} />
+                <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
 
-              <View style={styles.actions}>
-                <Pressable
-                  disabled={busyId === `like-${post.id}`}
-                  onPress={() => toggleLike(post)}
-                  style={styles.actionButton}
-                >
-                  <Text style={styles.actionText}>
-                    {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  disabled={post.isReported || busyId === `report-${post.id}`}
-                  onPress={() => reportPost(post.id)}
-                  style={styles.reportButton}
-                >
-                  <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
-                </Pressable>
-              </View>
-
-              {post.comments.length ? (
-                <View style={styles.replies}>
-                  {post.comments.map((comment) => (
-                    <View key={comment.id} style={styles.reply}>
-                      <Text style={styles.author}>{comment.authorName}</Text>
-                      <Text style={styles.body}>{comment.body}</Text>
-                      <Pressable
-                        disabled={comment.isReported || busyId === `report-${comment.id}`}
-                        onPress={() => reportComment(comment)}
-                      >
-                        <Text style={styles.reportText}>{comment.isReported ? 'Reply reported' : 'Report reply'}</Text>
-                      </Pressable>
-                    </View>
-                  ))}
+                <View style={styles.actions}>
+                  <Pressable
+                    disabled={busyId === `like-${post.id}`}
+                    onPress={() => toggleLike(post)}
+                    style={styles.actionButton}
+                  >
+                    <Text style={styles.actionText}>
+                      {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    disabled={post.isReported || busyId === `report-${post.id}`}
+                    onPress={() => reportPost(post.id)}
+                    style={styles.reportButton}
+                  >
+                    <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
+                  </Pressable>
                 </View>
-              ) : null}
 
-              <View style={styles.replyBox}>
-                <TextInput
-                  value={replyDrafts[post.id] ?? ''}
-                  onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
-                  placeholder="Write a reply"
-                  style={styles.replyInput}
-                  accessibilityLabel="Reply to feed post"
-                />
-                <Pressable
-                  disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
-                  onPress={() => publishReply(post.id)}
-                  style={styles.replyButton}
-                >
-                  <Text style={styles.replyButtonText}>{busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}</Text>
-                </Pressable>
+                {post.comments.length ? (
+                  <View style={styles.replies}>
+                    {post.comments.map((comment) => (
+                      <View key={comment.id} style={styles.reply}>
+                        <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
+                        <Text style={styles.author}>{comment.authorName}</Text>
+                        <Text style={styles.body}>{comment.body}</Text>
+                        <Pressable
+                          disabled={comment.isReported || busyId === `report-${comment.id}`}
+                          onPress={() => reportComment(comment)}
+                        >
+                          <Text style={styles.reportText}>
+                            {comment.isReported ? 'Reply reported' : 'Report reply'}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+
+                <View style={styles.replyBox}>
+                  <TextInput
+                    value={replyDrafts[post.id] ?? ''}
+                    onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
+                    placeholder="Write a reply"
+                    style={styles.replyInput}
+                    accessibilityLabel="Reply to feed post"
+                  />
+                  <Pressable
+                    disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
+                    onPress={() => publishReply(post.id)}
+                    style={styles.replyButton}
+                  >
+                    <Text style={styles.replyButtonText}>
+                      {busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        </MediaAvatarCollection>
       )}
     </Screen>
   );

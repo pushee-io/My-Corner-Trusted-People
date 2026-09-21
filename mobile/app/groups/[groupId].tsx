@@ -1,3 +1,8 @@
+import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
+import { useMediaSubmission } from '@/components/media/useMediaSubmission';
+import { MediaGallery } from '@/components/media/MediaGallery';
+import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
+import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -39,6 +44,10 @@ export default function GroupDetailScreen() {
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [viewerId, setViewerId] = useState<string>();
+  const media = useMediaComposer('group_post');
+  const submission = useMediaSubmission<SocialGroupPostDetail>(media, groupId);
+  const [mediaRefresh, setMediaRefresh] = useState(0);
 
   const refresh = useCallback(async () => {
     if (!groupId) return;
@@ -52,6 +61,7 @@ export default function GroupDetailScreen() {
         communityActionsRepository.mode === 'supabase'
           ? { ...defaultViewer, profileId: (await getCurrentProfile()).id }
           : defaultViewer;
+      setViewerId(viewer.profileId);
       const nextSection = (await getCommunityActionsReadRepository().listSocialGroupScreenSections(viewer)).find(
         (item) => item.group.id === groupId,
       );
@@ -108,12 +118,21 @@ export default function GroupDetailScreen() {
     setError(undefined);
 
     try {
-      const post = await getSocialGroupDetailRepository().createPost(section.group.id, postBody);
+      const post = await submission.submit((id) =>
+        getSocialGroupDetailRepository().createPost(section.group.id, postBody, id),
+      );
+      if (!post) return;
+      submission.clear();
+      setMediaRefresh((value) => value + 1);
       setPosts((current) => (current.some((item) => item.id === post.id) ? current : [post, ...current]));
       setPostBody('');
       setNotice('Group post submitted for moderation.');
-    } catch {
-      setError('Could not publish this group post. Check your connection and try again.');
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : 'Could not publish this group post. Check your connection and try again.',
+      );
     } finally {
       setBusyId(undefined);
     }
@@ -219,6 +238,8 @@ export default function GroupDetailScreen() {
         <Text style={styles.backText}>Back to groups</Text>
       </Pressable>
 
+      <MediaGallery parent="group_cover" parentId={section.group.id} />
+      <MediaGallery parent="group_avatar" parentId={section.group.id} coverOnly />
       <View style={styles.groupHeader}>
         <Text style={styles.description}>{section.group.description}</Text>
         <Text style={styles.meta}>
@@ -230,6 +251,25 @@ export default function GroupDetailScreen() {
         <Text style={styles.membership}>{membershipLabel(section.membershipStatus)}</Text>
       </View>
 
+      {acceptedMember &&
+      viewerId === section.group.createdByProfileId &&
+      communityActionsRepository.mode === 'supabase' ? (
+        <View style={styles.composer}>
+          <ParentMediaEditor
+            key={`avatar:${section.group.id}`}
+            parent="group_avatar"
+            parentId={section.group.id}
+            title="Group avatar"
+            name={section.group.name}
+          />
+          <ParentMediaEditor
+            key={`cover:${section.group.id}`}
+            parent="group_cover"
+            parentId={section.group.id}
+            title="Group cover"
+          />
+        </View>
+      ) : null}
       {notice ? (
         <Text accessibilityLiveRegion="polite" style={styles.notice}>
           {notice}
@@ -260,7 +300,12 @@ export default function GroupDetailScreen() {
           )}
         </View>
       ) : (
-        <>
+        <MediaAvatarCollection
+          profileIds={posts.flatMap((post) => [
+            post.authorProfileId,
+            ...post.comments.map((comment) => comment.authorProfileId),
+          ])}
+        >
           <View style={styles.composer}>
             <Text style={styles.sectionTitle}>Post to this group</Text>
             <TextInput
@@ -271,17 +316,24 @@ export default function GroupDetailScreen() {
               placeholder="Ask for a recommendation or share a useful local update."
               style={styles.postInput}
               textAlignVertical="top"
+              editable={!submission.busy && !submission.locked}
               value={postBody}
             />
+            {communityActionsRepository.mode === 'supabase' ? (
+              <MediaComposer controller={media} title="Group photos and video" disabled={submission.busy} />
+            ) : null}
             <View style={styles.composerFooter}>
               <Text style={styles.helper}>{postBody.length}/2000</Text>
               <Pressable
                 accessibilityRole="button"
-                disabled={busyId === 'post' || postBody.trim().length < 2}
+                disabled={submission.busy || media.busy || postBody.trim().length < 2}
                 onPress={() => void publishPost()}
-                style={[styles.primaryButton, busyId === 'post' || postBody.trim().length < 2 ? styles.disabled : null]}
+                style={[
+                  styles.primaryButton,
+                  submission.busy || media.busy || postBody.trim().length < 2 ? styles.disabled : null,
+                ]}
               >
-                <Text style={styles.primaryButtonText}>{busyId === 'post' ? 'Posting...' : 'Post'}</Text>
+                <Text style={styles.primaryButtonText}>{submission.busy ? 'Posting...' : 'Post'}</Text>
               </Pressable>
             </View>
             <Text style={styles.helper}>Do not include exact addresses or private contact details.</Text>
@@ -297,8 +349,10 @@ export default function GroupDetailScreen() {
             <View style={styles.postList}>
               {posts.map((post) => (
                 <View key={post.id} style={styles.post}>
+                  <MediaAvatar profileId={post.authorProfileId} name={post.authorName} />
                   <Text style={styles.author}>{post.authorName}</Text>
                   <Text style={styles.postBody}>{post.body}</Text>
+                  <MediaGallery parent="group_post" parentId={post.id} refreshKey={mediaRefresh} />
                   <Text style={styles.meta}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
 
                   <View accessibilityRole="toolbar" style={styles.actions}>
@@ -360,6 +414,7 @@ export default function GroupDetailScreen() {
                     <View style={styles.comments}>
                       {post.comments.map((comment: SocialGroupPostComment) => (
                         <View key={comment.id} style={styles.comment}>
+                          <MediaAvatar profileId={comment.authorProfileId} name={comment.authorName} size={32} />
                           <Text style={styles.commentAuthor}>{comment.authorName}</Text>
                           <Text style={styles.commentBody}>{comment.body}</Text>
                         </View>
@@ -393,7 +448,7 @@ export default function GroupDetailScreen() {
               ))}
             </View>
           )}
-        </>
+        </MediaAvatarCollection>
       )}
     </Screen>
   );

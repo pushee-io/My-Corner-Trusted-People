@@ -1,3 +1,4 @@
+import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -22,13 +23,16 @@ function EditEventContent() {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
+    setCanEdit(false);
     if (!eventId) return;
     eventsRuntimeRepository
       .getEvent(eventId)
       .then((event) => {
         if (!event?.currentUserOrganizerRole) throw new Error('Organizer permission is required.');
+        setCanEdit(true);
         setTitle(event.title);
         setDescription(event.description);
       })
@@ -37,7 +41,7 @@ function EditEventContent() {
   }, [eventId]);
 
   async function save() {
-    if (!eventId) return;
+    if (!eventId || !canEdit) return;
     setSaving(true);
     setError(undefined);
     try {
@@ -63,7 +67,7 @@ function EditEventContent() {
         <Text style={styles.label}>Event title</Text>
         <TextInput
           accessibilityLabel="Event title"
-          editable={!loading}
+          editable={!loading && canEdit && !saving}
           onChangeText={setTitle}
           style={styles.input}
           value={title}
@@ -73,13 +77,16 @@ function EditEventContent() {
         <Text style={styles.label}>Description</Text>
         <TextInput
           accessibilityLabel="Event description"
-          editable={!loading}
+          editable={!loading && canEdit && !saving}
           multiline
           onChangeText={setDescription}
           style={[styles.input, styles.multiline]}
           value={description}
         />
       </View>
+      {canEdit && eventId && eventsRuntimeRepository.mode === 'supabase' ? (
+        <ParentMediaEditor key={eventId} parent="event" parentId={eventId} title="Event photos and video" />
+      ) : null}
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}
@@ -97,8 +104,8 @@ function EditEventContent() {
         <Pressable
           accessibilityLabel="Save event changes"
           accessibilityRole="button"
-          accessibilityState={{ disabled: saving || loading }}
-          disabled={saving || loading}
+          accessibilityState={{ disabled: saving || loading || !canEdit }}
+          disabled={saving || loading || !canEdit}
           onPress={() => void save()}
           style={styles.primary}
         >

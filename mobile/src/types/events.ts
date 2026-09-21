@@ -85,6 +85,7 @@ export type Event = {
 };
 
 export type EventDraft = {
+  requireOnline?: boolean;
   clientRequestId?: string;
   neighborhoodId: string;
   title: string;

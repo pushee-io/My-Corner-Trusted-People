@@ -1,3 +1,6 @@
+import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
+import { useMediaSubmission } from '@/components/media/useMediaSubmission';
+import type { EventRuntimeDetails } from '@/types/events-runtime';
 import { router, type Href } from 'expo-router';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -26,7 +29,10 @@ function NewEventContent() {
   const [visibility, setVisibility] = useState<EventVisibility>('verified_neighborhood_members');
   const [context, setContext] = useState<EventsRuntimeContext>();
   const [error, setError] = useState<string>();
-  const [saving, setSaving] = useState(false);
+  const media = useMediaComposer('event');
+  const submission = useMediaSubmission<EventRuntimeDetails>(media);
+  const saving = submission.busy || media.busy;
+  const editable = !saving && !submission.locked;
 
   useEffect(() => {
     eventsRuntimeRepository
@@ -38,7 +44,6 @@ function NewEventContent() {
   }, []);
 
   async function submit() {
-    setSaving(true);
     setError(undefined);
     try {
       if (!context) throw new Error('Your verified neighborhood is still loading.');
@@ -49,30 +54,37 @@ function NewEventContent() {
       if (parsedCapacity !== undefined && (!Number.isInteger(parsedCapacity) || parsedCapacity < 1)) {
         throw new Error('Capacity must be a whole number greater than zero.');
       }
-      await eventsRuntimeRepository.createEvent({
-        neighborhoodId: context.neighborhoodId,
-        title,
-        description,
-        startsAt: startsAt.toISOString(),
-        timezone: 'Africa/Accra',
-        areaLabel: `${context.neighborhoodName}, general area only`,
-        visibility,
-        capacity: parsedCapacity,
-      });
+      if (title.trim().length < 3 || description.trim().length < 10)
+        throw new Error('Add a title of at least 3 characters and a description of at least 10.');
+      const event = await submission.submit((id) =>
+        eventsRuntimeRepository.createEvent({
+          clientRequestId: id,
+          requireOnline: media.drafts.length > 0,
+          neighborhoodId: context.neighborhoodId,
+          title,
+          description,
+          startsAt: startsAt.toISOString(),
+          timezone: 'Africa/Accra',
+          areaLabel: `${context.neighborhoodName}, general area only`,
+          visibility,
+          capacity: parsedCapacity,
+        }),
+      );
+      if (!event) return;
+      submission.clear();
       router.replace('/events' as Href);
     } catch (caught) {
       setError(eventErrorMessage(caught));
-    } finally {
-      setSaving(false);
     }
   }
 
   return (
     <Screen title="Create event" showBottomNavigation={false}>
       <Text style={styles.notice}>Use a general area here. Do not enter a private residential address.</Text>
-      <Field label="Event title" value={title} onChangeText={setTitle} />
-      <Field label="Description" value={description} onChangeText={setDescription} multiline />
+      <Field editable={editable} label="Event title" value={title} onChangeText={setTitle} />
+      <Field editable={editable} label="Description" value={description} onChangeText={setDescription} multiline />
       <Field
+        editable={editable}
         label="Date"
         accessibilityHint="Use year dash month dash day"
         placeholder="YYYY-MM-DD"
@@ -81,6 +93,7 @@ function NewEventContent() {
         autoCapitalize="none"
       />
       <Field
+        editable={editable}
         label="Time"
         accessibilityHint="Use 24-hour time in Ghana"
         placeholder="HH:MM"
@@ -98,6 +111,7 @@ function NewEventContent() {
           ] as const
         ).map(([value, label]) => (
           <Pressable
+            disabled={!editable}
             accessibilityRole="radio"
             accessibilityState={{ checked: visibility === value }}
             key={value}
@@ -109,7 +123,17 @@ function NewEventContent() {
         ))}
       </View>
       <Text style={styles.area}>General area: {context?.neighborhoodName ?? 'Loading verified neighborhood...'}</Text>
-      <Field label="Capacity (optional)" value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
+      <Field
+        editable={editable}
+        label="Capacity (optional)"
+        value={capacity}
+        onChangeText={setCapacity}
+        keyboardType="number-pad"
+      />
+      {eventsRuntimeRepository.mode === 'supabase' ? (
+        <MediaComposer controller={media} title="Event cover, photos and video" disabled={submission.busy} />
+      ) : null}
+      <Text style={styles.area}>Your first photo is the event cover. Media follows the event audience.</Text>
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}

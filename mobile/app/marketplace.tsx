@@ -1,3 +1,7 @@
+import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
+import { useMediaSubmission } from '@/components/media/useMediaSubmission';
+import { MediaGallery } from '@/components/media/MediaGallery';
+import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { File } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
@@ -58,6 +62,7 @@ async function prepareMarketplacePhoto(photo: ImagePicker.ImagePickerAsset): Pro
     file = new File(saved.uri);
   }
 
+  if (file.size > photoPolicy.maxBytesPerFile) throw new Error('Choose a photo smaller than 6 MB.');
   return {
     assetId: photo.assetId,
     fileName: `${(photo.fileName ?? 'marketplace-photo').replace(/\.[^.]+$/, '')}.jpg`,
@@ -83,7 +88,10 @@ export default function MarketplaceScreen() {
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const [busyId, setBusyId] = useState<string>();
+  const media = useMediaComposer('marketplace_listing');
+  const submission = useMediaSubmission<MarketplaceListing>(media, neighborhood?.id);
+  const [mediaRefresh, setMediaRefresh] = useState(0);
+  const posting = submission.busy || media.busy;
   const [preparingPhotos, setPreparingPhotos] = useState(false);
 
   const load = useCallback(async () => {
@@ -148,12 +156,13 @@ export default function MarketplaceScreen() {
       return;
     }
 
-    setBusyId('new');
     setError(undefined);
     setMessage(undefined);
 
     try {
       const parsedPrice = price.trim() ? Number(price.trim()) : undefined;
+      if (parsedPrice !== undefined && (!Number.isFinite(parsedPrice) || parsedPrice < 0))
+        throw new Error('Enter a valid price of zero or more.');
       const draft: MarketplaceDraft = {
         title,
         description,
@@ -174,7 +183,10 @@ export default function MarketplaceScreen() {
         pickupArea: `${neighborhood.name}, general pickup area`,
       };
 
-      const listing = await createMarketplaceListing(neighborhood.id, draft);
+      const listing = await submission.submit((id) => createMarketplaceListing(neighborhood.id, draft, id));
+      if (!listing) return;
+      submission.clear();
+      setMediaRefresh((value) => value + 1);
       setListings((current) => [listing, ...current.filter((item) => item.id !== listing.id)]);
       setTitle('');
       setDescription('');
@@ -183,8 +195,6 @@ export default function MarketplaceScreen() {
       setMessage('Listing posted. Exact pickup details stay private until a pickup is confirmed.');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not create listing.');
-    } finally {
-      setBusyId(undefined);
     }
   }
 
@@ -210,6 +220,7 @@ export default function MarketplaceScreen() {
       <View style={styles.panel}>
         <Text style={styles.title}>New listing</Text>
         <TextInput
+          editable={!posting && !submission.locked}
           accessibilityLabel="Item name"
           value={title}
           onChangeText={(value) => {
@@ -220,6 +231,7 @@ export default function MarketplaceScreen() {
           style={styles.input}
         />
         <TextInput
+          editable={!posting && !submission.locked}
           accessibilityLabel="Item description"
           value={description}
           onChangeText={(value) => {
@@ -233,6 +245,7 @@ export default function MarketplaceScreen() {
           textAlignVertical="top"
         />
         <TextInput
+          editable={!posting && !submission.locked}
           accessibilityLabel="Price in Ghana cedis"
           value={price}
           onChangeText={setPrice}
@@ -252,6 +265,7 @@ export default function MarketplaceScreen() {
             <View key={`${photo.assetId ?? photo.uri}-${index}`} style={styles.photoItem}>
               <Image source={{ uri: photo.uri }} style={styles.photo} resizeMode="cover" />
               <Pressable
+                disabled={preparingPhotos || posting || submission.locked}
                 accessibilityLabel={`Remove photo ${index + 1}`}
                 accessibilityRole="button"
                 onPress={() => setPhotos((current) => current.filter((_, itemIndex) => itemIndex !== index))}
@@ -264,54 +278,59 @@ export default function MarketplaceScreen() {
         </View>
         <Pressable
           accessibilityRole="button"
-          disabled={preparingPhotos}
+          disabled={preparingPhotos || posting || submission.locked}
           onPress={() => void pickPhotos()}
           style={[styles.secondaryButton, preparingPhotos ? styles.disabled : null]}
         >
           <Text style={styles.secondaryButtonText}>{preparingPhotos ? 'Preparing photos...' : 'Add photos'}</Text>
         </Pressable>
         <Text style={styles.note}>JPEG, PNG, WebP, HEIC, or HEIF. Maximum 6 MB each.</Text>
+        <MediaComposer controller={media} title="Listing video" disabled={submission.busy || preparingPhotos} />
         <Text style={styles.privacyNote}>
           Pickup area: {neighborhood?.name}. Precise instructions are never stored on the public listing.
         </Text>
 
         <Pressable
           accessibilityRole="button"
-          disabled={busyId === 'new'}
+          disabled={posting || preparingPhotos}
           onPress={() => void postListing()}
-          style={[styles.button, busyId === 'new' ? styles.disabled : null]}
+          style={[styles.button, posting || preparingPhotos ? styles.disabled : null]}
         >
-          <Text style={styles.buttonText}>{busyId === 'new' ? 'Posting...' : 'Post listing'}</Text>
+          <Text style={styles.buttonText}>{posting || preparingPhotos ? 'Posting...' : 'Post listing'}</Text>
         </Pressable>
       </View>
 
-      <View style={styles.list}>
-        {listings.map((listing) => (
-          <View key={listing.id} style={styles.card}>
-            {listing.imageUrl ? (
-              <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
-            ) : null}
-            <Text style={styles.title}>{listing.title}</Text>
-            <Text style={styles.body}>{listing.description}</Text>
-            <Text style={styles.price}>{priceLabel(listing)}</Text>
-            <Text style={styles.note}>
-              {listing.availability} · {listing.sellerName}
-            </Text>
-            <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
-            <WebSafeLink
-              href={{
-                pathname: '/marketplace/listing/[listingId]',
-                params: { listingId: listing.id },
-              }}
-              asChild
-            >
-              <Pressable accessibilityRole="button" style={styles.button}>
-                <Text style={styles.buttonText}>View listing</Text>
-              </Pressable>
-            </WebSafeLink>
-          </View>
-        ))}
-      </View>
+      <MediaAvatarCollection profileIds={listings.map((listing) => listing.sellerId)}>
+        <View style={styles.list}>
+          {listings.map((listing) => (
+            <View key={listing.id} style={styles.card}>
+              {listing.imageUrl ? (
+                <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
+              ) : null}
+              <MediaGallery parent="marketplace_listing" parentId={listing.id} refreshKey={mediaRefresh} />
+              <MediaAvatar profileId={listing.sellerId} name={listing.sellerName} />
+              <Text style={styles.title}>{listing.title}</Text>
+              <Text style={styles.body}>{listing.description}</Text>
+              <Text style={styles.price}>{priceLabel(listing)}</Text>
+              <Text style={styles.note}>
+                {listing.availability} · {listing.sellerName}
+              </Text>
+              <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
+              <WebSafeLink
+                href={{
+                  pathname: '/marketplace/listing/[listingId]',
+                  params: { listingId: listing.id },
+                }}
+                asChild
+              >
+                <Pressable accessibilityRole="button" style={styles.button}>
+                  <Text style={styles.buttonText}>View listing</Text>
+                </Pressable>
+              </WebSafeLink>
+            </View>
+          ))}
+        </View>
+      </MediaAvatarCollection>
     </Screen>
   );
 }

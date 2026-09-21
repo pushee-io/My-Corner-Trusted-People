@@ -1,3 +1,4 @@
+import { MediaThumbnail } from '@/components/media/MediaThumbnail';
 import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -92,6 +93,7 @@ function EventsContent() {
                 asChild
               >
                 <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+                  <MediaThumbnail parent="event" parentId={event.id} />
                   <Text style={styles.title}>{event.title}</Text>
                   <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
                   <Text style={styles.body}>{event.areaLabel}</Text>
@@ -111,6 +113,7 @@ function EventsContent() {
             asChild
           >
             <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+              <MediaThumbnail parent="event" parentId={event.id} />
               <Text style={styles.title}>{event.title}</Text>
               <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
               <Text style={styles.body}>{event.areaLabel}</Text>

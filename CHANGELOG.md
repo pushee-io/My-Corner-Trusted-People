@@ -4,8 +4,27 @@ All notable project changes are recorded here. Dates use the `Africa/Accra` prod
 
 ## Unreleased
 
+### Verification and active work (2026-09-18)
+
+- Built and verified the single approved corrected Preview APK from `62e3cec`, EAS build `7cbb3fcf-36e0-4ce7-85dc-620a3b8ba68c`. Source provenance, archive integrity, application ID, Preview backend and repaired media/Hire bytecode checks passed. The download and SHA-256 are recorded in `docs/VC_MEDIA_PRODUCT_INTEGRATION.md`; focused phone/tablet retesting remains pending.
+- Repaired the connected-media device findings in source: center portrait video previews/playback in a responsive frame, avoid pausing an already released native player on Close video, and replace the Hire Create request photo placeholder with real photo/video selection shared through Review. Added 12 regression cases (419 tests across 81 mobile suites). These changes are included in corrected APK `62e3cec` and await device retest; PR #102 stays draft.
+- Connected shared media to Profile, Neighborhood Feed, Hire, Groups, Events and Marketplace; PR #102 remains draft pending connected-screen device acceptance.
+- Added retry-safe parent submission, immutable Marketplace photo retry paths, and protection against account changes and repeated submission taps. Mobile regression coverage now totals 407 tests across 80 suites; six media processing/security tests also pass.
+- Built and verified the authorized Preview APK from `5d801dd`, EAS build `214b0a28-2476-4271-aabc-2c07faa4c1a3`. Source-commit, product-media bytecode, application ID, Preview environment and archive checks passed. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the download, checksum and outstanding device checks.
+- Repaired both PR #102 foundation review findings and added 12 component/transport regressions before product-screen integration.
+- Added durable private media cleanup, scheduled worker authenticated by single-use tickets, and safe local picker-cache disposal.
+- Verified 22 Preview HTTP cases and eight Storage API deletion jobs with fictional fixtures; removed test accounts and restored the upload flag to off.
+- Matched repository migration filenames to the recorded Preview deployment versions without rewriting remote migration history.
+
+- Recorded completed native verification and the PR #101 offline-session repair.
+- Prepared the requested shared media foundation locally, with private storage/RPC policies, metadata processing, native controls and focused tests.
+- Published the founder-approved media foundation in draft PR #102 at `f17ad80`. Media deployment and a new APK remain separate checkpoints.
+
+
 ### Fixed
 
+- Close expanded private photos during authorization refresh; reject stale selections and late responses after access, parent or account changes.
+- Resume media processing or a missing video poster when signed-upload preflight reports an already-uploaded original, preserving immutable paths and non-upserting uploads.
 - Reject new requests that target inactive or retired provider profiles, preventing stale cached provider IDs from creating unreachable assignments.
 - Validate provider availability before mobile submission and instruct the requester to refresh when a cached provider is no longer active.
 

@@ -1,3 +1,4 @@
+import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile } from '@/lib/auth';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { ModerationQueueItem, NeighborhoodFeedComment, NeighborhoodFeedPost } from '@/types/contracts';
@@ -214,23 +215,28 @@ export async function listNeighborhoodFeedPosts(neighborhoodId: string): Promise
   });
 }
 
-export async function createNeighborhoodFeedPost(neighborhoodId: string, body: string): Promise<NeighborhoodFeedPost> {
+export async function createNeighborhoodFeedPost(
+  neighborhoodId: string,
+  body: string,
+  clientId?: string,
+): Promise<NeighborhoodFeedPost> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
 
-  const { data, error } = await supabase
-    .from('neighborhood_feed_posts')
-    .insert({
+  const { row } = await insertOwnedOnce<FeedPostRow>(
+    'neighborhood_feed_posts',
+    {
       neighborhood_id: neighborhoodId,
       author_id: profile.id,
       body: body.trim(),
       moderation_status: 'not_run',
-    })
-    .select('id, neighborhood_id, author_id, body, moderation_status, created_at')
-    .single();
-
-  if (error) throw error;
-  return mapFeedPost(data as FeedPostRow, profile.displayName);
+    },
+    'id, neighborhood_id, author_id, body, moderation_status, created_at',
+    'author_id',
+    profile.id,
+    clientId,
+  );
+  return mapFeedPost(row, profile.displayName);
 }
 
 export async function createNeighborhoodFeedComment(postId: string, body: string): Promise<NeighborhoodFeedComment> {

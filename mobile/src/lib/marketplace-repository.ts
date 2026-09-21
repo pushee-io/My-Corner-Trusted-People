@@ -1,3 +1,4 @@
+import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { File } from 'expo-file-system';
 
 import { getCurrentProfile } from '@/lib/auth';
@@ -249,7 +250,12 @@ export async function getMarketplaceListing(listingId: string): Promise<Marketpl
   return (await hydrateListings([data as ListingRow]))[0];
 }
 
-async function uploadListingPhotos(profileId: string, photos: MediaAttachmentDraft[]) {
+async function uploadListingPhotos(
+  profileId: string,
+  photos: MediaAttachmentDraft[],
+  clientId?: string,
+  attachedPaths: string[] = [],
+) {
   if (photos.length === 0) return [];
   const prepared = prepareMediaAttachments({
     surface: 'marketplace_listing',
@@ -260,21 +266,32 @@ async function uploadListingPhotos(profileId: string, photos: MediaAttachmentDra
     throw new Error(prepared.errors[0]?.message ?? 'Could not prepare listing photos.');
   }
 
+  if (clientId)
+    prepared.attachments.forEach((attachment, index) => {
+      attachment.objectPath = `marketplace_listing/${profileId}/${clientId}/${index}.jpg`;
+    });
   const uploaded: typeof prepared.attachments = [];
   try {
     for (const attachment of prepared.attachments) {
+      if (attachedPaths.includes(attachment.objectPath)) continue;
       const bytes = await new File(attachment.localUri).arrayBuffer();
       const { error } = await supabase.storage.from(attachment.bucket).upload(attachment.objectPath, bytes, {
         contentType: attachment.mimeType,
         cacheControl: '3600',
         upsert: false,
       });
-      if (error) throw error;
+      // The path is owned by this seller and this immutable submission. A lost
+      // successful upload response may replay; never overwrite an existing file.
+      const duplicate =
+        error &&
+        (Number((error as { statusCode?: string }).statusCode) === 409 ||
+          error.message === 'The resource already exists');
+      if (error && !(clientId && duplicate)) throw error;
       uploaded.push(attachment);
     }
     return uploaded;
   } catch (caught) {
-    if (uploaded.length > 0) {
+    if (!clientId && uploaded.length > 0) {
       await supabase.storage.from('listing-images').remove(uploaded.map((item) => item.objectPath));
     }
     throw caught;
@@ -284,14 +301,21 @@ async function uploadListingPhotos(profileId: string, photos: MediaAttachmentDra
 export async function createMarketplaceListing(
   neighborhoodId: string,
   draft: MarketplaceDraft,
+  clientId?: string,
 ): Promise<MarketplaceListing> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
-  const uploaded = await uploadListingPhotos(profile.id, draft.photos);
-
-  const { data, error } = await supabase
-    .from('marketplace_listings')
-    .insert({
+  const validation = prepareMediaAttachments({
+    surface: 'marketplace_listing',
+    ownerProfileId: profile.id,
+    attachments: draft.photos,
+  });
+  if (!validation.accepted) throw new Error(validation.errors[0]?.message ?? 'Check the listing photos.');
+  // Save/reconcile the parent first so subsequent photo or hydration failures
+  // resume the same listing. The UI keeps its immutable draft until completion.
+  const { row: listingRow } = await insertOwnedOnce<ListingRow>(
+    'marketplace_listings',
+    {
       neighborhood_id: neighborhoodId,
       seller_id: profile.id,
       title: draft.title.trim(),
@@ -301,36 +325,43 @@ export async function createMarketplaceListing(
       pickup_area: draft.pickupArea.trim(),
       pickup_notes: null,
       moderation_status: 'not_run',
-    })
-    .select(listingColumns)
-    .single();
+    },
+    listingColumns,
+    'seller_id',
+    profile.id,
+    clientId,
+  );
 
-  if (error) {
-    if (uploaded.length > 0) {
-      await supabase.storage.from('listing-images').remove(uploaded.map((item) => item.objectPath));
-    }
-    throw error;
+  const attachedPaths: string[] = [];
+  if (clientId && draft.photos.length) {
+    const { data, error } = await supabase
+      .from('marketplace_listing_images')
+      .select('object_path')
+      .eq('listing_id', listingRow.id);
+    if (error) throw error;
+    attachedPaths.push(...(data ?? []).map((item) => item.object_path as string));
   }
-
-  const listingRow = data as ListingRow;
+  const uploaded = await uploadListingPhotos(profile.id, draft.photos, clientId, attachedPaths);
   if (uploaded.length > 0) {
-    const { error: imageError } = await supabase.from('marketplace_listing_images').insert(
-      uploaded.map((attachment, position) => ({
+    const { error } = await supabase.from('marketplace_listing_images').insert(
+      uploaded.map((attachment) => ({
         listing_id: listingRow.id,
         owner_profile_id: profile.id,
         object_path: attachment.objectPath,
         mime_type: attachment.mimeType,
-        position,
+        position: clientId
+          ? Number(attachment.objectPath.split('/').pop()!.split('.')[0])
+          : uploaded.indexOf(attachment),
         alt_text: attachment.altText ?? null,
         moderation_status: attachment.moderationStatus,
       })),
     );
-    if (imageError) {
-      await supabase.storage.from('listing-images').remove(uploaded.map((item) => item.objectPath));
-      throw new Error('Listing saved, but its photos could not be attached. Retry from the listing.');
+    if (error) {
+      // Do not delete after an ambiguous response: the insert may have committed.
+      // The next retry reads attached paths before attempting any insert/upload.
+      throw new Error('Your listing needs another attempt to finish attaching photos. Retry this submission.');
     }
   }
-
   return (await hydrateListings([listingRow]))[0];
 }
 

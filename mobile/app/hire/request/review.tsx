@@ -1,3 +1,5 @@
+import { MediaComposer } from '@/components/media/MediaComposer';
+import { useRequestMedia } from '@/components/media/RequestMediaProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -14,7 +16,8 @@ export default function RequestReviewScreen() {
   const params = useLocalSearchParams<Record<string, string>>();
   const [provider, setProvider] = useState<Provider>();
   const [error, setError] = useState<string>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { media, submission } = useRequestMedia();
+  const isSubmitting = submission.busy || media.busy;
 
   useEffect(() => {
     if (!params.providerId) return;
@@ -27,40 +30,45 @@ export default function RequestReviewScreen() {
 
   async function submit() {
     setError(undefined);
-    setIsSubmitting(true);
 
     try {
-      const moderation = featureFlags.ai_content_moderation
-        ? await moderateText(params.description ?? '')
-        : { status: 'not_run' as const };
+      const request = await submission.submit(async (id) => {
+        const moderation = featureFlags.ai_content_moderation
+          ? await moderateText(params.description ?? '')
+          : { status: 'not_run' as const };
 
-      const request = await createJobRequest({
-        requesterName: params.requesterName ?? 'Akosua Mensah',
-        providerId: params.providerId ?? '',
-        categoryId: params.categoryId ?? 'plumbing',
-        neighborhood: params.neighborhood ?? 'East Legon',
-        areaLabel: params.areaLabel ?? 'East Legon, general area only',
-        title: params.title ?? 'Service request',
-        description: params.description ?? '',
-        originalUserText: params.originalUserText ?? params.description ?? '',
-        urgency: (params.urgency ?? 'soon') as RequestUrgency,
-        preferredDate: params.preferredDate ?? '2026-07-18',
-        preferredTime: params.preferredTime ?? 'Afternoon',
-        contactPreference: (params.contactPreference ?? 'app_update') as ContactPreference,
-        photoCount: Number(params.photoCount ?? 0),
+        const request = await createJobRequest(
+          {
+            requesterName: params.requesterName ?? 'Akosua Mensah',
+            providerId: params.providerId ?? '',
+            categoryId: params.categoryId ?? 'plumbing',
+            neighborhood: params.neighborhood ?? 'East Legon',
+            areaLabel: params.areaLabel ?? 'East Legon, general area only',
+            title: params.title ?? 'Service request',
+            description: params.description ?? '',
+            originalUserText: params.originalUserText ?? params.description ?? '',
+            urgency: (params.urgency ?? 'soon') as RequestUrgency,
+            preferredDate: params.preferredDate ?? '2026-07-18',
+            preferredTime: params.preferredTime ?? 'Afternoon',
+            contactPreference: (params.contactPreference ?? 'app_update') as ContactPreference,
+            photoCount: media.drafts.filter((item) => item.kind === 'image').length,
+          },
+          id,
+        );
+
+        trackEvent('request_submitted', {
+          requestId: request.id,
+          categoryId: request.categoryId,
+          moderationStatus: moderation.status,
+        });
+
+        return request;
       });
-
-      trackEvent('request_submitted', {
-        requestId: request.id,
-        categoryId: request.categoryId,
-        moderationStatus: moderation.status,
-      });
-
+      if (!request) return;
+      submission.clear();
       router.replace({ pathname: '/hire/request/status', params: { requestId: request.id } });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not submit request.');
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -70,7 +78,7 @@ export default function RequestReviewScreen() {
         title="Review before sending"
         body="The provider sees your general area, not your exact home address."
       />
-      {error ? <EmptyState title="Request not submitted" body={error} /> : null}
+      {error ? <EmptyState title="Request notice" body={error} /> : null}
 
       <View style={styles.panel}>
         <Text style={styles.label}>Provider</Text>
@@ -90,7 +98,16 @@ export default function RequestReviewScreen() {
         </Text>
       </View>
 
-      <Pressable disabled={isSubmitting} onPress={submit} style={styles.button}>
+      <MediaComposer
+        controller={media}
+        title="Photos or video of the work"
+        disabled={submission.busy || submission.locked}
+      />
+      <Text style={styles.notice}>Attachments are private to you and the assigned provider.</Text>
+      {submission.locked ? (
+        <Text style={styles.notice}>Retry completes this same request and its attachments.</Text>
+      ) : null}
+      <Pressable accessibilityRole="button" disabled={isSubmitting} onPress={submit} style={styles.button}>
         <Text style={styles.buttonText}>{isSubmitting ? 'Submitting...' : 'Submit request'}</Text>
       </Pressable>
     </Screen>

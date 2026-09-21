@@ -1,14 +1,9 @@
+import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Provider } from '@/types/contracts';
 import { tokens } from '@/theme/tokens';
 
 export function ProviderCard({ provider, onPress }: { provider: Provider; onPress: () => void }) {
-  const initials = provider.name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2);
-
   return (
     <Pressable
       onPress={onPress}
@@ -17,9 +12,7 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
       accessibilityLabel={`${provider.name}, ${provider.serviceLabel}, ${provider.areaLabel}`}
     >
       <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        <MediaAvatar profileId={provider.profileId} name={provider.name} size={52} />
         <View style={styles.headerText}>
           <Text style={styles.name}>{provider.name}</Text>
           <Text style={styles.headline}>{provider.headline}</Text>

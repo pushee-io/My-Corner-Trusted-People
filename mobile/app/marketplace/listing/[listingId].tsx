@@ -1,3 +1,6 @@
+import { MediaGallery } from '@/components/media/MediaGallery';
+import { MediaAvatar } from '@/components/media/MediaAvatar';
+import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -150,6 +153,12 @@ export default function MarketplaceListingScreen() {
 
   return (
     <Screen title={listing.title} showBottomNavigation={false}>
+      <MediaAvatar profileId={listing.sellerId} name={listing.sellerName} />
+      {isSeller ? (
+        <ParentMediaEditor key={listing.id} parent="marketplace_listing" parentId={listing.id} title="Listing video" />
+      ) : (
+        <MediaGallery parent="marketplace_listing" parentId={listing.id} />
+      )}
       {listing.imageUrls?.length ? (
         <View style={styles.imageGrid}>
           {listing.imageUrls.map((uri, index) => (
