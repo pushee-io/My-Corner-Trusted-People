@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-21",
+  "pr": 105,
+  "tested_head": "92f0c66079e7f14cc44b5eae0628de6d2b3dbe9c",
+  "merge": "3ccb95a19a51c74b194bef616388015785f4bad9",
+  "tree": "d3ecc823a94039fd24235024c5b76d44039ba89b",
+  "checks": {
+    "tests": 446,
+    "typecheck": "pass",
+    "format": "pass",
+    "lint_errors": 0,
+    "baseline_lint_warnings": 15,
+    "android_export": "pass; bundled font byte-matches source",
+    "font_rebuild": "deterministic",
+    "visual": "font glyphs reviewed at 24/48/96 px in active/inactive colors",
+    "mobile_ci_push": 35619442320,
+    "mobile_ci_pr": 35619459962
+  },
+  "apk_built": false,
+  "native_acceptance": "Pending a separately approved APK and phone/tablet retest"
+}
