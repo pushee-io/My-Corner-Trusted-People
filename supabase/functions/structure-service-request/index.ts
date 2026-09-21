@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { parseStructuredRequest, structurerPayload, validateRequestText } from '../_shared/structure-request.ts';
+import { parseStructuredRequest, safeStructurerErrorReason, structurerPayload, validateRequestText } from '../_shared/structure-request.ts';
 
 const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, x-client-info, content-type' };
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
@@ -30,7 +30,10 @@ Deno.serve(async (req) => {
       method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(structurerPayload(text, model)), signal: AbortSignal.timeout(20000),
     });
-    if (!response.ok) return reply({ error: 'AI structuring is unavailable. Your draft is unchanged.' }, 503);
+    if (!response.ok) {
+      const reason = safeStructurerErrorReason(await response.json().catch(() => null));
+      return reply({ error: 'AI structuring is unavailable. Your draft is unchanged.', reason, providerStatus: response.status }, 503);
+    }
     return reply({ enabled: true, result: parseStructuredRequest(await response.json()) });
   } catch { return reply({ error: 'Could not structure this request. You can continue manually.' }, 503); }
 });

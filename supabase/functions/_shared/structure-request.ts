@@ -24,3 +24,10 @@ export function parseStructuredRequest(response: { status?: string; output?: { c
   }
   return result;
 }
+
+// Only fixed diagnostic codes may leave the server, never upstream messages or request data.
+export function safeStructurerErrorReason(payload: unknown): string {
+  const code = (payload as { error?: { code?: unknown } } | null)?.error?.code;
+  const allowed = ['insufficient_quota', 'invalid_api_key', 'model_not_found', 'permission_denied', 'rate_limit_exceeded'];
+  return typeof code === 'string' && allowed.includes(code) ? code : 'provider_unavailable';
+}
