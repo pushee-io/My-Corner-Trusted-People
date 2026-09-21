@@ -5,6 +5,7 @@ import { router, Stack, useGlobalSearchParams, useLocalSearchParams, usePathname
 import RequestLayout from '../../app/hire/request/_layout';
 import NewRequest from '../../app/hire/request/new';
 import ReviewRequest from '../../app/hire/request/review';
+import { structureServiceRequest } from '@/lib/ai';
 import { pickMedia } from '@/lib/media-picker';
 import { attachMedia, mediaEnabled, uploadMediaDraft } from '@/lib/media-repository';
 import { releaseLocalMedia } from '@/lib/media-local-files';
@@ -292,4 +293,55 @@ test('picker cancellation and upload failure preserve form text and selections',
   await review();
   await press('Submit request');
   expect(createJobRequest).toHaveBeenCalledTimes(1);
+});
+
+const aiSuggestion = {
+  title: 'Kitchen sink leak',
+  description: 'Water is leaking under the sink.',
+  urgency: 'flexible' as const,
+  missingInfo: [],
+  safetyWarning: '',
+};
+function titleField() {
+  return screen()
+    .findAllByType(TextInput)
+    .find((node) => node.props.accessibilityLabel === 'Job title')!;
+}
+test('AI suggestions require explicit acceptance, remain editable and never submit', async () => {
+  await navigate(newPath);
+  await fillForm();
+  jest.mocked(structureServiceRequest).mockResolvedValue(aiSuggestion);
+  await press('Structure with AI');
+  expect(titleField().props.value).toBe('Repair kitchen sink');
+  expect(createJobRequest).not.toHaveBeenCalled();
+  await press('Use suggested title and description');
+  expect(titleField().props.value).toBe('Kitchen sink leak');
+  await act(async () => titleField().props.onChangeText('My own edited title'));
+  expect(titleField().props.value).toBe('My own edited title');
+  expect(createJobRequest).not.toHaveBeenCalled();
+});
+test('AI failure preserves manual entry and the review flow', async () => {
+  await navigate(newPath);
+  await fillForm();
+  jest.mocked(structureServiceRequest).mockRejectedValue(new Error('Service unavailable; continue manually.'));
+  await press('Structure with AI');
+  expect(titleField().props.value).toBe('Repair kitchen sink');
+  await review();
+  expect(currentPath).toBe(reviewPath);
+});
+test('AI results from a previous account are discarded', async () => {
+  await navigate(newPath);
+  await fillForm();
+  let resolve!: (value: typeof aiSuggestion) => void;
+  jest.mocked(structureServiceRequest).mockReturnValue(
+    new Promise((yes) => {
+      resolve = yes;
+    }),
+  );
+  await act(async () => {
+    void button('Structure with AI').props.onPress();
+  });
+  await act(async () => invalidateMediaSession());
+  await act(async () => resolve(aiSuggestion));
+  expect(button('Use suggested title and description')).toBeUndefined();
 });

@@ -1,7 +1,8 @@
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
@@ -9,31 +10,36 @@ import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { markRequestViewed } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
-import type { JobRequest } from '@/types/contracts';
+import { ReportButton } from '@/components/JobReportParts';
 
 export default function ProviderRequestDetailScreen() {
   const params = useLocalSearchParams<{ requestId?: string }>();
   const requestId = params.requestId;
-  const [request, setRequest] = useState<JobRequest>();
-  const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(Boolean(requestId));
-
-  useEffect(() => {
-    if (!requestId) {
-      setError('No request ID was provided.');
-      setIsLoading(false);
-      return;
-    }
-
-    markRequestViewed(requestId)
-      .then(setRequest)
-      .catch((caught) => setError(caught instanceof Error ? caught.message : 'Could not load request.'))
-      .finally(() => setIsLoading(false));
-  }, [requestId]);
+  const resource = useProtectedResource(
+    useCallback(async () => {
+      if (!requestId) throw new Error('No request ID was provided.');
+      return markRequestViewed(requestId);
+    }, [requestId]),
+    10_000,
+  );
+  const { data: request, error, loading: isLoading } = resource;
 
   if (error || isLoading || !request) {
     return (
-      <Screen title="Request detail">
+      <Screen
+        title="Request detail"
+        onRefresh={() => {
+          void resource.refresh();
+        }}
+        refreshing={isLoading}
+      >
+        <ReportButton
+          label="Refresh request"
+          disabled={isLoading}
+          onPress={() => {
+            void resource.refresh();
+          }}
+        />
         <EmptyState
           title={isLoading ? 'Loading request' : 'Request not found'}
           body={error ?? 'Opening the live request.'}
@@ -43,7 +49,20 @@ export default function ProviderRequestDetailScreen() {
   }
 
   return (
-    <Screen title="Request detail">
+    <Screen
+      title="Request detail"
+      onRefresh={() => {
+        void resource.refresh();
+      }}
+      refreshing={isLoading}
+    >
+      <ReportButton
+        label="Refresh request"
+        disabled={isLoading}
+        onPress={() => {
+          void resource.refresh();
+        }}
+      />
       <View style={styles.panel}>
         <MediaAvatar profileId={request.requesterProfileId} name={request.requesterName} />
         <StatusPill status={request.status} />

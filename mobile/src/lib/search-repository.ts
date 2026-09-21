@@ -5,7 +5,14 @@ import { categories } from '@/lib/mock-data';
 import type { MarketplaceListing, ServiceCategory } from '@/types/contracts';
 import type { AgencyBroadcast, Day3NeighborhoodContext } from '@/types/day3';
 
-export type SearchResultKind = 'provider' | 'request' | 'group' | 'agency_broadcast' | 'marketplace_listing';
+export type SearchResultKind =
+  | 'post'
+  | 'event'
+  | 'provider'
+  | 'request'
+  | 'group'
+  | 'agency_broadcast'
+  | 'marketplace_listing';
 
 export type SearchResult = {
   id: string;
@@ -15,6 +22,9 @@ export type SearchResult = {
   body: string;
   href: string;
   sourceLabel: string;
+  mediaParent?: import('@/lib/media-contract').MediaParent;
+  mediaParentId?: string;
+  thumbnailUrl?: string;
 };
 
 export type SearchRepository = {
@@ -33,6 +43,7 @@ export type SearchRepositoryOptions = {
   providerRequestPreviewId?: string;
   communityViewer?: Day3NeighborhoodContext;
   limit?: number;
+  extraReadSources?: (() => Promise<SearchResult[]>)[];
 };
 
 const defaultLimit = 20;
@@ -54,28 +65,104 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
       const day2bRepository = options.day2bReadRepository ?? (await getDefaultDay2BReadRepository());
       const communityRepository = options.communityReadRepository ?? (await getDefaultCommunityReadRepository());
 
-      const [providers, requests, community, marketplace] = await Promise.all([
-        safeRead(() => providerResults(day2bRepository, sourceCategories)),
-        safeRead(() => requestResults(day2bRepository, providerRequestPreviewId)),
-        safeRead(() => communityResults(communityRepository, communityViewer)),
-        safeRead(() => marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource)),
+      const reads = await Promise.allSettled([
+        providerResults(day2bRepository, sourceCategories),
+        requestResults(day2bRepository, providerRequestPreviewId),
+        communityResults(communityRepository, communityViewer),
+        marketplaceResults(options.marketplaceReadSource ?? defaultMarketplaceReadSource),
+        ...(options.extraReadSources ?? []).map((read) => read()),
       ]);
 
-      return [...providers, ...requests, ...community, ...marketplace]
+      if (reads.every((read) => read.status === 'rejected'))
+        throw new Error('Search is unavailable. Please try again.');
+      return reads
+        .flatMap((read) => (read.status === 'fulfilled' ? read.value : []))
         .filter((result) => matchesQuery(result, normalizedQuery))
         .slice(0, limit);
     },
   };
 }
 
-export const searchRepository = createSearchRepository();
+// Live defaults resolve the viewer for every query; never search a seeded identity.
+export const searchRepository: SearchRepository = {
+  async search(query) {
+    if (normalize(query).length < minimumQueryLength) return [];
+    const { getCurrentCapabilities } = await import('@/lib/capabilities');
+    const capabilities = await getCurrentCapabilities();
+    const live = await import('@/lib/repository');
+    const { createCommunityActionsReadRepository } = await import('@/lib/community-actions-repository');
+    const community = createCommunityActionsReadRepository({ mode: 'supabase' });
+    if (community.mode !== 'supabase') throw new Error('Live search is unavailable. Please try again.');
+    const viewer = {
+      ...getActiveDay3NeighborhoodContext(),
+      profileId: capabilities.profileId,
+      neighborhoodId: capabilities.neighborhoodId ?? '',
+      clusterId: capabilities.clusterId ?? '',
+      isVerifiedNeighborhoodMember: capabilities.community,
+    };
+    return createSearchRepository({
+      day2bReadRepository: {
+        mode: 'live-readonly',
+        listProvidersByCategory: live.listProvidersByCategory,
+        getProvider: live.getProvider,
+        listProviderRequests: capabilities.provider ? live.listProviderRequests : async () => [],
+      },
+      communityReadRepository: capabilities.community
+        ? community
+        : {
+            mode: 'supabase',
+            listSocialGroupScreenSections: async () => [],
+            listAgencyBroadcasts: async () => [],
+            listModerationCases: async () => [],
+          },
+      communityViewer: viewer,
+      marketplaceReadSource: capabilities.community ? defaultMarketplaceReadSource : { listListings: async () => [] },
+      extraReadSources: capabilities.community
+        ? [
+            async () => {
+              const { listNeighborhoodFeedPosts } = await import('@/lib/community-repository');
+              const posts = await listNeighborhoodFeedPosts(capabilities.neighborhoodId!);
+              return posts.map((post) => ({
+                id: `post-${post.id}`,
+                kind: 'post' as const,
+                title: post.body.slice(0, 80),
+                subtitle: 'Neighborhood post',
+                body: post.body,
+                href: '/community',
+                sourceLabel: 'Neighborhood',
+                mediaParent: 'neighborhood_post' as const,
+                mediaParentId: post.id,
+              }));
+            },
+            async () => {
+              const { eventsRuntimeRepository, isEventsClientEnabled } = await import(
+                '@/lib/events-runtime-repository'
+              );
+              if (!isEventsClientEnabled() || !(await eventsRuntimeRepository.isEnabled())) return [];
+              return (await eventsRuntimeRepository.listEvents()).map((event) => ({
+                id: `event-${event.id}`,
+                kind: 'event' as const,
+                title: event.title,
+                subtitle: 'Event',
+                body: event.description,
+                href: `/events/${event.id}`,
+                sourceLabel: 'Event',
+                mediaParent: 'event' as const,
+                mediaParentId: event.id,
+              }));
+            },
+          ]
+        : [],
+    }).search(query);
+  },
+};
 
 async function providerResults(
   repository: Day2BReadRepository,
   sourceCategories: ServiceCategory[],
 ): Promise<SearchResult[]> {
   const providerLists = await Promise.all(
-    sourceCategories.map((category) => safeRead(() => repository.listProvidersByCategory(category.id))),
+    sourceCategories.map((category) => repository.listProvidersByCategory(category.id)),
   );
   const providers = dedupeById(providerLists.flat());
 
@@ -87,6 +174,8 @@ async function providerResults(
     body: [provider.headline, provider.areaLabel, provider.availability].filter(Boolean).join(' · '),
     href: `/hire/provider/${provider.id}`,
     sourceLabel: 'Provider',
+    mediaParent: 'profile',
+    mediaParentId: provider.profileId,
   }));
 }
 
@@ -119,7 +208,9 @@ async function communityResults(
     title: group.name,
     subtitle: `Group · ${membershipStatus}`,
     body: group.description,
-    href: '/groups',
+    href: `/groups/${group.id}`,
+    mediaParent: 'group_cover',
+    mediaParentId: group.id,
     sourceLabel: 'Group',
   }));
 
@@ -148,8 +239,11 @@ async function marketplaceResults(source: MarketplaceReadSource): Promise<Search
     subtitle:
       listing.priceGhs === undefined ? 'Marketplace · Free or negotiable' : `Marketplace · GHS ${listing.priceGhs}`,
     body: [listing.description, listing.pickupArea, listing.availability].filter(Boolean).join(' · '),
-    href: '/marketplace',
+    href: `/marketplace/listing/${listing.id}`,
+    mediaParent: 'marketplace_listing',
+    mediaParentId: listing.id,
     sourceLabel: 'Marketplace',
+    thumbnailUrl: listing.imageUrl,
   }));
 }
 
@@ -192,14 +286,6 @@ function searchableText(result: SearchResult) {
 
 function normalize(value: string) {
   return value.trim().toLocaleLowerCase();
-}
-
-async function safeRead<T>(read: () => Promise<T[]>): Promise<T[]> {
-  try {
-    return await read();
-  } catch {
-    return [];
-  }
 }
 
 function dedupeById<T extends { id: string }>(items: T[]): T[] {

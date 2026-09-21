@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
@@ -7,62 +8,24 @@ import { StatusPill } from '@/components/StatusPill';
 import { getCurrentProviderProfile } from '@/lib/auth';
 import { listProviderRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
-import type { JobRequest } from '@/types/contracts';
 
 export default function ProviderRequestsScreen() {
-  const [requests, setRequests] = useState<JobRequest[]>([]);
-  const [providerBusinessName, setProviderBusinessName] = useState<string>();
-  const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    let active = true;
-    let inFlight = false;
-
-    async function loadRequests(showLoading = false) {
-      if (inFlight) return;
-
-      inFlight = true;
-      if (showLoading) setIsLoading(true);
-
-      try {
-        const [providerProfile, nextRequests] = await Promise.all([
-          getCurrentProviderProfile(),
-          listProviderRequests(),
-        ]);
-        if (!active) return;
-
-        setProviderBusinessName(providerProfile.businessName);
-        setRequests(nextRequests);
-        setError(undefined);
-      } catch (caught) {
-        if (!active) return;
-
-        setError(caught instanceof Error ? caught.message : 'Could not load incoming requests.');
-      } finally {
-        inFlight = false;
-        if (active) setIsLoading(false);
-      }
-    }
-
-    void loadRequests(true);
-    const refreshInterval = setInterval(() => {
-      if (AppState.currentState === 'active') void loadRequests();
-    }, 10_000);
-
-    return () => {
-      active = false;
-      clearInterval(refreshInterval);
-    };
-  }, [reloadKey]);
-
-  function refreshRequests() {
-    setReloadKey((current) => current + 1);
-  }
+  const resource = useProtectedResource(
+    useCallback(async () => {
+      const [provider, requests] = await Promise.all([getCurrentProviderProfile(), listProviderRequests()]);
+      return { provider, requests };
+    }, []),
+    10_000,
+  );
+  const requests = resource.data?.requests ?? [];
+  const providerBusinessName = resource.data?.provider.businessName;
+  const { error, loading: isLoading } = resource;
+  const refreshRequests = () => {
+    void resource.refresh();
+  };
 
   return (
-    <Screen title="Incoming requests">
+    <Screen title="Incoming requests" onRefresh={refreshRequests} refreshing={isLoading}>
       <OfflineBanner onRetry={refreshRequests} />
 
       {providerBusinessName ? (

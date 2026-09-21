@@ -2,6 +2,9 @@ import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { ReportButton } from '@/components/JobReportParts';
+import { mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { EmptyState } from '@/components/StateBlocks';
 import {
@@ -36,7 +39,18 @@ export default function JobSafetySessionScreen() {
   const { requestId } = useLocalSearchParams<{ requestId?: string }>();
   const activeRequestId = useRef(requestId);
   activeRequestId.current = requestId;
-  const [loadedSession, setLoadedSession] = useState<JobSafetySession>();
+  const resource = useProtectedResource(
+    useCallback(async () => {
+      if (!requestId) throw new Error('No request ID was provided.');
+      const nextSession = await getJobSafetySession(requestId);
+      if (nextSession && nextSession.jobRequestId !== requestId) {
+        throw new Error('The returned safety session did not match this request.');
+      }
+      return nextSession;
+    }, [requestId]),
+    10_000,
+  );
+  const loadedSession = resource.data;
   const session = sessionForJobSafetyRoute(loadedSession, requestId);
   const [latitude, setLatitude] = useState('5.650450');
   const [longitude, setLongitude] = useState('-0.154120');
@@ -47,69 +61,45 @@ export default function JobSafetySessionScreen() {
   const [locationConsentAccepted, setLocationConsentAccepted] = useState(false);
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(Boolean(requestId));
+  const isLoading = resource.loading;
   const [isSaving, setIsSaving] = useState(false);
 
-  const refresh = useCallback(async () => {
-    if (!requestId) return;
-    const nextSession = await getJobSafetySession(requestId);
-    if (activeRequestId.current !== requestId) return;
-    if (nextSession && nextSession.jobRequestId !== requestId) {
-      throw new Error('The returned safety session did not match this request.');
-    }
-    setLoadedSession(nextSession);
-    if (nextSession?.privateLocationLabel) setLocationLabel(nextSession.privateLocationLabel);
-    if (nextSession?.privateLatitude !== undefined) setLatitude(String(nextSession.privateLatitude));
-    if (nextSession?.privateLongitude !== undefined) setLongitude(String(nextSession.privateLongitude));
-  }, [requestId]);
+  const refresh = resource.refresh;
 
   useEffect(() => {
-    const routeRequestId = requestId;
-    setLoadedSession(undefined);
-    setIssuedCodeState(undefined);
-    setCode('');
-    setLocationConsentAccepted(false);
-    setLocationLabel('');
-    setLatitude('5.650450');
-    setLongitude('-0.154120');
-    setMessage(undefined);
-    setError(undefined);
-    setIsSaving(false);
-    setIsLoading(Boolean(routeRequestId));
-
-    if (!requestId) {
-      setError('No request ID was provided.');
-      setIsLoading(false);
-      return;
+    function resetDraft() {
+      setIssuedCodeState(undefined);
+      setCode('');
+      setLocationConsentAccepted(false);
+      setLocationLabel('');
+      setLatitude('5.650450');
+      setLongitude('-0.154120');
+      setMessage(undefined);
+      setError(undefined);
+      setIsSaving(false);
     }
+    resetDraft();
+    return subscribeMediaSession(resetDraft);
+  }, [requestId]);
 
-    refresh()
-      .catch((caught) => {
-        if (activeRequestId.current === routeRequestId) {
-          setError(errorMessage(caught, 'Could not load the job safety session.'));
-        }
-      })
-      .finally(() => {
-        if (activeRequestId.current === routeRequestId) setIsLoading(false);
-      });
-  }, [refresh, requestId]);
-
-  async function runAction(action: () => Promise<void>, successMessage: string) {
+  async function runAction(action: (isCurrent: () => boolean) => Promise<void>, successMessage: string) {
     const actionRequestId = requestId;
+    const revision = mediaSessionRevision();
+    const isCurrent = () => activeRequestId.current === actionRequestId && revision === mediaSessionRevision();
     setError(undefined);
     setMessage(undefined);
     setIsSaving(true);
     try {
-      await action();
-      if (activeRequestId.current !== actionRequestId) return;
+      await action(isCurrent);
+      if (!isCurrent()) return;
       await refresh();
-      if (activeRequestId.current === actionRequestId) setMessage(successMessage);
+      if (isCurrent()) setMessage(successMessage);
     } catch (caught) {
-      if (activeRequestId.current === actionRequestId) {
+      if (isCurrent()) {
         setError(errorMessage(caught, 'That safety step could not be completed.'));
       }
     } finally {
-      if (activeRequestId.current === actionRequestId) setIsSaving(false);
+      if (isCurrent()) setIsSaving(false);
     }
   }
 
@@ -129,7 +119,7 @@ export default function JobSafetySessionScreen() {
       return;
     }
 
-    await runAction(async () => {
+    await runAction(async (isCurrent) => {
       const result = await releaseJobSafetyLocation({
         jobRequestId: requestId!,
         latitude: parsedLatitude,
@@ -137,7 +127,7 @@ export default function JobSafetySessionScreen() {
         locationLabel: locationLabel.trim(),
         consentVersion: 'job_safety_location_v1',
       });
-      setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
+      if (isCurrent()) setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
     }, 'The exact service pin is now available to the assigned provider.');
   }
 
@@ -147,7 +137,7 @@ export default function JobSafetySessionScreen() {
       return;
     }
 
-    await runAction(async () => {
+    await runAction(async (isCurrent) => {
       const result = await startJobSafetySession(requestId!, code);
       if (!result.started) {
         const detail =
@@ -158,28 +148,54 @@ export default function JobSafetySessionScreen() {
               : `That code did not match. ${result.attemptsRemaining ?? 0} attempts remain.`;
         throw new Error(detail);
       }
-      setCode('');
+      if (isCurrent()) setCode('');
     }, 'The arrival code matched. The job session is now active.');
   }
 
   async function replaceCode() {
-    await runAction(async () => {
+    await runAction(async (isCurrent) => {
       const result = await regenerateJobSafetyCode(requestId!);
-      setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
+      if (isCurrent()) setIssuedCodeState({ jobRequestId: requestId!, value: result.oneTimeCode });
     }, 'A new arrival code was issued. The previous code no longer works.');
   }
 
-  if (error && !session && !isLoading) {
+  if ((error || resource.error) && !session && !isLoading) {
     return (
-      <Screen title="Job safety session">
-        <EmptyState title="Session unavailable" body={error} />
+      <Screen
+        title="Job safety session"
+        onRefresh={() => {
+          void refresh();
+        }}
+        refreshing={isLoading}
+      >
+        <ReportButton
+          label="Refresh session"
+          disabled={isLoading || isSaving}
+          onPress={() => {
+            void refresh();
+          }}
+        />
+        <EmptyState title="Session unavailable" body={error ?? resource.error ?? 'Session unavailable.'} />
       </Screen>
     );
   }
 
   if (isLoading || !session) {
     return (
-      <Screen title="Job safety session">
+      <Screen
+        title="Job safety session"
+        onRefresh={() => {
+          void refresh();
+        }}
+        refreshing={isLoading}
+      >
+        <ReportButton
+          label="Refresh session"
+          disabled={isLoading || isSaving}
+          onPress={() => {
+            void refresh();
+          }}
+        />
         <EmptyState
           title={isLoading ? 'Loading safety session' : 'No session yet'}
           body="A session starts after a provider accepts the request."
@@ -195,7 +211,20 @@ export default function JobSafetySessionScreen() {
     (isRequester ? !session.requesterCompletedAt : !session.providerCompletedAt);
 
   return (
-    <Screen title="Job safety session">
+    <Screen
+      title="Job safety session"
+      onRefresh={() => {
+        void refresh();
+      }}
+      refreshing={isLoading}
+    >
+      <ReportButton
+        label="Refresh session"
+        disabled={isLoading || isSaving}
+        onPress={() => {
+          void refresh();
+        }}
+      />
       {isRequester && !['completed', 'cancelled'].includes(session.state) ? (
         <WebSafeLink href={{ pathname: '/hire/request/report-cancel', params: { requestId } }} asChild>
           <Pressable accessibilityRole="button" style={styles.panel}>

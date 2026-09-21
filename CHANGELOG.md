@@ -1,3 +1,12 @@
+## 2026-09-21 — Focused media retest passed; reliability/UX implementation
+
+- Founder reported all three corrected `62e3cec` APK retests passed: video centering, playback/close/background stability, and Hire attachment Review/Back/submit/readback.
+- Live main at audit: `debd1995ce5f599549d16ea932a04e639b1f411d`; implementation builds on PR #102's `d26d7abb14417f4d0bb4811fdeb1d929fe41625c` source.
+- New reliability/UX work: shared protected refresh for request/status/safety screens; all active requests; authorized live Search; icon navigation; native Invite Friend; distinct registration; server-backed, explicitly reviewed AI suggestions with manual fallback.
+- The audited provider-only account has no verified residence; the other account is a verified resident/provider/moderator. Existing account roles and memberships remain unchanged.
+- Live AI configuration, Preview deployment/readback, current CI/review and a new native acceptance pass remain gates. No additional APK has been built or authorized.
+- See `docs/VC_RELIABILITY_UX.md` for findings, file/test mapping, configuration and the two-device test plan. This entry supersedes stale earlier current-state/next-action statements.
+
 # Changelog
 
 All notable project changes are recorded here. Dates use the `Africa/Accra` product timezone.

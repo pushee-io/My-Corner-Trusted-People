@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
@@ -10,13 +10,22 @@ export function Screen({
   children,
   showTitle = true,
   showBottomNavigation = true,
-}: PropsWithChildren<{ title: string; showTitle?: boolean; showBottomNavigation?: boolean }>) {
+  onRefresh,
+  refreshing = false,
+}: PropsWithChildren<{
+  title: string;
+  showTitle?: boolean;
+  showBottomNavigation?: boolean;
+  onRefresh?: () => void;
+  refreshing?: boolean;
+}>) {
   const { width } = useWindowDimensions();
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView
+        refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
         style={styles.scroll}

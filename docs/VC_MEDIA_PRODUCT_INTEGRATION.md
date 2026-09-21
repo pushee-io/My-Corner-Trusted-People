@@ -1,3 +1,7 @@
+## 2026-09-21 focused retest result
+
+The founder reported YES to all three requested corrected-APK checks on `62e3cec`: video centering, repeated Play/Close plus background/return stability, and Hire photo/video Create → Review → Back → submit → attachment readback. Record these three checks as founder-observed PASS. Broader media acceptance below is not automatically established. No new build was submitted. The next reliability/UX directive is tracked in `docs/VC_RELIABILITY_UX.md`.
+
 # Connected media: Preview checkpoint
 
 Date: 2026-09-18. PR #102 remains draft. The first connected-screen APK exposed the three device failures below. The founder-approved corrected APK from `62e3cec` is now built and verified, including repair commit `e36ed2b`. Installation and focused phone/tablet retesting remain pending. Production and merging are outside this checkpoint.

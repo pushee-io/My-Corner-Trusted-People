@@ -1,41 +1,68 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import type { Href } from 'expo-router';
+import { WebSafeLink } from '@/components/WebSafeLink';
+import { MediaThumbnail } from '@/components/media/MediaThumbnail';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { useCallback, useEffect, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { EmptyState, LoadingState } from '@/components/StateBlocks';
-import { searchRepository, type SearchResult } from '@/lib/search-repository';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
+import { searchRepository } from '@/lib/search-repository';
 import { tokens } from '@/theme/tokens';
 
 export default function SearchScreen() {
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [query, setQuery] = useState('');
+  const [debounced, setDebounced] = useState('');
   useEffect(() => {
-    const searchPromise = searchRepository.search('');
-    searchPromise.then(setResults).finally(() => setIsLoading(false));
-  }, []);
-
+    const timer = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+  const resource = useProtectedResource(useCallback(() => searchRepository.search(debounced), [debounced]));
+  const searching = query.trim().length >= 2;
+  const waiting = query.trim() !== debounced || resource.loading;
   return (
     <Screen title="Search">
-      <Text style={styles.body}>Search across trusted hire, local answers, marketplace, and groups.</Text>
-
+      <Text style={styles.body}>Find local help, neighborhood posts, groups, events and marketplace listings.</Text>
       <TextInput
-        editable={false}
+        value={query}
+        onChangeText={setQuery}
         placeholder="Search My Corner"
         accessibilityLabel="Search My Corner"
         style={styles.input}
+        returnKeyType="search"
       />
-
-      {isLoading ? (
-        <LoadingState title="Loading search" />
-      ) : results.length === 0 ? (
-        <EmptyState title="Search is coming next" body="Try again when search read surfaces are connected." />
+      {!searching ? (
+        <EmptyState title="What are you looking for?" body="Enter at least two characters to search." />
+      ) : waiting ? (
+        <LoadingState title="Searching" />
+      ) : resource.error ? (
+        <ErrorState
+          title="Search unavailable"
+          body={resource.error}
+          onRetry={() => {
+            void resource.refresh();
+          }}
+        />
+      ) : !resource.data?.length ? (
+        <EmptyState title="No results" body="Try a different name or keyword." />
       ) : (
         <View style={styles.section}>
-          {results.map((result) => (
-            <View key={result.id} style={styles.card}>
-              <Text style={styles.title}>{result.title}</Text>
-              <Text style={styles.body}>{result.subtitle}</Text>
-            </View>
+          {resource.data.map((result) => (
+            <WebSafeLink key={result.id} href={result.href as Href} asChild>
+              <Pressable accessibilityRole="button" style={styles.card}>
+                {result.thumbnailUrl ? (
+                  <Image
+                    source={{ uri: result.thumbnailUrl }}
+                    style={{ width: '100%', height: 160 }}
+                    accessibilityLabel="Listing photo"
+                  />
+                ) : result.mediaParent && result.mediaParentId ? (
+                  <MediaThumbnail parent={result.mediaParent} parentId={result.mediaParentId} />
+                ) : null}
+                <Text style={styles.body}>{result.sourceLabel}</Text>
+                <Text style={styles.title}>{result.title}</Text>
+                <Text style={styles.body}>{result.subtitle}</Text>
+              </Pressable>
+            </WebSafeLink>
           ))}
         </View>
       )}

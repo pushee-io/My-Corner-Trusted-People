@@ -106,8 +106,8 @@ describe('preview device repairs', () => {
   it('keeps the provider inbox synchronized and manually refreshable', () => {
     const source = readFileSync('app/provider/requests.tsx', 'utf8');
 
-    expect(source).toContain("AppState.currentState === 'active'");
-    expect(source).toContain('}, 10_000)');
+    expect(readFileSync('src/hooks/useProtectedResource.ts', 'utf8')).toContain("AppState.currentState === 'active'");
+    expect(source).toContain('10_000');
     expect(source).toContain('onRetry={refreshRequests}');
     expect(source).toContain('Refresh requests');
     expect(source).toContain('getCurrentProviderProfile');

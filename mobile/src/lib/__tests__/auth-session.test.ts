@@ -5,7 +5,7 @@ import {
   readCachedSessionProfile,
   writeCachedSessionProfile,
 } from '@/lib/session-profile-cache';
-import { restoreSessionProfile, signOutFromDevice } from '../auth';
+import { registerWithEmailPassword, restoreSessionProfile, signOutFromDevice } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
@@ -14,6 +14,7 @@ jest.mock('@/lib/supabase', () => ({
       getSession: jest.fn(),
       getUser: jest.fn(),
       signOut: jest.fn(),
+      signUp: jest.fn(),
     },
     from: jest.fn(),
   },
@@ -46,6 +47,7 @@ const mockedSupabase = supabase as unknown as {
     getSession: jest.Mock;
     getUser: jest.Mock;
     signOut: jest.Mock;
+    signUp: jest.Mock;
   };
   from: jest.Mock;
 };
@@ -293,5 +295,25 @@ describe('session restoration', () => {
 
     await expect(signOutFromDevice()).rejects.toBe(signOutError);
     expect(mockedClearCachedSessionProfile).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('self registration', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedClearCachedSessionProfile.mockResolvedValue();
+  });
+  it('uses a registration marker and display name without accepting privileged roles', async () => {
+    mockedSupabase.auth.signUp.mockResolvedValue({ data: { session: null }, error: null });
+    expect(await registerWithEmailPassword(' New Neighbor ', ' TEST@EXAMPLE.COM ', 'long-password')).toBe(false);
+    expect(mockedSupabase.auth.signUp).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      password: 'long-password',
+      options: { data: { display_name: 'New Neighbor', my_corner_signup: true } },
+    });
+  });
+  it('rejects invalid input before contacting Auth', async () => {
+    await expect(registerWithEmailPassword('N', 'bad', 'short')).rejects.toThrow();
+    expect(mockedSupabase.auth.signUp).not.toHaveBeenCalled();
   });
 });

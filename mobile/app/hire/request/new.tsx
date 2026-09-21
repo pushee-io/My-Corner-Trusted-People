@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { MediaComposer } from '@/components/media/MediaComposer';
@@ -7,7 +7,8 @@ import { useRequestMedia } from '@/components/media/RequestMediaProvider';
 import { OfflineBanner } from '@/components/StateBlocks';
 import { structureServiceRequest } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
-import { featureFlags } from '@/lib/feature-flags';
+import { mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
+import type { RequestSuggestion } from '@/lib/ai';
 import { categories } from '@/lib/mock-data';
 import { getProvider } from '@/lib/repository';
 import { validateRequestDraft } from '@/lib/request-validation';
@@ -38,10 +39,33 @@ function tomorrowDate() {
 
 export default function NewRequestScreen() {
   const params = useLocalSearchParams<{ providerId?: string; categoryId?: string }>();
+  const [suggestion, setSuggestion] = useState<RequestSuggestion>();
+  const [structuring, setStructuring] = useState(false);
+  const aiGeneration = useRef(0);
+  useEffect(
+    () =>
+      subscribeMediaSession(() => {
+        aiGeneration.current++;
+        setSuggestion(undefined);
+        setStructuring(false);
+      }),
+    [],
+  );
+  const currentAiInput = useRef('');
+  useEffect(
+    () => () => {
+      aiGeneration.current++;
+    },
+    [params.providerId, params.categoryId],
+  );
   const [provider, setProvider] = useState<Provider>();
   const [isProviderLoaded, setIsProviderLoaded] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  currentAiInput.current = description;
+  useEffect(() => {
+    setSuggestion(undefined);
+  }, [description, params.providerId, params.categoryId]);
   const [preferredDate, setPreferredDate] = useState(tomorrowDate);
   const [preferredTime, setPreferredTime] = useState('Afternoon');
   const [urgency, setUrgency] = useState<RequestUrgency>('soon');
@@ -130,15 +154,28 @@ export default function NewRequestScreen() {
   }
 
   async function useAiStructurer() {
-    if (editingDisabled) return;
-    if (!featureFlags.ai_service_request_structurer) {
-      setError('AI structuring is currently off. You can still submit the request manually.');
-      return;
+    if (editingDisabled || structuring) return;
+    const input = description;
+    const revision = mediaSessionRevision();
+    const generation = ++aiGeneration.current;
+    setStructuring(true);
+    setError('');
+    setSuggestion(undefined);
+    try {
+      const result = await structureServiceRequest(input);
+      if (
+        generation !== aiGeneration.current ||
+        revision !== mediaSessionRevision() ||
+        currentAiInput.current !== input
+      )
+        return;
+      setSuggestion(result);
+    } catch (caught) {
+      if (generation === aiGeneration.current && revision === mediaSessionRevision())
+        setError(caught instanceof Error ? caught.message : 'AI unavailable. Continue manually.');
+    } finally {
+      if (generation === aiGeneration.current) setStructuring(false);
     }
-
-    const result = await structureServiceRequest(description);
-    setTitle(result.title ?? title);
-    setDescription(result.description ?? description);
   }
 
   return (
@@ -170,10 +207,42 @@ export default function NewRequestScreen() {
         editable={!editingDisabled}
       />
 
-      <Pressable disabled={editingDisabled} onPress={useAiStructurer} style={styles.secondaryButton}>
-        <Text style={styles.secondaryText}>Structure with AI</Text>
+      <Pressable
+        accessibilityRole="button"
+        disabled={editingDisabled || structuring}
+        onPress={useAiStructurer}
+        style={styles.secondaryButton}
+      >
+        <Text style={styles.secondaryText}>{structuring ? 'Structuring…' : 'Structure with AI'}</Text>
       </Pressable>
 
+      {suggestion ? (
+        <View>
+          <Text accessibilityRole="header" style={styles.label}>
+            Review AI suggestion
+          </Text>
+          <Text>{suggestion.title}</Text>
+          <Text>{suggestion.description}</Text>
+          <Text>Suggested urgency: {suggestion.urgency}. Review and choose urgency below.</Text>
+          {suggestion.safetyWarning ? <Text>{suggestion.safetyWarning}</Text> : null}
+          <Text>Check every detail. Nothing is submitted automatically.</Text>
+          <Pressable
+            accessibilityRole="button"
+            disabled={editingDisabled}
+            onPress={() => {
+              setTitle(suggestion.title);
+              setDescription(suggestion.description);
+              setSuggestion(undefined);
+            }}
+            style={styles.secondaryButton}
+          >
+            <Text>Use suggested title and description</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={() => setSuggestion(undefined)} style={styles.secondaryButton}>
+            <Text>Keep my original draft</Text>
+          </Pressable>
+        </View>
+      ) : null}
       <Text style={styles.label}>General area</Text>
       <Text style={styles.readonly}>{draft.areaLabel}</Text>
 

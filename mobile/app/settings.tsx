@@ -1,7 +1,9 @@
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { myCornerInvitation } from '@/lib/invite';
 import { Screen } from '@/components/Screen';
 import { signOutFromDevice } from '@/lib/auth';
 import { getCommunityActionsReadDiagnostics } from '@/lib/community-actions-repository';
@@ -22,6 +24,7 @@ export default function SettingsScreen() {
   const readDiagnostics = getCommunityActionsReadDiagnostics();
   const supabaseDiagnostics = getSupabaseCommunityReadClientDiagnostics();
   const readFailureDiagnostics = getSupabaseCommunityReadFailureDiagnostics();
+  const [inviteError, setInviteError] = useState<string>();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState<string>();
 
@@ -43,6 +46,25 @@ export default function SettingsScreen() {
       <Text style={styles.body}>
         Planned controls for account, location, notifications, display, language, privacy, and safety.
       </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Invite Friend to join My Corner"
+        style={styles.signOutButton}
+        onPress={() => {
+          setInviteError(undefined);
+          void Share.share(myCornerInvitation()).catch(() =>
+            setInviteError('Could not open sharing. Please try again.'),
+          );
+        }}
+      >
+        <Ionicons name="share-social-outline" size={24} color={tokens.color.primary} accessible={false} />
+        <Text style={styles.label}>Invite Friend to join My Corner</Text>
+      </Pressable>
+      {inviteError ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {inviteError}
+        </Text>
+      ) : null}
       <View style={styles.panel}>
         {settings.map((item) => (
           <Text key={item} style={styles.item}>
