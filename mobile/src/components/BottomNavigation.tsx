@@ -5,21 +5,22 @@ import { getCurrentCapabilities } from '@/lib/capabilities';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 import { isEventsClientEnabled } from '@/lib/events-feature';
+import { NavigationArtwork } from './NavigationArtwork';
 
 type BottomNavigationItem = {
   label: string;
   href: Href;
   match: string[];
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Ionicons.glyphMap | keyof typeof NavigationArtwork.glyphMap;
 };
 
 export const bottomNavigationItems: BottomNavigationItem[] = [
   { label: 'Home', icon: 'home-outline', href: '/home', match: ['/home', '/neighborhood', '/provider'] },
-  { label: 'Hire', icon: 'construct-outline', href: '/hire/categories', match: ['/hire'] },
+  { label: 'Hire', icon: 'hire', href: '/hire/categories', match: ['/hire'] },
   { label: 'Search', icon: 'search-outline', href: '/search', match: ['/search'] },
   {
     label: 'Community',
-    icon: 'people-outline',
+    icon: 'neighborhood',
     href: '/community',
     match: ['/community', '/groups', '/agency-broadcasts', ...(isEventsClientEnabled() ? ['/events'] : [])],
   },
@@ -58,12 +59,22 @@ export function BottomNavigation() {
             }
             style={[styles.item, selected ? styles.selectedItem : null]}
           >
-            <Ionicons
-              name={item.icon}
-              size={24}
-              color={selected ? '#FFFFFF' : tokens.color.textSecondary}
-              accessible={false}
-            />
+            {item.icon === 'hire' || item.icon === 'neighborhood' ? (
+              <NavigationArtwork
+                name={item.icon}
+                size={24}
+                color={selected ? '#FFFFFF' : tokens.color.textSecondary}
+                accessible={false}
+                style={styles.artwork}
+              />
+            ) : (
+              <Ionicons
+                name={item.icon}
+                size={24}
+                color={selected ? '#FFFFFF' : tokens.color.textSecondary}
+                accessible={false}
+              />
+            )}
           </Pressable>
         );
       })}
@@ -93,6 +104,13 @@ const styles = StyleSheet.create({
   },
   selectedItem: {
     backgroundColor: tokens.color.primary,
+  },
+  artwork: {
+    width: 24,
+    height: 24,
+    lineHeight: 24,
+    includeFontPadding: false,
+    textAlign: 'center',
   },
   label: {
     color: tokens.color.textSecondary,
