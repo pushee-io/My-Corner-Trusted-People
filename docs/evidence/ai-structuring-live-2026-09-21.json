@@ -1,0 +1,16 @@
+{
+  "environment": "Preview",
+  "projectRef": "opeojxwkwwnnncnsuaag",
+  "httpStatus": 200,
+  "enabled": true,
+  "fictionalInput": "There's water leaking under the kitchen sink and it started this morning.",
+  "title": "Water Leak Under Kitchen Sink",
+  "description": "There is water leaking under the kitchen sink that started this morning.",
+  "urgency": "flexible",
+  "quotaDayCount": 1,
+  "logoutStatus": 204,
+  "remainingFixtureUsers": 0,
+  "remainingFixtureProfiles": 0,
+  "newApkBuilt": false,
+  "nativeAcceptance": "pending"
+}
