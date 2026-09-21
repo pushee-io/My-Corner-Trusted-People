@@ -1,0 +1,19 @@
+{
+  "buildId": "be2f266e-ec74-45ba-a757-a0c743328b8f",
+  "commit": "1c0dd00b5074dfaca30280b7e7d8cebfa7c82086",
+  "applicationId": "com.mycorner.trustedpeople",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "apkSha256": "f21ecb90933cd1a8416891851614b319d13cf9f983db92a30bb49d8d865d6d70",
+  "eventsBytecodeVerified": true,
+  "productMediaBytecodeVerified": true,
+  "sourceCommitVerified": true,
+  "workflowRun": 35608359612,
+  "artifactId": 10643951130,
+  "apkUrl": "https://expo.dev/artifacts/eas/UJ8El__B4SA8A0xCBvFuBFyxMkPZ8ZVSb1EXAAmr0u4.apk",
+  "apkFilename": "my-corner-preview-1c0dd00.apk",
+  "apkBytes": 71938470,
+  "reliabilityUxMarkersVerified": true,
+  "deviceRetest": "pending",
+  "aiServerConfiguration": "pending; database flag off",
+  "buildAuthorization": "Founder approved one new APK after merge on 2026-09-21"
+}

@@ -62,7 +62,15 @@ Security advisor comparison: no new WARN/ERROR finding; only the expected privat
 
 Pending: AI configuration and live successful suggestion, final-head CI/review, and native acceptance of all new UI and synchronization. There is no new APK authorization in this directive. The prior corrected media APK build authorization is consumed. No new EAS build, production deployment, real SMS/push or store publication was performed.
 
-## Required two-device pass after a separately approved build
+## Verified approved APK
+
+Founder explicitly approved merge and one new APK after the earlier media pass. PRs #102 and #103 are merged. The [successful build workflow](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/35608359612) produced source `1c0dd00b5074dfaca30280b7e7d8cebfa7c82086`, EAS build `be2f266e-ec74-45ba-a757-a0c743328b8f`.
+
+[Download my-corner-preview-1c0dd00.apk](https://expo.dev/artifacts/eas/UJ8El__B4SA8A0xCBvFuBFyxMkPZ8ZVSb1EXAAmr0u4.apk). Size: 71,938,470 bytes. SHA-256: `f21ecb90933cd1a8416891851614b319d13cf9f983db92a30bb49d8d865d6d70`.
+
+Workflow provenance verifies source, application ID, Preview backend and product media bytecode; an independent download matched the workflow checksum and contains Active Requests, Invite Friend, Enter My Corner, Create Account and the structurer function markers. Full record: `docs/evidence/vc-reliability-preview-2026-09-21.json`. No native install/pass is claimed. AI configuration remains pending. One build approval is consumed.
+
+## Required two-device pass on the approved build
 
 1. Requester creates A and B; all active requests appear, including same-provider and different-provider cases.
 2. Provider sees assignments, requester changes and released service pin without restart; record elapsed time. Repeat with detail open, returning from another screen, background/foreground and pull-to-refresh.
