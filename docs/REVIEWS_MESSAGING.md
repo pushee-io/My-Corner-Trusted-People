@@ -33,7 +33,7 @@ The existing APK remains version 38/source `2e3f991`. No paid build is authorize
 1. Review data/security and moderation RPCs: PR #106 merged; isolated Database CI passed.
 2. Review form, provider reputation, response/moderation UI: PR #107 merged; 453 mobile tests, typecheck, web export and Mobile CI pass. Native acceptance pending.
 3. Extend Marketplace messaging foundation for neighbors: PR #108 merged; isolated security CI passed.
-4. Inbox, realtime thread, unread/block/report, notifications and profile entry: implemented; 462 tests/typecheck/web export pass, Mobile CI pending.
+4. Inbox, realtime thread, unread/block/report, notifications and profile entry: PR #109 merged; 462 tests/typecheck/web export and Mobile CI passed.
 5. Preview demo and two-device acceptance: deployment/build/device gates pending.
 
 References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Realtime Postgres changes](https://supabase.com/docs/guides/realtime/postgres-changes). Current changelog reviewed; no relevant API breaking change identified.
@@ -47,3 +47,11 @@ Participants read their own conversation history. Moderators cannot browse arbit
 Realtime payloads only invalidate authorized reads; the UI does not append payload content. A 10-second foreground poll covers interruptions. Sending/Sent/Failed reflects server acknowledgement; no delivered/read receipt is claimed. Retry preserves a nonce and cannot duplicate a committed message. Sign-out removes subscriptions and data; route/account keys reset drafts.
 
 Text messaging ships first. Media is deferred: current storage parent authorization does not include conversations, so attachment support needs participant-scoped media policies before enabling it. Push delivery remains off; generic in-app notices and outbox events are ready for a separately approved delivery worker.
+
+## Unified notification center
+
+`notification_api` projects existing notifications and due recipient-addressed domain events into the same center. Existing message/review notification events are deduplicated by producer kind. Read state for outbox events is separate from worker delivery status. Raw outbox payloads, organizer-written reminder text, job descriptions, legal names and safety location never enter this projection.
+
+New Hire/Job Safety emitters use the existing queue and are gated by `community_notifications` (default off). Existing Event invitation/reminder/cancellation producers already write the outbox; their updates appear when due. The center also recognizes Group, comment/reply, Marketplace and Agency Broadcast domain kinds; connecting additional producers remains future work, with recipient authorization required at production time. No public topic fan-out or private membership inference is introduced.
+
+A future restrained review reminder should use the same recipient-addressed outbox with one deduplicated job/reminder event, notification preferences and a check that no review exists at delivery time. No repeating reminders or scheduler were enabled.

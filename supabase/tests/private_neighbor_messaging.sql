@@ -61,6 +61,16 @@ select pg_temp.assert_true(public.messaging_api('thread',(select id from chat_co
 reset role;
 select pg_temp.assert_true((select count(*) from public.notifications where profile_id='98000000-0000-4000-8000-000000000002' and target_kind='message_received')=1,'Retry duplicated notifications');
 select pg_temp.assert_true(not exists(select 1 from public.domain_event_outbox where recipient_profile_id='98000000-0000-4000-8000-000000000002' and payload::text like '%Hello neighbor%'),'Message body in outbox');
+-- Notification opt-out and minute quota are enforced on the same direct-insert path.
+set local role authenticated;
+set local request.jwt.claim.sub='98000000-0000-4000-8000-000000000002';
+select public.messaging_api('settings',null,'{"allowNeighborMessages":true,"notifyMessages":false}');
+set local request.jwt.claim.sub='98000000-0000-4000-8000-000000000001';
+insert into public.marketplace_messages(conversation_id,sender_profile_id,body)
+ select id,public.current_profile_id(),'Rate boundary fixture '||n from chat_context cross join generate_series(1,29) n;
+select pg_temp.denied($q$insert into public.marketplace_messages(conversation_id,sender_profile_id,body) select id,public.current_profile_id(),'Thirty-first send' from chat_context$q$,'42501');
+reset role;
+select pg_temp.assert_true((select count(*) from public.notifications where profile_id='98000000-0000-4000-8000-000000000002' and target_kind='message_received')=1,'Notification opt-out ignored');
 insert into private.community_account_controls(profile_id,suspended) values('98000000-0000-4000-8000-000000000001',true);
 set local role authenticated;
 set local request.jwt.claim.sub='98000000-0000-4000-8000-000000000001';

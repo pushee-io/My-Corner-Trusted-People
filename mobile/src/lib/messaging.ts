@@ -33,6 +33,7 @@ export type Notice = {
   body: string;
   createdAt: string;
   readAt?: string;
+  isRequester?: boolean;
   targetKind?: string;
   targetId?: string;
 };
@@ -42,9 +43,9 @@ export type MessageReport = {
   createdAt: string;
   evidence: { body: string; sender: string; createdAt: string }[];
 };
-export async function messagingApi<T>(action: string, target?: string, payload: object = {}): Promise<T> {
+async function communityApi<T>(endpoint: string, args: object): Promise<T> {
   const revision = mediaSessionRevision();
-  const { data, error } = await supabase.rpc('messaging_api', { action, target: target ?? null, payload });
+  const { data, error } = await supabase.rpc(endpoint, args);
   if (revision !== mediaSessionRevision()) throw new Error('Your account changed. Open the conversation again.');
   if (error) {
     if (error.code === 'PGRST202') throw new Error('Messages are not available yet.');
@@ -52,9 +53,13 @@ export async function messagingApi<T>(action: string, target?: string, payload: 
   }
   return data as T;
 }
+export const messagingApi = <T>(action: string, target?: string, payload: object = {}) =>
+  communityApi<T>('messaging_api', { action, target: target ?? null, payload });
+export const notificationApi = <T>(action: string, target?: string) =>
+  communityApi<T>('notification_api', { action, target: target ?? null });
 export const loadInbox = () => messagingApi<Inbox>('inbox');
 export const loadUnread = () => messagingApi<{ unread: number }>('unread');
-export const loadNotifications = () => messagingApi<Notice[]>('notifications');
+export const loadNotifications = () => notificationApi<Notice[]>('list');
 export const loadCommunicationPreferences = () => messagingApi<CommunicationPreferences>('settings');
 export const loadMessageReports = () => messagingApi<MessageReport[]>('reports');
 export const findNeighbors = (query: string) => messagingApi<Neighbor[]>('neighbors', undefined, { query });
