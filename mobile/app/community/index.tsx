@@ -268,7 +268,18 @@ export default function CommunityFeedScreen() {
             {posts.map((post) => (
               <View key={post.id} style={styles.card}>
                 <MediaAvatar profileId={post.authorId} name={post.authorName} />
-                <Text style={styles.author}>{post.authorName}</Text>
+                <WebSafeLink
+                  href={{ pathname: '/neighbors/[profileId]', params: { profileId: post.authorId } }}
+                  asChild
+                >
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`View ${post.authorName}'s profile`}
+                    style={{ minHeight: 48, justifyContent: 'center' }}
+                  >
+                    <Text style={styles.author}>{post.authorName}</Text>
+                  </Pressable>
+                </WebSafeLink>
                 <Text style={styles.body}>{post.body}</Text>
                 <MediaGallery parent="neighborhood_post" parentId={post.id} refreshKey={mediaRefresh} />
                 <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>

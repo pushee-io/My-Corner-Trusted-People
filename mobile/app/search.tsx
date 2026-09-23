@@ -1,3 +1,4 @@
+import { NeighborResults } from '@/components/NeighborResults';
 import type { Href } from 'expo-router';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { MediaThumbnail } from '@/components/media/MediaThumbnail';
@@ -66,6 +67,7 @@ export default function SearchScreen() {
           ))}
         </View>
       )}
+      {searching ? <NeighborResults query={debounced} /> : null}
     </Screen>
   );
 }

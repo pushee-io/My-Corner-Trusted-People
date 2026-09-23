@@ -32,8 +32,18 @@ The existing APK remains version 38/source `2e3f991`. No paid build is authorize
 
 1. Review data/security and moderation RPCs: PR #106 merged; isolated Database CI passed.
 2. Review form, provider reputation, response/moderation UI: PR #107 merged; 453 mobile tests, typecheck, web export and Mobile CI pass. Native acceptance pending.
-3. Extend Marketplace messaging foundation for neighbors: implemented; isolated security CI pending.
-4. Inbox, realtime thread, unread/block/report, notifications and profile entry: pending.
+3. Extend Marketplace messaging foundation for neighbors: PR #108 merged; isolated security CI passed.
+4. Inbox, realtime thread, unread/block/report, notifications and profile entry: implemented; 462 tests/typecheck/web export pass, Mobile CI pending.
 5. Preview demo and two-device acceptance: deployment/build/device gates pending.
 
 References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Realtime Postgres changes](https://supabase.com/docs/guides/realtime/postgres-changes). Current changelog reviewed; no relevant API breaking change identified.
+
+## Messaging policy and verification
+
+Verified, current neighbors in a shared neighborhood can discover and initiate with eligible opted-in peers. One conversation per neighbor pair; existing Marketplace request threads reuse the same message store and UI. Blocks and suspension apply to direct legacy inserts as well as the RPC. Initiations are limited to 10/day; sends to 30/minute and 500/day.
+
+Participants read their own conversation history. Moderators cannot browse arbitrary threads; an explicit report shares either one selected incoming message or the latest ten messages. The moderation queue exposes only that snapshot. No message text enters audit analytics or notification payloads.
+
+Realtime payloads only invalidate authorized reads; the UI does not append payload content. A 10-second foreground poll covers interruptions. Sending/Sent/Failed reflects server acknowledgement; no delivered/read receipt is claimed. Retry preserves a nonce and cannot duplicate a committed message. Sign-out removes subscriptions and data; route/account keys reset drafts.
+
+Text messaging ships first. Media is deferred: current storage parent authorization does not include conversations, so attachment support needs participant-scoped media policies before enabling it. Push delivery remains off; generic in-app notices and outbox events are ready for a separately approved delivery worker.
