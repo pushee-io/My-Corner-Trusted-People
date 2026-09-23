@@ -1,3 +1,4 @@
+import { VerifiedReviews } from '@/components/VerifiedReviews';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -104,6 +105,7 @@ export default function ProviderProfileScreen() {
 
   return (
     <Screen title={provider.name}>
+      <VerifiedReviews providerId={provider.id} />
       <Text style={styles.headline}>{provider.headline}</Text>
 
       <Text style={styles.body}>

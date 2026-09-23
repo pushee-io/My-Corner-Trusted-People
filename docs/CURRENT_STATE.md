@@ -1,3 +1,9 @@
+## 2026-09-23 — Verified review experience implemented
+
+- Added post-completion review entry, accessible 1–5 stars, title/body/recommendation and experience guidance; provider review list, real aggregate summary, one response, reporting and moderator decisions.
+- Added private My Activity with request history and reviews written. Draft text clears with account-session changes and is not persisted or included in analytics.
+- Local typecheck, all 453 tests and web export passed; lint has zero errors and 15 existing warnings. Backend PR #106 remains gated on Database CI; Preview migration remains blocked by auto-review. No native test/build is claimed.
+
 ## 2026-09-23 — Verified reviews and private messaging checkpoint
 
 - Audit main: `ecb7811054cb61ff174a159e40a1bf1929171c78`. Reuse `reviews`, Marketplace conversations/messages, `blocks`, `notifications`, `domain_event_outbox`, masked identity and protected resource lifecycle.
