@@ -34,7 +34,8 @@ The existing APK remains version 38/source `2e3f991`. No paid build is authorize
 2. Review form, provider reputation, response/moderation UI: PR #107 merged; 453 mobile tests, typecheck, web export and Mobile CI pass. Native acceptance pending.
 3. Extend Marketplace messaging foundation for neighbors: PR #108 merged; isolated security CI passed.
 4. Inbox, realtime thread, unread/block/report, notifications and profile entry: PR #109 merged; 462 tests/typecheck/web export and Mobile CI passed.
-5. Preview demo and two-device acceptance: deployment/build/device gates pending.
+5. Unified notifications and acceptance/security coverage: PR #110 merged; Database/Mobile CI passed.
+6. Preview demo and two-device acceptance: deployment/build/device gates pending.
 
 References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Realtime Postgres changes](https://supabase.com/docs/guides/realtime/postgres-changes). Current changelog reviewed; no relevant API breaking change identified.
 
@@ -55,3 +56,9 @@ Text messaging ships first. Media is deferred: current storage parent authorizat
 New Hire/Job Safety emitters use the existing queue and are gated by `community_notifications` (default off). Existing Event invitation/reminder/cancellation producers already write the outbox; their updates appear when due. The center also recognizes Group, comment/reply, Marketplace and Agency Broadcast domain kinds; connecting additional producers remains future work, with recipient authorization required at production time. No public topic fan-out or private membership inference is introduced.
 
 A future restrained review reminder should use the same recipient-addressed outbox with one deduplicated job/reminder event, notification preferences and a check that no review exists at delivery time. No repeating reminders or scheduler were enabled.
+
+## Final verification record
+
+Feature main `636345a5e78a349fa9c2b7dfd36643f4f3c10ccd` includes PRs #106–#110. Final source `c53aac61a67fa57832af113955b4dfc9525940e3` passed Database CI runs `35932095087` / `35932086760` and Mobile CI runs `35932095029` / `35932086796`. Mobile: 463 tests across 87 suites, typecheck, formatting, dependency compatibility, lint (zero errors/15 baseline warnings), web export. Database: authenticated requester/provider/outsider/moderator checks, duplicate/eligibility/privacy/blocks/suspension/unread/moderation, rate-limit and preference boundaries, recipient-only generic notifications, future reminder exclusion and independent read/delivery state.
+
+No migration or live feature flag was applied; no new APK or native test was run. See [Preview acceptance and rollout gates](REVIEWS_MESSAGING_DEMO.md).
