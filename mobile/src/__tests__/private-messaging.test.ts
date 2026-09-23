@@ -1,4 +1,4 @@
-import { messagingApi, sendChatMessage } from '@/lib/messaging';
+import { messagingApi, sendChatMessage, loadNotifications, notificationApi } from '@/lib/messaging';
 import { invalidateMediaSession } from '@/lib/media-session';
 const mockRpc = jest.fn();
 jest.mock('@/lib/supabase', () => ({ supabase: { rpc: (...args: unknown[]) => mockRpc(...args) } }));
@@ -34,4 +34,12 @@ it('does not expose a late response from the previous account', async () => {
 it('keeps server eligibility rejection authoritative', async () => {
   mockRpc.mockResolvedValue({ data: null, error: { code: '42501', message: 'Conversation unavailable.' } });
   await expect(sendChatMessage('blocked-thread', 'Hello', 'nonce')).rejects.toThrow('Conversation unavailable');
+});
+
+it('uses the shared notification projection and recipient-scoped read acknowledgement', async () => {
+  mockRpc.mockResolvedValue({ data: [], error: null });
+  await loadNotifications();
+  expect(mockRpc).toHaveBeenLastCalledWith('notification_api', { action: 'list', target: null });
+  await notificationApi('read', 'notice-id');
+  expect(mockRpc).toHaveBeenLastCalledWith('notification_api', { action: 'read', target: 'notice-id' });
 });
