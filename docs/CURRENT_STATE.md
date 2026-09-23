@@ -1,3 +1,9 @@
+## 2026-09-23 — One reviews/messaging Preview APK approved
+
+- Founder approved one new APK after backend rollout. Build latest merged code with reviews, neighbor messaging and notifications, using the existing Preview backend and signing configuration.
+- Explicit build-trigger commit starts exactly one EAS build. Release gates and artifact checks cover source commit, backend/package, replacement icons, media and review/messaging/notification bytecode.
+- Build/download and phone/tablet acceptance pending. This is not authorization for another build or production deployment.
+
 ## 2026-09-23 — Preview reviews, messaging and notifications enabled
 
 - Founder explicitly approved `20260923231722_preview_identity_dependency.sql` on `opeojxwkwwnnncnsuaag`. Applied as remote version `20260923232606`; messaging applied as `20260923232619`. Earlier reviews and notifications remain applied as `20260923231603` and `20260923231825`.
