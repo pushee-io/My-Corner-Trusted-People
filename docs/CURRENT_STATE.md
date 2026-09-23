@@ -1,3 +1,10 @@
+## 2026-09-23 — Reviews and private messaging implementation complete; rollout gated
+
+- Implementation PRs #106–#110 merged. Final feature main: `636345a5e78a349fa9c2b7dfd36643f4f3c10ccd`. Reviews, shared neighbor/Marketplace inbox, realtime refresh, unread/retry, privacy/block/report/moderation, eligible profiles/search, My Activity and unified in-app notification projection are implemented.
+- Final head `c53aac61a67fa57832af113955b4dfc9525940e3`: Database CI `35932095087` / `35932086760` and Mobile CI `35932095029` / `35932086796` all passed. Local 463 tests/87 suites, typecheck, lint zero errors/15 baseline warnings; Mobile CI also validates formatting, Expo compatibility and web export.
+- No connected-backend migrations or flags applied. Automatic approval review rejected the original schema/privilege deployment to `opeojxwkwwnnncnsuaag` as a live-target change without exact approval. Request explicit approval of the three named migrations and Preview flags in `docs/REVIEWS_MESSAGING_DEMO.md`; do not bypass that gate or switch targets.
+- No paid build or device acceptance claimed. Existing APK remains version 38/source `2e3f991`; it does not contain these features. New build approval and Samsung/Pixel Tablet walkthrough remain separate gates. Media DM, real push delivery and additional domain event producers remain documented follow-ups.
+
 ## 2026-09-23 — Messaging merged; notification integration checkpoint
 
 - Messaging UI PR #109 merged at `499be5fcc615840b9da138d2f0f0ca0c7b227887`; Mobile CI `35931632194` / `35931622333` passed.
