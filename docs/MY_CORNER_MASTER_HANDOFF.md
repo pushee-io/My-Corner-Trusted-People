@@ -1,3 +1,11 @@
+## 2026-09-23 — Approved Preview rollout partially applied; identity dependency blocked
+
+- Founder approved the three migrations and Preview flags on `opeojxwkwwnnncnsuaag`.
+- Applied review migration (remote version `20260923231603`) and notification migration (`20260923231825`). Verified invoker RPCs deny anon execution, sensitive stores have RLS, unauthenticated notification access is rejected and authenticated list succeeds. `community_notifications=true`; `verified_job_reviews=false`.
+- Messaging migration rolled back on missing `public.private_identity_profiles`. This Preview used an older compatibility schema that omitted the repository's identity foundation. `neighbor_messaging` is not provisioned/enabled; no messaging DDL persisted.
+- Prepared `20260923231722_preview_identity_dependency.sql`: restore only the missing original identity-table definition/enum, empty with RLS and no client grants, no legal-name backfill. Automatic approval review rejected this fourth migration as outside the exact three-migration approval and involving sensitive legal-identity schema. It remains UNAPPLIED and requires explicit approval. Do not bypass the rejection.
+- Security advisors show no new WARN/ERROR findings; two new INFO notices are expected deny-all private review/control tables. Existing unrelated baseline findings remain documented. No APK build or phone/tablet acceptance.
+
 ## 2026-09-23 — Reviews and private messaging implementation complete; rollout gated
 
 - Implementation PRs #106–#110 merged. Final feature main: `636345a5e78a349fa9c2b7dfd36643f4f3c10ccd`. Reviews, shared neighbor/Marketplace inbox, realtime refresh, unread/retry, privacy/block/report/moderation, eligible profiles/search, My Activity and unified in-app notification projection are implemented.
