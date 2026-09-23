@@ -90,7 +90,7 @@ begin
   end if;
   select * into provider from public.provider_profiles where id=job.provider_id;
   select * into item from public.reviews where job_request_id=target and verified_job;
-  completed_verified:=job.status='Completed' and exists(select 1 from public.job_safety_sessions where job_request_id=job.id and state='completed' and requester_completed_at is not null and provider_completed_at is not null);
+  completed_verified:=job.status='Completed' and exists(select 1 from public.job_safety_sessions js where js.job_request_id=job.id and js.state='completed' and js.requester_completed_at is not null and js.provider_completed_at is not null);
   if action='event' then
    if payload->>'event' is null or payload->>'event' not in ('review_prompt_viewed','review_started') or not completed_verified then
     raise exception 'Invalid review event.' using errcode='22023';
