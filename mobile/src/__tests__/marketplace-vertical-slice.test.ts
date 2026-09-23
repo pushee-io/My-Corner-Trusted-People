@@ -45,8 +45,8 @@ describe('Marketplace media, pickup, and messaging vertical slice', () => {
     expect(migration).toContain('pickup_request_id uuid not null unique');
     expect(migration).toContain('public.current_profile_id() in (buyer_profile_id, seller_profile_id)');
     expect(messagesScreen).toContain('useLocalSearchParams');
-    expect(messagesScreen).toContain('listMarketplaceMessages(requestId)');
-    expect(messagesScreen).toContain('sendMarketplaceMessage(requestId, trimmed)');
+    expect(messagesScreen).toContain('resolveMarketplaceThread(requestId)');
+    expect(messagesScreen).toContain('sendChatMessage(conversationId, draft.body, draft.nonce)');
     expect(messagesScreen).toContain('not end-to-end encrypted');
   });
 });

@@ -1,3 +1,4 @@
+import { MessagesAccess } from '@/components/MessagesAccess';
 import { PropsWithChildren } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +36,7 @@ export function Screen({
         ]}
       >
         <MyCornerLogo />
+        {showBottomNavigation ? <MessagesAccess /> : null}
         {showTitle ? (
           <Text accessibilityRole="header" style={styles.title}>
             {title}

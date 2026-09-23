@@ -51,6 +51,6 @@ export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalM
     }, [load, refreshIntervalMs]),
   );
 
-  const refresh = useCallback(() => resource.current?.refresh(), []);
+  const refresh = useCallback((background = false) => resource.current?.refresh(background), []);
   return { ...(state.owner === load ? state : { loading: true }), refresh };
 }
