@@ -1,3 +1,4 @@
+import { ReviewPrompt } from '@/components/VerifiedReviews';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { useLocalSearchParams } from 'expo-router';
@@ -79,6 +80,7 @@ export default function RequestStatusScreen() {
       </View>
 
       <MediaGallery parent="service_request" parentId={request.id} />
+      {request.status === 'Completed' ? <ReviewPrompt requestId={request.id} /> : null}
 
       {['Accepted', 'In progress', 'Completed'].includes(request.status) ? (
         <WebSafeLink href={{ pathname: '/hire/request/safety-session', params: { requestId: request.id } }} asChild>

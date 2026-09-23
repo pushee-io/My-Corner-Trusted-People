@@ -1,3 +1,4 @@
+import { ProviderReputationSummary } from '@/components/VerifiedReviews';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Provider } from '@/types/contracts';
@@ -21,11 +22,7 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
           </Text>
         </View>
       </View>
-      <View style={styles.metrics}>
-        <Text style={styles.metric}>{provider.rating.toFixed(1)} rating</Text>
-        <Text style={styles.metric}>{provider.reviewCount} reviews</Text>
-        <Text style={styles.metric}>{provider.completedJobs} jobs</Text>
-      </View>
+      <ProviderReputationSummary providerId={provider.id} />
       <View style={styles.signalRow}>
         {provider.trustSignals.map((signal) => (
           <View key={signal.id} style={styles.badge}>

@@ -148,6 +148,18 @@ export default function HomeScreen() {
           </WebSafeLink>
         ) : null}
 
+        <WebSafeLink href="/activity" asChild>
+          <Pressable style={styles.secondary}>
+            <Text style={styles.secondaryText}>My Activity</Text>
+          </Pressable>
+        </WebSafeLink>
+        {canModerateMarketplace ? (
+          <WebSafeLink href="/reviews/moderation" asChild>
+            <Pressable style={styles.secondary}>
+              <Text style={styles.secondaryText}>Review moderation</Text>
+            </Pressable>
+          </WebSafeLink>
+        ) : null}
         <WebSafeLink href="/settings" asChild>
           <Pressable style={styles.secondary}>
             <Text style={styles.secondaryText}>Settings</Text>
