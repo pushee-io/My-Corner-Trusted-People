@@ -1,0 +1,23 @@
+{
+  "versionCode": 39,
+  "applicationId": "com.mycorner.trustedpeople",
+  "signerCertSha256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
+  "apkSha256": "2381c893be7e01319fa7d9b0cca1c3aaab2a9b56d2ab207ad7de89a1c57df5b4",
+  "apkBytes": 71986014,
+  "reviewMessagingNotificationBytecodeVerified": true,
+  "buildId": "3beca53c-37e2-470d-ae5e-f4a7b55d5d7f",
+  "commit": "d218a151a2524c2cd1ae8f7686895f75bc3538f0",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "previousVersionCode": 38,
+  "sameSignerAsPreviousApk": true,
+  "sourceCommitVerified": true,
+  "navigationFontVerified": true,
+  "productMediaBytecodeVerified": true,
+  "workflowRun": 35935019649,
+  "mobileCiRun": 35935019645,
+  "apkUrl": "https://expo.dev/artifacts/eas/VAxzvv8Ex9x8YAk_Cnhk_PVaYTaghsQ_V_xe1hzOwSA.apk",
+  "apkFilename": "my-corner-preview-d218a15.apk",
+  "deviceRetest": "pending",
+  "buildAuthorization": "One founder-approved build consumed; no second build submitted",
+  "verificationNote": "EAS FINISHED; workflow passed provenance/backend/package/media/font checks then failed ASCII-only Verified Job check. Independent APK inspection confirmed UTF-16 label and all three RPC markers, archive integrity, actual manifest version 39 and matching signing certificate. Workflow check corrected without rebuilding."
+}

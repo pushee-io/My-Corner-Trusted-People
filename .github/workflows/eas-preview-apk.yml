@@ -241,9 +241,15 @@ jobs:
           if not matches:
               raise SystemExit('Replacement navigation font missing or different in APK')
           print('Verified replacement navigation font:', ', '.join(matches))
+          # Hermes stores this label as UTF-16 because its string includes a middle dot.
+          with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
+              bundle = apk.read('assets/index.android.bundle')
+          label = 'Verified Job'
+          if not any(label.encode(encoding) in bundle for encoding in ('utf-8', 'utf-16le')):
+              raise SystemExit('Verified Job label missing from APK')
           PYFONT
           grep -Fq 'MyCornerNavigation' "$dump_path"
-          for marker in 'review_api' 'messaging_api' 'notification_api' 'Verified Job'; do
+          for marker in 'review_api' 'messaging_api' 'notification_api'; do
             grep -Fq "$marker" "$dump_path"
           done
 
