@@ -30,9 +30,9 @@ The existing APK remains version 38/source `2e3f991`. No paid build is authorize
 
 ## Checkpoints
 
-1. Review data/security and moderation RPCs: implementation in progress; isolated CI pending.
-2. Review form, provider reputation, response/moderation UI: implemented; 453 mobile tests, typecheck and web export pass. Native acceptance pending.
-3. Extend Marketplace messaging foundation for neighbors: pending.
+1. Review data/security and moderation RPCs: PR #106 merged; isolated Database CI passed.
+2. Review form, provider reputation, response/moderation UI: PR #107 merged; 453 mobile tests, typecheck, web export and Mobile CI pass. Native acceptance pending.
+3. Extend Marketplace messaging foundation for neighbors: implemented; isolated security CI pending.
 4. Inbox, realtime thread, unread/block/report, notifications and profile entry: pending.
 5. Preview demo and two-device acceptance: deployment/build/device gates pending.
 
