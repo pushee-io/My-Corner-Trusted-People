@@ -1,18 +1,21 @@
 # Reviews and messaging — Preview acceptance plan
 
-## Current gate
+## Current gate — approved rollout partially applied
 
-Implementation is reviewable in merged checkpoint PRs. Backend deployment was rejected by automatic approval review because the connected project was classified as live. No migration, flag, push service or paid APK was applied/launched. Existing APK version 38 does not contain these changes. SQL and mobile tests are not a substitute for native acceptance.
+The founder explicitly approved the three original migrations and their Preview flags on `opeojxwkwwnnncnsuaag`.
 
-Exact proposed Preview target: `opeojxwkwwnnncnsuaag` (the backend used by the established Preview APK). Do not switch to another project as a workaround.
+| Change | Current state |
+| --- | --- |
+| `20260923222710_verified_job_reviews.sql` | Applied as remote version `20260923231603`; feature remains off because identity dependency is absent |
+| `20260923224139_private_neighbor_messaging.sql` | Rolled back: missing `public.private_identity_profiles`; feature not provisioned |
+| `20260923230411_community_notification_center.sql` | Applied as remote version `20260923231825`; `community_notifications=true` |
+| `20260923231722_preview_identity_dependency.sql` | Prepared, UNAPPLIED: automatic approval review requires explicit approval for this additional sensitive-schema migration |
 
-Pending migrations, in order:
+The fourth migration restores the existing repository's identity table only when missing, with an empty table, RLS, and all client access revoked. It adds no real identity data and does not expose legal names. Existing names will safely show `Neighbor` until an authorized masked-identity flow populates records. It leaves existing identity installations unchanged.
 
-1. `20260923222710_verified_job_reviews.sql`
-2. `20260923224139_private_neighbor_messaging.sql`
-3. `20260923230411_community_notification_center.sql`
+After explicit approval of this compatibility migration on the same project, apply it, retry the original messaging migration once, verify grants/RLS/RPCs, then enable `verified_job_reviews` and `neighbor_messaging`. Do not reapply the already successful review/notification migrations. Supabase MCP assigns remote migration timestamps; match names and recorded source content when reconciling history.
 
-After explicit target/schema approval, apply via the normal migration path, verify metadata/RLS, then enable `verified_job_reviews`, `neighbor_messaging`, and `community_notifications` only on that approved Preview project. A new paid APK requires separate explicit approval. Do not activate production or real push/SMS.
+New paid APK approval and Samsung/Pixel Tablet acceptance are still pending. Existing APK version 38 lacks the new interface. No push/SMS service was activated.
 
 ## Isolated fixtures and test evidence
 
