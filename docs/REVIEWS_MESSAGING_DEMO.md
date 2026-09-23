@@ -1,21 +1,23 @@
 # Reviews and messaging — Preview acceptance plan
 
-## Current gate — approved rollout partially applied
+## Current state — Preview backend enabled
 
-The founder explicitly approved the three original migrations and their Preview flags on `opeojxwkwwnnncnsuaag`.
+The founder approved the original three migrations and then explicitly approved the missing identity dependency on `opeojxwkwwnnncnsuaag`. All are applied.
 
-| Change | Current state |
+| Source migration | Remote version |
 | --- | --- |
-| `20260923222710_verified_job_reviews.sql` | Applied as remote version `20260923231603`; feature remains off because identity dependency is absent |
-| `20260923224139_private_neighbor_messaging.sql` | Rolled back: missing `public.private_identity_profiles`; feature not provisioned |
-| `20260923230411_community_notification_center.sql` | Applied as remote version `20260923231825`; `community_notifications=true` |
-| `20260923231722_preview_identity_dependency.sql` | Prepared, UNAPPLIED: automatic approval review requires explicit approval for this additional sensitive-schema migration |
+| `20260923222710_verified_job_reviews.sql` | `20260923231603` |
+| `20260923230411_community_notification_center.sql` | `20260923231825` |
+| `20260923231722_preview_identity_dependency.sql` | `20260923232606` |
+| `20260923224139_private_neighbor_messaging.sql` | `20260923232619` |
 
-The fourth migration restores the existing repository's identity table only when missing, with an empty table, RLS, and all client access revoked. It adds no real identity data and does not expose legal names. Existing names will safely show `Neighbor` until an authorized masked-identity flow populates records. It leaves existing identity installations unchanged.
+All flags are enabled: `verified_job_reviews`, `neighbor_messaging`, `community_notifications`. Supabase MCP assigned remote timestamps; reconcile by name/source rather than blindly reapplying local versions.
 
-After explicit approval of this compatibility migration on the same project, apply it, retry the original messaging migration once, verify grants/RLS/RPCs, then enable `verified_job_reviews` and `neighbor_messaging`. Do not reapply the already successful review/notification migrations. Supabase MCP assigns remote migration timestamps; match names and recorded source content when reconciling history.
+Readback verified RLS, denied anon RPC execution and no-session calls, successful authenticated inbox/discovery/review/notification reads, and Realtime publication. The identity table is empty, RLS-protected and unreadable by clients. No legal names were backfilled; names safely display Neighbor until an authorized masked-identity flow populates them.
 
-New paid APK approval and Samsung/Pixel Tablet acceptance are still pending. Existing APK version 38 lacks the new interface. No push/SMS service was activated.
+PR #112 merged with passing Database CI `35933208939` / `35933196241`, including absent-table restoration and repeat invocation. No new security-advisor WARN/ERROR findings; pre-existing baseline findings remain documented.
+
+New paid APK approval and Samsung/Pixel Tablet acceptance are still pending. Existing APK version 38 lacks the new interface. No push/SMS service was activated and no live test messages or reviews were created.
 
 ## Isolated fixtures and test evidence
 
