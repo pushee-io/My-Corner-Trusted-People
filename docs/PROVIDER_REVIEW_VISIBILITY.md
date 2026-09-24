@@ -24,6 +24,12 @@ The server computes both totals and page content from the same eligible relation
 
 ## Verification and remaining gates
 
-Local: 472 tests/88 suites, typecheck, formatting and lint pass (zero errors/15 existing warnings). SQL tests cover aggregate/row consistency, completion relationship, moderation exclusion, other providers, authorized neighbors, private-field omission, response association, cursor paging and fixture idempotence. CI/deployment outcome will be recorded after verification.
+Local: 472 tests/88 suites, typecheck, formatting and lint pass (zero errors/15 existing warnings). SQL tests cover aggregate/row consistency, completion relationship, moderation exclusion, other providers, authorized neighbors, private-field omission, response association, cursor paging and fixture idempotence. Final Database CI `35941348784` and Mobile CI `35941348793` / `35941345142` passed; PR #115 merged at `7a36178c14b35af3c2fdbba4624e38d177e6dfa4`.
 
 Current APK version 39 does not include this navigation fix. No new paid build is authorized by this checkpoint. Device acceptance remains pending: Hire → Kwame → Reviews → inspect stars/title/body/badge/date/author/recommendation/response, then Start request; repeat on Samsung and Pixel Tablet. Record results without calling the checkpoint fully accepted until both devices pass.
+
+## Live fixture and deployment outcome
+
+The user-requested fictional fixture was applied to Preview `opeojxwkwwnnncnsuaag`. Authenticated non-reviewer readback confirms 4.0 average, 2 published reviews, 2 returned rows and the fictional review with its corresponding provider response. Existing user review was preserved.
+
+Automatic approval review rejected applying `20260924005414_provider_review_visibility.sql`, classifying it as a new persistent DDL/security change requiring exact target/migration approval. The migration remains unapplied; current Preview uses the previous provider review query. Explicit approval is required for that migration on `opeojxwkwwnnncnsuaag`, plus separate authorization for one corrected paid APK. Version 39 has the old navigation; native acceptance remains pending.

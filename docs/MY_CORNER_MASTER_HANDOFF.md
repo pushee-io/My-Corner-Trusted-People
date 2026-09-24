@@ -1,3 +1,11 @@
+## 2026-09-24 — Provider visibility fix merged; Preview fixture verified
+
+- PR #115 merged at `7a36178c14b35af3c2fdbba4624e38d177e6dfa4`. Final source `e14f3be55391528034021a11e89b74f941589ae8` passed Database CI `35941348784` and Mobile CI `35941348793` / `35941345142`; local 472 tests/88 suites, typecheck, format and lint pass (0 errors/15 baseline warnings).
+- Root navigation defect fixed: provider cards now open actual provider profiles, which show review details; provider preview uses that same route. Correct grammar, bounded review pages, server eligibility/aggregate consistency and privacy tests included.
+- Requested fictional Preview fixture applied on `opeojxwkwwnnncnsuaag`; existing review untouched. Authenticated non-reviewer readback: 4.0 average, 2 published reviews, 2 returned rows, clearly fictional demo review and corresponding response visible. Fixture is manual-only, opt-in guarded and idempotence-tested in CI.
+- Automatic approval review rejected applying `20260924005414_provider_review_visibility.sql` to that project, requiring explicit approval for this exact new DDL/security migration. It remains UNAPPLIED. Do not bypass the block; request exact migration/target approval.
+- Version 39 still contains the old card navigation. One corrected paid APK needs separate approval, followed by Samsung/Pixel Tablet acceptance. No new build or Android verification claimed; checkpoint is implemented but not yet fully device-accepted.
+
 ## 2026-09-24 — Provider review visibility root cause and fix
 
 - Root cause: Hire provider cards navigated directly to `/hire/request/new`, bypassing the existing profile/review component. The separate provider profile-preview route was hard-coded and omitted reviews. Preview Kwame has one genuine published 4-star review with matching requester/provider and two-party completed Job Safety; another authenticated account's RPC returned that body. RLS is not the cause; legacy seeded 4.8/37 counters are not the displayed 4.0/1 summary.
