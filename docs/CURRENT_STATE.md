@@ -1,3 +1,9 @@
+## 2026-09-24 — One review/comments/Back Preview APK approved
+
+- Founder explicitly approved one new Preview APK after PRs #119–#122 merged. Build the latest merged review CTA, collapsible comments and shared Back header with existing Preview backend/signing configuration.
+- One explicit build-trigger commit submits the approved APK. Workflow release gates rerun tests/typecheck/lint/format and inspect APK provenance, backend/package, media/icons and new UX bytecode markers.
+- Build result/download and Samsung/Pixel Tablet acceptance pending. This authorizes one build only; no production deployment or backend change.
+
 ## 2026-09-24 — Review CTA, comments and global Back merged
 
 - Completed requester review CTA: PR #119, merge `bc2ab3b70964cf2c48696e0d0a7389d74518c4e9`; Mobile CI `35957268673` / `35957257880` and Job Safety `35957268668` passed.
