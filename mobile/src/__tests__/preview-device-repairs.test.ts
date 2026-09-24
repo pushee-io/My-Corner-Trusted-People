@@ -63,7 +63,8 @@ describe('preview device repairs', () => {
     const providerSource = readFileSync('app/hire/providers.tsx', 'utf8');
     const requestSource = readFileSync('app/hire/request/new.tsx', 'utf8');
 
-    expect(providerSource).toContain("pathname: '/hire/request/new'");
+    expect(providerSource).toContain("pathname: '/hire/provider/[providerId]'");
+    expect(readFileSync('app/hire/provider/[providerId].tsx', 'utf8')).toContain("pathname: '/hire/request/new'");
     expect(providerSource).not.toContain("pathname: '/hire/request/review'");
     expect(providerSource).toContain('onRetry={() => void loadProviders()}');
     expect(requestSource).not.toContain('setTimeout(useSampleRequest');

@@ -18,9 +18,9 @@ export default function ProvidersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isShowingSaved, setIsShowingSaved] = useState(false);
 
-  function continueWithProvider(providerId: string) {
+  function openProvider(providerId: string) {
     router.push({
-      pathname: '/hire/request/new',
+      pathname: '/hire/provider/[providerId]',
       params: { providerId, categoryId },
     });
   }
@@ -81,7 +81,7 @@ export default function ProvidersScreen() {
       ) : (
         <View style={styles.list}>
           {providers.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} onPress={() => continueWithProvider(provider.id)} />
+            <ProviderCard key={provider.id} provider={provider} onPress={() => openProvider(provider.id)} />
           ))}
         </View>
       )}
