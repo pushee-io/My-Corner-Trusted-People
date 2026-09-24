@@ -1,3 +1,9 @@
+## 2026-09-24 — Review visibility migration deployed; corrected APK approved
+
+- Founder explicitly approved `20260924005414_provider_review_visibility.sql` on `opeojxwkwwnnncnsuaag` and one corrected Preview APK.
+- Migration applied successfully as remote version `20260924011448`. Authenticated non-reviewer verification returned average 4.0, count/verifiedCount 2, two distinct cursor pages, final-page termination, fictional public identity and corresponding response. Public projection contains only approved review fields. Anonymous RPC and authenticated direct private-helper execution remain denied.
+- One explicit build-trigger commit starts the approved build from the merged provider-profile fix. Existing signing and Preview backend configuration remain in use. Download/provenance and Android phone/tablet acceptance pending; no additional build is authorized.
+
 ## 2026-09-24 — Provider visibility fix merged; Preview fixture verified
 
 - PR #115 merged at `7a36178c14b35af3c2fdbba4624e38d177e6dfa4`. Final source `e14f3be55391528034021a11e89b74f941589ae8` passed Database CI `35941348784` and Mobile CI `35941348793` / `35941345142`; local 472 tests/88 suites, typecheck, format and lint pass (0 errors/15 baseline warnings).
