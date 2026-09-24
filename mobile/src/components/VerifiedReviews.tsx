@@ -143,7 +143,7 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
   const data = resource.data;
   return (
     <View style={styles.panel}>
-      <Text style={styles.title}>Reviews</Text>
+      <Text style={styles.title}>Provider reputation</Text>
       {resource.error ? (
         <>
           <Text style={styles.note}>{resource.error}</Text>
@@ -162,6 +162,9 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
           {data.recommendationPercent !== null ? (
             <Text style={styles.note}>{data.recommendationPercent}% would recommend</Text>
           ) : null}
+          <Text accessibilityRole="header" style={styles.title}>
+            Reviews
+          </Text>
           {showAll ? <Text style={styles.note}>Newest first</Text> : null}
           {data.reviews.map((review) => (
             <View key={review.id} style={styles.panel}>
