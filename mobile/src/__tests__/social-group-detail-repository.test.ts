@@ -55,7 +55,8 @@ describe('social group detail repository', () => {
     expect(directorySource).not.toContain('Post to this group');
     expect(detailSource).toContain('Post to this group');
     expect(detailSource).toContain("post.likedByMe ? 'Liked' : 'Like'");
-    expect(detailSource).toContain('Comment (');
+    expect(detailSource).toContain('CollapsibleComments');
+    expect(detailSource).toContain('count={post.comments.length}');
     expect(detailSource).toContain('Share');
     expect(detailSource).toContain('Report');
 

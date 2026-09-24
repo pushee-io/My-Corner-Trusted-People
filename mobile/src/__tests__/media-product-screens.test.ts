@@ -11,11 +11,17 @@ import { RequestMediaProvider } from '@/components/media/RequestMediaProvider';
 
 jest.mock('react-native', () => ({
   View: 'View',
+  Modal: 'Modal',
+  ScrollView: 'ScrollView',
+  KeyboardAvoidingView: 'KeyboardAvoidingView',
+  Platform: { OS: 'android' },
+  Keyboard: { dismiss: jest.fn() },
   Text: 'Text',
   TextInput: 'TextInput',
   Pressable: 'Pressable',
   StyleSheet: { create: (styles: unknown) => styles },
 }));
+jest.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => '00000000-0000-4000-8000-000000000011' }));
 jest.mock('expo-router', () => ({
   router: { replace: jest.fn() },
