@@ -41,3 +41,7 @@ For the device walkthrough, use existing authorized Preview accounts: requester 
 ## Scope boundaries
 
 Text DM first; media attachments require conversation-scoped storage authorization. No delivered/read receipts, E2EE claim, hidden trust score, purchasable Top Rated badge, real push activation or repeated review reminder. Group/comment/Marketplace/Agency notification categories are supported by the shared center; producers not already writing the outbox need future integration.
+
+## Provider review visibility checkpoint — 2026-09-24
+
+PR #115 fixes the provider-card navigation and replaces the hard-coded provider preview, adds correct review grammar/pagination, and aligns aggregate eligibility with public rows. All CI passed. The clearly fictional Preview review is now present alongside the original review (4.0 average, count 2). See `PROVIDER_REVIEW_VISIBILITY.md`. The new visibility migration is blocked pending exact approval; a corrected APK and phone/tablet retest remain pending. Version 39 does not contain this navigation fix.
