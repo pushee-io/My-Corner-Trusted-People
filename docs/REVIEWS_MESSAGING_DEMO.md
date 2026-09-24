@@ -17,7 +17,7 @@ Readback verified RLS, denied anon RPC execution and no-session calls, successfu
 
 PR #112 merged with passing Database CI `35933208939` / `35933196241`, including absent-table restoration and repeat invocation. No new security-advisor WARN/ERROR findings; pre-existing baseline findings remain documented.
 
-New paid APK approval and Samsung/Pixel Tablet acceptance are still pending. Existing APK version 38 lacks the new interface. No push/SMS service was activated and no live test messages or reviews were created.
+One approved APK is now complete: version 39/source `d218a15`, EAS `3beca53c-37e2-470d-ae5e-f4a7b55d5d7f`. Download and verification are recorded in `docs/evidence/reviews-messaging-preview-2026-09-23.json`. Install over version 38. Samsung/Pixel Tablet acceptance remains pending; this build approval is consumed. No push/SMS service was activated and no live test messages or reviews were created.
 
 ## Isolated fixtures and test evidence
 

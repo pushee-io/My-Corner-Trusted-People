@@ -1,3 +1,11 @@
+## 2026-09-23 — Reviews/messaging Preview APK built and verified
+
+- One approved APK completed: source `d218a151a2524c2cd1ae8f7686895f75bc3538f0`, EAS `3beca53c-37e2-470d-ae5e-f4a7b55d5d7f`, build workflow `35935019649`, Mobile CI `35935019645` passed. The one-build authorization is consumed.
+- Download: https://expo.dev/artifacts/eas/VAxzvv8Ex9x8YAk_Cnhk_PVaYTaghsQ_V_xe1hzOwSA.apk . File `my-corner-preview-d218a15.apk`, 71,986,014 bytes, SHA-256 `2381c893be7e01319fa7d9b0cca1c3aaab2a9b56d2ab207ad7de89a1c57df5b4`.
+- Actual Android version 39 supersedes 38 with the same package and signing certificate. Install as an update with `adb install -r` or Android's Update prompt. Do not uninstall first.
+- Artifact source/backend/package/media/font checks passed. Workflow's final ASCII-only label check failed because Hermes encoded Verified Job as UTF-16. Independent artifact inspection confirmed that label and review/messaging/notification RPC bytecode, ZIP integrity, manifest version and certificate. Corrected the verifier; no second EAS build was submitted. See `docs/evidence/reviews-messaging-preview-2026-09-23.json`.
+- All three backend flags remain enabled. Samsung phone/Pixel Tablet functional acceptance remains pending per `docs/REVIEWS_MESSAGING_DEMO.md`. Artifact verification does not establish native UI or two-device realtime acceptance.
+
 ## 2026-09-23 — One reviews/messaging Preview APK approved
 
 - Founder approved one new APK after backend rollout. Build latest merged code with reviews, neighbor messaging and notifications, using the existing Preview backend and signing configuration.
