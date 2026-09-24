@@ -1,3 +1,11 @@
+## 2026-09-24 — Provider review Preview APK verified and ready for device retest
+
+- Approved visibility migration is deployed on `opeojxwkwwnnncnsuaag` as remote version `20260924011448`; authenticated neighbor checks passed for matching 4.0/count 2, pagination, public projection and response association.
+- One corrected APK completed: Android version 40, source `c0f019a68c27c9aa71df9b7f51a2fcec11ee55db`, EAS `3126f7c3-dd13-4b66-8473-f23367dc162d`. Build workflow `35942254309` and Mobile CI `35942254317` passed, including 472 tests, typecheck, format and lint (zero errors/15 baseline warnings).
+- Download: https://expo.dev/artifacts/eas/g-hKHOYJI1h08Wr6TWSkbmQSG6GxV9Rl8oK7H7n1cdo.apk . File `my-corner-preview-c0f019a.apk`, 71,986,282 bytes; SHA-256 `313c82e1041c047b2d6d688c875f4bcda6aa6e536c3315db7ed2714982dd662a`.
+- Verified actual APK source, Preview backend, package, media/navigation font and review bytecode. Manifest version 40 supersedes 39 with the same signing certificate. Install using `adb install -r` or Android's Update prompt; retain the existing app/data.
+- Evidence: `docs/evidence/provider-review-preview-2026-09-24.json`. This one-build approval is consumed. Samsung/Pixel Tablet walkthrough remains pending: Hire → Kwame PipeCare → Reviews; confirm aggregate, stars, title/body, Verified Job, recommendation, masked author, response, and no private job/location data. No native device pass is claimed.
+
 ## 2026-09-24 — Review visibility migration deployed; corrected APK approved
 
 - Founder explicitly approved `20260924005414_provider_review_visibility.sql` on `opeojxwkwwnnncnsuaag` and one corrected Preview APK.

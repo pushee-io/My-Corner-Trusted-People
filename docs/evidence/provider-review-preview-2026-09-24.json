@@ -1,0 +1,32 @@
+{
+  "versionCode": 40,
+  "applicationId": "com.mycorner.trustedpeople",
+  "signerCertSha256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
+  "apkSha256": "313c82e1041c047b2d6d688c875f4bcda6aa6e536c3315db7ed2714982dd662a",
+  "apkBytes": 71986282,
+  "providerReviewBytecodeVerified": true,
+  "sameSignerAsPreviousApk": true,
+  "buildId": "3126f7c3-dd13-4b66-8473-f23367dc162d",
+  "commit": "c0f019a68c27c9aa71df9b7f51a2fcec11ee55db",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "previousVersionCode": 39,
+  "sourceCommitVerified": true,
+  "navigationFontVerified": true,
+  "productMediaBytecodeVerified": true,
+  "workflowRun": 35942254309,
+  "mobileCiRun": 35942254317,
+  "apkUrl": "https://expo.dev/artifacts/eas/g-hKHOYJI1h08Wr6TWSkbmQSG6GxV9Rl8oK7H7n1cdo.apk",
+  "apkFilename": "my-corner-preview-c0f019a.apk",
+  "deviceRetest": "pending",
+  "buildAuthorization": "One founder-approved build consumed; no second build submitted",
+  "migrationFile": "20260924005414_provider_review_visibility.sql",
+  "remoteMigrationVersion": "20260924011448",
+  "neighborReadVerification": {
+    "average": 4.0,
+    "count": 2,
+    "verifiedCount": 2,
+    "pagination": true,
+    "publicProjectionOnly": true,
+    "fictionalResponseVisible": true
+  }
+}
