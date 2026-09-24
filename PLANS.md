@@ -1,3 +1,10 @@
+## 2026-09-24 — Completed Job Safety review CTA
+
+- Added existing server-authorized ReviewPrompt directly below completed requester Safety sessions. Providers and incomplete sessions do not mount it. Dynamic business name; existing review switches to View or View/Edit per server policy.
+- Review form has saved confirmation and Done/history return; locked reviews remain readable. Existing duplicate-review and completion authorization remain server-enforced; no schema/security changes.
+- Targeted UI/review/Safety tests: 19 passed; typecheck and lint passed (zero errors/15 baseline warnings). Mobile CI is the merge gate. Android phone/tablet acceptance and a separately approved APK remain pending.
+- Next checkpoints: shared collapsible comments, then shared visible Back navigation. No paid build or production deployment authorized.
+
 ## 2026-09-24 — Provider review Preview APK verified and ready for device retest
 
 - Approved visibility migration is deployed on `opeojxwkwwnnncnsuaag` as remote version `20260924011448`; authenticated neighbor checks passed for matching 4.0/count 2, pagination, public projection and response association.
