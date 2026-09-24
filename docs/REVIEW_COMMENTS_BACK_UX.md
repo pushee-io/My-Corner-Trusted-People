@@ -12,6 +12,10 @@ AppHeader extends Screen and applies to every current application screen. Back i
 
 504 tests across 91 suites pass, including completed requester/provider/incomplete/already-reviewed states, review routing and confirmation/Done; collapsed/expanded/outside/inside/composer/busy/draft/count/single-thread behavior; global header history/fallback/hardware/root/accessibility/width behavior. Typecheck and lint pass (zero errors/15 baseline warnings). Existing privacy, authorization, media and review validation regression suites pass. No database changes were needed; existing server SQL duplicate-review and completion checks remain unchanged.
 
+## Merge evidence
+
+All three checkpoints are merged: #119 (`bc2ab3b`), #120 (`0e9eea3`), #121 (`f9ed12e`). Final navigation Mobile CI `35958012669` and `35957998462` passed, including repository release gates/web export. Previous review/Safety and comments CI passed. No paid EAS build was submitted.
+
 ## Native acceptance — pending
 
 A separately approved new Preview APK is needed; installed version 40 predates these UX changes. Do not mark this checkpoint device-accepted based on unit tests or web export.

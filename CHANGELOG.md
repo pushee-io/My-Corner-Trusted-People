@@ -1,3 +1,11 @@
+## 2026-09-24 — Review CTA, comments and global Back merged
+
+- Completed requester review CTA: PR #119, merge `bc2ab3b70964cf2c48696e0d0a7389d74518c4e9`; Mobile CI `35957268673` / `35957257880` and Job Safety `35957268668` passed.
+- Shared collapsible Feed/Group/Event comments: PR #120, merge `0e9eea357144d75da841b45be0c28fd05670d683`; Mobile CI `35957718832` / `35957710034` passed.
+- Shared fixed Back header: PR #121, merge `f9ed12e327b79a0d4a185111a6fc9260c14cb4c5`; Mobile CI `35958012669` / `35957998462` passed. Final local suite: 504 tests/91 suites, typecheck, format and lint (zero errors/15 baseline warnings). Existing privacy/security regression tests remain green.
+- Implementation is committed/pushed/merged. CURRENT_STATE, SESSION_CHECKPOINT, PLANS, CHANGELOG and master handoff updated. Behavior and native checklist: `docs/REVIEW_COMMENTS_BACK_UX.md`.
+- Native Samsung/Pixel Tablet acceptance remains PENDING. No connected device/adb is available in this workspace. Installed APK version 40 predates these three changes. One new paid Preview APK requires explicit founder approval; none was started. No database migration, production deployment, secret change, SMS/push or payment activation.
+
 ## 2026-09-24 — Shared Back navigation checkpoint
 
 - Comments PR #120 merged at `0e9eea357144d75da841b45be0c28fd05670d683` after Mobile CI `35957718832` / `35957710034` passed. Review CTA PR #119 is also merged.
