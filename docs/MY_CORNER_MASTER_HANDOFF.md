@@ -1,3 +1,11 @@
+## 2026-09-24 — Shared Back navigation checkpoint
+
+- Comments PR #120 merged at `0e9eea357144d75da841b45be0c28fd05670d683` after Mobile CI `35957718832` / `35957710034` passed. Review CTA PR #119 is also merged.
+- Every current screen uses shared Screen. AppHeader now provides a top-left 48 dp Back arrow beside the page title, outside scrolling content and inside the safe area, retaining branding/Messages/Notifications and tablet width limits.
+- Visible and Android hardware Back use actual Expo Router history, with Home replacement when none exists. Home/welcome root have no arrow; hardware Back exits at the terminal root. Native comments/media modals keep their own dismissal behavior; comment drafts survive dismissal.
+- 504 tests/91 suites, typecheck and lint passed (zero errors/15 baseline warnings). Includes nested history, deep-link fallback, top-level destinations, Home hiding, hardware cleanup, accessibility and phone/tablet-width component checks. CI is the merge gate; these are not native device passes.
+- Android Samsung/Pixel Tablet verification pending for all three UX updates. Installed version 40 predates them. No new paid build authorized or started; prepare one only after explicit founder approval. No schema, production or secret changes.
+
 ## 2026-09-24 — Shared collapsible comments checkpoint
 
 - Review CTA PR #119 merged at `bc2ab3b70964cf2c48696e0d0a7389d74518c4e9` after Mobile CI and Job Safety checks passed.

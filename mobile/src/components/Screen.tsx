@@ -1,10 +1,9 @@
 import { CommentsProvider } from '@/components/CollapsibleComments';
-import { MessagesAccess } from '@/components/MessagesAccess';
+import { AppHeader } from '@/components/AppHeader';
 import { PropsWithChildren } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomNavigation } from '@/components/BottomNavigation';
-import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
 
 export function Screen({
@@ -27,6 +26,9 @@ export function Screen({
   return (
     <CommentsProvider>
       <SafeAreaView style={styles.safe}>
+        <View style={[styles.header, contentWidth ? { maxWidth: contentWidth } : null]}>
+          <AppHeader title={title} showTitle={showTitle} showActions={showBottomNavigation} />
+        </View>
         <ScrollView
           refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
           keyboardDismissMode="on-drag"
@@ -37,13 +39,6 @@ export function Screen({
             contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
           ]}
         >
-          <MyCornerLogo />
-          {showBottomNavigation ? <MessagesAccess /> : null}
-          {showTitle ? (
-            <Text accessibilityRole="header" style={styles.title}>
-              {title}
-            </Text>
-          ) : null}
           <View style={styles.body}>{children}</View>
         </ScrollView>
         {showBottomNavigation ? <BottomNavigation /> : null}
@@ -61,6 +56,6 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     paddingBottom: tokens.spacing.xxl,
   },
-  title: { fontSize: 28, fontWeight: '700', color: tokens.color.textPrimary },
+  header: { width: '100%', alignSelf: 'center' },
   body: { flexShrink: 1, gap: tokens.spacing.md },
 });
