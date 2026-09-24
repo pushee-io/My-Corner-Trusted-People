@@ -1,3 +1,4 @@
+import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { router, type Href, useLocalSearchParams } from 'expo-router';
@@ -27,7 +28,7 @@ function EventDetailsContent() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reportReason, setReportReason] = useState('');
-  const [commentBody, setCommentBody] = useState('');
+  const [commentBody, setCommentBody] = useCommentDraft('', eventId);
   const [inviteeProfileId, setInviteeProfileId] = useState('');
   const [announcement, setAnnouncement] = useState('');
   const [isStaff, setIsStaff] = useState(false);
@@ -55,7 +56,7 @@ function EventDetailsContent() {
       .catch(() => setIsStaff(false));
   }, [load]);
 
-  async function act(action: () => Promise<unknown>, success: string) {
+  async function act(action: () => Promise<unknown>, success: string, onSuccess?: () => void) {
     setBusy(true);
     setError(undefined);
     setMessage(undefined);
@@ -63,6 +64,7 @@ function EventDetailsContent() {
       await action();
       setMessage(success);
       await load();
+      onSuccess?.();
     } catch (caught) {
       setError(eventErrorMessage(caught));
     } finally {
@@ -95,8 +97,11 @@ function EventDetailsContent() {
       setError('Write a short comment before posting.');
       return;
     }
-    await act(() => eventsRuntimeRepository.addComment(event!.id, body), 'Comment submitted for review.');
-    setCommentBody('');
+    await act(
+      () => eventsRuntimeRepository.addComment(event!.id, body),
+      'Comment submitted for review.',
+      () => setCommentBody(''),
+    );
   }
 
   function confirmCancellation() {
@@ -220,39 +225,46 @@ function EventDetailsContent() {
       <ActionButton label="Remind me one hour before" disabled={busy} onPress={remindMe} />
 
       {event.commentsEnabled ? (
-        <View style={styles.section}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Comments
-          </Text>
-          {event.comments?.length ? (
-            <View style={styles.commentList}>
-              {event.comments.map((comment) => (
-                <View key={comment.id} style={styles.comment}>
-                  <MediaAvatar profileId={comment.authorProfileId} name={comment.authorDisplayName} size={32} />
-                  <Text style={styles.commentAuthor}>{comment.authorDisplayName}</Text>
-                  <Text style={styles.body}>{comment.body}</Text>
-                  <Text style={styles.meta}>
-                    {new Date(comment.createdAt).toLocaleString('en-GH')}
-                    {comment.moderationStatus === 'pending' ? ' · Awaiting review' : ''}
-                  </Text>
+        <CollapsibleComments id={event.id} count={event.comments?.length ?? 0} busy={busy} error={error}>
+          {({ onFocus, onBlur }) => (
+            <>
+              {event.comments?.length ? (
+                <View style={styles.commentList}>
+                  {event.comments.map((comment) => (
+                    <View key={comment.id} style={styles.comment}>
+                      <MediaAvatar profileId={comment.authorProfileId} name={comment.authorDisplayName} size={32} />
+                      <Text style={styles.commentAuthor}>{comment.authorDisplayName}</Text>
+                      <Text style={styles.body}>{comment.body}</Text>
+                      <Text style={styles.meta}>
+                        {new Date(comment.createdAt).toLocaleString('en-GH')}
+                        {comment.moderationStatus === 'pending' ? ' · Awaiting review' : ''}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.meta}>No comments yet.</Text>
+              ) : (
+                <Text style={styles.meta}>No comments yet.</Text>
+              )}
+              <TextInput
+                accessibilityLabel="Event comment"
+                onFocus={onFocus}
+                onBlur={onBlur}
+                maxLength={500}
+                multiline
+                onChangeText={setCommentBody}
+                placeholder="Add a useful neighborhood update"
+                placeholderTextColor={tokens.color.textSecondary}
+                style={[styles.input, styles.multiline]}
+                value={commentBody}
+              />
+              <ActionButton
+                label="Post comment"
+                disabled={busy || !commentBody.trim()}
+                onPress={() => void addComment()}
+              />
+            </>
           )}
-          <TextInput
-            accessibilityLabel="Event comment"
-            maxLength={500}
-            multiline
-            onChangeText={setCommentBody}
-            placeholder="Add a useful neighborhood update"
-            placeholderTextColor={tokens.color.textSecondary}
-            style={[styles.input, styles.multiline]}
-            value={commentBody}
-          />
-          <ActionButton label="Post comment" disabled={busy || !commentBody.trim()} onPress={() => void addComment()} />
-        </View>
+        </CollapsibleComments>
       ) : null}
 
       <View style={styles.section}>

@@ -1,3 +1,11 @@
+## 2026-09-24 — Shared collapsible comments checkpoint
+
+- Review CTA PR #119 merged at `bc2ab3b70964cf2c48696e0d0a7389d74518c4e9` after Mobile CI and Job Safety checks passed.
+- Feed, Group and Event comments now use one shared collapsed control/dialog with current counts, explicit Hide, outside dismissal, protected focused composer/submission, and Android modal Back dismissal. One dialog per Screen; no comments added to other modules.
+- Existing screen comment repositories/realtime/count updates remain intact. Drafts survive dialog dismissal but clear on account/scope changes. Failed Event submissions now retain drafts.
+- 486 tests/90 suites, typecheck and lint passed (zero errors/15 baseline warnings). Mobile CI is the merge gate. No database changes, new dependencies, paid build or native device acceptance claimed.
+- Next: shared visible Back header and route regression tests. Phone/tablet acceptance still requires a separately approved corrected APK.
+
 ## 2026-09-24 — Completed Job Safety review CTA
 
 - Added existing server-authorized ReviewPrompt directly below completed requester Safety sessions. Providers and incomplete sessions do not mount it. Dynamic business name; existing review switches to View or View/Edit per server policy.

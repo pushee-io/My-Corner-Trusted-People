@@ -1,3 +1,4 @@
+import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
 import { MediaGallery } from '@/components/media/MediaGallery';
@@ -27,7 +28,7 @@ export default function CommunityFeedScreen() {
   const [neighborhood, setNeighborhood] = useState<CurrentNeighborhood>();
   const [posts, setPosts] = useState<NeighborhoodFeedPost[]>([]);
   const [body, setBody] = useState('');
-  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyDrafts, setReplyDrafts] = useCommentDraft<Record<string, string>>({});
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const media = useMediaComposer('neighborhood_post');
@@ -303,44 +304,57 @@ export default function CommunityFeedScreen() {
                   </Pressable>
                 </View>
 
-                {post.comments.length ? (
-                  <View style={styles.replies}>
-                    {post.comments.map((comment) => (
-                      <View key={comment.id} style={styles.reply}>
-                        <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
-                        <Text style={styles.author}>{comment.authorName}</Text>
-                        <Text style={styles.body}>{comment.body}</Text>
+                <CollapsibleComments
+                  id={post.id}
+                  count={post.comments.length}
+                  busy={busyId === `reply-${post.id}`}
+                  error={error}
+                >
+                  {({ onFocus, onBlur }) => (
+                    <>
+                      {post.comments.length ? (
+                        <View style={styles.replies}>
+                          {post.comments.map((comment) => (
+                            <View key={comment.id} style={styles.reply}>
+                              <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
+                              <Text style={styles.author}>{comment.authorName}</Text>
+                              <Text style={styles.body}>{comment.body}</Text>
+                              <Pressable
+                                disabled={comment.isReported || busyId === `report-${comment.id}`}
+                                onPress={() => reportComment(comment)}
+                              >
+                                <Text style={styles.reportText}>
+                                  {comment.isReported ? 'Reply reported' : 'Report reply'}
+                                </Text>
+                              </Pressable>
+                            </View>
+                          ))}
+                        </View>
+                      ) : null}
+
+                      <View style={styles.replyBox}>
+                        <TextInput
+                          value={replyDrafts[post.id] ?? ''}
+                          onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
+                          placeholder="Write a reply"
+                          style={styles.replyInput}
+                          accessibilityLabel="Reply to feed post"
+                          onFocus={onFocus}
+                          onBlur={onBlur}
+                        />
                         <Pressable
-                          disabled={comment.isReported || busyId === `report-${comment.id}`}
-                          onPress={() => reportComment(comment)}
+                          disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
+                          onPress={() => publishReply(post.id)}
+                          style={styles.replyButton}
                         >
-                          <Text style={styles.reportText}>
-                            {comment.isReported ? 'Reply reported' : 'Report reply'}
+                          <Text style={styles.replyButtonText}>
+                            {busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
                           </Text>
                         </Pressable>
                       </View>
-                    ))}
-                  </View>
-                ) : null}
-
-                <View style={styles.replyBox}>
-                  <TextInput
-                    value={replyDrafts[post.id] ?? ''}
-                    onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
-                    placeholder="Write a reply"
-                    style={styles.replyInput}
-                    accessibilityLabel="Reply to feed post"
-                  />
-                  <Pressable
-                    disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
-                    onPress={() => publishReply(post.id)}
-                    style={styles.replyButton}
-                  >
-                    <Text style={styles.replyButtonText}>
-                      {busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
-                    </Text>
-                  </Pressable>
-                </View>
+                    </>
+                  )}
+                </CollapsibleComments>
               </View>
             ))}
           </View>

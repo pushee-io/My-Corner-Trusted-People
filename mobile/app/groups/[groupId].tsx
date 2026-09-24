@@ -1,3 +1,4 @@
+import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
 import { MediaGallery } from '@/components/media/MediaGallery';
@@ -37,8 +38,7 @@ export default function GroupDetailScreen() {
   const [section, setSection] = useState<SocialGroupScreenSection>();
   const [posts, setPosts] = useState<SocialGroupPostDetail[]>([]);
   const [postBody, setPostBody] = useState('');
-  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
-  const [commentingPostId, setCommentingPostId] = useState<string>();
+  const [commentDrafts, setCommentDrafts] = useCommentDraft<Record<string, string>>({}, groupId);
   const [reportingPostId, setReportingPostId] = useState<string>();
   const [busyId, setBusyId] = useState<string>();
   const [notice, setNotice] = useState<string>();
@@ -154,7 +154,6 @@ export default function GroupDetailScreen() {
         ),
       );
       setCommentDrafts((current) => ({ ...current, [postId]: '' }));
-      setCommentingPostId(undefined);
     } catch {
       setError('Could not add your comment. Check your connection and try again.');
     } finally {
@@ -367,13 +366,6 @@ export default function GroupDetailScreen() {
                       </Text>
                     </Pressable>
                     <Pressable
-                      accessibilityLabel={`Comment on post by ${post.authorName}`}
-                      onPress={() => setCommentingPostId(commentingPostId === post.id ? undefined : post.id)}
-                      style={styles.actionButton}
-                    >
-                      <Text style={styles.actionText}>Comment ({post.comments.length})</Text>
-                    </Pressable>
-                    <Pressable
                       accessibilityLabel={`Share post by ${post.authorName}`}
                       onPress={() => sharePost(post)}
                       style={styles.actionButton}
@@ -410,40 +402,51 @@ export default function GroupDetailScreen() {
                     </View>
                   ) : null}
 
-                  {post.comments.length > 0 ? (
-                    <View style={styles.comments}>
-                      {post.comments.map((comment: SocialGroupPostComment) => (
-                        <View key={comment.id} style={styles.comment}>
-                          <MediaAvatar profileId={comment.authorProfileId} name={comment.authorName} size={32} />
-                          <Text style={styles.commentAuthor}>{comment.authorName}</Text>
-                          <Text style={styles.commentBody}>{comment.body}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : null}
+                  <CollapsibleComments
+                    id={post.id}
+                    count={post.comments.length}
+                    busy={busyId === `comment-${post.id}`}
+                    error={error}
+                  >
+                    {({ onFocus, onBlur }) => (
+                      <>
+                        {post.comments.length > 0 ? (
+                          <View style={styles.comments}>
+                            {post.comments.map((comment: SocialGroupPostComment) => (
+                              <View key={comment.id} style={styles.comment}>
+                                <MediaAvatar profileId={comment.authorProfileId} name={comment.authorName} size={32} />
+                                <Text style={styles.commentAuthor}>{comment.authorName}</Text>
+                                <Text style={styles.commentBody}>{comment.body}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        ) : null}
 
-                  {commentingPostId === post.id ? (
-                    <View style={styles.commentComposer}>
-                      <TextInput
-                        accessibilityLabel={`Comment on post by ${post.authorName}`}
-                        maxLength={500}
-                        onChangeText={(value) => setCommentDrafts((current) => ({ ...current, [post.id]: value }))}
-                        placeholder="Write a comment"
-                        style={styles.commentInput}
-                        value={commentDrafts[post.id] ?? ''}
-                      />
-                      <Pressable
-                        accessibilityRole="button"
-                        disabled={busyId === `comment-${post.id}` || !(commentDrafts[post.id] ?? '').trim()}
-                        onPress={() => void publishComment(post.id)}
-                        style={styles.commentButton}
-                      >
-                        <Text style={styles.commentButtonText}>
-                          {busyId === `comment-${post.id}` ? 'Sending...' : 'Send'}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  ) : null}
+                        <View style={styles.commentComposer}>
+                          <TextInput
+                            accessibilityLabel={`Comment on post by ${post.authorName}`}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                            maxLength={500}
+                            onChangeText={(value) => setCommentDrafts((current) => ({ ...current, [post.id]: value }))}
+                            placeholder="Write a comment"
+                            style={styles.commentInput}
+                            value={commentDrafts[post.id] ?? ''}
+                          />
+                          <Pressable
+                            accessibilityRole="button"
+                            disabled={busyId === `comment-${post.id}` || !(commentDrafts[post.id] ?? '').trim()}
+                            onPress={() => void publishComment(post.id)}
+                            style={styles.commentButton}
+                          >
+                            <Text style={styles.commentButtonText}>
+                              {busyId === `comment-${post.id}` ? 'Sending...' : 'Send'}
+                            </Text>
+                          </Pressable>
+                        </View>
+                      </>
+                    )}
+                  </CollapsibleComments>
                 </View>
               ))}
             </View>

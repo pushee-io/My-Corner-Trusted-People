@@ -1,3 +1,4 @@
+import { CommentsProvider } from '@/components/CollapsibleComments';
 import { MessagesAccess } from '@/components/MessagesAccess';
 import { PropsWithChildren } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -24,28 +25,30 @@ export function Screen({
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="handled"
-        style={styles.scroll}
-        contentContainerStyle={[
-          styles.content,
-          contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
-        ]}
-      >
-        <MyCornerLogo />
-        {showBottomNavigation ? <MessagesAccess /> : null}
-        {showTitle ? (
-          <Text accessibilityRole="header" style={styles.title}>
-            {title}
-          </Text>
-        ) : null}
-        <View style={styles.body}>{children}</View>
-      </ScrollView>
-      {showBottomNavigation ? <BottomNavigation /> : null}
-    </SafeAreaView>
+    <CommentsProvider>
+      <SafeAreaView style={styles.safe}>
+        <ScrollView
+          refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+          style={styles.scroll}
+          contentContainerStyle={[
+            styles.content,
+            contentWidth ? { maxWidth: contentWidth, alignSelf: 'center', width: '100%' } : null,
+          ]}
+        >
+          <MyCornerLogo />
+          {showBottomNavigation ? <MessagesAccess /> : null}
+          {showTitle ? (
+            <Text accessibilityRole="header" style={styles.title}>
+              {title}
+            </Text>
+          ) : null}
+          <View style={styles.body}>{children}</View>
+        </ScrollView>
+        {showBottomNavigation ? <BottomNavigation /> : null}
+      </SafeAreaView>
+    </CommentsProvider>
   );
 }
 
