@@ -23,6 +23,7 @@ export function ReviewPrompt({ requestId }: { requestId: string }) {
     if (context?.canReview) void reviewApi('event', requestId, { event: 'review_prompt_viewed' }).catch(() => {});
   }, [context?.canReview, requestId]);
   if (!context) return resource.error ? <Text style={styles.note}>{resource.error}</Text> : null;
+  if (!context.completed) return null;
   return (
     <View style={styles.panel}>
       <Text style={styles.title}>
@@ -32,7 +33,7 @@ export function ReviewPrompt({ requestId }: { requestId: string }) {
       </Text>
       {context.canReview || context.canEdit ? (
         <ReportButton
-          label={context.canEdit ? 'Edit your review' : 'Review your provider'}
+          label={context.canEdit ? 'View / Edit Review' : `Review ${context.providerName}`}
           onPress={() => router.push({ pathname: '/reviews/write', params: { requestId } })}
         />
       ) : context.review ? (
@@ -45,6 +46,12 @@ export function ReviewPrompt({ requestId }: { requestId: string }) {
               : 'under review'}
           .
         </Text>
+      ) : null}
+      {context.review && !context.canEdit ? (
+        <ReportButton
+          label="View your review"
+          onPress={() => router.push({ pathname: '/reviews/write', params: { requestId } })}
+        />
       ) : null}
     </View>
   );

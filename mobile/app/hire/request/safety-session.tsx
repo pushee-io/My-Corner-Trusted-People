@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ReviewPrompt } from '@/components/VerifiedReviews';
 import { Screen } from '@/components/Screen';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { ReportButton } from '@/components/JobReportParts';
@@ -424,6 +425,7 @@ export default function JobSafetySessionScreen() {
           <Text style={styles.body}>Both people confirmed completion. The job timeline has been updated.</Text>
         </View>
       ) : null}
+      {session.state === 'completed' && isRequester ? <ReviewPrompt key={requestId} requestId={requestId!} /> : null}
     </Screen>
   );
 }

@@ -35,7 +35,9 @@ function Editor({ requestId, context }: { requestId: string; context: ReviewJob 
     return (
       <View style={styles.panel}>
         <Text style={styles.title}>
-          {saved === 'clean' ? 'Thank you for helping your neighborhood.' : 'Your review is saved for moderation.'}
+          {saved === 'clean'
+            ? 'Thanks for helping neighbors make informed decisions.'
+            : 'Your review is saved for moderation.'}
         </Text>
         <ReportButton
           label="View provider reviews"
@@ -44,8 +46,12 @@ function Editor({ requestId, context }: { requestId: string; context: ReviewJob 
           }
         />
         <ReportButton
-          label="Need help with something else? Hire Help"
-          onPress={() => router.push('/hire/categories')}
+          label="Done"
+          onPress={() =>
+            router.canGoBack()
+              ? router.back()
+              : router.replace({ pathname: '/hire/request/safety-session', params: { requestId } })
+          }
         />
       </View>
     );
@@ -151,6 +157,20 @@ export default function ReviewScreen() {
       {requestId && resource.data ? (
         resource.data.canReview || resource.data.canEdit ? (
           <Editor key={`${requestId}-${revision}`} requestId={requestId} context={resource.data} />
+        ) : resource.data.review ? (
+          <View style={styles.panel}>
+            <Text style={styles.title}>Your review of {resource.data.providerName}</Text>
+            <Text accessibilityLabel={`${resource.data.review.rating} out of 5 stars`} style={styles.body}>
+              {'★'.repeat(resource.data.review.rating)}
+              {'☆'.repeat(5 - resource.data.review.rating)}
+            </Text>
+            <Text style={styles.title}>{resource.data.review.title}</Text>
+            <Text style={styles.body}>{resource.data.review.body}</Text>
+            <Text style={styles.note}>
+              Would recommend to a neighbor: {resource.data.review.recommends ? 'Yes' : 'No'}
+            </Text>
+            <Text style={styles.note}>Review status: {resource.data.review.status}</Text>
+          </View>
         ) : (
           <Text style={styles.body}>
             This job is not currently eligible for a new or edited review. Both Job Safety completion confirmations are
