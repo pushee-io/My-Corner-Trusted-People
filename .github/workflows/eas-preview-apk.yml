@@ -1,6 +1,6 @@
 name: EAS Preview APK
 # Founder approved one corrected Android Preview APK on 2026-09-24
-# after approving the provider review visibility migration on the Preview project.
+# for the completed-job review CTA, collapsible comments and global Back navigation.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:
@@ -244,9 +244,9 @@ jobs:
           # Hermes stores this label as UTF-16 because its string includes a middle dot.
           with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
               bundle = apk.read('assets/index.android.bundle')
-          label = 'Verified Job'
-          if not any(label.encode(encoding) in bundle for encoding in ('utf-8', 'utf-16le')):
-              raise SystemExit('Verified Job label missing from APK')
+          for label in ('Verified Job', 'Hide comments', 'Go back', 'View / Edit Review', 'Thanks for helping neighbors make informed decisions.'):
+              if not any(label.encode(encoding) in bundle for encoding in ('utf-8', 'utf-16le')):
+                  raise SystemExit(f'Required UX label missing from APK: {label}')
           PYFONT
           grep -Fq 'MyCornerNavigation' "$dump_path"
           for marker in 'review_api' 'messaging_api' 'notification_api'; do
