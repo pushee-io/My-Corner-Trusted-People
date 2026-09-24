@@ -22,7 +22,9 @@ export type ReviewJob = {
   canEdit: boolean;
   review?: Review & { status: string };
 };
+export type ReviewCursor = { createdAt: string; id: string };
 export type Reputation = {
+  nextCursor?: ReviewCursor | null;
   average: number;
   count: number;
   completedJobs: number;
@@ -69,7 +71,9 @@ export async function reviewApi<T>(action: string, target?: string, payload: obj
   return data as T;
 }
 export const loadReviewJob = (id: string) => reviewApi<ReviewJob>('job', id);
-export const loadReputation = (id: string) => reviewApi<Reputation>('provider', id);
+export const verifiedReviewCount = (count: number) => `${count} verified ${count === 1 ? 'review' : 'reviews'}`;
+export const loadReputation = (id: string, limit = 0, before?: ReviewCursor) =>
+  reviewApi<Reputation>('provider', id, { limit, ...(before ? { before } : {}) });
 export const loadMyReviews = () => reviewApi<MyReview[]>('mine');
 export const loadReviewCases = () => reviewApi<ReviewCase[]>('queue');
 export async function submitReview(id: string, input: ReviewInput) {

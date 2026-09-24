@@ -105,7 +105,7 @@ export default function ProviderProfileScreen() {
 
   return (
     <Screen title={provider.name}>
-      <VerifiedReviews providerId={provider.id} />
+      <VerifiedReviews key={provider.id} providerId={provider.id} />
       <Text style={styles.headline}>{provider.headline}</Text>
 
       <Text style={styles.body}>
@@ -137,22 +137,8 @@ export default function ProviderProfileScreen() {
       {canStartRequest && selectedCategoryId ? (
         <WebSafeLink
           href={{
-            pathname: '/hire/request/review',
-            params: {
-              requesterName: 'Akosua Mensah',
-              providerId: provider.id,
-              categoryId: selectedCategoryId,
-              neighborhood: 'East Legon',
-              areaLabel: 'East Legon, general area only',
-              title: 'Kitchen sink leak',
-              description: 'Water is leaking under the kitchen sink. I need someone to inspect it and repair the leak.',
-              originalUserText: 'Water is leaking under the kitchen sink.',
-              urgency: 'soon',
-              preferredDate: '2026-07-18',
-              preferredTime: 'Afternoon',
-              contactPreference: 'app_update',
-              photoCount: '0',
-            },
+            pathname: '/hire/request/new',
+            params: { providerId: provider.id, categoryId: selectedCategoryId },
           }}
           asChild
         >

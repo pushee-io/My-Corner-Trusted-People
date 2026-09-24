@@ -1,40 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { Text } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { tokens } from '@/theme/tokens';
+import { ReportButton } from '@/components/JobReportParts';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { getCurrentProviderProfileId } from '@/lib/auth';
 
 export default function ProviderProfilePreviewScreen() {
+  const resource = useProtectedResource(getCurrentProviderProfileId);
+  if (resource.data)
+    return <Redirect href={{ pathname: '/hire/provider/[providerId]', params: { providerId: resource.data } }} />;
   return (
     <Screen title="Profile preview">
-      <View style={styles.panel}>
-        <Text style={styles.title}>Kwame PipeCare</Text>
-        <Text style={styles.body}>Fast home plumbing support</Text>
-        <Text style={styles.note}>East Legon and nearby</Text>
-      </View>
-
-      <View style={styles.panel}>
-        <Text style={styles.title}>Trust signals</Text>
-        <Text style={styles.body}>Phone verified: Yes</Text>
-        <Text style={styles.body}>Completed jobs: shown from Supabase provider listings</Text>
-        <Text style={styles.body}>Community recommendations: shown as evidence, not a guarantee</Text>
-      </View>
-
-      <Text style={styles.note}>
-        This is what requesters see. Trust signals are evidence, not a My Corner guarantee.
-      </Text>
+      <Text>{resource.error || 'Loading your provider profile…'}</Text>
+      {resource.error ? <ReportButton label="Retry profile" onPress={() => void resource.refresh()} /> : null}
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  panel: {
-    backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
-    borderWidth: 1,
-    gap: tokens.spacing.sm,
-    padding: tokens.spacing.lg,
-  },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  note: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-});

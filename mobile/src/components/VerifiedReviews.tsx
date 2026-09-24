@@ -2,7 +2,14 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { router } from 'expo-router';
 import { Text, TextInput, View } from 'react-native';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
-import { loadReputation, loadReviewJob, reviewApi, type Review } from '@/lib/reviews';
+import {
+  loadReputation,
+  loadReviewJob,
+  reviewApi,
+  type Review,
+  type ReviewCursor,
+  verifiedReviewCount,
+} from '@/lib/reviews';
 import { mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
 import { ReportButton, reportStyles as styles } from './JobReportParts';
 
@@ -126,15 +133,17 @@ function ReviewActions({ review, reload }: { review: Review; reload: () => void 
 }
 
 export function VerifiedReviews({ providerId }: { providerId: string }) {
+  const [showAll, setShowAll] = useState(false);
+  const [before, setBefore] = useState<ReviewCursor>();
   const resource = useProtectedResource(
-    useCallback(() => loadReputation(providerId), [providerId]),
+    useCallback(() => loadReputation(providerId, showAll ? 10 : 3, before), [providerId, showAll, before]),
     10000,
   );
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
   const data = resource.data;
   return (
     <View style={styles.panel}>
-      <Text style={styles.title}>Verified job reviews</Text>
+      <Text style={styles.title}>Provider reputation</Text>
       {resource.error ? (
         <>
           <Text style={styles.note}>{resource.error}</Text>
@@ -146,13 +155,17 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
         <>
           <Text style={styles.body}>
             {data.count
-              ? `${data.average.toFixed(1)} out of 5 · ${data.count} verified reviews`
-              : 'No verified reviews yet'}
+              ? `${data.average.toFixed(1)} out of 5 · ${verifiedReviewCount(data.count)}`
+              : 'No verified reviews yet.'}
           </Text>
           <Text style={styles.note}>{data.completedJobs} completed My Corner jobs</Text>
           {data.recommendationPercent !== null ? (
             <Text style={styles.note}>{data.recommendationPercent}% would recommend</Text>
           ) : null}
+          <Text accessibilityRole="header" style={styles.title}>
+            Reviews
+          </Text>
+          {showAll ? <Text style={styles.note}>Newest first</Text> : null}
           {data.reviews.map((review) => (
             <View key={review.id} style={styles.panel}>
               <Text style={styles.title}>{review.title}</Text>
@@ -164,9 +177,7 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
                 Verified Job · {review.author} · {new Date(review.createdAt).toLocaleDateString()}
               </Text>
               <Text style={styles.body}>{review.body}</Text>
-              <Text style={styles.note}>
-                {review.recommends ? 'Would recommend to a neighbor' : 'Would not recommend'}
-              </Text>
+              <Text style={styles.note}>Would recommend to a neighbor: {review.recommends ? 'Yes' : 'No'}</Text>
               {review.response ? (
                 <View style={styles.panel}>
                   <Text style={styles.title}>Provider response</Text>
@@ -176,6 +187,13 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
               <ReviewActions key={`${revision}-${review.id}`} review={review} reload={() => void resource.refresh()} />
             </View>
           ))}
+          {!showAll && data.count > data.reviews.length ? (
+            <ReportButton label="See all reviews" onPress={() => setShowAll(true)} />
+          ) : null}
+          {showAll && data.nextCursor ? (
+            <ReportButton label="Older reviews" onPress={() => setBefore(data.nextCursor!)} />
+          ) : null}
+          {before ? <ReportButton label="Newest reviews" onPress={() => setBefore(undefined)} /> : null}
         </>
       ) : null}
     </View>
@@ -190,8 +208,8 @@ export function ProviderReputationSummary({ providerId }: { providerId: string }
       <Text style={styles.note}>
         {data
           ? data.count
-            ? `${data.average.toFixed(1)} / 5 · ${data.count} verified reviews`
-            : 'No verified reviews yet'
+            ? `${data.average.toFixed(1)} / 5 · ${verifiedReviewCount(data.count)}`
+            : 'No verified reviews yet.'
           : resource.error
             ? 'Verified reviews unavailable'
             : 'Loading verified reviews…'}

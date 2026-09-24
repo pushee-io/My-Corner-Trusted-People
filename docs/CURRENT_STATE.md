@@ -1,3 +1,11 @@
+## 2026-09-24 — Provider review visibility root cause and fix
+
+- Root cause: Hire provider cards navigated directly to `/hire/request/new`, bypassing the existing profile/review component. The separate provider profile-preview route was hard-coded and omitted reviews. Preview Kwame has one genuine published 4-star review with matching requester/provider and two-party completed Job Safety; another authenticated account's RPC returned that body. RLS is not the cause; legacy seeded 4.8/37 counters are not the displayed 4.0/1 summary.
+- Provider cards now open the real profile; its Start request opens the editable form without fabricated sample data. Provider preview resolves the signed-in provider and redirects to the same real profile.
+- Added singular/plural/zero states, recent-three review display, See all reviews, ten-row cursor pages, explicit recommendation and existing provider response. Server aggregation and rows now share a completed-job/requester/provider/safety join and match accepting-provider visibility. No legal identity, request ID, address or safety evidence is projected; optional experience tags are not stored and are not invented.
+- Added guarded, manual-only fictional Preview fixture for Kwame (matching completed synthetic job and acknowledgements), excluded from migrations/production seeding. Existing user review remains unchanged. Added route/render/pagination and SQL privacy/eligibility/aggregate/moderation tests.
+- Local 472 tests/88 suites, typecheck, format and lint passed (0 errors/15 baseline warnings). Database/Mobile CI, deployment and fixture readback pending. No new paid APK is authorized; Android phone/tablet acceptance cannot be claimed from unit/SQL checks.
+
 ## 2026-09-23 — Reviews/messaging Preview APK built and verified
 
 - One approved APK completed: source `d218a151a2524c2cd1ae8f7686895f75bc3538f0`, EAS `3beca53c-37e2-470d-ae5e-f4a7b55d5d7f`, build workflow `35935019649`, Mobile CI `35935019645` passed. The one-build authorization is consumed.
