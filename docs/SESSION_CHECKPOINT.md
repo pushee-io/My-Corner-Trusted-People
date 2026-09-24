@@ -1,3 +1,11 @@
+## 2026-09-24 — Review/comments/Back APK version 41 verified
+
+- The one approved Preview APK completed: version 41, source `912134c59fd046d772593aaadeb35e28da7288f8`, EAS `b545caec-80fa-4946-afac-728061e39f90`. Build workflow `35958534464` and Mobile CI `35958534387` passed, including 504 tests, typecheck, formatting and lint (zero errors/15 baseline warnings).
+- Download: https://expo.dev/artifacts/eas/kjy7J86ruUZUD3fzCG5Q_OjeR-RvmxzhzoVnPgEHdNk.apk . File `my-corner-preview-912134c.apk`, 71,991,858 bytes; SHA-256 `dee63dc086ec355c0453d2c4d6f7937d78c9b62a48d1036f8d1bdf8e804f0cb5`.
+- Verified actual APK source/backend/package, media/icons, review/comments/Back bytecode, archive integrity, manifest version 41 and same signing certificate as version 40. Install as an update using `adb install -r` or Android Update; keep the existing app/data.
+- Evidence: `docs/evidence/review-comments-back-preview-2026-09-24.json`. One-build approval consumed; no additional build authorized. No backend or production changes.
+- Samsung/Pixel Tablet functional acceptance remains PENDING. Test dynamic requester review CTA and already-reviewed state, Feed/Group/Event comments/draft/dismissal, global visible and Android Back/history/Home fallback. See `docs/REVIEW_COMMENTS_BACK_UX.md`. Artifact verification does not establish native acceptance.
+
 ## 2026-09-24 — One review/comments/Back Preview APK approved
 
 - Founder explicitly approved one new Preview APK after PRs #119–#122 merged. Build the latest merged review CTA, collapsible comments and shared Back header with existing Preview backend/signing configuration.

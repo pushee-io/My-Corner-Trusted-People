@@ -18,7 +18,7 @@ All three checkpoints are merged: #119 (`bc2ab3b`), #120 (`0e9eea3`), #121 (`f9e
 
 ## Native acceptance — pending
 
-A separately approved new Preview APK is needed; installed version 40 predates these UX changes. Do not mark this checkpoint device-accepted based on unit tests or web export.
+The approved Preview APK is complete: version 41/source `912134c`, EAS `b545caec-80fa-4946-afac-728061e39f90`. Build workflow `35958534464` and Mobile CI `35958534387` passed. Install over version 40 with the same signing certificate. Download/checksum/provenance: `evidence/review-comments-back-preview-2026-09-24.json`. The one-build approval is consumed. Do not mark this checkpoint device-accepted based on automated or artifact checks.
 
 On Samsung phone and Pixel Tablet:
 
@@ -26,4 +26,4 @@ On Samsung phone and Pixel Tablet:
 2. On Feed, Group and Event: verify initial comment count/collapsed state; expand; interact inside; type draft; outside tap while typing stays open; Hide closes; reopen preserves draft; blur then outside closes. Submit updates count. Failed submission preserves draft. Opening another post does not leave overlapping dialogs. Hardware Back closes comments before navigation.
 3. Follow Home → Hire → Provider → Request → Safety. Back follows actual visited screens until Home, where the arrow disappears. Repeat Community/Group/Event/Market/Search/Settings/Messages/Notifications. Direct-open a nested route with no history and verify Home fallback. Test hardware Back, keyboard, media viewer close, compact/landscape/tablet layout and enlarged text.
 
-The founder authorized implementation, CI and green non-production merges; no additional paid EAS build or production deployment was authorized.
+The founder authorized implementation, CI, green non-production merges and subsequently one Preview APK build. That build is complete; no further build or production deployment is authorized.

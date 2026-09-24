@@ -1,0 +1,23 @@
+{
+  "versionCode": 41,
+  "applicationId": "com.mycorner.trustedpeople",
+  "signerCertSha256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
+  "apkSha256": "dee63dc086ec355c0453d2c4d6f7937d78c9b62a48d1036f8d1bdf8e804f0cb5",
+  "apkBytes": 71991858,
+  "reviewCommentsBackBytecodeVerified": true,
+  "sameSignerAsPreviousApk": true,
+  "buildId": "b545caec-80fa-4946-afac-728061e39f90",
+  "commit": "912134c59fd046d772593aaadeb35e28da7288f8",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "previousVersionCode": 40,
+  "sourceCommitVerified": true,
+  "navigationFontVerified": true,
+  "productMediaBytecodeVerified": true,
+  "workflowRun": 35958534464,
+  "mobileCiRun": 35958534387,
+  "apkUrl": "https://expo.dev/artifacts/eas/kjy7J86ruUZUD3fzCG5Q_OjeR-RvmxzhzoVnPgEHdNk.apk",
+  "apkFilename": "my-corner-preview-912134c.apk",
+  "deviceRetest": "pending",
+  "buildAuthorization": "One founder-approved build consumed; no second build submitted",
+  "testsPassed": 504
+}
