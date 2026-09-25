@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { BackHandler } from 'react-native';
+import { BackHandler, Keyboard } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/Screen';
 jest.mock('@/components/AskMyCornerAccess', () => ({ AskMyCornerAccess: 'AskMyCornerAccess' }));
@@ -10,6 +10,7 @@ let mockWidth = 360;
 const mockRemove = jest.fn();
 jest.mock('react-native', () => ({
   View: 'View',
+  Keyboard: { isVisible: jest.fn(() => false), dismiss: jest.fn() },
   Text: 'Text',
   Pressable: 'Pressable',
   ScrollView: 'ScrollView',
@@ -146,4 +147,20 @@ it('removes the hardware handler on unmount', async () => {
   await render();
   await act(async () => renderer.unmount());
   expect(mockRemove).toHaveBeenCalled();
+});
+
+it('Ask Android Back dismisses keyboard before navigating', async () => {
+  mockHistory = ['/home', '/ask'];
+  jest.mocked(Keyboard.isVisible).mockReturnValue(true);
+  await render();
+  await act(async () => {
+    mockHardwareBack!();
+  });
+  expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
+  expect(router.back).not.toHaveBeenCalled();
+  jest.mocked(Keyboard.isVisible).mockReturnValue(false);
+  await act(async () => {
+    mockHardwareBack!();
+  });
+  expect(router.back).toHaveBeenCalledTimes(1);
 });
