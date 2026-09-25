@@ -12,6 +12,7 @@ import {
   type AskAnswer,
 } from '@/lib/neighborhood-assistant';
 let mockContext: unknown;
+let mockPath = '/events';
 let mockClear: (() => void) | undefined;
 let mockBackground: ((state: string) => void) | undefined;
 jest.mock('react-native', () => ({
@@ -29,7 +30,7 @@ jest.mock('react-native', () => ({
 }));
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
-  usePathname: () => '/events',
+  usePathname: () => mockPath,
   useLocalSearchParams: () => ({}),
   useFocusEffect: (cb: () => () => void) => {
     const React = jest.requireActual<typeof import('react')>('react');
@@ -104,6 +105,7 @@ beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   jest.clearAllMocks();
   mockContext = { id, name: 'East Legon' };
+  mockPath = '/events';
   jest.mocked(askNeighborhood).mockResolvedValue(fixture);
   jest.mocked(askFeedback).mockResolvedValue(undefined);
   jest.mocked(askSourceClick).mockResolvedValue(undefined);
@@ -204,4 +206,39 @@ it('zero review state never invents rating', async () => {
   await ask();
   expect(output()).toContain('No verified reviews yet.');
   expect(output()).not.toContain('4.0 / 5');
+});
+
+it('Home keeps one accessible assistant entry without suggestion questions', async () => {
+  mockPath = '/home';
+  await render(() => createElement(AskMyCornerAccess, { home: true }));
+  expect(output()).toContain('Ask My Corner');
+  expect(output()).toContain('Ask anything about your neighborhood.');
+  for (const prompt of [
+    'What’s happening this weekend?',
+    'Find local help',
+    'Any important alerts?',
+    'What did I miss?',
+  ]) {
+    expect(output()).not.toContain(prompt);
+  }
+  const targets = renderer.root.findAllByType('Pressable' as never);
+  expect(targets).toHaveLength(1);
+  expect(targets[0].props).toMatchObject({
+    accessibilityRole: 'button',
+    accessibilityLabel: 'Ask My Corner, neighborhood assistant',
+    focusable: true,
+    style: { minHeight: 48 },
+  });
+  await press('Ask My Corner');
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/ask',
+    params: { question: 'What’s happening in my neighborhood this weekend?' },
+  });
+  expect(askNeighborhood).not.toHaveBeenCalled();
+});
+it('dedicated assistant retains its suggested question placeholder', async () => {
+  await render();
+  expect(renderer.root.findByProps({ accessibilityLabel: 'Neighborhood question' }).props.placeholder).toBe(
+    'What’s happening this weekend?',
+  );
 });
