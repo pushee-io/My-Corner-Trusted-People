@@ -1,3 +1,12 @@
+## 2026-09-25 — Ask My Corner Preview APK 42 verified
+
+- The one approved build completed: Android version 42, source `55c7b5b5467303a7acd52099f6df90a24d977adb`, EAS `a352ebca-9cee-4155-b564-125df0a67288`. Build workflow `36100561584` and Mobile CI `36100561475` passed; 515 tests/92 suites, format, typecheck, lint and Preview environment gates passed.
+- Download: https://expo.dev/artifacts/eas/caC9gh57R6YHwyNZnlNDtuJhoZImytVPr8qruJlMfxE.apk . APK size 72004042 bytes; SHA-256 `53a85dec082742101dafd33887878d9a74644e94bc9ba530a46228489ef9f633`.
+- Workflow verified actual source commit, Preview backend, package, ZIP integrity, media/navigation font, existing review/comments/Back labels and Ask My Corner entry/endpoint/context/feedback bytecode. Local signing-certificate extraction matches the previously verified APK certificate `79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76`.
+- EAS build-history preflight passed before the single submission. Approval is consumed; do not submit another paid build without fresh approval. Evidence: `docs/evidence/ask-my-corner-apk-2026-09-25.json`.
+- Install as an update using Android Update or `adb install -r`, retaining app data. Samsung phone/Pixel Tablet acceptance is PENDING: all five questions, source actions/RSVP/provider request, feedback, keyboard, rotation, Back and conversation clearing. Follow `docs/AI_NEIGHBORHOOD_ASSISTANT.md`; artifact verification does not establish native acceptance.
+- No production deployment, backend modification or secret change occurred in this build checkpoint.
+
 ## 2026-09-25 — One Ask My Corner Preview APK approved
 
 - Founder explicitly approved one new APK following the recovery gate. Base main: `f80d345a6a3132ec183f79658dac9b9f9cc290b0`. This build includes merged Ask My Corner UI and uses the existing Android Preview profile, backend and signing configuration.
