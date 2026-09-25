@@ -1,3 +1,10 @@
+## 2026-09-25 — Ask My Corner global UI checkpoint
+
+- Server PR #126 merged at `a7f9c5dd751a690bef9637c5afc9c92f5f4989bb`; Database CI `36091340416` and server CI `36091340433` passed. Preview Edge `ask-my-corner` v1 deployed with JWT verification; flag remains off pending fixture/live checks.
+- Added restrained shared-header entry, Home prompts and natural-language Search handoff. Answer cards expose dates/provenance, actual review counts, approved organizer identity, and existing event/RSVP, provider/request, Group, Feed, Agency and Marketplace actions.
+- Follow-ups retain two question texts only; account changes, backgrounding and leaving the screen clear answers/context and invalidate late requests. Source-focused Feed/Group links fetch the selected row rather than relying on the latest fifty posts. Helpful/Not helpful/Inaccurate feedback and Search fallback implemented.
+- Local 515 mobile tests/92 suites and typecheck passed. Lint has no errors; formatting/CI are merge gates. Preview fixtures/live verification and native phone/tablet acceptance remain pending; APK 41 does not contain Ask My Corner.
+
 ## 2026-09-25 — Ask My Corner grounded server checkpoint
 
 - Retrieval PR #125 merged at `f25c25076c6edcfe56053cd4952241298c292055`; Database CI `36090935138` and `36090931760` passed. Authorized migration applied to Preview `opeojxwkwwnnncnsuaag`; assistant flag remains off until deployment/demo verification.

@@ -153,17 +153,22 @@ async function reportsForCurrentUser(postIds: string[], commentIds: string[]) {
   return { postReports, commentReports };
 }
 
-export async function listNeighborhoodFeedPosts(neighborhoodId: string): Promise<NeighborhoodFeedPost[]> {
+export async function listNeighborhoodFeedPosts(
+  neighborhoodId: string,
+  sourcePostId?: string,
+): Promise<NeighborhoodFeedPost[]> {
   assertSupabaseConfigured();
   const profile = await getCurrentProfile();
 
-  const { data: posts, error: postsError } = await supabase
+  let query = supabase
     .from('neighborhood_feed_posts')
     .select('id, neighborhood_id, author_id, body, moderation_status, created_at')
     .eq('neighborhood_id', neighborhoodId)
     .neq('moderation_status', 'blocked')
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(sourcePostId ? 1 : 50);
+  if (sourcePostId) query = query.eq('id', sourcePostId);
+  const { data: posts, error: postsError } = await query;
 
   if (postsError) throw postsError;
 

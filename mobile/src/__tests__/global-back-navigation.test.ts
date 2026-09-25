@@ -3,6 +3,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { BackHandler } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/Screen';
+jest.mock('@/components/AskMyCornerAccess', () => ({ AskMyCornerAccess: 'AskMyCornerAccess' }));
 let mockHistory: string[];
 let mockHardwareBack: (() => boolean) | undefined;
 let mockWidth = 360;

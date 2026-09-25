@@ -24,7 +24,7 @@ export type SocialGroupPostDetail = SocialGroupPost & {
 export type SocialGroupReportResult = 'reported' | 'already_reported';
 
 export type SocialGroupDetailRepository = {
-  listPosts: (groupId: string) => Promise<SocialGroupPostDetail[]>;
+  listPosts: (groupId: string, sourcePostId?: string) => Promise<SocialGroupPostDetail[]>;
   createPost: (groupId: string, body: string, clientId?: string) => Promise<SocialGroupPostDetail>;
   createComment: (postId: string, body: string) => Promise<SocialGroupPostComment>;
   toggleLike: (post: SocialGroupPostDetail) => Promise<Pick<SocialGroupPostDetail, 'likeCount' | 'likedByMe'>>;
@@ -181,16 +181,18 @@ function mapPostRow(
 }
 
 const supabaseRepository: SocialGroupDetailRepository = {
-  async listPosts(groupId) {
+  async listPosts(groupId, sourcePostId) {
     assertSupabaseConfigured();
     const profile = await getCurrentProfile();
-    const { data: postData, error: postError } = await supabase
+    let query = supabase
       .from('social_group_posts')
       .select('id,group_id,author_profile_id,body,created_at,moderation_status')
       .eq('group_id', groupId)
       .neq('moderation_status', 'blocked')
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(sourcePostId ? 1 : 50);
+    if (sourcePostId) query = query.eq('id', sourcePostId);
+    const { data: postData, error: postError } = await query;
 
     if (postError) throw new Error('Could not load group posts. Try again later.');
 

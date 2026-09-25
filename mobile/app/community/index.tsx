@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
@@ -25,6 +26,7 @@ import type { NeighborhoodFeedComment, NeighborhoodFeedPost } from '@/types/cont
 type RealtimeStatus = 'live' | 'reconnecting' | 'paused';
 
 export default function CommunityFeedScreen() {
+  const { postId } = useLocalSearchParams<{ postId?: string }>();
   const [neighborhood, setNeighborhood] = useState<CurrentNeighborhood>();
   const [posts, setPosts] = useState<NeighborhoodFeedPost[]>([]);
   const [body, setBody] = useState('');
@@ -45,7 +47,7 @@ export default function CommunityFeedScreen() {
     async function loadFeed() {
       try {
         const currentNeighborhood = await getCurrentNeighborhood();
-        const feedPosts = await listNeighborhoodFeedPosts(currentNeighborhood.id);
+        const feedPosts = await listNeighborhoodFeedPosts(currentNeighborhood.id, postId);
 
         if (!isMounted) return;
         setNeighborhood(currentNeighborhood);
@@ -93,7 +95,7 @@ export default function CommunityFeedScreen() {
       isMounted = false;
       if (unsubscribe) unsubscribe();
     };
-  }, []);
+  }, [postId]);
 
   async function publishPost() {
     if (!neighborhood || !body.trim()) return;
@@ -256,7 +258,7 @@ export default function CommunityFeedScreen() {
         </Pressable>
       </View>
 
-      {posts.length === 0 ? (
+      {posts.filter((post) => !postId || post.id === postId).length === 0 ? (
         <EmptyState title="No posts yet" body="Verified neighborhood posts will appear here live." />
       ) : (
         <MediaAvatarCollection
@@ -266,97 +268,99 @@ export default function CommunityFeedScreen() {
           ])}
         >
           <View style={styles.list}>
-            {posts.map((post) => (
-              <View key={post.id} style={styles.card}>
-                <MediaAvatar profileId={post.authorId} name={post.authorName} />
-                <WebSafeLink
-                  href={{ pathname: '/neighbors/[profileId]', params: { profileId: post.authorId } }}
-                  asChild
-                >
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`View ${post.authorName}'s profile`}
-                    style={{ minHeight: 48, justifyContent: 'center' }}
+            {posts
+              .filter((post) => !postId || post.id === postId)
+              .map((post) => (
+                <View key={post.id} style={styles.card}>
+                  <MediaAvatar profileId={post.authorId} name={post.authorName} />
+                  <WebSafeLink
+                    href={{ pathname: '/neighbors/[profileId]', params: { profileId: post.authorId } }}
+                    asChild
                   >
-                    <Text style={styles.author}>{post.authorName}</Text>
-                  </Pressable>
-                </WebSafeLink>
-                <Text style={styles.body}>{post.body}</Text>
-                <MediaGallery parent="neighborhood_post" parentId={post.id} refreshKey={mediaRefresh} />
-                <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`View ${post.authorName}'s profile`}
+                      style={{ minHeight: 48, justifyContent: 'center' }}
+                    >
+                      <Text style={styles.author}>{post.authorName}</Text>
+                    </Pressable>
+                  </WebSafeLink>
+                  <Text style={styles.body}>{post.body}</Text>
+                  <MediaGallery parent="neighborhood_post" parentId={post.id} refreshKey={mediaRefresh} />
+                  <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
 
-                <View style={styles.actions}>
-                  <Pressable
-                    disabled={busyId === `like-${post.id}`}
-                    onPress={() => toggleLike(post)}
-                    style={styles.actionButton}
-                  >
-                    <Text style={styles.actionText}>
-                      {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    disabled={post.isReported || busyId === `report-${post.id}`}
-                    onPress={() => reportPost(post.id)}
-                    style={styles.reportButton}
-                  >
-                    <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
-                  </Pressable>
-                </View>
+                  <View style={styles.actions}>
+                    <Pressable
+                      disabled={busyId === `like-${post.id}`}
+                      onPress={() => toggleLike(post)}
+                      style={styles.actionButton}
+                    >
+                      <Text style={styles.actionText}>
+                        {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      disabled={post.isReported || busyId === `report-${post.id}`}
+                      onPress={() => reportPost(post.id)}
+                      style={styles.reportButton}
+                    >
+                      <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
+                    </Pressable>
+                  </View>
 
-                <CollapsibleComments
-                  id={post.id}
-                  count={post.comments.length}
-                  busy={busyId === `reply-${post.id}`}
-                  error={error}
-                >
-                  {({ onFocus, onBlur }) => (
-                    <>
-                      {post.comments.length ? (
-                        <View style={styles.replies}>
-                          {post.comments.map((comment) => (
-                            <View key={comment.id} style={styles.reply}>
-                              <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
-                              <Text style={styles.author}>{comment.authorName}</Text>
-                              <Text style={styles.body}>{comment.body}</Text>
-                              <Pressable
-                                disabled={comment.isReported || busyId === `report-${comment.id}`}
-                                onPress={() => reportComment(comment)}
-                              >
-                                <Text style={styles.reportText}>
-                                  {comment.isReported ? 'Reply reported' : 'Report reply'}
-                                </Text>
-                              </Pressable>
-                            </View>
-                          ))}
+                  <CollapsibleComments
+                    id={post.id}
+                    count={post.comments.length}
+                    busy={busyId === `reply-${post.id}`}
+                    error={error}
+                  >
+                    {({ onFocus, onBlur }) => (
+                      <>
+                        {post.comments.length ? (
+                          <View style={styles.replies}>
+                            {post.comments.map((comment) => (
+                              <View key={comment.id} style={styles.reply}>
+                                <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
+                                <Text style={styles.author}>{comment.authorName}</Text>
+                                <Text style={styles.body}>{comment.body}</Text>
+                                <Pressable
+                                  disabled={comment.isReported || busyId === `report-${comment.id}`}
+                                  onPress={() => reportComment(comment)}
+                                >
+                                  <Text style={styles.reportText}>
+                                    {comment.isReported ? 'Reply reported' : 'Report reply'}
+                                  </Text>
+                                </Pressable>
+                              </View>
+                            ))}
+                          </View>
+                        ) : null}
+
+                        <View style={styles.replyBox}>
+                          <TextInput
+                            value={replyDrafts[post.id] ?? ''}
+                            onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
+                            placeholder="Write a reply"
+                            style={styles.replyInput}
+                            accessibilityLabel="Reply to feed post"
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                          />
+                          <Pressable
+                            disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
+                            onPress={() => publishReply(post.id)}
+                            style={styles.replyButton}
+                          >
+                            <Text style={styles.replyButtonText}>
+                              {busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
+                            </Text>
+                          </Pressable>
                         </View>
-                      ) : null}
-
-                      <View style={styles.replyBox}>
-                        <TextInput
-                          value={replyDrafts[post.id] ?? ''}
-                          onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
-                          placeholder="Write a reply"
-                          style={styles.replyInput}
-                          accessibilityLabel="Reply to feed post"
-                          onFocus={onFocus}
-                          onBlur={onBlur}
-                        />
-                        <Pressable
-                          disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
-                          onPress={() => publishReply(post.id)}
-                          style={styles.replyButton}
-                        >
-                          <Text style={styles.replyButtonText}>
-                            {busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
-                          </Text>
-                        </Pressable>
-                      </View>
-                    </>
-                  )}
-                </CollapsibleComments>
-              </View>
-            ))}
+                      </>
+                    )}
+                  </CollapsibleComments>
+                </View>
+              ))}
           </View>
         </MediaAvatarCollection>
       )}

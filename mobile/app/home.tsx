@@ -1,3 +1,4 @@
+import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
@@ -82,6 +83,7 @@ export default function HomeScreen() {
       refreshing={isLoading}
     >
       <Text style={styles.body}>{getActiveLocationLabel()}</Text>
+      <AskMyCornerAccess home />
 
       {capabilities.data?.provider ? (
         <WebSafeLink href="/provider/requests" asChild>
