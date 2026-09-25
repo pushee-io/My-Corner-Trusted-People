@@ -1,3 +1,12 @@
+## 2026-09-25 — Compact Home Preview APK 43 verified
+
+- One approved build completed: Android version 43, source `46b71bba5281abe0a9b2d7fb7c390be4dd3e361c`, EAS `34e50a41-a32d-42ce-93b7-8baf91518764`. Build workflow `36103325111` and Mobile CI `36103325160` passed: 517 tests/92 suites, typecheck, format, lint (zero errors/15 baseline warnings), Preview configuration.
+- Download: https://expo.dev/artifacts/eas/rbEdLc518KOnDmbQ__8Y5Evvr5Tyky6DJfdYhBUfMn0.apk . SHA-256 `e17f485404280fd97b5510a8d7c48a6c82c2235139b0f3801d1f876b5e487be0`.
+- Actual artifact passed source/backend/package/ZIP/media/font/Ask checks, including the compact Home accessibility label and manifest version 43. Home now has one Ask My Corner entry and subtitle without the four suggestion buttons. AI functionality and Search remain intact.
+- Existing EAS Preview signing configuration retained. Install as an update and retain app data. This one-build authorization is consumed; no additional paid build is authorized.
+- Evidence: `docs/evidence/compact-home-preview-2026-09-25.json`. Samsung phone/Pixel Tablet visual, tap, screen-reader and responsive acceptance remains PENDING; web visual/focus acceptance is also pending. Test compact spacing and assistant navigation after installation. Artifact checks do not constitute native acceptance.
+- No backend or production changes.
+
 ## 2026-09-25 — Compact Home Preview APK approved
 
 - Founder explicitly approved one new Preview APK after PR #132 merged at `de00de1b30987b3d7b92cf0b6ebfae519afed04f`; main Mobile CI `36103186541` passed.
