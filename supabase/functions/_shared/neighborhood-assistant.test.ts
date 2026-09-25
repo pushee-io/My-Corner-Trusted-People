@@ -85,3 +85,13 @@ test('provider failure records unavailable and cannot fabricate an answer',async
 test('sensitive query retrieves no content',async()=>{
  const h=harness();const a=await answerQuestion({question:'Is John in the church group?'},h.deps);assert.equal(a.sources.length,0);assert.match(a.notice,/cannot look up/);assert.ok(!h.calls.some(c=>c.name==='neighborhood_ai_search'));
 });
+test('active agency notice survives a today query even when published earlier',async()=>{
+ const calls:{kind:string;since:string|null}[]=[];
+ await retrieve({intent:'alerts',terms:'road',window:'today'},now,async(kind,_terms,range)=>{calls.push({kind,since:range.since_at});return [];});
+ assert.equal(calls.find(c=>c.kind==='agency')?.since,null);
+ assert.equal(calls.find(c=>c.kind==='post')?.since,'2026-09-25T00:00:00.000Z');
+});
+test('Saturday and Sunday requests use one-day windows',()=>{
+ assert.deepEqual(timeRange('saturday',now),{since_at:'2026-09-26T00:00:00.000Z',until_at:'2026-09-27T00:00:00.000Z'});
+ assert.equal(timeRange('sunday',now).until_at,'2026-09-28T00:00:00.000Z');
+});

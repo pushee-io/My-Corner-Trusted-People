@@ -48,9 +48,9 @@ export function fallbackPlan(question: string, previous: string[]=[]): Plan {
  const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.join(' ')} ${q}`.toLowerCase():q;
  const window: Window = /saturday/.test(context)?'saturday':/sunday/.test(context)?'sunday':/tomorrow/.test(context)?'tomorrow':/weekend/.test(context)?'weekend':/today|tonight|right now/.test(context)?'today':/last month/.test(context)?'month':/this week|miss|latest/.test(context)?'week':'all';
  if (/find local help|who can help me/.test(context)&&! /fence|plumb|pipe|repair|electric/.test(context)) return {intent:'providers',terms:'',window:'all'};
- if (/\b(fence|plumb|plumber|pipe|repair|electrician|hire|cater)/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':'repair',window:'all'};
+ if (/\b(fence|plumb|plumber|pipe|repair|electrician|hire|cater)/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
  if (/road|closure|outage|alert|traffic/.test(context)) return {intent:'alerts',terms:/road|closure|traffic/.test(context)?'road OR closure OR traffic':/outage/.test(context)?'outage':'',window:window==='all'?'week':window};
- if (/decid|decision|park project|parking|last year/.test(context)) return {intent:'memory',terms:/park/.test(context)?'park':/water/.test(context)?'water':'',window:'all'};
+ if (/decid|decision|park project|parking|last year/.test(context)) return {intent:'memory',terms:/parking/.test(context)?'parking':/park/.test(context)?'park':/water/.test(context)?'water':/cleanup|clean-up/.test(context)?'cleanup':'',window:'all'};
  if (/organiz|food drive/.test(context)) return {intent:'organizer',terms:'food drive',window:'upcoming'};
  if (/marketplace|dining table|used table|buy|sell/.test(context)) return {intent:'marketplace',terms:/table/.test(context)?'table':'',window:'all'};
  if (/event|weekend|saturday|sunday|happening|families/.test(context)) return {intent:'events',terms:/famil/.test(q)?'family OR families OR children':'',window:window==='all'?'upcoming':window};
@@ -123,7 +123,7 @@ export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms:
  const range=timeRange(plan.window,now);
  const results=await Promise.all(toolKinds[plan.intent].map(kind=>search(kind,plan.terms,
   // Weekend activity startsAt applies to Events; surrounding announcements remain recent.
-  kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
+  kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
  // Round-robin avoids one source type crowding every other type out of a digest.
  const sources: Source[]=[];
  for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<16)sources.push(safeSource(rows[i]));

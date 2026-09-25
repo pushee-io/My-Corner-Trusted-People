@@ -48,3 +48,19 @@ Shared header entry uses a server context check and contextual draft prompt; Hom
 Local question history is limited to two questions and never persisted to disk. Account transition, app background and screen blur clear answers/history and cancel stale result updates. Feedback supports Helpful, Not helpful and Inaccurate; click metadata references only the current answer's sources. Source links use fixed app-route prefixes and never model-generated URLs. Feed/Group target loading supports historical sources outside their latest fifty records.
 
 515 mobile tests/92 suites pass, including UI behavior and protected account transitions; typecheck passes. Android visual/keyboard/touch/RSVP acceptance cannot be claimed from these tests. New paid APK requires separate approval.
+
+## Preview demo and native acceptance
+
+Manual fixture: `supabase/fixtures/neighborhood_assistant_preview.sql`. Requires `mycorner.fixture_environment=preview` and exact project-ref opt-in; excluded from migrations and production seeds. Creates only clearly fictional records and refuses ID collisions with existing ownership. Repeat runs reuse profile/provider/job/review IDs and refresh event/notice dates. The provider has a Carpentry service so Request help uses the correct existing category. A matching synthetic completed job and both completion acknowledgements back its one four-star review. No fake aggregate, real emergency announcement, email, DM or ad is sent.
+
+The park example deliberately records discussion, not a poll or formal vote. Ask must say no formal decision is established rather than invent a decision system that does not exist. Businesses/deals and formal polls remain data-source gaps. Group discussion retrieval exists only for accepted members; no roster/sensitive-attribute inference. Feed comment migration compatibility remains a prerequisite for expanding collective-memory retrieval into every comment surface.
+
+After installing a newly approved APK on Samsung phone and Pixel Tablet:
+1. Sign in to a verified East Legon test account; open Ask from Home/header/Search.
+2. Ask all five founder questions verbatim. Check fictional labels, source dates, public organizer and 4.0/count 1 for FenceCare.
+3. Tap Event and exercise its existing RSVP flow; View Provider then Request help; View Broadcast; View park post.
+4. Ask a family-friendly follow-up, then a private-DM or sensitive-membership question (must refuse).
+5. Submit Helpful/Not helpful/Inaccurate, confirm saved state; check Search remains usable offline/AI unavailable.
+6. Background/reopen, change account, test keyboard, portrait/landscape and tablet widths. Old answers must clear.
+
+Future semantic search must produce only candidate references, scoped by authorized neighborhood/group, then re-fetch live RLS-protected rows before any model exposure. No global index of private content. Future safe caching needs identity/neighborhood/authorization-version keys, short TTL and deletion/block invalidation; v1 deliberately does not cache answers. General guidance and sponsored results would require separately typed/labeled output; neither is silently mixed into this source-only version.
