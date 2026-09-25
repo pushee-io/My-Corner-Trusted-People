@@ -22,6 +22,7 @@ psql "$database_url" \
   --command "grant select on public.notifications to authenticated;"
 
 legacy_tests=(
+  supabase/tests/neighborhood_ai_preview_fixture.sql
   supabase/tests/neighborhood_ai_security.sql
   supabase/tests/provider_review_preview_fixture.sql
   supabase/tests/provider_review_visibility.sql

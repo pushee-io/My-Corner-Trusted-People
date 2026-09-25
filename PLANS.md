@@ -1,3 +1,10 @@
+## 2026-09-25 — Ask My Corner Preview demo checkpoint
+
+- Global UI PR #127 merged at `3d8fae1d455519a86f6e0284b161614b83130ec3`; Mobile CI `36092015566` / `36092006196` passed. Local mobile: 515 tests, typecheck, format, lint zero errors/15 baseline warnings.
+- Added manual, idempotent, project/environment-guarded fictional Preview fixture: weekend Food Drive + approved public organizer, FenceCare/carpentry + matching completed job/review, clearly fictional approved road notice, and park discussion with no invented formal decision. Rollback-only live Preview retrieval verified the records and relationships.
+- Added fixture CI assertions, feedback ownership and quota tests; active Agency notices remain eligible even if published before a today query. 27 server tests pass; Deno/Database CI are merge gates.
+- Actual Preview fixture persistence/flag activation/live Responses verification pending. Android phone/tablet acceptance and new APK remain unperformed; APK 41 predates this feature. No production activation.
+
 ## 2026-09-25 — Ask My Corner global UI checkpoint
 
 - Server PR #126 merged at `a7f9c5dd751a690bef9637c5afc9c92f5f4989bb`; Database CI `36091340416` and server CI `36091340433` passed. Preview Edge `ask-my-corner` v1 deployed with JWT verification; flag remains off pending fixture/live checks.

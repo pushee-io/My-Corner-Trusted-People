@@ -73,6 +73,22 @@ set local role authenticated;
 select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_search('post'))=0,'Deleted content retained');
 select pg_temp.ai_assert(public.neighborhood_ai_meter('start')->>'id' is not null,'Allowance denied');
 select pg_temp.ai_denied($q$select * from private.neighborhood_ai_runs$q$);
+reset role;
+create temporary table ai_ticket(id uuid);grant all on ai_ticket to authenticated;
+set local role authenticated;
+insert into ai_ticket select (public.neighborhood_ai_meter('start')->>'id')::uuid;
+select public.neighborhood_ai_meter('finish',id,jsonb_build_object('intent','events','outcome','no_results','sources','[]'::jsonb,'retrievalMs',3,'answerMs',20,'inputTokens',5,'outputTokens',2,'model','configured-model')) from ai_ticket;
+select public.neighborhood_ai_meter('feedback',id,'{"value":"helpful"}') from ai_ticket;
+set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000002';
+select pg_temp.ai_denied('select public.neighborhood_ai_meter(''feedback'','''||id||''',''{"value":"not_helpful"}'')') from ai_ticket;
+reset role;
+select pg_temp.ai_assert((select feedback='helpful' from private.neighborhood_ai_runs where id=(select id from ai_ticket)),'Feedback association incorrect');
+set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select public.neighborhood_ai_meter('start') from generate_series(1,4);
+do $$ begin
+ perform public.neighborhood_ai_meter('start');raise exception 'Minute quota bypassed';
+ exception when program_limit_exceeded then null;end $$;
 -- Verify no forbidden relations/columns occur in the retrieval definition.
 select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_search(text,text,uuid,timestamptz,timestamptz)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
 reset role;
