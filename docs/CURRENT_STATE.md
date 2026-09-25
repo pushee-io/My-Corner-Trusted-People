@@ -1,3 +1,10 @@
+## 2026-09-25 — Ask My Corner grounded server checkpoint
+
+- Retrieval PR #125 merged at `f25c25076c6edcfe56053cd4952241298c292055`; Database CI `36090935138` and `36090931760` passed. Authorized migration applied to Preview `opeojxwkwwnnncnsuaag`; assistant flag remains off until deployment/demo verification.
+- Added Ask Edge Function using existing OpenAI credentials/model configuration and shared Responses transport with Structure with AI. Fixed tools, bounded date windows, short question-only follow-ups, approved field projection and PII redaction. AI may select exact excerpts only; invented facts/links fail validation. Re-retrieval before response revokes sources removed during inference.
+- Feedback/click/version/intent/latency/token metrics contain no conversation text. Limits and no-store behavior retained. Search remains independent.
+- Local 25 server tests and Deno typecheck passed. Server CI/merge, mobile UI, Preview fixtures and Android acceptance pending. No paid APK or production activation authorized.
+
 ## 2026-09-25 — Ask My Corner retrieval checkpoint
 
 - Audited live main `a5842b79c173833adf25299d74f169dfe8f49f42`, Search, existing Responses/Edge integration and authorization.
