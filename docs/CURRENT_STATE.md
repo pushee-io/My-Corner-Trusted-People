@@ -1,3 +1,11 @@
+## 2026-09-25 — AI pill/composer Preview APK 44 verified
+
+- The one approved build completed: Android version 44, source `c89b4a86d5efa81d867fa0f4c85ab5f06b574ba3`, EAS `b30911f6-4b82-47ef-91d2-38e7732cd0e2`. Build workflow `36148445698` and Mobile CI `36148445661` passed. Release gates: 524 tests/92 suites, typecheck, formatting, lint zero errors/15 baseline warnings, Preview configuration and duplicate preflight passed.
+- Download: https://expo.dev/artifacts/eas/C_0oNAHrFqB8lLnP5WkFZVEYTsIGc3Pvpkfoj3qwock.apk . SHA-256 `f2ecbf3f102d8ffd45438902266bf3e29c7c35e2ad83f98574e36c11eb59c4ee`.
+- Actual APK checks passed source commit, Preview backend, application ID, ZIP integrity, media/navigation font and AI bytecode, including Ask My Corner AI, composer placeholder/loading/fallback labels and manifest version 44. This APK includes AI/Messages pills, empty composer, optional Search handoff and compact Home.
+- Existing signing/profile retained. Install as an update (`adb install -r`) to retain data. Samsung phone and Pixel Tablet layout, keyboard, unread-count/navigation, screen-reader and portrait/landscape acceptance remain PENDING, as does browser visual/focus acceptance. Artifact checks do not establish native acceptance.
+- Evidence: `docs/evidence/ai-pill-preview-2026-09-25.json`. One-build approval is consumed; do not submit another paid build without fresh approval. No production/backend changes.
+
 ## 2026-09-25 — AI pill/composer Preview APK approved
 
 - Founder explicitly approved one new APK after PR #134 merged at `1d678b66eabf49519f3f9bfad7da37fe300f6e27`. Main Mobile CI `36147988569` passed. This approval permits one Preview/internal Android APK using existing signing, backend and profile.
