@@ -1,3 +1,14 @@
+## 2026-09-25 — Ask My Corner live Preview verified; native acceptance pending
+
+- Implemented and merged as separate green checkpoints: #125 retrieval (`f25c250`), #126 grounded server (`a7f9c5d`), #127 global UI (`3d8fae1`), #128 guarded demo (`2e5968d170d53e4aeb0cef87150b82496ba5c73d`). Final Database CI `36092431531`, server CI `36092431505` and mobile CI `36092015566` passed.
+- Preview `opeojxwkwwnnncnsuaag`: migration remote version `20260925033940`; `ask-my-corner` Edge v3 active with JWT verification; `ai_neighborhood_assistant=true`. Existing OpenAI configuration reused (`gpt-4.1-mini`). Production was not activated.
+- All five exact founder demo questions returned HTTP 200 with authorized sources and validated verbatim excerpts. FenceCare has actual 4.0/count 1 completed-job review; Food Drive uses approved Ama K. (fictional demo) identity. Park history correctly states no formal decision. Every demo record is explicitly fictional; fixture is guarded/idempotent/manual-only.
+- Family-friendly conversational follow-up passed live. Feedback and source click returned 200 and stored against the correct answer; private-DM query refused with zero sources/model tokens. Disabled flag previously returned safe 503/Search fallback. Verification login was signed out with local scope (204); test-account credentials and existing device sessions were not changed.
+- 515 mobile tests/92 suites, 28 server tests, SQL/RLS/fixture/quota/feedback CI, typecheck and format pass; lint zero errors/15 baseline warnings. New private metrics tables intentionally have RLS with no client policy/grant (deny all); security advisor reports this as informational, consistent with the private existing pattern.
+- Evidence: `docs/evidence/ai-neighborhood-preview-2026-09-25.json`. New code is NOT in APK 41. No new paid APK has been built. Next gate: separately approve one Preview APK, install as an update on phone/tablet, then execute `docs/AI_NEIGHBORHOOD_ASSISTANT.md` native acceptance. Do not claim Android acceptance or the complete definition of done yet.
+- Added a latest-topic follow-up regression: an earlier provider question must not override a newer event question. Local 28 server tests pass; final server CI and redeployment of this small correction are pending.
+- Source gaps remain explicit: business/deal repository, formal poll/decision store, and broader comment-history retrieval. Core five-question demo is live; no invented business deals, votes, safety guarantees or paid organic rankings.
+
 ## 2026-09-25 — Ask My Corner Preview demo checkpoint
 
 - Global UI PR #127 merged at `3d8fae1d455519a86f6e0284b161614b83130ec3`; Mobile CI `36092015566` / `36092006196` passed. Local mobile: 515 tests, typecheck, format, lint zero errors/15 baseline warnings.

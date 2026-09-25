@@ -64,3 +64,13 @@ After installing a newly approved APK on Samsung phone and Pixel Tablet:
 6. Background/reopen, change account, test keyboard, portrait/landscape and tablet widths. Old answers must clear.
 
 Future semantic search must produce only candidate references, scoped by authorized neighborhood/group, then re-fetch live RLS-protected rows before any model exposure. No global index of private content. Future safe caching needs identity/neighborhood/authorization-version keys, short TTL and deletion/block invalidation; v1 deliberately does not cache answers. General guidance and sponsored results would require separately typed/labeled output; neither is silently mixed into this source-only version.
+
+## Live evidence — 2026-09-25
+
+All four implementation checkpoints merged with green CI (#125–#128). Preview migration `20260925033940`, Edge v3 with JWT verification, flag enabled only on `opeojxwkwwnnncnsuaag`. All five questions returned 200, source excerpts validated, family-friendly follow-up returned the event, private-DM question refused without model use, and feedback/click metadata persisted. Verification session signed out locally (204), preserving other sessions. Model `gpt-4.1-mini` uses the already-configured server credentials. Evidence JSON contains no credentials, private content or internal account identifiers.
+
+The initial update deployment required explicitly setting `import_map_path: deno.json` because the connector reused an absolute path from the preceding deployment. Final deployment succeeded with the checked-in source. New private usage/run tables intentionally deny all direct client access; the advisor's no-policy informational finding is expected, not a missing public access rule. See [Supabase RLS guidance](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+No production activation or new paid APK occurred. APK 41 predates this work. Android phone/tablet UI and end-to-end action acceptance remain required after a separately approved build. This is a verified Preview implementation, not a completed native acceptance claim.
+
+Latest-topic regression: short heuristic follow-ups use the most recent prior question, not the concatenated history of unrelated topics. The structured planner still receives at most two questions when needed. 28 server tests pass locally after this correction.

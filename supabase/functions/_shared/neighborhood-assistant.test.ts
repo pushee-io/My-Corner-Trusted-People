@@ -95,3 +95,7 @@ test('Saturday and Sunday requests use one-day windows',()=>{
  assert.deepEqual(timeRange('saturday',now),{since_at:'2026-09-26T00:00:00.000Z',until_at:'2026-09-27T00:00:00.000Z'});
  assert.equal(timeRange('sunday',now).until_at,'2026-09-28T00:00:00.000Z');
 });
+
+test('follow-up uses the latest topic rather than an older provider question',()=>{
+ assert.equal(fallbackPlan('Which ones are good for families?',['Who can repair a fence nearby?','What’s happening this weekend?']).intent,'events');
+});
