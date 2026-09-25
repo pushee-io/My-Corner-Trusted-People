@@ -1,3 +1,10 @@
+## 2026-09-25 — Compact Home Preview APK approved
+
+- Founder explicitly approved one new Preview APK after PR #132 merged at `de00de1b30987b3d7b92cf0b6ebfae519afed04f`; main Mobile CI `36103186541` passed.
+- Single build-trigger commit records approval before submission. Existing Preview/internal Android profile, backend and signing are retained. Duplicate preflight recognizes the already-completed APK 42 and blocks any active or newer unexpected completed build.
+- Actual artifact checks require the compact Home accessibility label and version greater than 42. Full release gates run before submission. No backend or production change.
+- Build ID/artifact and device acceptance pending. This permits one submission only; if subsequent verification fails, inspect that same build rather than submitting another.
+
 ## 2026-09-25 — Compact Home Ask My Corner entry
 
 - Removed the four Home suggestion buttons and their wrapping containers. Home retains one content-sized Pressable with Ask My Corner, the existing subtitle, a 48 dp minimum touch height, keyboard focusability and the label "Ask My Corner, neighborhood assistant". No fixed section height or leftover prompt-row gap remains.
