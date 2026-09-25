@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-25",
+  "environment": "Preview",
+  "sourceCommit": "55c7b5b5467303a7acd52099f6df90a24d977adb",
+  "buildId": "a352ebca-9cee-4155-b564-125df0a67288",
+  "buildWorkflow": 36100561584,
+  "mobileCI": 36100561475,
+  "androidVersionCode": 42,
+  "artifactUrl": "https://expo.dev/artifacts/eas/caC9gh57R6YHwyNZnlNDtuJhoZImytVPr8qruJlMfxE.apk",
+  "bytes": 72004042,
+  "sha256": "53a85dec082742101dafd33887878d9a74644e94bc9ba530a46228489ef9f633",
+  "applicationId": "com.mycorner.trustedpeople",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "certificateSha256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
+  "certificateMatchesPriorVerifiedApk": true,
+  "verification": {
+    "workflow": "success",
+    "mobileCI": "success",
+    "mobileTests": 515,
+    "mobileSuites": 92,
+    "sourceCommit": true,
+    "previewBackend": true,
+    "package": true,
+    "archiveIntegrity": true,
+    "mediaBytecode": true,
+    "navigationFont": true,
+    "askMyCornerBytecode": true,
+    "easDuplicatePreflight": "passed"
+  },
+  "approvalConsumed": true,
+  "nativePhoneTabletAcceptance": "pending"
+}
