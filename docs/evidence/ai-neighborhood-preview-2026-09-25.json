@@ -104,5 +104,32 @@
     "No private DMs or unrestricted private-content/vector index.",
     "Private structured location fields are excluded; redaction of public free text is defense in depth, not universal PII detection.",
     "No production activation."
-  ]
+  ],
+  "recovery": {
+    "date": "2026-09-25",
+    "initialMain": "2e5968d170d53e4aeb0cef87150b82496ba5c73d",
+    "mergedPR": 129,
+    "mergeSha": "2c08a8f8b701b2875cf0496f010ff6179db7c6be",
+    "databaseCI": 36093128747,
+    "serverCI": 36093128751,
+    "edgeVersion": 4,
+    "verifyJwt": true,
+    "sourceParity": true,
+    "flagEnabled": true,
+    "persistedFixtureCounts": {
+      "event": 1,
+      "provider": 1,
+      "parkPost": 1,
+      "roadNotice": 1
+    },
+    "originalLiveRunsCorroborated": true,
+    "authenticatedFiveQuestionsRepeatedOnV4": false,
+    "targetedTestsPassed": 17,
+    "unauthenticatedHttpStatus": 401,
+    "latestRecordedApkWorkflow": 35958534464,
+    "latestRecordedApkVersion": 41,
+    "directEasConsoleInspected": false,
+    "newBuildTriggered": false,
+    "nextGate": "Founder approval for one new Android Preview APK; phone/tablet acceptance pending"
+  }
 }
