@@ -1,3 +1,10 @@
+## 2026-09-25 — One Ask My Corner Preview APK approved
+
+- Founder explicitly approved one new APK following the recovery gate. Base main: `f80d345a6a3132ec183f79658dac9b9f9cc290b0`. This build includes merged Ask My Corner UI and uses the existing Android Preview profile, backend and signing configuration.
+- This single explicit build-trigger commit records approval before external work. Release gates run before submission; EAS build-history preflight blocks active or newly completed Preview duplicates. Actual APK checks include Ask entry, endpoint, availability and feedback bytecode.
+- Approval permits one submission only. Build ID, download, version, checksum and native acceptance remain pending. If submission occurs and later inspection fails, inspect the same build; do not submit another.
+- No production deployment or backend change. Samsung phone and Pixel Tablet acceptance follows artifact verification.
+
 ## 2026-09-25 — Recovery reconciled; Preview v4 deployed; APK approval gate
 
 - Reconciled live main against the recovery prompt: main initially remained `2e5968d170d53e4aeb0cef87150b82496ba5c73d`, but PR #129 and live Preview had already advanced. Reused completed work and its saved five-question HTTP 200 evidence; did not reseed fixtures or repeat paid model calls.

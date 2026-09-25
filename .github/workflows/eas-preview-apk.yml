@@ -1,6 +1,6 @@
 name: EAS Preview APK
-# Founder approved one corrected Android Preview APK on 2026-09-24
-# for the completed-job review CTA, collapsible comments and global Back navigation.
+# Founder approved one new Android Preview APK on 2026-09-25
+# for Ask My Corner native phone/tablet acceptance.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:
@@ -86,6 +86,18 @@ jobs:
             preview \
             'node scripts/verify-preview-supabase-env.mjs' \
             --non-interactive
+
+      - name: Prevent duplicate approved Preview submission
+        if: github.event_name == 'push' || inputs.existing_build_id == ''
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx --yes eas-cli@22.6.0 build:list --platform android --build-profile preview --limit 50 --json --non-interactive > "${RUNNER_TEMP}/existing-preview-builds.json"
+          jq '[.[] | {id, status, createdAt, gitCommitHash, appBuildVersion}]' "${RUNNER_TEMP}/existing-preview-builds.json"
+          if jq -e 'any(.[]; (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.createdAt >= "2026-09-25T00:00:00Z" and .status == "FINISHED"))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
+            echo "::error::An active or newer completed Preview build exists. Inspect and reuse it; do not submit a duplicate."
+            exit 1
+          fi
 
       - name: Submit EAS cloud Android APK build
         id: submit
@@ -244,7 +256,7 @@ jobs:
           # Hermes stores this label as UTF-16 because its string includes a middle dot.
           with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
               bundle = apk.read('assets/index.android.bundle')
-          for label in ('Verified Job', 'Hide comments', 'Go back', 'View / Edit Review', 'Thanks for helping neighbors make informed decisions.'):
+          for label in ('Verified Job', 'Hide comments', 'Go back', 'View / Edit Review', 'Thanks for helping neighbors make informed decisions.', 'Ask My Corner', 'ask-my-corner', 'neighborhood_ai_context', 'neighborhood_ai_meter'):
               if not any(label.encode(encoding) in bundle for encoding in ('utf-8', 'utf-16le')):
                   raise SystemExit(f'Required UX label missing from APK: {label}')
           PYFONT
@@ -256,7 +268,7 @@ jobs:
           apk_sha256="$(sha256sum "$APK_PATH" | awk '{print $1}')"
           supabase_ref="$(printf '%s' "$supabase_url" | sed -E 's#https://([a-z]{20})\.supabase\.co#\1#')"
           provenance_path="${RUNNER_TEMP}/preview-provenance.json"
-          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true, productMediaBytecodeVerified: true, sourceCommitVerified: true, navigationFontVerified: true}'             > "$provenance_path"
+          jq -n             --arg buildId "$BUILD_ID"             --arg commit "$GITHUB_SHA"             --arg applicationId "$application_id"             --arg supabaseRef "$supabase_ref"             --arg apkSha256 "$apk_sha256"             '{buildId: $buildId, commit: $commit, applicationId: $applicationId, supabaseRef: $supabaseRef, apkSha256: $apkSha256, eventsBytecodeVerified: true, productMediaBytecodeVerified: true, sourceCommitVerified: true, navigationFontVerified: true, askMyCornerBytecodeVerified: true}'             > "$provenance_path"
 
           echo "provenance_path=${provenance_path}" >> "$GITHUB_OUTPUT"
           echo "Verified APK for Supabase project ${supabase_ref}."
