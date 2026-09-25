@@ -1,0 +1,108 @@
+{
+  "date": "2026-09-25",
+  "environment": "Preview",
+  "projectRef": "opeojxwkwwnnncnsuaag",
+  "featureSourceCommit": "2e5968d170d53e4aeb0cef87150b82496ba5c73d",
+  "migrationRemoteVersion": "20260925033940",
+  "edgeFunction": "ask-my-corner",
+  "edgeVersion": 3,
+  "verifyJwt": true,
+  "flagEnabled": true,
+  "model": "gpt-4.1-mini",
+  "demoQuestions": [
+    {
+      "question": "What\u2019s happening in my neighborhood this weekend?",
+      "status": 200,
+      "intent": "events",
+      "sourceCount": 2,
+      "expectedFictionalSource": true,
+      "groundedExcerpts": true,
+      "elapsedMs": 9539
+    },
+    {
+      "question": "Who can repair a fence nearby?",
+      "status": 200,
+      "intent": "providers",
+      "sourceCount": 1,
+      "expectedFictionalSource": true,
+      "groundedExcerpts": true,
+      "elapsedMs": 6460,
+      "reputation": [
+        {
+          "average": 4,
+          "count": 1,
+          "verifiedCount": 1
+        }
+      ]
+    },
+    {
+      "question": "Is there a road closure?",
+      "status": 200,
+      "intent": "alerts",
+      "sourceCount": 3,
+      "expectedFictionalSource": true,
+      "groundedExcerpts": true,
+      "elapsedMs": 7439
+    },
+    {
+      "question": "Who is organizing the food drive?",
+      "status": 200,
+      "intent": "organizer",
+      "sourceCount": 1,
+      "expectedFictionalSource": true,
+      "groundedExcerpts": true,
+      "elapsedMs": 7420,
+      "publicOrganizer": [
+        "Ama K. (fictional demo)"
+      ]
+    },
+    {
+      "question": "What did the neighborhood decide about the park project?",
+      "status": 200,
+      "intent": "memory",
+      "sourceCount": 2,
+      "expectedFictionalSource": true,
+      "groundedExcerpts": true,
+      "elapsedMs": 6018,
+      "noInventedDecision": true
+    }
+  ],
+  "additionalChecks": {
+    "feedbackStatus": 200,
+    "clickStatus": 200,
+    "privacyQuestionStatus": 200,
+    "privacyRefused": true
+  },
+  "followup": {
+    "followupStatus": 200,
+    "intent": "events",
+    "familyEventFound": true
+  },
+  "sessionCleanup": {
+    "verificationSessionLogoutStatus": 204,
+    "scope": "local"
+  },
+  "verification": {
+    "mobileTests": 515,
+    "mobileSuites": 92,
+    "serverTests": 27,
+    "typecheck": "passed",
+    "format": "passed",
+    "lintErrors": 0,
+    "baselineLintWarnings": 15,
+    "databaseCI": 36092431531,
+    "serverCI": 36092431505,
+    "mobileCI": 36092015566,
+    "feedbackAndClickStored": true,
+    "privacyRefusalUsedNoModelTokens": true,
+    "newPaidApkBuilt": false,
+    "nativePhoneTabletAcceptance": "pending"
+  },
+  "limitations": [
+    "Business/deal data source does not yet exist.",
+    "No formal poll/decision store: park demonstration accurately reports discussion without a formal decision.",
+    "No private DMs or unrestricted private-content/vector index.",
+    "Private structured location fields are excluded; redaction of public free text is defense in depth, not universal PII detection.",
+    "No production activation."
+  ]
+}

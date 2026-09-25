@@ -45,7 +45,7 @@ export function parsePlan(value: unknown): Plan {
 }
 export function fallbackPlan(question: string, previous: string[]=[]): Plan {
  const q=question.toLowerCase();
- const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.join(' ')} ${q}`.toLowerCase():q;
+ const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.slice(-1).join(' ')} ${q}`.toLowerCase():q;
  const window: Window = /saturday/.test(context)?'saturday':/sunday/.test(context)?'sunday':/tomorrow/.test(context)?'tomorrow':/weekend/.test(context)?'weekend':/today|tonight|right now/.test(context)?'today':/last month/.test(context)?'month':/this week|miss|latest/.test(context)?'week':'all';
  if (/find local help|who can help me/.test(context)&&! /fence|plumb|pipe|repair|electric/.test(context)) return {intent:'providers',terms:'',window:'all'};
  if (/\b(fence|plumb|plumber|pipe|repair|electrician|hire|cater)/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
