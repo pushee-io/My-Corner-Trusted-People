@@ -27,7 +27,7 @@ export type AskAnswer = {
   sources: AskSource[];
   excerpts: { index: number; quote: string }[];
 };
-export const askUnavailable = 'Ask My Corner is temporarily unavailable. You can still search your neighborhood.';
+export const askUnavailable = 'Ask My Corner AI is temporarily unavailable. You can still use Search.';
 export async function loadAskContext(): Promise<AskContext | null> {
   const { data, error } = await supabase.rpc('neighborhood_ai_context');
   if (error || !data?.id || !data?.name) return null;

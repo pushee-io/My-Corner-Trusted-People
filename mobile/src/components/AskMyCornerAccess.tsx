@@ -1,23 +1,23 @@
 import { router, usePathname } from 'expo-router';
-import { Pressable, Text } from 'react-native';
+import { Text, View } from 'react-native';
+import { ActionPill } from '@/components/ActionPill';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
-import { askPromptForPath, loadAskContext } from '@/lib/neighborhood-assistant';
+import { loadAskContext } from '@/lib/neighborhood-assistant';
 import { tokens } from '@/theme/tokens';
 export function AskMyCornerAccess({ home = false, question }: { home?: boolean; question?: string }) {
   const path = usePathname();
   const context = useProtectedResource(loadAskContext);
   if (!context.data || path === '/ask') return null;
-  const open = (prompt: string) => router.push({ pathname: '/ask', params: { question: prompt } });
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={home ? 'Ask My Corner, neighborhood assistant' : 'Ask My Corner'}
-      focusable
-      onPress={() => open(question || askPromptForPath(path))}
-      style={{ minHeight: tokens.touch.min, justifyContent: 'center' }}
-    >
-      <Text style={{ color: tokens.color.textPrimary, fontWeight: '700', fontSize: 16 }}>Ask My Corner</Text>
-      {home ? <Text style={{ color: tokens.color.textPrimary }}>Ask anything about your neighborhood.</Text> : null}
-    </Pressable>
+    <View style={{ maxWidth: '100%', flexShrink: 1, gap: tokens.spacing.xs }}>
+      <ActionPill
+        label="Ask My Corner AI"
+        primary
+        onPress={() =>
+          router.push(question ? { pathname: '/ask', params: { question: question.slice(0, 600) } } : '/ask')
+        }
+      />
+      {home ? <Text style={{ color: tokens.color.textSecondary }}>Ask anything about your neighborhood.</Text> : null}
+    </View>
   );
 }

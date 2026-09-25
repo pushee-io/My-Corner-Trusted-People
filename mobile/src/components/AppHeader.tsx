@@ -2,7 +2,7 @@ import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MessagesAccess } from '@/components/MessagesAccess';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
@@ -26,13 +26,17 @@ export function AppHeader({
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (pathname === '/ask' && Keyboard.isVisible()) {
+          Keyboard.dismiss();
+          return true;
+        }
         // Native Modals consume Back themselves. Home is the terminal app root.
         if (root) BackHandler.exitApp();
         else navigateBack();
         return true;
       });
       return () => subscription.remove();
-    }, [root]),
+    }, [root, pathname]),
   );
   return (
     <View style={styles.header}>
