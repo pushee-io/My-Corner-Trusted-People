@@ -1,3 +1,11 @@
+## 2026-09-25 — Compact Home Ask My Corner entry
+
+- Removed the four Home suggestion buttons and their wrapping containers. Home retains one content-sized Pressable with Ask My Corner, the existing subtitle, a 48 dp minimum touch height, keyboard focusability and the label "Ask My Corner, neighborhood assistant". No fixed section height or leftover prompt-row gap remains.
+- Existing assistant navigation/prefill, shared non-Home entries, Search handoff and the dedicated assistant placeholder are retained. No retrieval, source/action, feedback, follow-up or backend changes.
+- Added Home presence, one-target accessibility, four-prompt absence and tap-navigation coverage, plus dedicated-screen placeholder coverage. All 517 tests/92 suites pass; typecheck passes; lint has zero errors and 15 existing warnings. Targeted assistant/Search tests pass (17 tests). CI is the merge gate.
+- Samsung phone and Pixel Tablet native visual/accessibility acceptance remains pending: this workspace has no connected adb/device. Browser access to the local web component preview was blocked (ERR_BLOCKED_BY_CLIENT), so actual browser layout/focus verification is also pending; no screenshot/native PASS is claimed.
+- APK 42 predates this cleanup. No new build is authorized or submitted. A separately approved Preview APK is needed to verify the installed native change. Check compact height, subtitle wrapping, tap target and screen reader on phone/tablet, plus keyboard focus on web.
+
 ## 2026-09-25 — Ask My Corner Preview APK 42 verified
 
 - The one approved build completed: Android version 42, source `55c7b5b5467303a7acd52099f6df90a24d977adb`, EAS `a352ebca-9cee-4155-b564-125df0a67288`. Build workflow `36100561584` and Mobile CI `36100561475` passed; 515 tests/92 suites, format, typecheck, lint and Preview environment gates passed.
