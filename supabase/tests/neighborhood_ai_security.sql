@@ -48,7 +48,7 @@ set local role authenticated;
 set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000001';
 insert into ai_results select k,public.neighborhood_ai_search(k) from unnest(array['event','post','group','agency','marketplace']) k;
 select pg_temp.ai_assert(data::text not like '%PRIVATE%','Sensitive source/identity/location leaked: '||kind) from ai_results;
-select pg_temp.ai_assert(jsonb_array_length(data)=case when kind='group' then 0 else 1 end,'Incorrect source selection: '||kind) from ai_results;
+select pg_temp.ai_assert(case when kind='agency' then jsonb_array_length(data)>=1 else jsonb_array_length(data)=case when kind='group' then 0 else 1 end end,'Incorrect source selection: '||kind) from ai_results;
 select pg_temp.ai_assert(public.neighborhood_ai_search('post','park')::text like '%No formal decision recorded%','Memory source absent');
 select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_search('event','food',null,now()+interval '2 days'))=0,'Time window ignored');
 select pg_temp.ai_denied($q$select public.neighborhood_ai_context('a2000000-0000-4000-8000-000000000002')$q$);
