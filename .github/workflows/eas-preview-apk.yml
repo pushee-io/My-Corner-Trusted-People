@@ -1,6 +1,6 @@
 name: EAS Preview APK
 # Founder approved one new Android Preview APK on 2026-09-25
-# for the compact Home Ask My Corner entry (PR #132).
+# for AI/Messages pills and empty assistant composer (PR #134).
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
 on:
@@ -94,7 +94,7 @@ jobs:
         run: |
           npx --yes eas-cli@22.6.0 build:list --platform android --build-profile preview --limit 50 --json --non-interactive > "${RUNNER_TEMP}/existing-preview-builds.json"
           jq '[.[] | {id, status, createdAt, gitCommitHash, appBuildVersion}]' "${RUNNER_TEMP}/existing-preview-builds.json"
-          if jq -e 'any(.[]; (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.createdAt >= "2026-09-25T00:00:00Z" and .status == "FINISHED" and .id != "a352ebca-9cee-4155-b564-125df0a67288"))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
+          if jq -e 'any(.[]; (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.createdAt >= "2026-09-25T00:00:00Z" and .status == "FINISHED" and .id != "a352ebca-9cee-4155-b564-125df0a67288" and .id != "34e50a41-a32d-42ce-93b7-8baf91518764"))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
             echo "::error::An active or newer completed Preview build exists. Inspect and reuse it; do not submit a duplicate."
             exit 1
           fi
@@ -243,7 +243,7 @@ jobs:
           test "$application_id" = 'com.mycorner.trustedpeople'
           version_code="$("$apkanalyzer_path" manifest version-code "$APK_PATH")"
           echo "Verified Android version code: $version_code"
-          test "$version_code" -gt 42
+          test "$version_code" -gt 43
 
           # Verify the new icon font is embedded unchanged in the actual APK.
           python3 - <<'PYFONT'
@@ -259,7 +259,7 @@ jobs:
           # Hermes stores this label as UTF-16 because its string includes a middle dot.
           with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
               bundle = apk.read('assets/index.android.bundle')
-          for label in ('Verified Job', 'Hide comments', 'Go back', 'View / Edit Review', 'Thanks for helping neighbors make informed decisions.', 'Ask My Corner', 'ask-my-corner', 'neighborhood_ai_context', 'neighborhood_ai_meter', 'Ask My Corner, neighborhood assistant'):
+          for label in ('Verified Job', 'Hide comments', 'Go back', 'View / Edit Review', 'Thanks for helping neighbors make informed decisions.', 'Ask My Corner', 'ask-my-corner', 'neighborhood_ai_context', 'neighborhood_ai_meter', 'Ask My Corner AI', 'Ask anything about your neighborhood...', 'My Corner AI is checking your neighborhood...', 'Ask My Corner AI is temporarily unavailable. You can still use Search.'):
               if not any(label.encode(encoding) in bundle for encoding in ('utf-8', 'utf-16le')):
                   raise SystemExit(f'Required UX label missing from APK: {label}')
           PYFONT

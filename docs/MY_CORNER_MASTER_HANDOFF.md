@@ -1,3 +1,10 @@
+## 2026-09-25 — AI pill/composer Preview APK approved
+
+- Founder explicitly approved one new APK after PR #134 merged at `1d678b66eabf49519f3f9bfad7da37fe300f6e27`. Main Mobile CI `36147988569` passed. This approval permits one Preview/internal Android APK using existing signing, backend and profile.
+- This single build-trigger commit records approval before submission. Duplicate preflight recognizes completed APKs 42 and 43 and blocks active or unexpected newer completed builds. Release gates run before submission.
+- Actual artifact checks now require Ask My Corner AI, empty-composer placeholder/loading/fallback labels and Android version greater than 43. AI/Messages pills, Search handoff and empty input are included. No backend/production changes.
+- Build ID, artifact and Samsung phone/Pixel Tablet acceptance pending. If submission succeeds and a later check fails, inspect that same build; do not submit another. Native layout/keyboard/screen-reader and web visual acceptance remain pending.
+
 ## 2026-09-25 — AI and Messages pills; empty assistant composer
 
 - Visible assistant name is now **Ask My Corner AI**. AI and Messages share a compact full-radius ActionPill using existing Create Request AI color/spacing/typography tokens, 48 dp minimum target, wrapping, full-button navigation, pressed/focus styling and accessible labels. Messages retains unread counts and Notifications navigation. Home retains one AI entry and supporting copy with none of the four suggestion questions.
