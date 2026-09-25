@@ -40,3 +40,11 @@ The new endpoint shares the existing Responses transport, credentials and fallba
 Each tool fetches eight records and the combined context is capped at sixteen, round-robin across sources. Ghana time windows use Africa/Accra. Last two question texts provide ephemeral follow-up context; no previous answer is trusted as evidence. No UUID or route is sent to the model. Public text is redacted for email, phone, digital/street-number addresses and coordinate pairs; this is defense in depth, not a claim that regex can recognize every personal detail in user-authored prose. Private structured fields are excluded at retrieval. Re-query/re-authorization after model latency drops changed/removed sources.
 
 Production activation is still off by migration. Preview migration applied after green Database CI; Edge deployment and explicit Preview activation/readback follow server CI. Local server tests: 25 passed; Deno check passed.
+
+## Global UI (C/H/I)
+
+Shared header entry uses a server context check and contextual draft prompt; Home shows a restrained prompt set. Search remains keyword-based and offers Ask for longer questions. Opening a draft does not trigger a paid request. Answers render six source cards initially with a bounded See all sources action, timestamps, exact excerpts, factual provider review counts, approved organizer name, provenance and links to existing product flows. RSVP/contact/group membership mutations remain in their existing authorized detail screens. No assistant mutation tool or silent sponsored placement. No sponsored source is retrieved in v1.
+
+Local question history is limited to two questions and never persisted to disk. Account transition, app background and screen blur clear answers/history and cancel stale result updates. Feedback supports Helpful, Not helpful and Inaccurate; click metadata references only the current answer's sources. Source links use fixed app-route prefixes and never model-generated URLs. Feed/Group target loading supports historical sources outside their latest fifty records.
+
+515 mobile tests/92 suites pass, including UI behavior and protected account transitions; typecheck passes. Android visual/keyboard/touch/RSVP acceptance cannot be claimed from these tests. New paid APK requires separate approval.

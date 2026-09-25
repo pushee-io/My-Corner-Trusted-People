@@ -1,3 +1,4 @@
+import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback } from 'react';
@@ -36,7 +37,12 @@ export function AppHeader({
   return (
     <View style={styles.header}>
       <MyCornerLogo />
-      {showActions ? <MessagesAccess /> : null}
+      {showActions ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+          <MessagesAccess />
+          {pathname !== '/home' && pathname !== '/' ? <AskMyCornerAccess /> : null}
+        </View>
+      ) : null}
       {!root || showTitle ? (
         <View style={styles.titleRow}>
           {!root ? (

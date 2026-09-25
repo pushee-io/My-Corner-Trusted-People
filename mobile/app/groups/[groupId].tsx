@@ -34,7 +34,7 @@ function membershipLabel(status: SocialGroupScreenSection['membershipStatus']) {
 }
 
 export default function GroupDetailScreen() {
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  const { groupId, postId: sourcePostId } = useLocalSearchParams<{ groupId: string; postId?: string }>();
   const [section, setSection] = useState<SocialGroupScreenSection>();
   const [posts, setPosts] = useState<SocialGroupPostDetail[]>([]);
   const [postBody, setPostBody] = useState('');
@@ -75,14 +75,16 @@ export default function GroupDetailScreen() {
 
       setSection(nextSection);
       setPosts(
-        nextSection.membershipStatus === 'accepted' ? await getSocialGroupDetailRepository().listPosts(groupId) : [],
+        nextSection.membershipStatus === 'accepted'
+          ? await getSocialGroupDetailRepository().listPosts(groupId, sourcePostId)
+          : [],
       );
     } catch {
       setError('Could not load this group. Check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [groupId]);
+  }, [groupId, sourcePostId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -346,109 +348,117 @@ export default function GroupDetailScreen() {
             <EmptyState title="No posts yet" body="Start the conversation with the first group post." />
           ) : (
             <View style={styles.postList}>
-              {posts.map((post) => (
-                <View key={post.id} style={styles.post}>
-                  <MediaAvatar profileId={post.authorProfileId} name={post.authorName} />
-                  <Text style={styles.author}>{post.authorName}</Text>
-                  <Text style={styles.postBody}>{post.body}</Text>
-                  <MediaGallery parent="group_post" parentId={post.id} refreshKey={mediaRefresh} />
-                  <Text style={styles.meta}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
+              {posts
+                .filter((post) => !sourcePostId || post.id === sourcePostId)
+                .map((post) => (
+                  <View key={post.id} style={styles.post}>
+                    <MediaAvatar profileId={post.authorProfileId} name={post.authorName} />
+                    <Text style={styles.author}>{post.authorName}</Text>
+                    <Text style={styles.postBody}>{post.body}</Text>
+                    <MediaGallery parent="group_post" parentId={post.id} refreshKey={mediaRefresh} />
+                    <Text style={styles.meta}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
 
-                  <View accessibilityRole="toolbar" style={styles.actions}>
-                    <Pressable
-                      accessibilityLabel={`${post.likedByMe ? 'Unlike' : 'Like'} post, ${post.likeCount} likes`}
-                      disabled={busyId === `like-${post.id}`}
-                      onPress={() => void toggleLike(post)}
-                      style={styles.actionButton}
-                    >
-                      <Text style={[styles.actionText, post.likedByMe ? styles.actionTextActive : null]}>
-                        {post.likedByMe ? 'Liked' : 'Like'} ({post.likeCount})
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      accessibilityLabel={`Share post by ${post.authorName}`}
-                      onPress={() => sharePost(post)}
-                      style={styles.actionButton}
-                    >
-                      <Text style={styles.actionText}>Share</Text>
-                    </Pressable>
-                    <Pressable
-                      accessibilityLabel={post.isReported ? 'Post reported' : `Report post by ${post.authorName}`}
-                      disabled={post.isReported || busyId === `report-${post.id}`}
-                      onPress={() => setReportingPostId(reportingPostId === post.id ? undefined : post.id)}
-                      style={styles.actionButton}
-                    >
-                      <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
-                    </Pressable>
-                  </View>
-
-                  {reportingPostId === post.id && !post.isReported ? (
-                    <View style={styles.reportPanel}>
-                      <Text style={styles.reportTitle}>Why are you reporting this post?</Text>
-                      {reportReasons.map((reason) => (
-                        <Pressable
-                          accessibilityRole="button"
-                          disabled={busyId === `report-${post.id}`}
-                          key={reason}
-                          onPress={() => void reportPost(post.id, reason)}
-                          style={styles.reportReason}
-                        >
-                          <Text style={styles.reportReasonText}>{reason}</Text>
-                        </Pressable>
-                      ))}
-                      <Pressable onPress={() => setReportingPostId(undefined)} style={styles.actionButton}>
-                        <Text style={styles.actionText}>Cancel</Text>
+                    <View accessibilityRole="toolbar" style={styles.actions}>
+                      <Pressable
+                        accessibilityLabel={`${post.likedByMe ? 'Unlike' : 'Like'} post, ${post.likeCount} likes`}
+                        disabled={busyId === `like-${post.id}`}
+                        onPress={() => void toggleLike(post)}
+                        style={styles.actionButton}
+                      >
+                        <Text style={[styles.actionText, post.likedByMe ? styles.actionTextActive : null]}>
+                          {post.likedByMe ? 'Liked' : 'Like'} ({post.likeCount})
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        accessibilityLabel={`Share post by ${post.authorName}`}
+                        onPress={() => sharePost(post)}
+                        style={styles.actionButton}
+                      >
+                        <Text style={styles.actionText}>Share</Text>
+                      </Pressable>
+                      <Pressable
+                        accessibilityLabel={post.isReported ? 'Post reported' : `Report post by ${post.authorName}`}
+                        disabled={post.isReported || busyId === `report-${post.id}`}
+                        onPress={() => setReportingPostId(reportingPostId === post.id ? undefined : post.id)}
+                        style={styles.actionButton}
+                      >
+                        <Text style={styles.reportText}>{post.isReported ? 'Reported' : 'Report'}</Text>
                       </Pressable>
                     </View>
-                  ) : null}
 
-                  <CollapsibleComments
-                    id={post.id}
-                    count={post.comments.length}
-                    busy={busyId === `comment-${post.id}`}
-                    error={error}
-                  >
-                    {({ onFocus, onBlur }) => (
-                      <>
-                        {post.comments.length > 0 ? (
-                          <View style={styles.comments}>
-                            {post.comments.map((comment: SocialGroupPostComment) => (
-                              <View key={comment.id} style={styles.comment}>
-                                <MediaAvatar profileId={comment.authorProfileId} name={comment.authorName} size={32} />
-                                <Text style={styles.commentAuthor}>{comment.authorName}</Text>
-                                <Text style={styles.commentBody}>{comment.body}</Text>
-                              </View>
-                            ))}
-                          </View>
-                        ) : null}
-
-                        <View style={styles.commentComposer}>
-                          <TextInput
-                            accessibilityLabel={`Comment on post by ${post.authorName}`}
-                            onFocus={onFocus}
-                            onBlur={onBlur}
-                            maxLength={500}
-                            onChangeText={(value) => setCommentDrafts((current) => ({ ...current, [post.id]: value }))}
-                            placeholder="Write a comment"
-                            style={styles.commentInput}
-                            value={commentDrafts[post.id] ?? ''}
-                          />
+                    {reportingPostId === post.id && !post.isReported ? (
+                      <View style={styles.reportPanel}>
+                        <Text style={styles.reportTitle}>Why are you reporting this post?</Text>
+                        {reportReasons.map((reason) => (
                           <Pressable
                             accessibilityRole="button"
-                            disabled={busyId === `comment-${post.id}` || !(commentDrafts[post.id] ?? '').trim()}
-                            onPress={() => void publishComment(post.id)}
-                            style={styles.commentButton}
+                            disabled={busyId === `report-${post.id}`}
+                            key={reason}
+                            onPress={() => void reportPost(post.id, reason)}
+                            style={styles.reportReason}
                           >
-                            <Text style={styles.commentButtonText}>
-                              {busyId === `comment-${post.id}` ? 'Sending...' : 'Send'}
-                            </Text>
+                            <Text style={styles.reportReasonText}>{reason}</Text>
                           </Pressable>
-                        </View>
-                      </>
-                    )}
-                  </CollapsibleComments>
-                </View>
-              ))}
+                        ))}
+                        <Pressable onPress={() => setReportingPostId(undefined)} style={styles.actionButton}>
+                          <Text style={styles.actionText}>Cancel</Text>
+                        </Pressable>
+                      </View>
+                    ) : null}
+
+                    <CollapsibleComments
+                      id={post.id}
+                      count={post.comments.length}
+                      busy={busyId === `comment-${post.id}`}
+                      error={error}
+                    >
+                      {({ onFocus, onBlur }) => (
+                        <>
+                          {post.comments.length > 0 ? (
+                            <View style={styles.comments}>
+                              {post.comments.map((comment: SocialGroupPostComment) => (
+                                <View key={comment.id} style={styles.comment}>
+                                  <MediaAvatar
+                                    profileId={comment.authorProfileId}
+                                    name={comment.authorName}
+                                    size={32}
+                                  />
+                                  <Text style={styles.commentAuthor}>{comment.authorName}</Text>
+                                  <Text style={styles.commentBody}>{comment.body}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          ) : null}
+
+                          <View style={styles.commentComposer}>
+                            <TextInput
+                              accessibilityLabel={`Comment on post by ${post.authorName}`}
+                              onFocus={onFocus}
+                              onBlur={onBlur}
+                              maxLength={500}
+                              onChangeText={(value) =>
+                                setCommentDrafts((current) => ({ ...current, [post.id]: value }))
+                              }
+                              placeholder="Write a comment"
+                              style={styles.commentInput}
+                              value={commentDrafts[post.id] ?? ''}
+                            />
+                            <Pressable
+                              accessibilityRole="button"
+                              disabled={busyId === `comment-${post.id}` || !(commentDrafts[post.id] ?? '').trim()}
+                              onPress={() => void publishComment(post.id)}
+                              style={styles.commentButton}
+                            >
+                              <Text style={styles.commentButtonText}>
+                                {busyId === `comment-${post.id}` ? 'Sending...' : 'Send'}
+                              </Text>
+                            </Pressable>
+                          </View>
+                        </>
+                      )}
+                    </CollapsibleComments>
+                  </View>
+                ))}
             </View>
           )}
         </MediaAvatarCollection>

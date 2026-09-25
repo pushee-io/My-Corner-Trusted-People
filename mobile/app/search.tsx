@@ -1,3 +1,4 @@
+import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { NeighborResults } from '@/components/NeighborResults';
 import type { Href } from 'expo-router';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -31,6 +32,7 @@ export default function SearchScreen() {
         style={styles.input}
         returnKeyType="search"
       />
+      {query.trim().split(/\s+/).length >= 4 ? <AskMyCornerAccess question={query.trim()} /> : null}
       {!searching ? (
         <EmptyState title="What are you looking for?" body="Enter at least two characters to search." />
       ) : waiting ? (

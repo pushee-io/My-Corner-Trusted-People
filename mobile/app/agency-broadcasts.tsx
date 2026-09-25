@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -14,6 +14,7 @@ function scopeLabel(broadcast: AgencyBroadcast) {
 }
 
 export default function AgencyBroadcastsScreen() {
+  const { broadcastId } = useLocalSearchParams<{ broadcastId?: string }>();
   const [broadcasts, setBroadcasts] = useState<AgencyBroadcast[]>([]);
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
@@ -95,23 +96,25 @@ export default function AgencyBroadcastsScreen() {
     <Screen title="Agency broadcasts">
       {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
-      {broadcasts.length === 0 ? (
+      {broadcasts.filter((broadcast) => !broadcastId || broadcast.id === broadcastId).length === 0 ? (
         <EmptyState title="No broadcasts" body="No approved agency broadcasts are visible for your area." />
       ) : (
         <View style={styles.list}>
-          {broadcasts.map((broadcast) => (
-            <View key={broadcast.id} style={styles.card}>
-              <Text style={styles.eyebrow}>{scopeLabel(broadcast)}</Text>
-              <Text style={styles.title}>{broadcast.title}</Text>
-              <Text style={styles.body}>{broadcast.body}</Text>
-              <Text style={styles.meta}>
-                {broadcast.agencyName} · {new Date(broadcast.publishedAt).toLocaleString('en-GH')}
-              </Text>
-              <Pressable onPress={() => reportBroadcast(broadcast.id)} style={styles.reportButton}>
-                <Text style={styles.reportButtonText}>Report broadcast</Text>
-              </Pressable>
-            </View>
-          ))}
+          {broadcasts
+            .filter((broadcast) => !broadcastId || broadcast.id === broadcastId)
+            .map((broadcast) => (
+              <View key={broadcast.id} style={styles.card}>
+                <Text style={styles.eyebrow}>{scopeLabel(broadcast)}</Text>
+                <Text style={styles.title}>{broadcast.title}</Text>
+                <Text style={styles.body}>{broadcast.body}</Text>
+                <Text style={styles.meta}>
+                  {broadcast.agencyName} · {new Date(broadcast.publishedAt).toLocaleString('en-GH')}
+                </Text>
+                <Pressable onPress={() => reportBroadcast(broadcast.id)} style={styles.reportButton}>
+                  <Text style={styles.reportButtonText}>Report broadcast</Text>
+                </Pressable>
+              </View>
+            ))}
         </View>
       )}
     </Screen>
