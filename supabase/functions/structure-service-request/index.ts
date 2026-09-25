@@ -1,3 +1,4 @@
+import { requestResponses } from '../_shared/openai-responses.ts';
 import { createClient } from '@supabase/supabase-js';
 import { parseStructuredRequest, safeStructurerErrorReason, structurerPayload, validateRequestText } from '../_shared/structure-request.ts';
 
@@ -26,10 +27,7 @@ Deno.serve(async (req) => {
     try { text = validateRequestText(body.text); } catch { return reply({ error: 'Enter between 5 and 3000 characters.' }, 400); }
     const { data: allowed, error: limitError } = await client.rpc('consume_request_structuring_allowance');
     if (limitError || allowed !== true) return reply({ error: 'AI limit reached or unavailable. Please complete your request manually.' }, 429);
-    const response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(structurerPayload(text, model)), signal: AbortSignal.timeout(20000),
-    });
+    const response = await requestResponses(apiKey, structurerPayload(text, model));
     if (!response.ok) {
       const reason = safeStructurerErrorReason(await response.json().catch(() => null));
       return reply({ error: 'AI structuring is unavailable. Your draft is unchanged.', reason, providerStatus: response.status }, 503);

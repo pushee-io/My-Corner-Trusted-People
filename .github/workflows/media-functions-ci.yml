@@ -20,4 +20,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno check --config supabase/functions/deno.json supabase/functions/process-media/index.ts supabase/functions/cleanup-media/index.ts supabase/functions/structure-service-request/index.ts
+      - run: deno check --config supabase/functions/deno.json supabase/functions/process-media/index.ts supabase/functions/cleanup-media/index.ts supabase/functions/structure-service-request/index.ts supabase/functions/ask-my-corner/index.ts

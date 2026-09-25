@@ -32,3 +32,11 @@ J: guarded fictional Preview fixture for five exact demo questions, Preview depl
 ## Verification
 
 `supabase/tests/neighborhood_ai_security.sql` executes real role-switched SQL assertions for neighborhood boundaries, private groups/events, moderator narrowing, suspension, reverse blocks, removed/deleted/expired sources, private fields, rate-meter access and no privileged retrieval. Existing provider review tests cover completed-job aggregate and moderated reviews. Database CI is required before merging.
+
+## Grounded orchestration (D–I server)
+
+The new endpoint shares the existing Responses transport, credentials and fallback model with Structure with AI. Deterministic plans cover common intents; otherwise a strict allowlisted structured planner classifies intent/terms/window. An LLM selects at most five exact source excerpts. The server verifies every substring and source index; notice, dates, counts, reputation and navigation are constructed from authorized data. No free-form generated local assertions, guessed rankings, numerical confidence or automatic mutations. Replies distinguish official records from neighbor reports and discussions from formal decisions. General advice is not mixed into factual local answers.
+
+Each tool fetches eight records and the combined context is capped at sixteen, round-robin across sources. Ghana time windows use Africa/Accra. Last two question texts provide ephemeral follow-up context; no previous answer is trusted as evidence. No UUID or route is sent to the model. Public text is redacted for email, phone, digital/street-number addresses and coordinate pairs; this is defense in depth, not a claim that regex can recognize every personal detail in user-authored prose. Private structured fields are excluded at retrieval. Re-query/re-authorization after model latency drops changed/removed sources.
+
+Production activation is still off by migration. Preview migration applied after green Database CI; Edge deployment and explicit Preview activation/readback follow server CI. Local server tests: 25 passed; Deno check passed.
