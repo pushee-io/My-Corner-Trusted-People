@@ -1,0 +1,47 @@
+{
+  "source_commit": "5187b5248cec8f7c8f6cca887836e1c177d84043",
+  "pr": 142,
+  "status": "ready_for_explicit_merge_and_preview_deployment_approval",
+  "main": "24fc72db2ec12c6f761e53b2f66c994b903b1824",
+  "preserves_prs": [
+    140,
+    141
+  ],
+  "ci": {
+    "mobile": 36273823084,
+    "database": 36273823103,
+    "server_deno": 36273823112,
+    "all": "passed"
+  },
+  "mobile_tests": 541,
+  "mobile_suites": 96,
+  "server_tests": 32,
+  "lint": {
+    "errors": 0,
+    "baseline_warnings": 15
+  },
+  "preview_project": "opeojxwkwwnnncnsuaag",
+  "migration": "20260926213111_canonical_public_profile_name.sql",
+  "migration_sha256": "b731e2ad0f1f5a5a5938e43aa5a3e8ed193b5e1278a6a3f523b56d6fd3341aef",
+  "migration_applied": false,
+  "read_only_comparison": [
+    {
+      "participant": "Test peer A",
+      "conversations": 1,
+      "active": true,
+      "current_fallback": true,
+      "proposed_public_name_present": true
+    },
+    {
+      "participant": "Test peer B",
+      "conversations": 3,
+      "active": true,
+      "current_fallback": true,
+      "proposed_public_name_present": true
+    }
+  ],
+  "identity_rows_changed": 0,
+  "new_apk_built": false,
+  "native_acceptance": "pending",
+  "block": "Automatic approval review rejected main merge; no workaround attempted."
+}

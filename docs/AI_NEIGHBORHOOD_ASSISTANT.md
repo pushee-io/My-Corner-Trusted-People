@@ -1,3 +1,9 @@
+## 2026-09-26 — Pending canonical public organizer-name resolver
+
+PR #142 repairs the shared private public-name resolver used by Messages and authorized Event organizer attribution. The existing public-profile/Events contract treats profiles.display_name as legacy public identity; explicit aliases and private-identity public names retain precedence, blank identity public names suppress legacy fallback, and legal fields are never read. Full Database CI `36273823103` passed with all assistant privacy/date/neighborhood/ranking assertions retained, alongside 32 server tests/Deno CI `36273823112`.
+
+This migration is **not deployed**. Automatic approval review rejected the PR merge for lack of explicit main-merge authorization; the next step is founder approval for PR #142 and Preview-only migration `20260926213111_canonical_public_profile_name.sql`. Existing Preview assistant v6 with JWT verification remains unchanged. Read-only proposed-name comparison is not authenticated Edge synthesis or device acceptance. No new APK was built.
+
 ## 2026-09-26 — Preview APK 45 built and artifact verified
 
 - One approved Android Preview build completed: version 45, source `980570c4adf7c9ac9bd850f32265f32d7e7367b5`, EAS `c7f685a6-6ffc-4463-99ac-626b7f61c8a2`. Build workflow `36271219730` passed. The application source matches main `24fc72db2ec12c6f761e53b2f66c994b903b1824`; only build workflow and checkpoint documentation were added for submission.
