@@ -1,3 +1,9 @@
+## 2026-09-26 — Home request sections collapse without losing requests
+
+- Active Requests and Past Requests now have counted, full-width accessible disclosure buttons and vector chevrons. Active defaults expanded; Past defaults collapsed. Counts remain visible when collapsed, including zero counts. Request IDs/cards and active/past partitioning are unchanged; expanding still maps every request, including repeated jobs with the same provider.
+- Targeted coverage: 18 Home/partition/events tests, including six same-provider requests, multiple providers, active/completed/cancelled mix, collapse/reopen and live count updates. Full mobile suite: **535 tests / 94 suites passed**. Typecheck/format pass; lint zero errors/15 existing warnings. Mobile CI is the merge gate. Native phone/tablet visual and screen-reader acceptance remain pending; no paid APK build or production deployment.
+- Messages PR #137 merged at `fb296d6a4f3da2f058ff8d74091fba4bb5fe799c` after Mobile CI `36206086625` and Database CI `36206086649` passed. Keyword PR #136 is already merged with Database/server CI success. Preview backend deployment remains pending at this implementation checkpoint.
+
 ## 2026-09-26 — Messages public-name repair
 
 - Keyword PR #136 merged at `249d17f01f6962ce6457e52aced9e73d565acf9b`; Database CI `36205768702` and Media Functions CI `36205768747` passed.
