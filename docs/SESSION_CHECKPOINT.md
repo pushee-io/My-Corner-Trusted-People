@@ -1,3 +1,23 @@
+## 2026-09-26 — Corrected Preview APK 46 built and verified
+
+- The one approved build completed successfully: **APK 46**, EAS **`b6ea9558-74c4-49fe-9f28-f8a9baed72ff`**, build source **`4192a8ac26b5d4059ff066cee3f33abd43f76e19`**, workflow **`36274964615`**. Application/database source exactly matches merged main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; only build workflow and checkpoint docs differ. PR #144 preserves documentation-only #143 as an ancestor; both remain open pending separate merge authorization.
+- APK URL: https://expo.dev/artifacts/eas/-CKQO0JNzc_mLN39FrqBaX9ZJ_wW9ZmSab1c-c5EP70.apk . Size **72,009,198 bytes**; SHA-256 **`839f52a059be36fb5d94cf775517b621124ef47fa0b6fece4a5606f6f7fb7197`**. An independent download matched the workflow checksum.
+- Actual artifact passed source SHA, Android version 46, package ID `com.mycorner.trustedpeople`, Preview-only Supabase URL, ZIP integrity, navigation font, media/assistant/Home/public-name markers and the newly added public-name signup text checks. Android apksigner verified the v2 signature. Signer SHA-256 **`79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76`** matches APK 45, supporting an in-place update that retains app data.
+- Release gates passed: **541 mobile tests / 96 suites**, typecheck, formatting and lint **0 errors / 15 baseline warnings**, Preview environment validation and EAS duplicate preflight. Mobile CI **36274971925** / **36274964618**, Database CI **36274964613**, server/Deno CI **36274964715**, and build workflow **36274964615** all passed at the submitted source. Server tests remain **32 passed**.
+- Preview backend canonical public-name repair was already deployed and verified: four historical conversations/two distinct peers resolve public names consistently, with no identity backfill. This build adds the merged canonical self-profile display, explicit signup public-name copy and Find Neighbors avatar batching to the installed Android source. No backend, production, secret or identity changes were made for the build.
+- **One-build approval is consumed. Do not submit another EAS build without new founder approval.** Native Samsung phone/Pixel Tablet visual acceptance remains **PENDING**: verify the same public name in Profile, Find Neighbors, inbox and thread; avatars, latest message, timestamp/unread and accessibility; explicit name edits after refocus/polling; genuine unnamed-account fallback; Home Active/Past collapse/counts; phone/tablet rotation. Component/SQL/bytecode checks are not native acceptance.
+- Mac install/update: download the URL, verify the SHA-256, then use `adb -d install -r "$HOME/Downloads/my-corner-preview-46.apk"` for one USB phone. Use `adb -e` for one emulator, or `adb devices -l` and `adb -s DEVICE_SERIAL install -r ...` to select among multiple physical devices. Do not uninstall or clear app data as part of this update.
+- Evidence: `docs/evidence/canonical-public-name-apk-2026-09-26.json`. The APK and build remain recoverable through EAS and workflow #36274964615; do not start a replacement merely because a chat session stalls.
+
+## Mac download and USB-phone update for APK 46
+
+```sh
+export PATH="$PATH:$HOME/Library/Android/sdk/platform-tools"
+curl -fL --retry 3 'https://expo.dev/artifacts/eas/-CKQO0JNzc_mLN39FrqBaX9ZJ_wW9ZmSab1c-c5EP70.apk' -o "$HOME/Downloads/my-corner-preview-46.apk" &&
+printf '%s  %s\n' '839f52a059be36fb5d94cf775517b621124ef47fa0b6fece4a5606f6f7fb7197' "$HOME/Downloads/my-corner-preview-46.apk" | shasum -a 256 -c - &&
+adb -d install -r "$HOME/Downloads/my-corner-preview-46.apk"
+```
+
 ## 2026-09-26 — One corrected Preview APK explicitly approved
 
 - Founder approved one new Android Preview APK after PR #142 merged and its exact Preview migration was verified. Application source is current main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; build base also preserves documentation-only PR #143 (`4efce7ad487f1a581a47a59e7bff3daab64a014c`). No application/schema changes are added for this build.
