@@ -1,3 +1,9 @@
+## 2026-09-26 — Canonical public organizer-name resolver deployed
+
+PR #142 is merged at `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. Founder-approved source migration `20260926213111_canonical_public_profile_name.sql` was applied only to Preview `opeojxwkwwnnncnsuaag`, recorded as `20260926215220`; remote SQL and function body exactly match source. No backfill, identity mutation, production action or Edge redeployment occurred. Assistant v6/JWT verification remains intact.
+
+Authenticated-role read-only retrieval returned existing Festival records for all ten requested keyword phrases. The four Festival sources preserve authorized organizer identity, Event links, approved visibility and neighborhood authorization. These direct retrieval calls omit planner date bounds and do not establish authenticated Edge/model output or native acceptance. Full SQL/RLS CI `36274196755` and server/Deno CI `36274196736` passed. Messages live projections now agree for four existing conversations/two distinct peers. Missing-name/legal-name/privacy boundaries remain covered by the passing SQL suite. Corrected APK approval is pending for the additional mobile UI source changes; APK 45 can already consume the backend resolver on refresh.
+
 ## 2026-09-26 — Pending canonical public organizer-name resolver
 
 PR #142 repairs the shared private public-name resolver used by Messages and authorized Event organizer attribution. The existing public-profile/Events contract treats profiles.display_name as legacy public identity; explicit aliases and private-identity public names retain precedence, blank identity public names suppress legacy fallback, and legal fields are never read. Full Database CI `36273823103` passed with all assistant privacy/date/neighborhood/ranking assertions retained, alongside 32 server tests/Deno CI `36273823112`.

@@ -1,16 +1,17 @@
 {
   "source_commit": "5187b5248cec8f7c8f6cca887836e1c177d84043",
   "pr": 142,
-  "status": "ready_for_explicit_merge_and_preview_deployment_approval",
-  "main": "24fc72db2ec12c6f761e53b2f66c994b903b1824",
+  "status": "merged_and_preview_deployed_corrected_apk_approval_required",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
   "preserves_prs": [
     140,
     141
   ],
   "ci": {
-    "mobile": 36273823084,
-    "database": 36273823103,
-    "server_deno": 36273823112,
+    "verified_head": "07164ba9c1e67483c1de7d940d1049be318e92a5",
+    "mobile": 36274196799,
+    "database": 36274196755,
+    "server_deno": 36274196736,
     "all": "passed"
   },
   "mobile_tests": 541,
@@ -23,7 +24,7 @@
   "preview_project": "opeojxwkwwnnncnsuaag",
   "migration": "20260926213111_canonical_public_profile_name.sql",
   "migration_sha256": "b731e2ad0f1f5a5a5938e43aa5a3e8ed193b5e1278a6a3f523b56d6fd3341aef",
-  "migration_applied": false,
+  "migration_applied": true,
   "read_only_comparison": [
     {
       "participant": "Test peer A",
@@ -43,5 +44,46 @@
   "identity_rows_changed": 0,
   "new_apk_built": false,
   "native_acceptance": "pending",
-  "block": "Automatic approval review rejected main merge; no workaround attempted."
+  "merged_prs": [
+    140,
+    141,
+    142
+  ],
+  "remote_migration_version": "20260926215220",
+  "remote_sql_matches_source": true,
+  "remote_function_matches_source": true,
+  "explicit_edit_rows_after": 0,
+  "helper_client_execute": false,
+  "helper_anon_execute": false,
+  "name_store_client_read": false,
+  "advisor_counts_unchanged": true,
+  "live_verification": {
+    "method": "read-only authenticated-role SQL RPC calls",
+    "historical_conversations": 4,
+    "distinct_peers": 2,
+    "distinct_public_names": 2,
+    "inbox_thread_neighbor_profile_match": true,
+    "inbox_display_fields_present": true,
+    "reverse_peer_and_thread_match": true,
+    "self_rpc_matches_existing_public_name": true,
+    "event_organizer_actions_visibility_match": true
+  },
+  "keyword_retrieval_without_planner_date_bounds": {
+    "festival": 4,
+    "festivals": 4,
+    "What festivals are happening?": 4,
+    "racing": 1,
+    "pig": 1,
+    "pig racing": 1,
+    "music": 2,
+    "music festival": 5,
+    "food": 1,
+    "food drive": 1
+  },
+  "apk_45_can_consume_backend_fix": true,
+  "corrected_apk_needed_for": [
+    "canonical self Profile display",
+    "explicit public-name signup wording",
+    "Find Neighbors avatar batching"
+  ]
 }
