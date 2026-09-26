@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { Screen } from '@/components/Screen';
-import { MediaAvatar } from '@/components/media/MediaAvatar';
+import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { ReportButton, reportStyles as styles } from '@/components/JobReportParts';
 import { useMessagingResource, usePrivateSessionKey } from '@/hooks/useMessagingResource';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
@@ -14,6 +14,7 @@ function InboxScreen() {
   return (
     <Screen title="Messages" onRefresh={() => void resource.refresh()} refreshing={resource.loading}>
       <ReportButton label="Find neighbors" onPress={() => router.push('/neighbors')} />
+      <ReportButton label="Public display name" onPress={() => router.push('/profile/public-name')} />
       <ReportButton label="Message privacy and notifications" onPress={() => router.push('/message-settings')} />
       {resource.loading ? <Text style={styles.body}>Loading conversations…</Text> : null}
       {resource.error ? (
@@ -27,21 +28,23 @@ function InboxScreen() {
           No conversations yet. Message an eligible neighbor or open Messages from a Marketplace pickup request.
         </Text>
       ) : null}
-      {resource.data?.conversations.map((item) => (
-        <View key={item.id} style={styles.panel}>
-          <MediaAvatar profileId={item.peerId} name={item.name} />
-          <Text style={styles.title}>
-            {item.name}
-            {item.unread ? ` · ${item.unread} unread` : ''}
-          </Text>
-          <Text style={styles.body}>{item.preview || 'Start the conversation'}</Text>
-          <Text style={styles.note}>{new Date(item.updatedAt).toLocaleString()}</Text>
-          <ReportButton
-            label={`Open conversation with ${item.name}`}
-            onPress={() => router.push({ pathname: '/messages', params: { conversationId: item.id } })}
-          />
-        </View>
-      ))}
+      <MediaAvatarCollection profileIds={resource.data?.conversations.map((item) => item.peerId) ?? []}>
+        {resource.data?.conversations.map((item) => (
+          <View key={item.id} style={styles.panel}>
+            <MediaAvatar profileId={item.peerId} name={item.name} />
+            <Text style={styles.title}>
+              {item.name}
+              {item.unread ? ` · ${item.unread} unread` : ''}
+            </Text>
+            <Text style={styles.body}>{item.preview || 'Start the conversation'}</Text>
+            <Text style={styles.note}>{new Date(item.updatedAt).toLocaleString()}</Text>
+            <ReportButton
+              label={`Open conversation with ${item.name}`}
+              onPress={() => router.push({ pathname: '/messages', params: { conversationId: item.id } })}
+            />
+          </View>
+        ))}
+      </MediaAvatarCollection>
     </Screen>
   );
 }

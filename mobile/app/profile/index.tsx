@@ -52,6 +52,12 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
+      <WebSafeLink href="/profile/public-name" asChild>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
+          <Text style={styles.secondaryText}>Public display name</Text>
+        </Pressable>
+      </WebSafeLink>
+
       <WebSafeLink href="/profile/verification" asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Verification status</Text>
