@@ -92,4 +92,36 @@ do $$ begin
 -- Verify no forbidden relations/columns occur in the retrieval definition.
 select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_search(text,text,uuid,timestamptz,timestamptz)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
 reset role;
+-- Matching records must survive more than eight earlier unrelated events.
+set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000002';
+insert into public.events(neighborhood_id,organizer_profile_id,organizer_display_name,title,description,starts_at,area_label,visibility,status,moderation_status)
+ select 'a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Public Organizer',
+ 'Unrelated gathering '||n,'Unrelated public gathering',now()+interval '2 hours','General area','verified_neighborhood_members','scheduled','approved' from generate_series(1,10) n;
+insert into public.events(neighborhood_id,organizer_profile_id,organizer_display_name,title,description,starts_at,area_label,visibility,status,moderation_status)
+ select 'a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Public Organizer',
+ title,'Public neighborhood gathering',now()+interval '3 days','General area','verified_neighborhood_members','scheduled','approved'
+ from unnest(array['Pig Racing Festival','Music Festival']) title;
+update public.events set status='scheduled',moderation_status='approved' where neighborhood_id='a2000000-0000-4000-8000-000000000001' and visibility='verified_neighborhood_members';
+set local role authenticated;
+set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000001';
+select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_search('event',q))=2,'Festival keyword missed: '||q)
+ from unnest(array['festival','festivals','What festivals are happening?','festiv']) q;
+select pg_temp.ai_assert(public.neighborhood_ai_search('event',q)->0->>'title'='Pig Racing Festival','Pig keyword missed: '||q)
+ from unnest(array['racing','pig','pig racing']) q;
+select pg_temp.ai_assert(public.neighborhood_ai_search('event','music')->0->>'title'='Music Festival','Music keyword missed');
+select pg_temp.ai_assert(public.neighborhood_ai_search('event','music festival')->0->>'title'='Music Festival','Relevance rank lost');
+select pg_temp.ai_assert(public.neighborhood_ai_search('event',q)::text like '%Food drive demo%','Food keyword missed: '||q)
+ from unnest(array['food','food drive']) q;
+select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_search('event','festival',null,now(),now()+interval '1 day'))=0,'Keyword widened date window');
+select pg_temp.ai_assert(public.neighborhood_ai_search('agency','closur')::text like '%Road closure demo%','Agency prefix lost');
+select pg_temp.ai_assert(public.neighborhood_ai_search('marketplace','tabl')::text like '%Dining table%','Marketplace prefix lost');
+reset role;
+insert into public.social_group_memberships(group_id,profile_id,status,role) values
+ ('a4000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000001','accepted','member');
+insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,moderation_status) values
+ ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Community gardening discussion','clean');
+set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_search('post','garden')::text like '%gardening%','Feed keyword lost');
+select pg_temp.ai_assert(public.neighborhood_ai_search('group','discuss')::text like '%DISCUSSION%','Group keyword lost');
+reset role;
 rollback;
