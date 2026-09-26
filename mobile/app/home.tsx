@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -33,6 +34,8 @@ export default function HomeScreen() {
   const { error, loading: isLoading } = resource;
   const { active, past } = partitionRequests(resource.data?.requests ?? []);
   const capabilities = useProtectedResource(getCurrentCapabilities);
+  const [activeExpanded, setActiveExpanded] = useState(true);
+  const [pastExpanded, setPastExpanded] = useState(false);
   const [eventsAvailable, setEventsAvailable] = useState(false);
   const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
 
@@ -176,27 +179,55 @@ export default function HomeScreen() {
         </WebSafeLink>
       </View>
 
-      <Text accessibilityRole="header" style={styles.title}>
-        Active Requests
-      </Text>
       {error ? (
         <EmptyState title="Could not load requests" body={error} />
       ) : isLoading ? (
         <Text style={styles.body}>Loading your requests…</Text>
       ) : (
         <>
-          {active.length ? (
-            active.map(requestCard)
-          ) : (
-            <EmptyState title="No active requests" body="Choose Hire help to get started." />
-          )}
-          {past.length ? (
-            <>
-              <Text accessibilityRole="header" style={styles.title}>
-                Past Requests
-              </Text>
-              {past.map(requestCard)}
-            </>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Active Requests (${active.length})`}
+            accessibilityState={{ expanded: activeExpanded }}
+            onPress={() => setActiveExpanded((expanded) => !expanded)}
+            style={styles.sectionToggle}
+          >
+            <Text style={styles.sectionTitle}>Active Requests ({active.length})</Text>
+            <Ionicons
+              name={activeExpanded ? 'chevron-up' : 'chevron-down'}
+              size={22}
+              color={tokens.color.textPrimary}
+              accessible={false}
+            />
+          </Pressable>
+          {activeExpanded ? (
+            active.length ? (
+              active.map(requestCard)
+            ) : (
+              <EmptyState title="No active requests" body="Choose Hire help to get started." />
+            )
+          ) : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Past Requests (${past.length})`}
+            accessibilityState={{ expanded: pastExpanded }}
+            onPress={() => setPastExpanded((expanded) => !expanded)}
+            style={styles.sectionToggle}
+          >
+            <Text style={styles.sectionTitle}>Past Requests ({past.length})</Text>
+            <Ionicons
+              name={pastExpanded ? 'chevron-up' : 'chevron-down'}
+              size={22}
+              color={tokens.color.textPrimary}
+              accessible={false}
+            />
+          </Pressable>
+          {pastExpanded ? (
+            past.length ? (
+              past.map(requestCard)
+            ) : (
+              <Text style={styles.body}>No past requests yet.</Text>
+            )
           ) : null}
         </>
       )}
@@ -207,6 +238,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
   title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  sectionToggle: {
+    minHeight: tokens.touch.min,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: tokens.spacing.md,
+    paddingVertical: tokens.spacing.md,
+  },
+  sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700', flexShrink: 1 },
   grid: { gap: tokens.spacing.md },
   panel: {
     minHeight: tokens.touch.min,
