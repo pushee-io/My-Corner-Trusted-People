@@ -58,6 +58,13 @@ export const messagingApi = <T>(action: string, target?: string, payload: object
 export const notificationApi = <T>(action: string, target?: string) =>
   communityApi<T>('notification_api', { action, target: target ?? null });
 export const loadInbox = () => messagingApi<Inbox>('inbox');
+export const loadOwnPublicName = () => communityApi<{ name: string | null }>('own_public_name', {});
+export async function saveOwnPublicName(name: string) {
+  const clean = name.trim();
+  if (clean.length < 2 || clean.length > 80 || /[\u0000-\u001f\u007f]/.test(clean))
+    throw new Error('Use a public display name of 2–80 characters.');
+  return communityApi<{ name: string }>('own_public_name', { new_name: clean });
+}
 export const loadUnread = () => messagingApi<{ unread: number }>('unread');
 export const loadNotifications = () => notificationApi<Notice[]>('list');
 export const loadCommunicationPreferences = () => messagingApi<CommunicationPreferences>('settings');

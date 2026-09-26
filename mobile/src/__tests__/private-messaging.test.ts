@@ -1,4 +1,12 @@
-import { messagingApi, sendChatMessage, loadNotifications, notificationApi } from '@/lib/messaging';
+import {
+  messagingApi,
+  sendChatMessage,
+  loadNotifications,
+  notificationApi,
+  loadInbox,
+  loadOwnPublicName,
+  saveOwnPublicName,
+} from '@/lib/messaging';
 import { invalidateMediaSession } from '@/lib/media-session';
 const mockRpc = jest.fn();
 jest.mock('@/lib/supabase', () => ({ supabase: { rpc: (...args: unknown[]) => mockRpc(...args) } }));
@@ -42,4 +50,28 @@ it('uses the shared notification projection and recipient-scoped read acknowledg
   expect(mockRpc).toHaveBeenLastCalledWith('notification_api', { action: 'list', target: null });
   await notificationApi('read', 'notice-id');
   expect(mockRpc).toHaveBeenLastCalledWith('notification_api', { action: 'read', target: 'notice-id' });
+});
+
+it('loads all public peer names in one inbox RPC with no profile hydration calls', async () => {
+  const data = {
+    unread: 1,
+    conversations: [
+      { id: 'a', name: 'Akosua Mensah' },
+      { id: 'b', name: 'Kwame Owusu' },
+    ],
+  };
+  mockRpc.mockResolvedValue({ data, error: null });
+  expect(await loadInbox()).toEqual(data);
+  expect(mockRpc).toHaveBeenCalledTimes(1);
+});
+it('reads and explicitly saves only the current account public name', async () => {
+  mockRpc.mockResolvedValue({ data: { name: 'Ama Boateng' }, error: null });
+  await loadOwnPublicName();
+  expect(mockRpc).toHaveBeenLastCalledWith('own_public_name', {});
+  expect(await saveOwnPublicName('  Ama Boateng  ')).toEqual({ name: 'Ama Boateng' });
+  expect(mockRpc).toHaveBeenLastCalledWith('own_public_name', { new_name: 'Ama Boateng' });
+});
+it.each([' ', 'x'.repeat(81), 'Name\nOther'])('rejects invalid public names before RPC', async (name) => {
+  await expect(saveOwnPublicName(name)).rejects.toThrow('public display name');
+  expect(mockRpc).not.toHaveBeenCalled();
 });

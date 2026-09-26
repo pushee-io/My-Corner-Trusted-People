@@ -1,3 +1,10 @@
+## 2026-09-26 — Messages public-name repair
+
+- Keyword PR #136 merged at `249d17f01f6962ce6457e52aced9e73d565acf9b`; Database CI `36205768702` and Media Functions CI `36205768747` passed.
+- Root cause verified read-only in Preview: 17 profiles, only one private identity/public-name row. Inbox/thread already rendered the database projection correctly. Never use `profiles.display_name` or legal identity as an implicit public fallback.
+- Add a private, RLS-protected public-name consent store and caller-only RPC. Existing explicitly public identity names remain supported; users without one can explicitly save their public display name from Profile or Messages. Names resolve inside the existing inbox/thread RPC, without per-peer profile requests. Inbox avatars now use the existing batch loader. Missing approved names still display Neighbor until the account supplies one; migration does not invent/backfill legal names.
+- Local mobile targeted name/repository/realtime tests and typecheck pass; lint zero errors/15 baseline warnings. SQL regressions verify public names, missing-name fallback, updates, isolation, suspension and legal-name exclusion; Database/Mobile CI are merge gates. No production, Preview deployment or paid APK build in this checkpoint.
+
 ## 2026-09-26 — General keyword discovery repair
 
 - Root cause: deterministic “happening” intent discarded topic terms before an eight-event chronological cap; model terms used AND/phrase-sensitive websearch with no prefix matching. Preserve topics, search short keyword requests across authorized source families, normalize English lexemes and use OR prefix recall with relevance ordering before the existing limit. No Festival-specific rules. Events expose title/description (no category column); provider service labels/categories remain searchable.
