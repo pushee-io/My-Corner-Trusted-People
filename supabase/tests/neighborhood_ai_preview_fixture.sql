@@ -9,7 +9,9 @@ set local role authenticated;
 do $$
 declare result jsonb; provider uuid;
 begin
- result:=public.neighborhood_ai_search('event','food drive',null,now(),now()+interval '7 days');
+ -- The fixture starts Saturday at 10 AM. Include today so this fixture check
+ -- remains valid after 10 AM on Saturday; date exclusions are tested separately.
+ result:=public.neighborhood_ai_search('event','food drive',null,date_trunc('day',now()),now()+interval '7 days');
  if result::text not like '%Ama K. (fictional demo)%' or result::text not like '%Fictional Preview: Community Food Drive%' then raise exception 'Weekend event/organizer fixture missing';end if;
  result:=public.neighborhood_ai_search('provider','fence');
  if jsonb_array_length(result)<>1 or result->0->'reputation'->>'count'<>'1' or (result->0->'reputation'->>'average')::numeric<>4 then raise exception 'Fence provider lacks actual matching review: %',result;end if;
