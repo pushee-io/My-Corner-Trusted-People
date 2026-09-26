@@ -1,3 +1,11 @@
+## 2026-09-26 — One corrected Preview APK explicitly approved
+
+- Founder approved one new Android Preview APK after PR #142 merged and its exact Preview migration was verified. Application source is current main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; build base also preserves documentation-only PR #143 (`4efce7ad487f1a581a47a59e7bff3daab64a014c`). No application/schema changes are added for this build.
+- Build purpose: native verification of canonical self-profile public-name display, explicit public-name signup wording and Find Neighbors avatar batching, alongside Messages list/thread, avatar, latest message, timestamp/unread and existing Home disclosure behavior. Backend name resolution is already live and can be consumed by APK 45 on refresh.
+- Use the existing `codex/vc-media-foundation` workflow branch, fast-forward only. One submission via the existing Preview profile/environment/internal APK/signing configuration. No production deployment, secret edits, messages or identity mutation.
+- Last verified finished build is APK 45 (`c7f685a6-6ffc-4463-99ac-626b7f61c8a2`). Duplicate guard now recognizes that completed build as the prior baseline while retaining all active/unexpected-new-build rejection checks. Require resulting version >45 and confirm the new public-name signup copy in the actual bundle, exact source SHA, Preview project, app ID and navigation font.
+- Release gates must pass before submission. Initial build ID/artifact/checksum pending. If submission or later verification encounters an error, inspect/reuse the recorded build rather than submit a duplicate. One-build approval is consumed by that one submission; native phone/tablet acceptance remains pending.
+
 ## 2026-09-26 — Public-name repair merged and deployed to Preview
 
 - Founder explicitly approved merging PR #142 and applying only `20260926213111_canonical_public_profile_name.sql` to Preview `opeojxwkwwnnncnsuaag`. The prior merge-approval blocker is resolved. PR #142 merged at **`a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`**; #140 and #141 were also marked merged because both heads are preserved in its ancestry.
