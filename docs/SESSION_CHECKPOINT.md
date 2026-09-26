@@ -1,3 +1,9 @@
+## 2026-09-26 — General keyword discovery repair
+
+- Root cause: deterministic “happening” intent discarded topic terms before an eight-event chronological cap; model terms used AND/phrase-sensitive websearch with no prefix matching. Preserve topics, search short keyword requests across authorized source families, normalize English lexemes and use OR prefix recall with relevance ordering before the existing limit. No Festival-specific rules. Events expose title/description (no category column); provider service labels/categories remain searchable.
+- Added festival/festivals/question/racing/pig/music/food/food-drive, prefix/ranking and result-cap regressions. Existing authorization, RLS, date, block, removed-content, grounding and reauthorization gates remain unchanged.
+- Local: 31 server tests including real PostgreSQL keyword checks; 23 targeted mobile assistant/Search tests; mobile typecheck passes; lint zero errors/15 baseline warnings. Database and server CI are merge gates. Migration and Edge code are checked in only; Preview/production are not deployed and APK 44 predates the repairs. No paid build.
+
 ## 2026-09-25 — AI pill/composer Preview APK 44 verified
 
 - The one approved build completed: Android version 44, source `c89b4a86d5efa81d867fa0f4c85ab5f06b574ba3`, EAS `b30911f6-4b82-47ef-91d2-38e7732cd0e2`. Build workflow `36148445698` and Mobile CI `36148445661` passed. Release gates: 524 tests/92 suites, typecheck, formatting, lint zero errors/15 baseline warnings, Preview configuration and duplicate preflight passed.

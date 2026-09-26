@@ -52,8 +52,8 @@ test('memory and alerts preserve uncertainty and distinct authority',()=>{
 });
 test('retrieval caps overall context and balances source types',async()=>{
  const calls:string[]=[];
- const rows=await retrieve({intent:'digest',terms:'',window:'week'},now,async(kind)=>{calls.push(kind);return Array.from({length:8},()=>({...source(),kind,href:({agency:'/agency-broadcasts?broadcastId=',event:'/events/',post:'/community?postId=',group:'/groups/',marketplace:'/marketplace/listing/'} as Record<string,string>)[kind]+id}));});
- assert.equal(rows.length,16);assert.equal(new Set(rows.map(x=>x.kind)).size,5);assert.ok(!calls.includes('messages'));
+ const rows=await retrieve({intent:'digest',terms:'',window:'week'},now,async(kind)=>{calls.push(kind);return Array.from({length:8},()=>({...source(),kind,href:({agency:'/agency-broadcasts?broadcastId=',event:'/events/',post:'/community?postId=',group:'/groups/',marketplace:'/marketplace/listing/',provider:'/hire/provider/'} as Record<string,string>)[kind]+id}));});
+ assert.equal(rows.length,16);assert.equal(new Set(rows.map(x=>x.kind)).size,6);assert.ok(!calls.includes('messages'));
 });
 function harness(options:{removed?:boolean;denied?:boolean;modelFail?:boolean}={}){
  const calls:{name:string,args?:Record<string,unknown>}[]=[];let searches=0;
@@ -98,4 +98,27 @@ test('Saturday and Sunday requests use one-day windows',()=>{
 
 test('follow-up uses the latest topic rather than an older provider question',()=>{
  assert.equal(fallbackPlan('Which ones are good for families?',['Who can repair a fence nearby?','What’s happening this weekend?']).intent,'events');
+});
+
+test('general keyword discovery preserves topics without model-generated titles',async()=>{
+ for(const question of ['festival','festivals','What festivals are happening?','racing','pig','pig racing','music','music festival','food','food drive']){
+  const plan=fallbackPlan(question);
+  assert.notEqual(plan.intent,'unsupported',question);
+  assert.ok(plan.terms.length,question);
+  assert.doesNotMatch(plan.terms,/happening|what/i);
+  const calls:{kind:Kind;terms:string}[]=[];
+  await retrieve(plan,now,async(kind,terms)=>{calls.push({kind,terms});return [];});
+  assert.ok(calls.some(c=>c.kind==='event'),question);
+  assert.ok(calls.every(c=>c.terms===plan.terms));
+ }
+ assert.equal(fallbackPlan('What festivals are happening?').terms,'festivals');
+ assert.equal(fallbackPlan('What music events are happening this weekend?').terms,'music');
+ assert.equal(fallbackPlan('What music events are happening this weekend?').window,'weekend');
+});
+test('keyword service skips planner and preserves terms on authorization recheck',async()=>{
+ const h=harness();
+ await answerQuestion({question:'What festivals are happening?'},h.deps);
+ const searches=h.calls.filter(c=>c.name==='neighborhood_ai_search');
+ assert.equal(searches.length,6);
+ assert.ok(searches.every(c=>c.args?.terms==='festivals'));
 });
