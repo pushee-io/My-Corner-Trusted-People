@@ -28,16 +28,18 @@ it('batches distinct peer avatars once and keeps each public name/photo matched'
   let view: ReactTestRenderer;
   await act(async () => {
     view = create(
-      createElement(MediaAvatarCollection, {
-        profileIds: [...ids, ids[0]],
-        children: ids.map((id, i) =>
+      createElement(
+        MediaAvatarCollection,
+        // React receives required children through the positional arguments below.
+        { profileIds: [...ids, ids[0]] } as Parameters<typeof MediaAvatarCollection>[0],
+        ...ids.map((id, i) =>
           createElement(MediaAvatar, {
             key: id,
             profileId: id,
             name: ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'][i],
           }),
         ),
-      }),
+      ),
     );
   });
   expect(listMedia).toHaveBeenCalledTimes(1);
