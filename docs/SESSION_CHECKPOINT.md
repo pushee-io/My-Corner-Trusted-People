@@ -1,3 +1,13 @@
+## 2026-09-26 — One Preview APK approved for Home and public-name repairs
+
+- Founder explicitly approved one new Preview APK after checkpoint PR #140 was opened. Source base is freshly fetched main `24fc72db2ec12c6f761e53b2f66c994b903b1824`; the application includes merged PRs #136–#138. PR #140 remains open and is documentation-only.
+- Use the existing workflow-enabled `codex/vc-media-foundation` branch, confirmed to be an ancestor of main, for a fast-forward build trigger. Only workflow and checkpoint documentation differ from main. This does not merge PR #140 or alter production.
+- Existing Android `preview` profile, `preview` environment, internal APK distribution, remote version auto-increment and signing configuration retained. One submission only; inspect the same build after any subsequent verification failure.
+- Last known completed build is APK 44 (`b30911f6-4b82-47ef-91d2-38e7732cd0e2`). GitHub history shows its successful workflow `36148445698` and no newer EAS Preview workflow in the latest 100 runs. The submission workflow must independently check EAS and block active or unexpected newer builds.
+- Workflow gates run full mobile format/lint/typecheck/tests and Preview environment checks before submission. Actual artifact must match source SHA and Preview backend, have version greater than 44, and contain Home Active/Past labels and the public-name editor/RPC alongside existing media, navigation and assistant markers.
+- Preview deployment was completed in the preceding checkpoint: both migrations applied, assistant v6 with JWT retained, scoped retrieval checks passed. Detailed evidence is in PR #140; do not reapply/redeploy. Authenticated Edge synthesis and native phone/tablet visual acceptance remain unverified.
+- Build ID, artifact URL, checksum and actual native acceptance are pending. This commit records approval before external submission. No production or backend changes are authorized by this build checkpoint.
+
 ## 2026-09-26 — Three repairs merged; Preview deployment blocked by approval review
 
 - Implemented in order and merged after green checks: keyword PR #136 (`249d17f`), Messages PR #137 (`fb296d6`), Home PR #138 (`8ae3c57635b8b1f08ef5feb47f6f92447a0bab51`). Source of truth was freshly fetched GitHub main; no failed-session state was recovered. Each checkpoint includes tests and durable documentation.

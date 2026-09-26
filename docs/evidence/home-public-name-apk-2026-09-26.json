@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-26",
+  "approval": "One new Preview APK",
+  "baseMain": "24fc72db2ec12c6f761e53b2f66c994b903b1824",
+  "buildBranch": "codex/vc-media-foundation",
+  "submissionLimit": 1,
+  "previousApk": 44,
+  "previousBuildId": "b30911f6-4b82-47ef-91d2-38e7732cd0e2",
+  "status": "approved; submission pending release and EAS duplicate gates",
+  "productionChanged": false,
+  "backendChanged": false,
+  "nativeAcceptance": "pending",
+  "authenticatedEdgeSynthesis": "pending"
+}
