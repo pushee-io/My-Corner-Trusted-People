@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import MessagesScreen from '../../app/messages';
+import { NeighborResults } from '@/components/NeighborResults';
 import PublicNameScreen from '../../app/profile/public-name';
 import { saveOwnPublicName } from '@/lib/messaging';
 
@@ -64,7 +65,9 @@ it('inbox shows distinct public names, avatars, preview, timestamp and unread co
   expect(output).toContain('2 unread');
   expect(output).toContain(new Date('2026-09-25T12:00:00Z').toLocaleString());
   expect(view.root.findAllByType('Avatars' as never)[0].props.profileIds).toHaveLength(4);
-  expect(view.root.findAllByType('Avatar' as never)).toHaveLength(4);
+  const avatars = view.root.findAllByType('Avatar' as never);
+  expect(avatars.map((avatar) => avatar.props.profileId)).toEqual(['peer-0', 'peer-1', 'peer-2', 'peer-3']);
+  expect(output).toContain('Open conversation with Akosua Mensah');
 });
 it('conversation header uses the same public peer name', async () => {
   mockParams = { conversationId: 'thread' };
@@ -73,6 +76,7 @@ it('conversation header uses the same public peer name', async () => {
     view = create(createElement(MessagesScreen));
   });
   expect(view.root.findByType('Screen' as never).props.title).toBe('Messages · Ama Boateng');
+  expect(view.root.findByType('Avatar' as never).props).toMatchObject({ profileId: 'peer', name: 'Ama Boateng' });
 });
 it('public-name form starts empty for missing public identity and saves only explicit input', async () => {
   mockData = { name: null };
@@ -87,4 +91,29 @@ it('public-name form starts empty for missing public identity and saves only exp
   mockSession = 'two';
   await act(async () => view.update(createElement(PublicNameScreen)));
   expect(view.root.findByType('TextInput' as never).props.value).toBe('');
+});
+
+it('Find Neighbors uses public RPC names and one avatar collection', async () => {
+  mockData = ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'].map((name, i) => ({
+    id: `peer-${i}`,
+    name,
+    neighborhood: 'QA',
+  }));
+  await act(async () => {
+    view = create(createElement(NeighborResults, { query: '' }));
+  });
+  expect(view.root.findByType('Avatars' as never).props.profileIds).toEqual(['peer-0', 'peer-1', 'peer-2']);
+  expect(view.root.findAllByType('Avatar' as never).map((a) => a.props.name)).toEqual([
+    'Akosua Mensah',
+    'Kwame Owusu',
+    'Ama Boateng',
+  ]);
+});
+it('public-name editor hydrates the existing identity without requiring re-entry', async () => {
+  mockData = { name: 'Akosua Mensah' };
+  await act(async () => {
+    view = create(createElement(PublicNameScreen));
+  });
+  expect(view.root.findByType('TextInput' as never).props.value).toBe('Akosua Mensah');
+  expect(saveOwnPublicName).not.toHaveBeenCalled();
 });

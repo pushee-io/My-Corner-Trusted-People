@@ -30,14 +30,14 @@ export default function CreateAccountScreen() {
   return (
     <Screen title="Create Account" showBottomNavigation={false}>
       <Text style={styles.body}>Join My Corner. Neighborhood access becomes available after verification.</Text>
+      <Text style={styles.body}>Choose the public name neighbors will see. Your legal identity stays private.</Text>
       <TextInput
-        accessibilityLabel="Your name"
-        placeholder="Your name"
+        accessibilityLabel="Public display name"
+        placeholder="Your public name"
         value={name}
         onChangeText={setName}
         editable={!busy}
         style={styles.input}
-        autoComplete="name"
       />
       <TextInput
         accessibilityLabel="Email"

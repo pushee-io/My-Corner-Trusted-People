@@ -1,35 +1,21 @@
-import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { getCurrentProfile, type CurrentProfile } from '@/lib/auth';
+import { getCurrentProfile } from '@/lib/auth';
+import { loadOwnPublicName } from '@/lib/messaging';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { tokens } from '@/theme/tokens';
 
+async function loadProfile() {
+  const [profile, publicName] = await Promise.all([getCurrentProfile(), loadOwnPublicName()]);
+  return { ...profile, displayName: publicName.name ?? 'Neighbor' };
+}
+
 export default function ProfileScreen() {
-  const [profile, setProfile] = useState<CurrentProfile>();
-  const [error, setError] = useState<string>();
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      setProfile(undefined);
-      void getCurrentProfile()
-        .then((value) => {
-          if (active) {
-            setProfile(value);
-            setError(undefined);
-          }
-        })
-        .catch(() => {
-          if (active) setError('Could not load your profile. Reconnect and reopen this page.');
-        });
-      return () => {
-        active = false;
-        setProfile(undefined);
-      };
-    }, []),
-  );
+  const resource = useProtectedResource(loadProfile);
+  const profile = resource.data;
+  const error = resource.error;
 
   return (
     <Screen title="Profile">

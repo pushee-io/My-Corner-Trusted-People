@@ -29,6 +29,7 @@ legacy_tests=(
   supabase/tests/preview_identity_dependency.sql
   supabase/tests/community_notifications.sql
   supabase/tests/private_neighbor_messaging.sql
+  supabase/tests/canonical_public_profile_name.sql
   supabase/tests/verified_job_reviews.sql
   supabase/tests/self_registration.sql
   supabase/tests/request_structuring_allowance.sql
