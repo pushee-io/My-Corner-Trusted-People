@@ -1,0 +1,228 @@
+{
+  "date": "2026-09-26",
+  "main": "24fc72db2ec12c6f761e53b2f66c994b903b1824",
+  "previewProject": "opeojxwkwwnnncnsuaag",
+  "migrations": [
+    {
+      "file": "20260926003542_keyword_discovery.sql",
+      "remoteVersion": "20260926011059",
+      "sha256": "8c76ca9c1125fc7204d54b6910ebb0066b2ff7aafd89259c52cb8ca0be8923a3",
+      "remoteStoredSqlExactMatch": true
+    },
+    {
+      "file": "20260926004155_messaging_public_display_name.sql",
+      "remoteVersion": "20260926011117",
+      "sha256": "51482255fe16e687d2dc6cdeb2c15af6adcae358a52b61f7376439e23bd40a66",
+      "remoteStoredSqlExactMatch": true
+    }
+  ],
+  "edge": {
+    "name": "ask-my-corner",
+    "previousVersion": 5,
+    "version": 6,
+    "status": "ACTIVE",
+    "verifyJwt": true,
+    "allFiveFilesExactMatch": true,
+    "anonymousHttpStatus": 401
+  },
+  "verificationMethod": "Live SQL under authenticated role with transaction-local existing test-account claim; merged planner/source validator executed locally against live retrieval results. Not a signed-in HTTP Edge test.",
+  "eventSearches": [
+    {
+      "question": "festival",
+      "plan": {
+        "intent": "digest",
+        "terms": "festival",
+        "window": "all"
+      },
+      "totalSources": 4,
+      "eventCount": 4,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "festivals",
+      "plan": {
+        "intent": "digest",
+        "terms": "festivals",
+        "window": "all"
+      },
+      "totalSources": 4,
+      "eventCount": 4,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "What festivals are happening?",
+      "plan": {
+        "intent": "events",
+        "terms": "festivals",
+        "window": "upcoming"
+      },
+      "totalSources": 1,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "racing",
+      "plan": {
+        "intent": "digest",
+        "terms": "racing",
+        "window": "all"
+      },
+      "totalSources": 1,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "pig",
+      "plan": {
+        "intent": "digest",
+        "terms": "pig",
+        "window": "all"
+      },
+      "totalSources": 1,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "pig racing",
+      "plan": {
+        "intent": "digest",
+        "terms": "pig racing",
+        "window": "all"
+      },
+      "totalSources": 1,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "music",
+      "plan": {
+        "intent": "digest",
+        "terms": "music",
+        "window": "all"
+      },
+      "totalSources": 3,
+      "eventCount": 2,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "music festival",
+      "plan": {
+        "intent": "digest",
+        "terms": "music festival",
+        "window": "all"
+      },
+      "totalSources": 6,
+      "eventCount": 5,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "food",
+      "plan": {
+        "intent": "digest",
+        "terms": "food",
+        "window": "all"
+      },
+      "totalSources": 3,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    },
+    {
+      "question": "food drive",
+      "plan": {
+        "intent": "organizer",
+        "terms": "food drive",
+        "window": "upcoming"
+      },
+      "totalSources": 1,
+      "eventCount": 1,
+      "sourceValidation": "passed",
+      "eventActionRoutes": "passed"
+    }
+  ],
+  "nonEventCounts": {
+    "providerFence": 1,
+    "marketplaceTable": 3,
+    "groupRepair": 1,
+    "feedPark": 1,
+    "agencyRoad": 2
+  },
+  "guards": {
+    "wordPrefix": true,
+    "musicFestivalRanksFirst": true,
+    "dateBounds": true,
+    "unauthorizedNeighborhoodDenied": true,
+    "inviteOnlyExcluded": true,
+    "securityInvoker": true,
+    "anonymousRetrievalDenied": true,
+    "noForbiddenRetrievalFields": true
+  },
+  "messages": {
+    "approvedNamePreserved": true,
+    "neighborFallbackProfiles": 16,
+    "approvedNameProfiles": 1,
+    "publicNameRowsAfterMigrationAndTests": 0,
+    "supportedRpcSaveUpdateTrimRollbackPassed": true,
+    "otherAccountUnchanged": true,
+    "directNameStoreAccessDenied": true,
+    "legalFallbackAbsent": true,
+    "liveInboxConversations": 4,
+    "inboxFieldsPresent": true,
+    "liveThreadNamesMatch": true,
+    "componentNameAvatarPreviewTimestampUnreadAndEditorTestsPassed": true
+  },
+  "tests": {
+    "scopedMobileTests": 47,
+    "scopedMobileSuites": 6,
+    "serverTests": 31,
+    "typecheck": "passed",
+    "previousRecordedFullMobileTests": 535,
+    "previousRecordedFullMobileSuites": 94,
+    "fullMobileRerun": false
+  },
+  "ciRechecked": {
+    "keywordDatabase": 36205768702,
+    "keywordServer": 36205768747,
+    "namesDatabase": 36206086649,
+    "namesMobile": 36206086625,
+    "homeMobile": 36206349039,
+    "result": "all success"
+  },
+  "native": {
+    "lastApk": 44,
+    "newApkRequired": true,
+    "buildAuthorized": false,
+    "buildTriggered": false,
+    "featuresNewerThan44": [
+      "Home Active/Past collapsible request sections",
+      "Profile/Messages public-name editor",
+      "Messages batch avatar loading"
+    ]
+  },
+  "limitations": [
+    "No signed-in Preview Auth session or test-login credentials were available; version 6 authenticated HTTP model synthesis was not exercised.",
+    "Existing inbox peers had no approved public names; approved-name inbox/header rendering verified by component tests, not a newly created live conversation.",
+    "Phone/tablet visual and accessibility acceptance pending a separately approved new APK."
+  ],
+  "productionChanged": false,
+  "secretsChanged": false,
+  "realCommunicationsSent": false,
+  "persistentIdentityDataChanged": false,
+  "publicationApproval": {
+    "date": "2026-09-26",
+    "branch": "codex/preview-keyword-public-name-deployment",
+    "pushAuthorized": true,
+    "checkpointPrAuthorized": true,
+    "mergeAuthorized": false,
+    "newApkAuthorized": false,
+    "priorRejection": "Publication was previously blocked pending explicit approval; founder has now provided it."
+  }
+}

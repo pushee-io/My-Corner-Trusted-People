@@ -102,3 +102,15 @@ it('keeps polling available when realtime session lookup fails', async () => {
   });
   expect(state.data).toEqual(['reconnected']);
 });
+
+it('rehydrates a changed public name through foreground polling without restarting the app', async () => {
+  load.mockResolvedValue(['Akosua']);
+  await mount();
+  expect(state.data).toEqual(['Akosua']);
+  load.mockResolvedValue(['Akosua Mensah']);
+  await act(async () => {
+    jest.advanceTimersByTime(10000);
+  });
+  expect(state.data).toEqual(['Akosua Mensah']);
+  expect(load).toHaveBeenCalledTimes(2);
+});

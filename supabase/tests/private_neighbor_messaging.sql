@@ -7,6 +7,10 @@ insert into public.profiles(id,auth_user_id,display_name,role) values
  ('98000000-0000-4000-8000-000000000002','98000000-0000-4000-8000-000000000002','PRIVATE LEGAL B','requester'),
  ('98000000-0000-4000-8000-000000000003','98000000-0000-4000-8000-000000000003','Other neighborhood','requester'),
  ('98000000-0000-4000-8000-000000000004','98000000-0000-4000-8000-000000000004','Moderator','moderator');
+-- Explicit private identity with no public name must never expose a legacy value.
+insert into public.private_identity_profiles(profile_id,legal_given_name,legal_family_name,public_display_name)
+ select id,'PRIVATE LEGAL','NAME','' from public.profiles
+ where id in ('98000000-0000-4000-8000-000000000001','98000000-0000-4000-8000-000000000002');
 insert into public.neighborhoods(id,name,city) values
  ('98000000-0000-4000-8000-000000000010','QA One','QA City'),('98000000-0000-4000-8000-000000000011','QA Two','QA City');
 insert into public.neighborhood_memberships(profile_id,neighborhood_id,status,verified_at)
@@ -33,7 +37,7 @@ select pg_temp.denied($q$select public.messaging_api('thread',id) from chat_cont
 select pg_temp.denied($q$select public.messaging_api('read',id,'{"through":999999999}') from chat_context$q$,'42501');
 select pg_temp.denied('select * from private.message_reports','42501');
 set local request.jwt.claim.sub='98000000-0000-4000-8000-000000000002';
--- A missing identity record is not permission to expose profiles.display_name.
+-- A private identity without an approved public name must remain unnamed.
 select pg_temp.assert_true(public.own_public_name()->>'name' is null,'Private name copied into public name');
 select pg_temp.assert_true(public.own_public_name('  Kwame Owusu  ')->>'name'='Kwame Owusu','Public name not saved/trimmed');
 select pg_temp.denied('select * from private.public_profile_names','42501');

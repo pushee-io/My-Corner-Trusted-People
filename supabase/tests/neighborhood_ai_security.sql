@@ -13,6 +13,11 @@ insert into public.profiles(id,auth_user_id,display_name,role) values
  ('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000001','PRIVATE LEGAL VIEWER','requester'),
  ('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','PRIVATE LEGAL AUTHOR','requester'),
  ('a1000000-0000-4000-8000-000000000003','a1000000-0000-4000-8000-000000000003','PRIVATE MODERATOR','moderator');
+-- Model private identity explicitly. A blank public name must suppress even an
+-- ambiguous legacy profile value; retain all sensitive-data assertions below.
+insert into public.private_identity_profiles(profile_id,legal_given_name,legal_family_name,public_display_name)
+ select id,'PRIVATE LEGAL','IDENTITY','' from public.profiles where id in
+ ('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000003');
 insert into public.neighborhoods(id,name,city,country_code,region) values
  ('a2000000-0000-4000-8000-000000000001','AI test area','Accra','GH','Greater Accra'),
  ('a2000000-0000-4000-8000-000000000002','Other private area','Accra','GH','Greater Accra');
