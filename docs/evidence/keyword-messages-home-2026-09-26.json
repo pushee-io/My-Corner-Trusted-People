@@ -1,0 +1,70 @@
+{
+  "date": "2026-09-26",
+  "handoffMain": "17a1e812f81c414aca8bfa669e82163cbd469fbf",
+  "implementationMain": "8ae3c57635b8b1f08ef5feb47f6f92447a0bab51",
+  "checkpoints": [
+    {
+      "pr": 136,
+      "merge": "249d17f01f6962ce6457e52aced9e73d565acf9b",
+      "head": "6811779ac2e3a3cbf400acc93d69a536215e6702",
+      "checks": {
+        "Database CI": 36205768702,
+        "Media Functions CI": 36205768747
+      },
+      "result": "success"
+    },
+    {
+      "pr": 137,
+      "merge": "fb296d6a4f3da2f058ff8d74091fba4bb5fe799c",
+      "head": "5085d078d4e23b864d767c90d96dc9e8a82ce6a7",
+      "checks": {
+        "Database CI": 36206086649,
+        "Mobile CI": 36206086625
+      },
+      "result": "success"
+    },
+    {
+      "pr": 138,
+      "merge": "8ae3c57635b8b1f08ef5feb47f6f92447a0bab51",
+      "head": "e21e59a2b824c22f20f5f551d67b8c41f9752bdb",
+      "checks": {
+        "Mobile CI": 36206349039
+      },
+      "result": "success"
+    }
+  ],
+  "localValidation": {
+    "mobileTests": 535,
+    "mobileSuites": 94,
+    "serverTests": 31,
+    "typecheck": "passed",
+    "denoCheck": "passed",
+    "format": "passed",
+    "lintErrors": 0,
+    "baselineLintWarnings": 15,
+    "diffReview": "passed"
+  },
+  "preview": {
+    "project": "opeojxwkwwnnncnsuaag",
+    "existingAssistantVersion": 5,
+    "sourceMatchesHandoff": true,
+    "keywordMigrationApplied": false,
+    "nameMigrationApplied": false,
+    "edgeDeployed": false,
+    "blockedBy": "Automatic approval review requires explicit approval for exact live target and migrations",
+    "requiredApproval": [
+      "20260926003542_keyword_discovery.sql",
+      "20260926004155_messaging_public_display_name.sql",
+      "Deploy merged ask-my-corner source to Preview with JWT verification retained"
+    ]
+  },
+  "limitations": [
+    "Accounts without approved public names remain Neighbor until the user explicitly saves a public name; legal names are never inferred/copied.",
+    "Existing APK 44 predates Home disclosure and public-name editor.",
+    "Native phone/tablet acceptance pending a separately approved future build.",
+    "Preview SQL and Edge changes are not deployed; no live corrected end-to-end claim."
+  ],
+  "paidBuildTriggered": false,
+  "productionDeployed": false,
+  "privateUserDataChanged": false
+}
