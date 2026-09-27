@@ -20,7 +20,7 @@ Deno.serve(async(req)=>{
   const body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))return reply({error:'Invalid question'},400);
   const rpc=async(name:string,args?:Record<string,unknown>)=>{const r=await client.rpc(name,args);return {data:r.data,error:r.error};};
   if(body.checkAvailability===true){const r=await rpc('neighborhood_ai_context',{selected_neighborhood:body.neighborhoodId??null});return r.error?reply({error:UNAVAILABLE},503):reply({available:true,neighborhood:r.data});}
-  const answer=await answerQuestion(body,{rpc,model,respond:payload=>callResponses(key,payload)});
+  const answer=await answerQuestion(body,{rpc,model,trace:metadata=>console.info(JSON.stringify({event:'ask_retrieval',...metadata})),debug:Deno.env.get('SUPABASE_URL')==='https://opeojxwkwwnnncnsuaag.supabase.co'&&Deno.env.get('ASK_PREVIEW_DEBUG')==='true',respond:payload=>callResponses(key,payload)});
   return reply({enabled:true,answer});
  }catch{
   // Never log question/source text, tokens, authorization headers or provider errors.

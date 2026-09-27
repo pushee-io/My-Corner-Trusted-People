@@ -1,3 +1,11 @@
+## 2026-09-27 — Ask My Corner intent upgrade prepared in reviewable checkpoints
+
+- Audit #145, concepts/planning #146 and structured retrieval #147 are pushed, stacked above #144 to retain prior deployment/APK records. Integration follows on `codex/ask-grounded-integration`. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`.
+- Added concept/category aliases, controlled typo matching, intent priorities, time windows, utility phrase evidence, SQL comparisons before caps, authorized text/comments, grounded notices, clarification actions and selected-provider follow-ups. Details and 16-query baseline: `docs/ASK_INTENT_AUDIT.md`.
+- Local integrated checks: 42 server tests; 544 mobile tests / 96 suites; typecheck/format/diff pass; lint 0 errors / 15 baseline warnings. Database checkpoint CI passed; final integration CI pending.
+- New migration `20260927040151_assistant_structured_retrieval.sql` remains unapplied. No Edge redeployment, main merge, production action, identity/coverage backfill or EAS build performed.
+- Preview data gate: four Plumbing/two Electrical providers have no recorded service areas. Existing "lights off" lexical matches include unrelated lighting discussions; these must not be called outage confirmation. Authenticated HTTP/model and native acceptance remain pending. APK 46 installation succeeded, but it predates the new UI.
+
 ## 2026-09-27 — Ask My Corner intent upgrade: checkpoint A
 
 - Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; preserves #143/#144 checkpoint history. Full 16-query root-cause table: `docs/ASK_INTENT_AUDIT.md`; machine-readable evidence: `docs/evidence/ask-intent-audit-2026-09-27.json`.

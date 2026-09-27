@@ -7,6 +7,7 @@ import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { subscribeMediaSession } from '@/lib/media-session';
 import {
   askFeedback,
+  followupProvider,
   askNeighborhood,
   askSourceClick,
   askUnavailable,
@@ -75,7 +76,7 @@ export default function AskScreen() {
     if (previousNeighborhood.current && neighborhood && neighborhood !== previousNeighborhood.current) clear();
     if (neighborhood) previousNeighborhood.current = neighborhood;
   }, [neighborhood, clear]);
-  async function ask(value = question) {
+  async function ask(value = question, selectedProviderId?: string) {
     if (!neighborhood || sending.current || value.trim().length < 3) return;
     sending.current = true;
     const current = ++generation.current;
@@ -89,7 +90,12 @@ export default function AskScreen() {
     setAnswer(undefined);
     setShowAll(false);
     try {
-      const next = await askNeighborhood(submitted, history, neighborhood);
+      const selected =
+        selectedProviderId ??
+        (/\b(he|she|they|this provider|that provider)\b/i.test(submitted) ? followupProvider(answer) : undefined);
+      const next = selected
+        ? await askNeighborhood(submitted, history, neighborhood, selected)
+        : await askNeighborhood(submitted, history, neighborhood);
       if (generation.current !== current) return;
       setAnswer(next);
     } catch {
@@ -181,6 +187,9 @@ export default function AskScreen() {
             <Text accessibilityLiveRegion="polite" style={styles.body}>
               {answer.notice}
             </Text>
+            {answer.clarification?.map((choice) => (
+              <ActionPill key={choice} label={choice} disabled={busy} onPress={() => void ask(choice)} />
+            ))}
             <Text style={styles.meta}>Checked {date(answer.generatedAt)} · Accra time</Text>
             {answer.sources.length ? (
               <Text accessibilityRole="header" style={styles.title}>
@@ -205,6 +214,9 @@ export default function AskScreen() {
                       : 'No verified reviews yet.'}
                   </Text>
                 ) : null}
+                {source.reputation?.completedJobs !== undefined ? (
+                  <Text style={styles.meta}>{source.reputation.completedJobs} confirmed completed My Corner jobs</Text>
+                ) : null}
                 {source.availability ? (
                   <Text style={styles.meta}>Provider-stated availability: {source.availability}</Text>
                 ) : null}
@@ -212,6 +224,13 @@ export default function AskScreen() {
                 <Pressable accessibilityRole="button" onPress={() => void open(source)} style={styles.button}>
                   <Text style={styles.body}>{sourceAction[source.kind]}</Text>
                 </Pressable>
+                {source.kind === 'provider' ? (
+                  <ActionPill
+                    label={`Ask about ${source.title}'s availability`}
+                    disabled={busy}
+                    onPress={() => void ask('Is this provider available today?', source.id)}
+                  />
+                ) : null}
                 {source.kind === 'provider' ? (
                   <Pressable accessibilityRole="button" onPress={() => void open(source, true)} style={styles.button}>
                     <Text style={styles.body}>Request help</Text>

@@ -12,6 +12,10 @@ test('SQL metrics rank the full covered population before cap; no legacy counter
  create table public.provider_profiles(id uuid,profile_id uuid,business_name text,headline text,created_at timestamptz default now(),availability text,accepting_requests boolean);
  create table public.provider_services(provider_id uuid,service_label text,category_id text);
  create table public.provider_service_areas(provider_id uuid,neighborhood_id uuid);
+ create function public.can_view_social_group(uuid) returns boolean language sql as $$select true$$;
+ create function public.is_accepted_social_group_member(uuid) returns boolean language sql as $$select true$$;
+ create table public.social_groups(id uuid,moderation_status text);
+ create table public.social_group_posts(id uuid,group_id uuid,moderation_status text,author_profile_id uuid);
  create table public.social_group_post_comments(id uuid,post_id uuid,author_profile_id uuid,body text,moderation_status text,created_at timestamptz);
  create function public.review_api(text,uuid,jsonb) returns jsonb language sql as $$select jsonb_build_object('verifiedCount',case when $2::text like '%012' then 7 else 0 end,'average',case when $2::text like '%012' then 4.5 else 0 end,'completedJobs',case when $2::text like '%012' then 9 else 0 end,'reviews','[]'::jsonb)$$;`);
  const old=readFileSync('../migrations/20260926003542_keyword_discovery.sql','utf8');
@@ -20,6 +24,7 @@ test('SQL metrics rank the full covered population before cap; no legacy counter
  await db.exec(`insert into provider_profiles select ('97000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,null,'Provider '||n,'Electrical',now(),'Provider stated',true from generate_series(1,13)n;
  insert into provider_services select id,'Electrical','electrical' from provider_profiles;
  insert into provider_service_areas select id,'97000000-0000-4000-8000-000000000090' from provider_profiles where id::text not like '%013';`);
+ const phrase=await db.query<{ok:boolean}>(`select not private.ai_phrase_evidence('Adding park lighting','["lights off","power outage"]') and private.ai_phrase_evidence('Lights off at the public square','["lights off","power outage"]') ok`);assert.equal(phrase.rows[0].ok,true);
  for(const metric of ['verified_reviews','rating','completed_jobs']){
  const r=await db.query<{data:any}>(`select public.neighborhood_ai_retrieve('provider','electrician',null,null,null,$1::jsonb) data`,[JSON.stringify({categories:['electrical'],metric})]);
  assert.equal(r.rows[0].data.length,8);assert.ok(r.rows[0].data[0].id.endsWith('012'));assert.equal(r.rows[0].data[0].comparison.eligibleCount,12);assert.equal(r.rows[0].data[0].comparison.tiedCount,1);

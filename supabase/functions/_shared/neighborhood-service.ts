@@ -1,10 +1,11 @@
-import { ANSWER_VERSION, answerNotice, fallbackPlan, historyQuestions, parsePlan, plannerPayload, privacyRefusal, retrieve, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
+import { groundedNotice, providerReference } from './neighborhood-answer.ts';
+import { ANSWER_VERSION, fallbackPlan, historyQuestions, parsePlan, plannerPayload, privacyRefusal, retrieve, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
 import type { Intent, Source } from './neighborhood-assistant.ts';
 import { outputJson } from './openai-responses.ts';
 type Rpc = (name: string, args?: Record<string,unknown>)=>Promise<{data: unknown;error: unknown}>;
-type Dependencies = {rpc: Rpc; model: string; respond: (payload: unknown)=>Promise<Record<string,unknown>>; now?: ()=>Date};
+type Dependencies = {debug?: boolean; trace?: (metadata: Record<string,unknown>)=>void; rpc: Rpc; model: string; respond: (payload: unknown)=>Promise<Record<string,unknown>>; now?: ()=>Date};
 export const UNAVAILABLE='Ask My Corner is temporarily unavailable. You can still search your neighborhood.';
-export async function answerQuestion(body: {question?: unknown;history?: unknown;neighborhoodId?: unknown}, deps: Dependencies) {
+export async function answerQuestion(body: {question?: unknown;history?: unknown;neighborhoodId?: unknown; providerId?: unknown}, deps: Dependencies) {
  const started=Date.now();const now=deps.now?.()??new Date();
  const question=validateQuestion(body.question);const history=historyQuestions(body.history);
  if(body.neighborhoodId!==undefined&&body.neighborhoodId!==null&&(typeof body.neighborhoodId!=='string'||!/^[0-9a-f-]{36}$/i.test(body.neighborhoodId)))throw new Error('Invalid neighborhood');
@@ -29,21 +30,27 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   let plan=fallbackPlan(question,history);
   if(plan.intent==='unsupported')plan=parsePlan(outputJson(await modelCall(plannerPayload(question,history,deps.model,now.toISOString(),hood.name))));
   intent=plan.intent;
+  const selected=providerReference(body.providerId);
+  if(/\b(he|she|they|this provider|that provider)\b/i.test(question)&&plan.details?.availability){
+   if(selected)plan.details={...plan.details,providerId:selected,metric:undefined};
+   else plan.details={...plan.details,clarification:{question:'Which provider do you mean? Select a provider below or name the service you need.',choices:['Find electricians','Find plumbers']}};
+  }
+  if(plan.details?.clarification){outcome='answered';return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),notice:plan.details.clarification.question,clarification:plan.details.clarification.choices,sources:[],excerpts:[]};}
+  const counts:Record<string,number>={};
+  const search=async(kind: import('./neighborhood-assistant.ts').Kind,terms:string,range:ReturnType<typeof import('./neighborhood-assistant.ts').timeRange>)=>{
+   const options=kind==='provider'?{categories:plan.details?.categories??[],metric:plan.details?.metric,providerId:plan.details?.providerId}:{metric:plan.details?.metric,phrases:plan.details?.evidencePhrases};
+   const r=await deps.rpc('neighborhood_ai_retrieve',{source_kind:kind,terms,selected_neighborhood:hood.id,...range,options});
+   if(r.error||!Array.isArray(r.data))throw new Error('Retrieval unavailable');counts[kind]=r.data.length;return r.data as Source[];
+  };
   const retrievalStarted=Date.now();
-  sources=await retrieve(plan,now,async(kind,terms,range)=>{
-   const r=await deps.rpc('neighborhood_ai_search',{source_kind:kind,terms,selected_neighborhood:hood.id,...range});
-   if(r.error||!Array.isArray(r.data))throw new Error('Retrieval unavailable');return r.data as Source[];
-  });
+  sources=await retrieve(plan,now,search);
   retrievalMs=Date.now()-retrievalStarted;
   let excerpts: {index:number;quote:string}[]=[];
-  if(sources.length)excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
+  if(sources.length&&!plan.details?.metric&&!plan.details?.availability)excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
   // Re-authorize immediately before returning. A block/removal/membership change during
   // model latency must revoke the source and its excerpt in this response, too.
   if(sources.length){
-   const fresh=await retrieve(plan,now,async(kind,terms,range)=>{
-    const r=await deps.rpc('neighborhood_ai_search',{source_kind:kind,terms,selected_neighborhood:hood.id,...range});
-    if(r.error||!Array.isArray(r.data))throw new Error('Retrieval unavailable');return r.data as Source[];
-   });
+   const fresh=await retrieve(plan,now,search);
    const current=new Map(fresh.map(s=>[`${s.kind}:${s.id}`,JSON.stringify(s)]));
    const keep=sources.map(s=>current.get(`${s.kind}:${s.id}`)===JSON.stringify(s));
    const old=sources;sources=sources.filter((_,i)=>keep[i]);
@@ -52,8 +59,11 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   const finalContext=await deps.rpc('neighborhood_ai_context',{selected_neighborhood:hood.id});
   if(finalContext.error)throw new Error(UNAVAILABLE);
   outcome=sources.length?'answered':'no_results';
+  const diagnostics={concepts:plan.details?.concepts??[],intent,tools:Object.keys(counts),counts,noResultReason:sources.length?null:'no_authorized_matching_evidence',fallbackLevel:plan.details?.correction?.length?'controlled_typo':plan.details?.concepts.length?'concept_expansion':'lexical',retrievalMs,inputTokens,outputTokens};
+  if(deps.debug)deps.trace?.(diagnostics);
   return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),
-   notice:answerNotice(intent,sources),sources,excerpts};
+   notice:groundedNotice(plan,sources),sources,excerpts,
+   ...(deps.debug?{diagnostics}:{})};
  }finally{
   // Metadata only. Telemetry failure must not erase an otherwise authorized answer.
   await deps.rpc('neighborhood_ai_meter',{action:'finish',run_id:runId,payload:{intent,outcome,

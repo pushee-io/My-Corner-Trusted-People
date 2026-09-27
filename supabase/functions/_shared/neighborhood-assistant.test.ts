@@ -68,7 +68,7 @@ function harness(options:{removed?:boolean;denied?:boolean;modelFail?:boolean}={
 test('service reauthorizes, returns source excerpt and stores metadata only',async()=>{
  const h=harness();const answer=await answerQuestion({question:'What is happening this weekend?'},h.deps);
  assert.equal(answer.sources.length,1);assert.equal(answer.excerpts[0].quote,source().text);
- assert.equal(h.calls.filter(c=>c.name==='neighborhood_ai_search').length,8);
+ assert.equal(h.calls.filter(c=>c.name==='neighborhood_ai_retrieve').length,8);
  const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.doesNotMatch(JSON.stringify(metric),/food drive|What is happening/);
  assert.equal((metric.args!.payload as {inputTokens:number}).inputTokens,20);
 });
@@ -83,7 +83,7 @@ test('provider failure records unavailable and cannot fabricate an answer',async
  const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.equal((metric.args!.payload as {outcome:string}).outcome,'unavailable');
 });
 test('sensitive query retrieves no content',async()=>{
- const h=harness();const a=await answerQuestion({question:'Is John in the church group?'},h.deps);assert.equal(a.sources.length,0);assert.match(a.notice,/cannot look up/);assert.ok(!h.calls.some(c=>c.name==='neighborhood_ai_search'));
+ const h=harness();const a=await answerQuestion({question:'Is John in the church group?'},h.deps);assert.equal(a.sources.length,0);assert.match(a.notice,/cannot look up/);assert.ok(!h.calls.some(c=>c.name==='neighborhood_ai_retrieve'));
 });
 test('active agency notice survives a today query even when published earlier',async()=>{
  const calls:{kind:string;since:string|null}[]=[];
@@ -118,7 +118,7 @@ test('general keyword discovery preserves topics without model-generated titles'
 test('keyword service skips planner and preserves terms on authorization recheck',async()=>{
  const h=harness();
  await answerQuestion({question:'What festivals are happening?'},h.deps);
- const searches=h.calls.filter(c=>c.name==='neighborhood_ai_search');
+ const searches=h.calls.filter(c=>c.name==='neighborhood_ai_retrieve');
  assert.equal(searches.length,8);
  assert.ok(searches.every(c=>c.args?.terms==='festival'));
 });

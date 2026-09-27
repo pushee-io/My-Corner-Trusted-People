@@ -133,7 +133,14 @@ insert into public.social_group_post_comments(post_id,author_profile_id,body,mod
  ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','Transformer repair discussion','clean'),
  ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','PRIVATE transformer held comment','flagged');
 set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','Members')::text like '%Members only%','Group description discovery absent');
 select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text like '%Transformer repair discussion%','Authorized comment discovery absent');
 select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text not like '%PRIVATE transformer%','Held comment leaked');
+reset role;
+insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,moderation_status) values
+ ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Lights off near the public square. Neighbor report, not official confirmation.','clean'),
+ ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','A suggestion for better park lighting.','clean');
+set local role authenticated;
+select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_retrieve('post','power outage electricity blackout lights off',null,null,null,'{"phrases":["power off","lights off","power outage","blackout"]}'))=1,'Lighting discussion misrepresented as outage');
 reset role;
 rollback;

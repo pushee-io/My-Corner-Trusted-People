@@ -314,3 +314,44 @@ it.each([0, 3])('Messages preserves unread count %s and navigation', async (unre
   await press('Notifications');
   expect(router.push).toHaveBeenLastCalledWith('/notifications');
 });
+it('clarification choices submit the chosen intent without exposing implementation details', async () => {
+  jest.mocked(askNeighborhood).mockResolvedValue({
+    ...fixture,
+    sources: [],
+    notice: 'Outage or electrician?',
+    clarification: ['Power outage', 'Find electrician'],
+  });
+  await render();
+  await ask();
+  expect(output()).toContain('Power outage');
+  await press('Power outage');
+  expect(askNeighborhood).toHaveBeenLastCalledWith('Power outage', ['Who can repair a fence nearby?'], id);
+});
+it('provider availability follows only the selected public source ID', async () => {
+  await render();
+  await ask();
+  await press("Ask about Fictional FenceCare's availability");
+  expect(askNeighborhood).toHaveBeenLastCalledWith(
+    'Is this provider available today?',
+    ['Who can repair a fence nearby?'],
+    id,
+    id,
+  );
+  expect(output()).not.toContain(id);
+});
+it('a pronoun follow-up can use one provider but cannot choose between tied providers', async () => {
+  const { followupProvider } =
+    jest.requireActual<typeof import('@/lib/neighborhood-assistant')>('@/lib/neighborhood-assistant');
+  expect(followupProvider(fixture)).toBe(id);
+  const peer = { ...fixture.sources[0], id: 'a1000000-0000-4000-8000-000000000002' };
+  expect(followupProvider({ ...fixture, sources: [fixture.sources[0], peer] })).toBeUndefined();
+  expect(
+    followupProvider({
+      ...fixture,
+      sources: [
+        { ...fixture.sources[0], comparison: { metric: 'verified_reviews', value: 7, eligibleCount: 2, tiedCount: 2 } },
+        peer,
+      ],
+    }),
+  ).toBeUndefined();
+});

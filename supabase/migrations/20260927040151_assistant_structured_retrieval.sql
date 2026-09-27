@@ -10,6 +10,7 @@ begin
  if not has_table_privilege(current_user,'public.neighborhood_feed_comments','select') then return '';end if;
  select coalesce(string_agg(E'\nNeighbor comment: '||v.body,''),'') into result from (
   select c.body from public.neighborhood_feed_comments c where c.post_id=target
+   and exists(select 1 from public.neighborhood_feed_posts p where p.id=c.post_id and p.moderation_status in ('clean','not_run') and public.has_verified_neighborhood_membership(p.neighborhood_id) and private.ai_source_author_allowed(p.author_id))
    and c.moderation_status in ('clean','not_run') and private.ai_source_author_allowed(c.author_id)
    and (numnode(query)=0 or to_tsvector('english',c.body)@@query)
   order by ts_rank(to_tsvector('english',c.body),query) desc,c.created_at desc,c.id limit 2
@@ -19,6 +20,7 @@ create function private.ai_group_comment_text(target uuid, query tsquery) return
 language sql stable security invoker set search_path='' as $$
  select coalesce(string_agg(E'\nGroup comment: '||v.body,''),'') from (
   select c.body from public.social_group_post_comments c where c.post_id=target
+   and exists(select 1 from public.social_group_posts p join public.social_groups g on g.id=p.group_id where p.id=c.post_id and p.moderation_status in ('clean','not_run') and g.moderation_status in ('clean','not_run') and public.can_view_social_group(g.id) and public.is_accepted_social_group_member(g.id) and private.ai_source_author_allowed(p.author_profile_id))
    and c.moderation_status in ('clean','not_run') and private.ai_source_author_allowed(c.author_profile_id)
    and (numnode(query)=0 or to_tsvector('english',c.body)@@query)
   order by ts_rank(to_tsvector('english',c.body),query) desc,c.created_at desc,c.id limit 2
@@ -26,6 +28,16 @@ language sql stable security invoker set search_path='' as $$
 $$;
 revoke all on function private.ai_feed_comment_text(uuid,tsquery),private.ai_group_comment_text(uuid,tsquery) from public,anon;
 grant execute on function private.ai_feed_comment_text(uuid,tsquery),private.ai_group_comment_text(uuid,tsquery) to authenticated;
+
+
+-- Context-sensitive aliases remain phrases: "lights off" must not match "lighting".
+create function private.ai_phrase_evidence(content text,phrases jsonb) returns boolean
+language sql immutable security invoker set search_path='' as $$
+ select phrases is null or exists(select 1 from jsonb_array_elements_text(phrases) phrase
+  where strpos(' '||regexp_replace(lower(content),'[^[:alnum:]]+',' ','g')||' ',' '||lower(phrase)||' ')>0)
+$$;
+revoke all on function private.ai_phrase_evidence(text,jsonb) from public,anon;
+grant execute on function private.ai_phrase_evidence(text,jsonb) to authenticated;
 
 create function public.neighborhood_ai_retrieve(source_kind text, terms text default '', selected_neighborhood uuid default null,
  since_at timestamptz default null, until_at timestamptz default null, options jsonb default '{}') returns jsonb
@@ -35,6 +47,8 @@ begin
  hood:=(public.neighborhood_ai_context(selected_neighborhood)->>'id')::uuid;
  if char_length(coalesce(terms,''))>160 or source_kind not in ('event','post','group','provider','agency','marketplace') then
   raise exception 'Invalid retrieval tool.' using errcode='22023'; end if;
+ if options ? 'phrases' and (jsonb_typeof(options->'phrases')<>'array' or jsonb_array_length(options->'phrases')>20) then raise exception 'Invalid concept evidence.' using errcode='22023';end if;
+ if options ? 'phrases' and exists(select 1 from jsonb_array_elements_text(options->'phrases') v where v !~ '^[a-zA-Z0-9 ]{2,80}$') then raise exception 'Invalid concept evidence.' using errcode='22023';end if;
  if jsonb_typeof(options)<>'object' or octet_length(options::text)>2000 or jsonb_typeof(categories)<>'array' or jsonb_array_length(categories)>4
   or (metric is not null and metric not in ('verified_reviews','rating','completed_jobs','rsvps','newest'))
   or (options ? 'providerId' and options->>'providerId' !~ '^[0-9a-f-]{36}$') then
@@ -61,19 +75,28 @@ begin
    from public.neighborhood_feed_posts p where p.neighborhood_id=hood and p.moderation_status in ('clean','not_run')
     and private.ai_source_author_allowed(p.author_id)
     and (since_at is null or p.created_at>=since_at) and (until_at is null or p.created_at<until_at)
+    and private.ai_phrase_evidence(p.body||private.ai_feed_comment_text(p.id,query),options->'phrases')
     and (numnode(query)=0 or to_tsvector('english',p.body||private.ai_feed_comment_text(p.id,query))@@query)
    order by ts_rank(to_tsvector('english',p.body||private.ai_feed_comment_text(p.id,query)),query) desc,p.created_at desc,p.id limit 8) v;
  elsif source_kind='group' then
-  select coalesce(jsonb_agg(v.data),'[]') into result from (
-   select jsonb_build_object('id',p.id,'kind','group','title',g.name,'text',left(g.description,400)||E'\nDiscussion: '||left(p.body,700)||private.ai_group_comment_text(p.id,query),
-    'publishedAt',p.updated_at,'authority','Group discussion','href','/groups/'||g.id||'?postId='||p.id) as data
-   from public.social_group_posts p join public.social_groups g on g.id=p.group_id
+  with eligible_groups as materialized (
+   select g.id,g.name,g.description,g.created_at from public.social_groups g
    where g.neighborhood_id=hood and public.can_view_social_group(g.id) and public.is_accepted_social_group_member(g.id)
-    and g.moderation_status in ('clean','not_run') and p.moderation_status in ('clean','not_run')
-    and private.ai_source_author_allowed(p.author_profile_id)
-    and (since_at is null or p.created_at>=since_at) and (until_at is null or p.created_at<until_at)
-    and (numnode(query)=0 or to_tsvector('english',g.name||' '||g.description||' '||p.body||private.ai_group_comment_text(p.id,query))@@query)
-   order by ts_rank(to_tsvector('english',g.name||' '||g.description||' '||p.body||private.ai_group_comment_text(p.id,query)),query) desc,p.created_at desc,p.id limit 8) v;
+    and g.moderation_status in ('clean','not_run') and private.ai_source_author_allowed(g.created_by_profile_id)
+  ), documents as (
+   select g.id,g.id group_id,g.name title,g.description content,g.created_at published_at,'Group' authority from eligible_groups g
+   union all
+   select p.id,g.id,g.name,left(g.description,400)||E'\nDiscussion: '||p.body||private.ai_group_comment_text(p.id,query),p.created_at,'Group discussion'
+   from eligible_groups g join public.social_group_posts p on p.group_id=g.id
+   where p.moderation_status in ('clean','not_run') and private.ai_source_author_allowed(p.author_profile_id)
+  ) select coalesce(jsonb_agg(v.data),'[]') into result from (
+   select jsonb_build_object('id',id,'kind','group','title',title,'text',left(content,1600),
+    'publishedAt',published_at,'authority',authority,'href','/groups/'||group_id||case when id<>group_id then '?postId='||id else '' end) data
+   from documents where (since_at is null or published_at>=since_at) and (until_at is null or published_at<until_at)
+    and private.ai_phrase_evidence(title||' '||content,options->'phrases')
+    and (numnode(query)=0 or to_tsvector('english',title||' '||content)@@query)
+   order by ts_rank(to_tsvector('english',title||' '||content),query) desc,published_at desc,id limit 8
+  ) v;
  elsif source_kind='agency' then
   select coalesce(jsonb_agg(v.data),'[]') into result from (
    select jsonb_build_object('id',a.id,'kind','agency','title',a.title,'text',left(a.body,1600),
@@ -86,6 +109,7 @@ begin
      or (a.scope='greater_accra' and exists(select 1 from public.neighborhoods n where n.id=hood and n.region='Greater Accra')))
     and private.ai_source_author_allowed(a.created_by_profile_id)
     and (since_at is null or a.published_at>=since_at) and (until_at is null or a.published_at<until_at)
+    and private.ai_phrase_evidence(a.title||' '||a.body,options->'phrases')
     and (numnode(query)=0 or to_tsvector('english',a.title||' '||a.body)@@query)
    order by ts_rank(to_tsvector('english',a.title||' '||a.body),query) desc,a.published_at desc,a.id limit 8) v;
  elsif source_kind='marketplace' then

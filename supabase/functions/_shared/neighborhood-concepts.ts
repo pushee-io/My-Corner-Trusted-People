@@ -2,7 +2,7 @@
 import type { Intent, Kind, Plan, Window } from './neighborhood-assistant.ts';
 type Concept = {id:string; family:string; intent:Intent; aliases:string[]; terms:string; category?:string};
 export const concepts: Concept[] = [
- {id:'outage',family:'utilities',intent:'alerts',aliases:['power off','lights off','electricity off','power outage','electricity outage','blackout','no power','power cut','electricity is out','power is out','happening with the power'],terms:'power outage electricity blackout lights off'},
+ {id:'outage',family:'utilities',intent:'alerts',aliases:['power off','lights off','electricity off','power outage','power outages','electricity outage','electricity outages','blackout','blackouts','no power','power cut','electricity is out','power is out','happening with the power'],terms:'power outage electricity blackout lights off'},
  {id:'plumbing',family:'home_services',intent:'providers',category:'plumbing',aliases:['plumber','plumbers','plumbing','pipe repair','pipes','leak','leaking','leaky pipe','water leak'],terms:'plumbing plumber pipe leak'},
  {id:'electrical',family:'home_services',intent:'providers',category:'electrical',aliases:['electrician','electricians','electrical','electric','wiring','socket','light repair','light fixture','power repair'],terms:'electrical electrician wiring socket'},
  {id:'fencing',family:'home_services',intent:'providers',aliases:['fence','fences','fencing','gate repair','gate broken','broken gate'],terms:'fence fencing gate'},
@@ -23,7 +23,7 @@ export const concepts: Concept[] = [
  {id:'table',family:'commerce',intent:'marketplace',aliases:['dining table','used table','table for sale'],terms:'table dining'},
 ];
 export type Metric = 'verified_reviews'|'rating'|'completed_jobs'|'rsvps'|'newest';
-export type QueryDetails = {concepts:string[]; categories:string[]; metric?:Metric; availability?:boolean; closest?:boolean;
+export type QueryDetails = {evidencePhrases?:string[]; concepts:string[]; categories:string[]; metric?:Metric; availability?:boolean; closest?:boolean;
  correction?:{from:string;to:string}[]; clarification?:{question:string;choices:string[]}; providerId?:string};
 export const sourcePriority: Record<Intent,Kind[]> = {
  providers:['provider','post','group'],alerts:['agency','post','group'],events:['event','post','group','agency'],
@@ -31,7 +31,8 @@ export const sourcePriority: Record<Intent,Kind[]> = {
  digest:['agency','event','post','group','marketplace','provider'],unsupported:[],
 };
 const normalize=(s:string)=>s.toLowerCase().normalize('NFKC').replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
-const includes=(q:string,phrase:string)=>` ${q} `.includes(` ${phrase} `);
+const wordForms=(q:string)=>q.split(' ').map(w=>w.length>3&&w.endsWith('s')&&!w.endsWith('ss')?w.slice(0,-1):w).join(' ');
+const includes=(q:string,phrase:string)=>` ${wordForms(q)} `.includes(` ${wordForms(phrase)} `);
 // One insertion, deletion, substitution or transposition; only unique known domain words.
 function oneEdit(a:string,b:string):boolean {
  if(Math.abs(a.length-b.length)>1||a===b)return false;
@@ -51,13 +52,13 @@ export function understand(question:string,previous:string[]=[]): {plan:Plan;det
  if(found.some(c=>c.id==='outage'))found=found.filter(c=>c.intent==='alerts');
  let metric:Metric|undefined;
  if(/most (verified )?reviews/.test(q))metric='verified_reviews';
- else if(/highest rated|best rated|highest rating/.test(q))metric='rating';
+ else if(/highest rated|best rated|highest rating|best rating/.test(q))metric='rating';
  else if(/most (completed )?(my corner )?jobs/.test(q))metric='completed_jobs';
  else if(/most rsvps|most attendees/.test(q))metric='rsvps';
  else if(/newest|most recent listing/.test(q))metric='newest';
  const availability=/\bavailable|availability\b/.test(q),closest=/\bclosest\b/.test(q);
  let window:Window=/next week/.test(q)?'next_week':/last week/.test(q)?'last_week':/saturday/.test(q)?'saturday':/sunday/.test(q)?'sunday':/tomorrow/.test(q)?'tomorrow':/weekend/.test(q)?'weekend':/today|tonight|right now/.test(q)?'today':/last month/.test(q)?'month':/this week|recent|latest/.test(q)?'week':'all';
- const details:QueryDetails={concepts:found.map(c=>c.id),categories:found.flatMap(c=>c.category?[c.category]:[]),...(metric?{metric}:{}),...(availability?{availability}:{}),...(closest?{closest}:{}),...(correction.length?{correction}: {})};
+ const details:QueryDetails={...(found.some(c=>c.family==='utilities')?{evidencePhrases:found.filter(c=>c.family==='utilities').flatMap(c=>c.aliases).slice(0,20)}:{}),concepts:found.map(c=>c.id),categories:found.flatMap(c=>c.category?[c.category]:[]),...(metric?{metric}:{}),...(availability?{availability}:{}),...(closest?{closest}:{}),...(correction.length?{correction}: {})};
  if(q==='power')return {plan:{intent:'alerts',terms:'',window:'week'},details:{...details,clarification:{question:'Do you mean a power outage nearby, or are you looking for an electrician?',choices:['Power outage','Find electrician']}}};
  if(!found.length&&!metric&&!availability&&!closest)return null;
  const intent:Intent=metric==='rsvps'?'events':metric==='newest'?'marketplace':metric||availability?'providers':found[0]?.intent??'providers';
