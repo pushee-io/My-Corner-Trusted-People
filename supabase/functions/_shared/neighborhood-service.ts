@@ -28,7 +28,8 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
  let intent: Intent='unsupported',outcome='unavailable',sources: Source[]=[],inputTokens=0,outputTokens=0,retrievalMs=0;
  let stage='planning',relatedEvidenceUnavailable=false;
  // Only fixed stage labels/counts reach logs, never source prose or raw errors.
- const traceFailure=(event:string)=>{try{deps.trace?.({event,stage,intent,providerCount:sources.filter(s=>s.kind==='provider').length});}catch{/* Logging must not replace an answer. */}};
+ const trace=(metadata:Record<string,unknown>)=>{try{deps.trace?.(metadata);}catch{/* Logging must not replace an answer. */}};
+ const traceFailure=(event:string)=>trace({event,stage,intent,providerCount:sources.filter(s=>s.kind==='provider').length});
  const modelCall=async(payload: unknown)=>{
   const response=await deps.respond(payload);
   const usage=response.usage as {input_tokens?:number;output_tokens?:number}|undefined;
@@ -98,7 +99,7 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   if(finalContext.error)throw new Error(UNAVAILABLE);
   outcome=sources.length?'answered':'no_results';
   const diagnostics={concepts:plan.details?.concepts??[],intent,tools:Object.keys(counts),counts,noResultReason:sources.length?null:'no_authorized_matching_evidence',fallbackLevel:plan.details?.correction?.length?'controlled_typo':plan.details?.concepts.length?'concept_expansion':'lexical',retrievalMs,inputTokens,outputTokens};
-  if(deps.debug)deps.trace?.(diagnostics);
+  if(deps.debug)trace(diagnostics);
   return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),
    notice:groundedNotice(plan,sources)+(relatedEvidenceUnavailable?' Related neighborhood evidence could not be checked for this answer.':''),sources,excerpts,
    ...(deps.debug?{diagnostics}:{})};

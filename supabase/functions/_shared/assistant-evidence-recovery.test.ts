@@ -53,6 +53,6 @@ test('daily allowance is still enforced before retrieval and stays distinct from
  assert.doesNotMatch(JSON.stringify(askFailure(new Error('PRIVATE'))),/PRIVATE/);
 });
 test('diagnostic sink failure cannot erase recovered provider cards',async()=>{
- const h=harness({secondary:true});const answer=await answerQuestion({question:'plumber'},{...h.deps,trace:()=>{throw Error('logger unavailable');}});
+ const h=harness({secondary:true});const answer=await answerQuestion({question:'plumber'},{...h.deps,debug:true,trace:()=>{throw Error('logger unavailable');}});
  assert.equal(answer.sources.length,2);
 });
