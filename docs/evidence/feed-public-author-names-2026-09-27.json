@@ -36,5 +36,14 @@
   "nativeAcceptance": "pending",
   "newApkSubmitted": false,
   "backendMutations": false,
-  "productionChanges": false
+  "productionChanges": false,
+  "pr": 153,
+  "testedSource": "728814892944d565f111f24b53fb0a81de8b5b14",
+  "migrationSha256": "c181d2d07268757aaec1b1543c3af1b43f13bdf62b7a9ffd805062eb65c79eb5",
+  "ci": {
+    "database": 36333987143,
+    "mobile": 36333987194,
+    "serverDeno": 36333987084,
+    "result": "all passed"
+  }
 }

@@ -609,5 +609,14 @@
   },
   "productionChanges": false,
   "backendChanges": false,
-  "paidBuild": false
+  "paidBuild": false,
+  "pr": 152,
+  "testedSource": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+  "repairSha256": "cc20f5a87432d509798f9e526d3003bf73137affd1d4979c789209cdbecac322",
+  "ci": {
+    "database": 36333358271,
+    "mobile": 36333358268,
+    "serverDeno": 36333358300,
+    "result": "all passed"
+  }
 }
