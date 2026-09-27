@@ -1,0 +1,13 @@
+{
+  "date": "2026-09-27",
+  "approval": "one new Preview Android APK at 18:43 America/New_York",
+  "status": "approved; submission pending",
+  "previousVersion": 49,
+  "previousBuildId": "d8716a23-5845-409d-9286-216a49566ce6",
+  "baseCheckpoint": "6eae213ccbf57f61d0d564cd44516ab4a9435544",
+  "mobileMatchesAPK49": true,
+  "project": "opeojxwkwwnnncnsuaag",
+  "backendDeployed": false,
+  "serverPR155DeploymentApproved": false,
+  "nativeAcceptance": "pending"
+}

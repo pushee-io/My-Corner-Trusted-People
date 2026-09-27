@@ -1,3 +1,11 @@
+## 2026-09-27 — One new Preview APK approved after demo requester setup
+
+- Founder explicitly approved **one new APK build** at 18:43 America/New_York. Build branch `codex/vc-requester-preview-apk` starts from #155 checkpoint `6eae213ccbf57f61d0d564cd44516ab4a9435544`; live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. No main merge/reset.
+- **Mobile source is identical to APK49** (`bc7a69ba23d28869b68822568bfa5548b1d0aaff`); this is an explicitly requested fresh artifact, not a new client repair. APK49 already includes Feed public names, correct Hire labels, Home collapses and public-name editor. Build gates must rerun; completed artifact must target Preview only and have versionCode greater than49.
+- Verified baseline APK49 EAS ID `d8716a23-5845-409d-9286-216a49566ce6` is recorded in the duplicate guard. All active/unexpected newer builds still block submission. Workflow persists the real EAS receipt before waiting; do not resubmit after interruption. Submission pending at this checkpoint.
+- VC Demo Requester has its approved East Legon membership, with database verification complete and0 questions consumed. No account identifiers or credentials are included in this build checkpoint.
+- **PR #155 server correction remains undeployed and needs separate Preview deployment approval with JWT retained.** This APK does not deploy it or resolve the deployed v10 temporary-unavailability failure. Preview v10/JWT true, existing quotas, identities, secrets and production remain unchanged; native and signed-in HTTP/model acceptance remain pending.
+
 ## 2026-09-27 — Approved VC requester East Legon membership applied and verified
 
 - Founder explicitly approved verified **East Legon demo membership** for `[demo login omitted]` on Preview **`opeojxwkwwnnncnsuaag` only**. Applied the prepared `supabase/ops/preview_vc_requester_20260927.sql` once after verifying zero existing memberships. This resolves the earlier approval-review blocker without a workaround.
