@@ -26,6 +26,9 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
  }
  const runId=(allowance.data as {id:string}).id;
  let intent: Intent='unsupported',outcome='unavailable',sources: Source[]=[],inputTokens=0,outputTokens=0,retrievalMs=0;
+ let stage='planning',relatedEvidenceUnavailable=false;
+ // Only fixed stage labels/counts reach logs, never source prose or raw errors.
+ const traceFailure=(event:string)=>{try{deps.trace?.({event,stage,intent,providerCount:sources.filter(s=>s.kind==='provider').length});}catch{/* Logging must not replace an answer. */}};
  const modelCall=async(payload: unknown)=>{
   const response=await deps.respond(payload);
   const usage=response.usage as {input_tokens?:number;output_tokens?:number}|undefined;
@@ -53,6 +56,7 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
    if(r.error||!Array.isArray(r.data))throw new Error('Retrieval unavailable');counts[kind]=r.data.length;return r.data as Source[];
   };
   const retrievalStarted=Date.now();
+  stage='retrieval';
   sources=await retrieve(plan,now,search);
   retrievalMs=Date.now()-retrievalStarted;
   let excerpts: {index:number;quote:string}[]=[];
@@ -60,8 +64,21 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   const structured=plan.details?.metric||plan.details?.availability;
   // Structured comparisons are computed only by SQL. Related evidence can come
   // from any family, but must be selected and quoted, even for a metric question.
-  if(sources.length&&(!structured||sources.some(s=>s.kind!==primary))){
-   excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
+  // Provider cards already come from authorized structured retrieval. Model
+  // selection is needed only when related content actually exists.
+  if(sources.length&&((plan.intent!=='providers'&&!structured)||sources.some(s=>s.kind!==primary))){
+   try{
+    stage='evidence_model';
+    const response=await modelCall(synthesisPayload(question,sources,deps.model));
+    stage='evidence_validation';
+    excerpts=validatedExcerpts(response,sources);
+   }catch(error){
+    // Fail closed for model evidence without discarding independently matched
+    // providers. The normal filter below drops every unselected secondary item.
+    if(plan.intent!=='providers'||!sources.some(s=>s.kind==='provider'))throw error;
+    relatedEvidenceUnavailable=true;
+    traceFailure('ask_evidence_fallback');
+   }
   }
   const selectedEvidence=new Set(excerpts.map(e=>e.index));const candidates=sources;
   sources=sources.filter((s,i)=>(plan.intent!=='digest'&&s.kind===primary)||selectedEvidence.has(i)).slice(0,16);
@@ -69,20 +86,25 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   // Re-authorize immediately before returning. A block/removal/membership change during
   // model latency must revoke the source and its excerpt in this response, too.
   if(sources.length){
+   stage='reauthorization';
    const fresh=await retrieve(plan,now,search);
    const current=new Map(fresh.map(s=>[`${s.kind}:${s.id}`,JSON.stringify(s)]));
    const keep=sources.map(s=>current.get(`${s.kind}:${s.id}`)===JSON.stringify(s));
    const old=sources;sources=sources.filter((_,i)=>keep[i]);
    excerpts=excerpts.filter(e=>keep[e.index]).map(e=>({index:sources.indexOf(old[e.index]),quote:e.quote}));
   }
+  stage='final_context';
   const finalContext=await deps.rpc('neighborhood_ai_context',{selected_neighborhood:hood.id});
   if(finalContext.error)throw new Error(UNAVAILABLE);
   outcome=sources.length?'answered':'no_results';
   const diagnostics={concepts:plan.details?.concepts??[],intent,tools:Object.keys(counts),counts,noResultReason:sources.length?null:'no_authorized_matching_evidence',fallbackLevel:plan.details?.correction?.length?'controlled_typo':plan.details?.concepts.length?'concept_expansion':'lexical',retrievalMs,inputTokens,outputTokens};
   if(deps.debug)deps.trace?.(diagnostics);
   return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),
-   notice:groundedNotice(plan,sources),sources,excerpts,
+   notice:groundedNotice(plan,sources)+(relatedEvidenceUnavailable?' Related neighborhood evidence could not be checked for this answer.':''),sources,excerpts,
    ...(deps.debug?{diagnostics}:{})};
+ }catch(error){
+  traceFailure('ask_failure');
+  throw error;
  }finally{
   // Metadata only. Telemetry failure must not erase an otherwise authorized answer.
   await deps.rpc('neighborhood_ai_meter',{action:'finish',run_id:runId,payload:{intent,outcome,

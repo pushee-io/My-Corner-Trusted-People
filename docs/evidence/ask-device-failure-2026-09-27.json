@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "observedBackend": 10,
+  "jwtVerification": true,
+  "windowUtc": [
+    "2026-09-27T20:49:00Z",
+    "2026-09-27T20:54:00Z"
+  ],
+  "screenshots": [
+    "IMG_0291.jpg",
+    "Screenshot 2026-09-27 at 4.53.26 PM.png"
+  ],
+  "observedResponses": {
+    "quotaAccount": {
+      "httpStatus": 429,
+      "dayCount": 40,
+      "dayLimit": 40
+    },
+    "unavailableAccount": {
+      "httpStatus": 503,
+      "dayCount": 35,
+      "dayLimit": 40,
+      "failedRuns": 3,
+      "retrievedProviderCount": 2,
+      "modelInputTokenRange": [
+        589,
+        591
+      ],
+      "modelOutputTokenRange": [
+        71,
+        82
+      ]
+    }
+  },
+  "globalDailyUse": 75,
+  "globalDailyLimit": 500,
+  "exceptionCertainty": "Exact exception not captured by v10; evidence-validation failure is plausible but unproven. Source confirms unnecessary model dependency for provider-only answers.",
+  "authorizedLiveCandidateCounts": {
+    "provider": 2,
+    "post": 0,
+    "group": 0,
+    "event": 0,
+    "agency": 0,
+    "marketplace": 0
+  },
+  "correctedLocalReplay": {
+    "providerTitles": [
+      "Kwame PipeCare",
+      "Real Neighbor Plumbing (Demo)"
+    ],
+    "modelCalls": 0,
+    "retrievalCalls": 12,
+    "method": "Actual authenticated-role Preview retrieval; local service replay with simulated context/meter and no live model call"
+  },
+  "serverTests": 58,
+  "ci": "pending",
+  "deployed": false,
+  "apkRequired": false,
+  "apk49Unchanged": true,
+  "installedVersion49Confirmed": false,
+  "quotaChanged": false,
+  "productionChanges": false,
+  "schemaChanges": false,
+  "identityChanges": false,
+  "secretsChanged": false
+}
