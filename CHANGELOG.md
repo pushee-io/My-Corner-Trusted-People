@@ -1,3 +1,9 @@
+## 2026-09-27 — Approved Preview SQL applied; Edge deployment next
+
+- Applied the exact approved provider coverage SQL to Preview `opeojxwkwwnnncnsuaag`: **18 new assignments across 12 profiles**, total **20**, no remaining profiles without coverage. Provider records, public profile records and feature-flag hashes are unchanged.
+- Applied exact `20260927162909_feed_public_author_names.sql`; remote migration version **20260927200502**, name `feed_public_author_names`. The content-authorized RPC now exists. No identity data changed. Migration history stores the approved SQL verbatim; do not repeat it because its remote timestamp differs.
+- Tested #152 source `39b1c604ef8564989aa1c67d1a03a1857a5ea474` is approved for the next Edge deployment with JWT verification. Edge was v9 at preflight; deployment and scoped functional verification remain pending at this checkpoint. Main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. No production or APK build.
+
 ## 2026-09-27 — Founder approved Preview coverage, Feed-name migration and #152 Edge deployment
 
 - Explicit approval received for `supabase/ops/preview_provider_coverage_catalog.sql` (18 new rows/12 profiles), `20260927162909_feed_public_author_names.sql`, and tested #152 `ask-my-corner`, with JWT verification retained, followed by scoped verification. Target **Preview `opeojxwkwwnnncnsuaag` only**. No main merge, production, paid build, quota/secret/identity change authorized.
