@@ -1,3 +1,12 @@
+## 2026-09-27 — One new Preview APK approved for corrected question-limit feedback
+
+- Founder approved one new APK after the #150 backend deployment. This approval authorizes one Preview Android build; no merge, production, backend mutation, quota reset/increase, identity or secret changes.
+- Build branch `codex/ask-quota-preview-apk` starts from durable #150 checkpoint `1bf958836a673bc77d33f69911b5bd2f2d2c1182`. Application/database source remains identical to tested `40957f92c72a509a184e8fa93c6847132d58a4fc`. Main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; existing PR stack preserved.
+- New native feature since APK47: decode the approved safe 429/ASK_ALLOWANCE_REACHED response and display the Preview question-limit message instead of generic unavailability. Search stays available; arbitrary server details stay hidden. The 40-question daily allowance remains unchanged.
+- Preview v9/JWT verification and the one-row Kwame East Legon repair are already deployed; 12 questions/41 actual scoped RPC checks passed. No redeployment or reapplication for this build. Source CI passed: Database 36330082517, Mobile 36330082583, server/Deno 36330082543; 548 mobile tests/97 suites and 45 server tests.
+- Workflow recognizes verified APK47 `6f96b91b-8358-47e9-ac5d-5aee15058497` as the prior baseline while preserving active/unexpected-build duplicate rejection. It persists the submission receipt before waiting, requires version above 47, exact source and Preview-only environment, and checks the new quota-code/message in actual APK bytecode.
+- Submission prepared; no new EAS ID yet. Inspect the receipt if the session stalls; do not submit a replacement. Native phone/tablet and signed-in Edge/model acceptance remain pending.
+
 ## 2026-09-27 — Approved Kwame coverage and assistant v9 deployed to Preview
 
 - Founder explicitly approved the exact Kwame coverage script and tested #150 function deployment. Applied `supabase/ops/preview_kwame_east_legon_coverage.sql` to **Preview `opeojxwkwwnnncnsuaag` only**, SHA-256 `22d473ead9ecda9ca683c182ea29b8b9776be77847b473841948faedc5353cee`. Kwame now has exactly **one East Legon** structured area. Other providers' coverage, provider-profile records and feature-flag hashes are unchanged. No inference from “nearby,” no other provider backfill, no quota reset.
