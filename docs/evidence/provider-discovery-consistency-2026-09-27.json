@@ -620,5 +620,6 @@
     "result": "all passed"
   },
   "deploymentEvidence": "discovery-feed-preview-deployment-2026-09-27.json",
-  "edgeDeployment": "blocked by automatic approval review; remains v9/JWT true"
+  "edgeDeployment": "v10 ACTIVE/JWT true; seven files equal tested #152 source",
+  "latestDeploymentEvidence": "preview-pr152-v10-deployment-2026-09-27.json"
 }

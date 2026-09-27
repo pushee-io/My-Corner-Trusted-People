@@ -2,24 +2,52 @@
   "date": "2026-09-27",
   "project": "opeojxwkwwnnncnsuaag",
   "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
-  "testedEdgeSource": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
-  "coverage": {
-    "file": "supabase/ops/preview_provider_coverage_catalog.sql",
-    "applied": true,
-    "newRows": 18,
-    "profilesChanged": 12,
-    "totalRows": 20,
-    "activeProfilesMissingCoverage": 0
+  "source": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+  "pr": 152,
+  "approvalCheckpoint": "63cf58d4aed28c4ed3690bf2f41c1c2790f14aa0",
+  "deployment": {
+    "status": "ACTIVE",
+    "version": 10,
+    "verifyJwt": true,
+    "bundleSha256": "81166195c534b2cd93a8707b8aca19cf42a5f9f992db5c5986d7de1d7b6d2f63",
+    "files": [
+      {
+        "name": "ask-my-corner/index.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/openai-responses.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-service.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-assistant.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-concepts.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-answer.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "deno.json",
+        "exactMatch": true
+      }
+    ]
   },
-  "feedMigration": {
-    "file": "20260927162909_feed_public_author_names.sql",
-    "applied": true,
-    "remoteVersion": "20260927200502",
-    "exactSqlHashVerified": true
+  "jwtBoundary": {
+    "unauthenticatedPostStatus": 401,
+    "code": "UNAUTHORIZED_NO_AUTH_HEADER"
   },
-  "verification": {
-    "method": "Read-only actual Preview RPC calls under authenticated-role claims; no authenticated HTTP/model or native acceptance claimed",
-    "retrieval": [
+  "retrieval": {
+    "method": "Read-only actual Preview RPCs under authenticated-role claims, generated from the deployed exact deterministic planner; not authenticated HTTP/model end-to-end",
+    "checks": [
       {
         "question": "dining table",
         "kind": "agency",
@@ -790,356 +818,65 @@
         "hair_present": false,
         "providers": null
       }
-    ],
-    "feedPosts": [
-      {
-        "result": {
-          "checks": [
-            {
-              "reportedPost": true,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": true,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            }
-          ],
-          "anonymousDenied": true
-        },
-        "public_security_invoker": true,
-        "canonical_resolver_not_directly_callable": true
-      }
-    ],
-    "feedComments": [
-      {
-        "result": {
-          "checks": [
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": true,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            },
-            {
-              "reportedPost": false,
-              "viewerIsAuthor": false,
-              "otherBaseProfileVisible": false,
-              "legitimateNeighborFallback": false,
-              "matchesCanonicalPublicName": true
-            }
-          ],
-          "anonymousDenied": true
-        },
-        "public_security_invoker": true,
-        "canonical_resolver_not_directly_callable": true
-      }
-    ],
-    "nonmember": [
-      {
-        "nonmember_denied_checks": 1
-      }
-    ],
-    "invariants": [
-      {
-        "applied_migration_sha256": "c181d2d07268757aaec1b1543c3af1b43f13bdf62b7a9ffd805062eb65c79eb5",
-        "active_missing_coverage": 0,
-        "profiles_hash": "f0d44ced550b626552b0b24b6771695a",
-        "identity_profile_hash": "4b2d8548689ddd8647b48b723014c09d",
-        "flags_hash": "a6e7a91becb002fa23516b176a074965"
-      }
-    ],
-    "advisors": {
-      "count": 7,
-      "levels": {
-        "INFO": 1,
-        "WARN": 5,
-        "ERROR": 1
-      },
-      "feedFindings": []
+    ]
+  },
+  "invariants": [
+    {
+      "coverage_rows": 20,
+      "active_missing_coverage": 0,
+      "feed_migration_version": "20260927200502",
+      "profiles_hash": "f0d44ced550b626552b0b24b6771695a",
+      "identity_profile_hash": "4b2d8548689ddd8647b48b723014c09d",
+      "flags_hash": "a6e7a91becb002fa23516b176a074965"
+    }
+  ],
+  "ci": [
+    {
+      "id": 36333358271,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
     },
-    "nameEditAndBlankFallback": "CI verified; no live identity edits or blank-name fixtures created"
+    {
+      "id": 36333358268,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+    },
+    {
+      "id": 36333358300,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+    },
+    {
+      "id": 36333987143,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "728814892944d565f111f24b53fb0a81de8b5b14"
+    },
+    {
+      "id": 36333987194,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "728814892944d565f111f24b53fb0a81de8b5b14"
+    },
+    {
+      "id": 36333987084,
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "728814892944d565f111f24b53fb0a81de8b5b14"
+    }
+  ],
+  "priorFeedVerification": "40 actual author/other-member post/comment checks, anonymous/nonmember denial; see discovery-feed-preview-deployment-2026-09-27.json",
+  "limitations": {
+    "authenticatedEdgeModel": "pending: no signed-in user session available in this workspace",
+    "native": "pending; APK48 predates Feed hydration and category-label fixes"
   },
-  "edge": {
-    "deployed": false,
-    "attempt": "Blocked by automatic approval review; no workaround or retry",
-    "reason": "Reviewer requires explicit authorization for sending retrieved Feed, Group, provider-review, Marketplace and other potentially sensitive content to the external OpenAI API.",
-    "destination": "https://api.openai.com/v1/responses",
-    "currentVersion": 9,
-    "jwtVerification": true,
-    "bundleSha256": "aeb71eaec83082a0719d108a98cf3069857a91ab595471fff88263739c00ecbb",
-    "supersededBy": "preview-pr152-v10-deployment-2026-09-27.json",
-    "latestStatus": "Explicit payload/destination approval received; v10 deployed and verified. Original blocked attempt below retained as history."
-  },
-  "ci": {
-    "result": "tested source all passed",
-    "mobileTests": 556,
-    "mobileSuites": 98,
-    "serverTests": 52,
-    "database": 36333987143,
-    "mobile": 36333987194,
-    "serverDeno": 36333987084
-  },
-  "newApkRequired": true,
-  "newApkBuilt": false,
   "productionChanges": false,
+  "newApkBuild": false,
+  "sqlReapplied": false,
+  "secretsChanged": false,
+  "quotaChanged": false,
   "mainMerged": false
 }

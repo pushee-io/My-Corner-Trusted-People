@@ -11,7 +11,7 @@
     "verifyJwt": true,
     "sqlAlreadyApplied": true
   },
-  "deployment": "pending",
+  "deployment": "completed: v10 ACTIVE/JWT true; see preview-pr152-v10-deployment-2026-09-27.json",
   "productionAuthorized": false,
   "apkBuildAuthorized": false
 }
