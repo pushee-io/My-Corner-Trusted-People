@@ -95,7 +95,7 @@ do $$ begin
  perform public.neighborhood_ai_meter('start');raise exception 'Minute quota bypassed';
  exception when program_limit_exceeded then null;end $$;
 -- Verify no forbidden relations/columns occur in the retrieval definition.
-select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_search(text,text,uuid,timestamptz,timestamptz)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
+select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_retrieve(text,text,uuid,timestamptz,timestamptz,jsonb)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
 reset role;
 -- Matching records must survive more than eight earlier unrelated events.
 set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000002';
@@ -128,5 +128,12 @@ insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,modera
 set local role authenticated;
 select pg_temp.ai_assert(public.neighborhood_ai_search('post','garden')::text like '%gardening%','Feed keyword lost');
 select pg_temp.ai_assert(public.neighborhood_ai_search('group','discuss')::text like '%DISCUSSION%','Group keyword lost');
+reset role;
+insert into public.social_group_post_comments(post_id,author_profile_id,body,moderation_status) values
+ ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','Transformer repair discussion','clean'),
+ ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','PRIVATE transformer held comment','flagged');
+set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text like '%Transformer repair discussion%','Authorized comment discovery absent');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text not like '%PRIVATE transformer%','Held comment leaked');
 reset role;
 rollback;

@@ -24,6 +24,7 @@ psql "$database_url" \
 legacy_tests=(
   supabase/tests/neighborhood_ai_preview_fixture.sql
   supabase/tests/neighborhood_ai_security.sql
+  supabase/tests/assistant_structured_retrieval.sql
   supabase/tests/provider_review_preview_fixture.sql
   supabase/tests/provider_review_visibility.sql
   supabase/tests/preview_identity_dependency.sql
