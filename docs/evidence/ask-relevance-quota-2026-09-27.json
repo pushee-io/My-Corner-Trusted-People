@@ -57,11 +57,23 @@
     "diff": "passed",
     "lint_errors": 0,
     "lint_baseline_warnings": 15,
-    "ci": "pending"
+    "ci": {
+      "database": 36330082517,
+      "mobile": 36330082583,
+      "server_deno": 36330082543,
+      "result": "passed"
+    }
   },
   "deployment": "not performed; new Preview approval required",
   "new_apk": "not built; APK47 cannot show new quota-specific copy",
   "production_changes": false,
   "identity_changes": false,
-  "live_coverage_changes": false
+  "live_coverage_changes": false,
+  "source_commit": "40957f92c72a509a184e8fa93c6847132d58a4fc",
+  "pull_request": 150,
+  "live_function": {
+    "version": 8,
+    "verify_jwt": true,
+    "unchanged": true
+  }
 }
