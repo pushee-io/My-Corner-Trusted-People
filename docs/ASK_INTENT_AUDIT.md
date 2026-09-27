@@ -64,3 +64,8 @@ Deployment/acceptance remains pending. Live inspection confirms ask-my-corner v7
 
 
 Live backend readback on 2026-09-27: new migration and RPC both absent; deployed v7 matches main byte-for-byte. Existing advisor findings remain unchanged: 17 RLS-without-policy info, 3 mutable search-path warnings, 1 RLS-disabled error, 1 extension-in-public warning, 17 anonymous/59 authenticated security-definer warnings, 1 leaked-password-protection warning. No claim that the existing project is advisor-clean; https://supabase.com/docs/guides/database/database-linter .
+
+
+## Final gate — automatic approval review
+
+Final CI at `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` passed: Database 36293942320, Mobile 36293942313, server/Deno 36293942319. The new migration was submitted through the normal migration tool and rejected by automatic approval review because the prior explicit authorization names different migrations. No migration was applied, no workaround used and no dependent function deployment attempted. Founder approval is required for exactly `20260927040151_assistant_structured_retrieval.sql` plus tested #148 ask-my-corner on Preview `opeojxwkwwnnncnsuaag`, with JWT verification retained. No new APK approval is requested at this backend gate. Full definition of done remains pending live deployment, valid provider coverage, authenticated HTTP/model and native acceptance.

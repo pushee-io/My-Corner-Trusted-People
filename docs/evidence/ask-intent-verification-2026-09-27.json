@@ -41,7 +41,7 @@
     "additionalDatabaseRegression": {
       "sha": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
       "database": 36293942320,
-      "status": "pending",
+      "status": "success",
       "mobile": 36293942313,
       "serverDeno": 36293942319
     }
@@ -655,5 +655,21 @@
         "until_at": null
       }
     }
-  ]
+  ],
+  "deployment": {
+    "status": "blocked_by_automatic_approval_review",
+    "applied": false,
+    "edgeDeploymentAttempted": false,
+    "reason": "Earlier explicit Preview approval covers different named migrations; no authorization for this new persistent DDL migration.",
+    "requiredApproval": {
+      "project": "opeojxwkwwnnncnsuaag",
+      "migration": "20260927040151_assistant_structured_retrieval.sql",
+      "migrationSha256": "54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca",
+      "function": "ask-my-corner",
+      "testedSource": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
+      "verifyJwt": true
+    },
+    "productionChanged": false,
+    "newPaidBuild": false
+  }
 }
