@@ -1,3 +1,9 @@
+## 2026-09-27 — Founder approved Preview coverage, Feed-name migration and #152 Edge deployment
+
+- Explicit approval received for `supabase/ops/preview_provider_coverage_catalog.sql` (18 new rows/12 profiles), `20260927162909_feed_public_author_names.sql`, and tested #152 `ask-my-corner`, with JWT verification retained, followed by scoped verification. Target **Preview `opeojxwkwwnnncnsuaag` only**. No main merge, production, paid build, quota/secret/identity change authorized.
+- Live preflight: main still `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; #152 source still `39b1c604ef8564989aa1c67d1a03a1857a5ea474`; checkpoint base `cf879db34aeb61a2cbe9c1f79924c42924fd9806`. Coverage currently **2 rows / 12 profiles missing coverage**; Feed-name RPC/migration absent; Edge **v9 ACTIVE/JWT true**. SQL hashes match reviewed files exactly. Both new SQL actions remain unapplied at this checkpoint; approved execution follows.
+- Existing full CI green: #152 Database 36333358271/Mobile 36333358268/server-Deno 36333358300; #153 Database 36333987143/Mobile 36333987194/server-Deno 36333987084. 556 mobile tests/98 suites, 52 server tests. Native and signed-in Edge/model acceptance remain pending.
+
 ## 2026-09-27 — Provider discovery and Feed public-name fixes green; exact Preview actions ready
 
 - Reviewable **#152** fixes provider discovery/coverage completeness and cross-source evidence; tested source **`39b1c604ef8564989aa1c67d1a03a1857a5ea474`**. **#153** fixes Feed names across viewers, comments and realtime; tested source **`728814892944d565f111f24b53fb0a81de8b5b14`**. Stack preserves #151/APK48. Main remains **`a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`**; no merge/reset.
