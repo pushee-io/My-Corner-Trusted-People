@@ -1,22 +1,35 @@
 {
   "date": "2026-09-27",
   "project": "opeojxwkwwnnncnsuaag",
-  "account": "vc-requester-20260927@example.com",
   "displayName": "VC Demo Requester",
-  "seedKey": "preview-vc-requester-20260927",
   "authConfirmed": true,
   "profileCreated": true,
   "role": "requester",
   "phoneVerified": false,
   "canonicalPublicName": "VC Demo Requester",
-  "neighborhoodMemberships": 0,
+  "neighborhoodMemberships": 1,
   "providerLinks": 0,
   "questionsUsedToday": 0,
   "assistantRuns": 0,
   "quotaChanged": false,
   "productionChanged": false,
-  "membershipGrantStatus": "blocked by automatic approval review; explicit founder approval for verified East Legon demo access required",
+  "membershipGrantStatus": "explicitly approved, applied once and verified",
   "preparedOperation": "supabase/ops/preview_vc_requester_20260927.sql",
   "credentialHandling": "Founder entered and retains password; no credential saved in repository",
-  "nativeAndHttpAcceptance": "pending"
+  "nativeAndHttpAcceptance": "pending",
+  "neighborhood": "East Legon",
+  "membershipPrimary": true,
+  "membershipVerified": true,
+  "verifiedNeighborhoods": [
+    "East Legon"
+  ],
+  "visibleFeedPosts": 13,
+  "providerRetrieval": [
+    "Kwame PipeCare",
+    "Real Neighbor Plumbing (Demo)"
+  ],
+  "verificationMethod": "Read-only live authenticated database role/claims; not HTTP sign-in or native acceptance",
+  "questionsConsumedByVerification": 0,
+  "serverPR155Deployed": false,
+  "accountIdentifiersPublished": false
 }
