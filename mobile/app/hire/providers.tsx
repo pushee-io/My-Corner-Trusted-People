@@ -54,7 +54,9 @@ export default function ProvidersScreen() {
           onRetry={() => void loadProviders()}
         />
       ) : null}
-      <Text style={styles.note}>Choose a provider to review trust signals and start a request.</Text>
+      <Text style={styles.note}>
+        Providers across service areas. Check each provider’s listed coverage before starting a request.
+      </Text>
 
       <TextInput
         editable={false}

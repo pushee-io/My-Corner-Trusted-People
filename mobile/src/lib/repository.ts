@@ -94,11 +94,18 @@ async function providerTrustSignals(providerIds: string[]) {
   return (data ?? []) as TrustSignalRow[];
 }
 
-function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: TrustSignalRow[]): Provider {
+function mapProvider(
+  row: ProviderRow,
+  services: ProviderServiceRow[],
+  signals: TrustSignalRow[],
+  categoryId?: string,
+): Provider {
   const providerServicesForRow = services.filter((service) => service.provider_id === row.id);
   const trustSignals = signals.filter((signal) => signal.provider_id === row.id);
   const categoryIds = providerServicesForRow.map((service) => service.category_id);
-  const firstService = providerServicesForRow[0];
+  const serviceLabel = categoryId
+    ? providerServicesForRow.find((s) => s.category_id === categoryId)?.service_label
+    : [...new Set(providerServicesForRow.map((s) => s.service_label))].sort().join(' · ');
   const rating = typeof row.rating === 'string' ? Number(row.rating) : row.rating;
 
   return {
@@ -106,7 +113,7 @@ function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: 
     profileId: row.profile_id,
     name: row.business_name,
     headline: row.headline,
-    serviceLabel: firstService?.service_label ?? 'Local service',
+    serviceLabel: serviceLabel || 'Local service',
     neighborhood: row.general_area.split(' and ')[0] ?? row.general_area,
     areaLabel: row.general_area,
     categoryIds,
@@ -124,10 +131,10 @@ function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: 
   };
 }
 
-async function mapProviders(rows: ProviderRow[]) {
+async function mapProviders(rows: ProviderRow[], categoryId?: string) {
   const providerIds = rows.map((row) => row.id);
   const [services, signals] = await Promise.all([providerServices(providerIds), providerTrustSignals(providerIds)]);
-  return rows.map((row) => mapProvider(row, services, signals));
+  return rows.map((row) => mapProvider(row, services, signals, categoryId));
 }
 
 async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> {
@@ -211,7 +218,7 @@ export async function listProvidersByCategory(categoryId: string): Promise<Provi
     .order('rating', { ascending: false });
 
   if (error) throw error;
-  return mapProviders((data ?? []) as ProviderRow[]);
+  return mapProviders((data ?? []) as ProviderRow[], categoryId);
 }
 
 export async function getProvider(providerId: string): Promise<Provider | undefined> {

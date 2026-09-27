@@ -129,7 +129,7 @@ export function createDay2BSupabaseReadClient(client: SupabaseLikeClient): Day2B
 
       if (providersResult.error) return { data: null, error: toError(providersResult.error) };
 
-      return buildProviderRows(client, asRows(providersResult.data));
+      return buildProviderRows(client, asRows(providersResult.data), categoryId);
     },
 
     async getProvider(providerId) {
@@ -203,6 +203,7 @@ export function resetSupabaseDay2BReadClientForTests() {
 async function buildProviderRows(
   client: SupabaseLikeClient,
   providerRows: ProviderProfileRow[],
+  categoryId?: string,
 ): Promise<Day2BQueryResult<Day2BLiveProviderRow>> {
   if (providerRows.length === 0) return { data: [], error: null };
 
@@ -225,7 +226,7 @@ async function buildProviderRows(
   const signals = asRows(signalsResult.data);
 
   return {
-    data: providerRows.map((provider) => mapProviderRow(provider, services, signals)),
+    data: providerRows.map((provider) => mapProviderRow(provider, services, signals, categoryId)),
     error: null,
   };
 }
@@ -234,16 +235,19 @@ function mapProviderRow(
   provider: ProviderProfileRow,
   services: ProviderServiceRow[],
   signals: ProviderTrustSignalRow[],
+  categoryId?: string,
 ): Day2BLiveProviderRow {
   const providerServices = services.filter((service) => service.provider_id === provider.id);
   const providerSignals = signals.filter((signal) => signal.provider_id === provider.id);
-  const firstService = providerServices[0];
+  const serviceLabel = categoryId
+    ? providerServices.find((s) => s.category_id === categoryId)?.service_label
+    : [...new Set(providerServices.map((s) => s.service_label))].sort().join(' · ');
 
   return {
     id: provider.id,
     business_name: provider.business_name,
     headline: provider.headline,
-    service_label: firstService?.service_label,
+    service_label: serviceLabel,
     general_area: provider.general_area,
     category_ids: providerServices.map((service) => service.category_id),
     trust_signals: providerSignals.map((signal) => ({ id: signal.id, label: signal.label, value: signal.value })),

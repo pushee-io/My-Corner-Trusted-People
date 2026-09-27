@@ -215,6 +215,31 @@ describe('Module 1 repository', () => {
     });
   });
 
+  it('uses the requested category label when a provider offers multiple services', async () => {
+    useTableQueries({
+      provider_services: [
+        createQuery({ data: [{ provider_id: 'multi' }], error: null }),
+        createQuery({
+          data: [
+            { provider_id: 'multi', category_id: 'electrical', service_label: 'Electrical' },
+            { provider_id: 'multi', category_id: 'plumbing', service_label: 'Plumbing' },
+          ],
+          error: null,
+        }),
+      ],
+      provider_profiles: [
+        createQuery({
+          data: [{ id: 'multi', business_name: 'Multi Service', general_area: 'Adenta and Madina' }],
+          error: null,
+        }),
+      ],
+      provider_trust_signals: [createQuery()],
+    });
+    const rows = await listProvidersByCategory('plumbing');
+    expect(rows[0].serviceLabel).toBe('Plumbing');
+    expect(rows[0].categoryIds).toEqual(['electrical', 'plumbing']);
+  });
+
   it('loads incoming requests for the authenticated provider profile', async () => {
     const requestsQuery = createQuery({
       data: [jobRequestRow({ provider_id: 'provider-profile-auth' })],

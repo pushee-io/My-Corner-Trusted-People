@@ -18,7 +18,7 @@ export function groundedNotice(plan:Plan,sources:Source[]):string {
   if(c.value===0)return `${scope}, all have zero ${label}. There is no distinct leader.`;
   return `${scope}, ${first.title} ${c.tiedCount>1?'shares the lead':'leads'} with ${c.value}${metric==='rating'?' / 5':''} ${label}. ${c.tiedCount>1?`${c.tiedCount} are tied; the displayed order does not break the tie. `:''}This is the recorded metric, not a safety guarantee.`;
  }
- if(plan.intent==='providers')return providers.length?`I found ${providers.length}${providers.length===8?' displayed':''} matching providers with recorded coverage for your neighborhood. Compare their verified-job reviews and open a profile to request help. Availability is provider-stated.`:'I found no matching provider with recorded coverage for your neighborhood. Related authorized discussions, if any, are shown separately.';
+ if(plan.intent==='providers')return providers.length?`I found ${providers.length}${providers.length===8?' displayed':''} matching providers with recorded coverage for your neighborhood. Compare their verified-job reviews and open a profile to request help. Availability is provider-stated.`:'I found no matching provider with recorded coverage for your neighborhood. Related authorized sources, if any, are shown separately.';
  return answerNotice(plan.intent,sources);
 }
 export function providerReference(value:unknown):string|undefined {

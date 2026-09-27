@@ -53,7 +53,7 @@ test('memory and alerts preserve uncertainty and distinct authority',()=>{
 test('retrieval caps overall context and balances source types',async()=>{
  const calls:string[]=[];
  const rows=await retrieve({intent:'digest',terms:'',window:'week'},now,async(kind)=>{calls.push(kind);return Array.from({length:8},()=>({...source(),kind,href:({agency:'/agency-broadcasts?broadcastId=',event:'/events/',post:'/community?postId=',group:'/groups/',marketplace:'/marketplace/listing/',provider:'/hire/provider/'} as Record<string,string>)[kind]+id}));});
- assert.equal(rows.length,16);assert.equal(new Set(rows.map(x=>x.kind)).size,6);assert.ok(!calls.includes('messages'));
+ assert.equal(rows.length,48);assert.equal(new Set(rows.map(x=>x.kind)).size,6);assert.ok(!calls.includes('messages'));
 });
 function harness(options:{removed?:boolean;denied?:boolean;modelFail?:boolean}={}){
  const calls:{name:string,args?:Record<string,unknown>}[]=[];let searches=0;
@@ -119,6 +119,6 @@ test('keyword service skips planner and preserves terms on authorization recheck
  const h=harness();
  await answerQuestion({question:'What festivals are happening?'},h.deps);
  const searches=h.calls.filter(c=>c.name==='neighborhood_ai_retrieve');
- assert.equal(searches.length,8);
+ assert.equal(searches.length,12);
  assert.ok(searches.every(c=>c.args?.terms==='festival'));
 });

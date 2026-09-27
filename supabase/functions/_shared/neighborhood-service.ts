@@ -1,5 +1,5 @@
 import { groundedNotice, providerReference } from './neighborhood-answer.ts';
-import { ANSWER_VERSION, fallbackPlan, historyQuestions, parsePlan, plannerPayload, privacyRefusal, retrieve, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
+import { ANSWER_VERSION, toolKinds, fallbackPlan, historyQuestions, parsePlan, plannerPayload, privacyRefusal, retrieve, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
 import type { Intent, Source } from './neighborhood-assistant.ts';
 import { outputJson } from './openai-responses.ts';
 type Rpc = (name: string, args?: Record<string,unknown>)=>Promise<{data: unknown;error: unknown}>;
@@ -56,16 +56,16 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   sources=await retrieve(plan,now,search);
   retrievalMs=Date.now()-retrievalStarted;
   let excerpts: {index:number;quote:string}[]=[];
-  if(sources.length&&!plan.details?.metric&&!plan.details?.availability){
+  const primary=toolKinds[plan.intent][0];
+  const structured=plan.details?.metric||plan.details?.availability;
+  // Structured comparisons are computed only by SQL. Related evidence can come
+  // from any family, but must be selected and quoted, even for a metric question.
+  if(sources.length&&(!structured||sources.some(s=>s.kind!==primary))){
    excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
-   // A candidate discussion is not an answer merely because one search term matched.
-   // Keep structured providers, but show related discussions only with selected evidence.
-   if(plan.intent==='providers'){
-    const selected=new Set(excerpts.map(e=>e.index));const original=sources;
-    sources=sources.filter((s,i)=>s.kind==='provider'||selected.has(i));
-    excerpts=excerpts.map(e=>({index:sources.indexOf(original[e.index]),quote:e.quote}));
-   }
   }
+  const selectedEvidence=new Set(excerpts.map(e=>e.index));const candidates=sources;
+  sources=sources.filter((s,i)=>(plan.intent!=='digest'&&s.kind===primary)||selectedEvidence.has(i)).slice(0,16);
+  excerpts=excerpts.filter(e=>sources.includes(candidates[e.index])).map(e=>({index:sources.indexOf(candidates[e.index]),quote:e.quote}));
   // Re-authorize immediately before returning. A block/removal/membership change during
   // model latency must revoke the source and its excerpt in this response, too.
   if(sources.length){

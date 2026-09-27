@@ -17,7 +17,7 @@ test('comparison executes structured RPC and reauthorization without asking mode
  const calls:any[]=[];
  const result=await answerQuestion({question:'what electrician has the most reviews'}, {model:'test',debug:true,rpc:async(name,args)=>{calls.push({name,args});if(name==='neighborhood_ai_context')return {data:{id,name:'Fixture neighborhood'},error:null};if(name==='neighborhood_ai_meter')return {data:{id},error:null};return {data:args?.source_kind==='provider'?[provider]:[],error:null};},respond:async()=>{throw new Error('Model must not compute');}});
  assert.match(result.notice,/7 verified reviews/);
- assert.equal(calls.filter(c=>c.name==='neighborhood_ai_retrieve').length,6);
+ assert.equal(calls.filter(c=>c.name==='neighborhood_ai_retrieve').length,12);
  const options=calls.find(c=>c.args?.source_kind==='provider').args.options;
  assert.equal(options.metric,'verified_reviews');assert.deepEqual(options.categories,['electrical']);
  assert.doesNotMatch(JSON.stringify(result.diagnostics),/Fixture Electrician|what electrician|a1000000/);

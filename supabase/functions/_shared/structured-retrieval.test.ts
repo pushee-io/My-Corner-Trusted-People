@@ -31,5 +31,19 @@ test('SQL metrics rank the full covered population before cap; no legacy counter
  }
  const r=await db.query<{data:any}>(`select public.neighborhood_ai_retrieve('provider','qzxvbnm') data`);assert.deepEqual(r.rows[0].data,[]);
  await assert.rejects(db.query(`select public.neighborhood_ai_retrieve('provider','',null,null,null,'{"metric":"trust_score"}')`));
+ // Reproduce the missing second local plumber using actual retrieval SQL.
+ await db.exec(`insert into provider_profiles values
+ ('97000000-0000-4000-8000-000000000020',null,'First Plumber','Plumbing',now(),'Today',true),
+ ('97000000-0000-4000-8000-000000000021',null,'Second Plumber','Plumbing',now(),'Today',true);
+ insert into provider_services values
+ ('97000000-0000-4000-8000-000000000020','Plumbing','plumbing'),
+ ('97000000-0000-4000-8000-000000000021','Plumbing','plumbing');
+ insert into provider_service_areas values('97000000-0000-4000-8000-000000000020','97000000-0000-4000-8000-000000000090');`);
+ const plumbing=async()=> (await db.query<{data:any}>(`select public.neighborhood_ai_retrieve('provider','plumber',null,null,null,'{"categories":["plumbing"]}') data`)).rows[0].data;
+ assert.equal((await plumbing()).length,1);
+ await db.exec(`insert into provider_service_areas values('97000000-0000-4000-8000-000000000021','97000000-0000-4000-8000-000000000090');`);
+ assert.deepEqual((await plumbing()).map((p:any)=>p.title),['First Plumber','Second Plumber']);
+ await db.exec(`update provider_profiles set accepting_requests=false where id='97000000-0000-4000-8000-000000000021'`);
+ assert.equal((await plumbing()).length,1,'inactive providers remain excluded');
  }finally{await db.close();}
 });

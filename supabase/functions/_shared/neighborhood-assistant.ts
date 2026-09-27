@@ -2,7 +2,7 @@
 import { understand, sourcePriority, keywordTerms } from './neighborhood-concepts.ts';
 import type { QueryDetails } from './neighborhood-concepts.ts';
 import { outputJson } from './openai-responses.ts';
-export const ANSWER_VERSION = 'ask-v2';
+export const ANSWER_VERSION = 'ask-v3';
 export type Intent = 'events'|'providers'|'alerts'|'organizer'|'memory'|'marketplace'|'digest'|'unsupported';
 export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all'|'next_week'|'last_week';
 export type Kind = 'event'|'provider'|'agency'|'post'|'group'|'marketplace';
@@ -52,7 +52,7 @@ export function fallbackPlan(question: string, previous: string[]=[]): Plan {
  const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.slice(-1).join(' ')} ${q}`.toLowerCase():q;
  const window: Window = /saturday/.test(context)?'saturday':/sunday/.test(context)?'sunday':/tomorrow/.test(context)?'tomorrow':/weekend/.test(context)?'weekend':/today|tonight|right now/.test(context)?'today':/last month/.test(context)?'month':/this week|miss|latest/.test(context)?'week':'all';
  if (/find local help|who can help me/.test(context)&&! /fence|plumb|pipe|repair|electric/.test(context)) return {intent:'providers',terms:'',window:'all'};
- if (/\b(fence|plumb|plumber|pipe|repair|electrician|hire|cater)/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
+ if (/\b(fence|plumb(?:er|ing)?|pipes?|repair|electrician|hire|cater)\b/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
  if (/road|closure|outage|alert|traffic/.test(context)) return {intent:'alerts',terms:/road|closure|traffic/.test(context)?'road OR closure OR traffic':/outage/.test(context)?'outage':'',window:window==='all'?'week':window};
  if (/decid|decision|park project|parking|last year/.test(context)) return {intent:'memory',terms:/parking/.test(context)?'parking':/park/.test(context)?'park':/water/.test(context)?'water':/cleanup|clean-up/.test(context)?'cleanup':'',window:'all'};
  if (/organiz|food drive/.test(context)) return {intent:'organizer',terms:keywordTerms(context).replace(/\borganiz\w*\b/g,'').trim(),window:window==='all'?'upcoming':window};
@@ -129,13 +129,18 @@ export function answerNotice(intent: Intent, sources: Source[]): string {
 }
 export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>) {
  const range=timeRange(plan.window,now);
- const kinds:Kind[]=plan.intent==='providers'&&(!plan.terms||plan.details?.providerId)?['provider']:toolKinds[plan.intent];
+ const primary=toolKinds[plan.intent];
+ // Intent determines priority, not a hard source silo. Empty topics must not
+ // broaden a generic provider request into unrelated neighborhood content.
+ const kinds:Kind[]=plan.intent==='providers'&&(!plan.terms||plan.details?.providerId)?['provider']:
+  plan.intent!=='unsupported'&&plan.terms.trim()?[...new Set([...primary,...toolKinds.digest])]:primary;
  const results=await Promise.all(kinds.map(kind=>search(kind,plan.intent==='providers'&&kind!=='provider'&&plan.details?.serviceTerms?plan.details.serviceTerms:plan.terms,
   // Weekend activity startsAt applies to Events; surrounding announcements remain recent.
-  kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
- // Round-robin avoids one source type crowding every other type out of a digest.
+  kind==='event'&&plan.intent==='providers'&&plan.window==='all'?timeRange('upcoming',now):kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
+ // Retain all bounded candidates (6 families x 8) until evidence selection.
+ // A relevant later source must not be lost to a global cap before relevance.
  const sources: Source[]=[];
  if(plan.intent!=='digest'&&results.length)sources.push(...results.shift()!.slice(0,8).map(safeSource));
- for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<16)sources.push(safeSource(rows[i]));
+ for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<48)sources.push(safeSource(rows[i]));
  return sources;
 }
