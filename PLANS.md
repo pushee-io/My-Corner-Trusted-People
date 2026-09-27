@@ -1,3 +1,9 @@
+## 2026-09-27 — Approved VC Preview build submitted; receipt persisted
+
+- One approved build submitted successfully: EAS **`234dd105-1a06-469e-b16a-c8b42cea6e78`**, source **`763276b701b161507d8f8cf967878286ad234bcb`**, workflow **36356385371**, receipt artifact **10943692491**. [EAS build](https://expo.dev/accounts/mycorner/projects/my-corner/builds/234dd105-1a06-469e-b16a-c8b42cea6e78). Checkpoint PR **#156**, stacked on #155.
+- **Build approval consumed; do not submit another build.** Release gates, Preview environment verification and duplicate guard passed. Mobile push CI **36356385373 passed**. Waiting for final EAS completion and actual APK verification; version/artifact acceptance not yet claimed.
+- Mobile source still equals APK49. No backend deployment or production/account/quota/secret changes for this build. PR #155 server deployment still awaits separate approval; native and signed-in HTTP/model acceptance remain pending.
+
 ## 2026-09-27 — One new Preview APK approved after demo requester setup
 
 - Founder explicitly approved **one new APK build** at 18:43 America/New_York. Build branch `codex/vc-requester-preview-apk` starts from #155 checkpoint `6eae213ccbf57f61d0d564cd44516ab4a9435544`; live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. No main merge/reset.
