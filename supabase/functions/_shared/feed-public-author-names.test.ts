@@ -1,0 +1,63 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
+const id=(n:number)=>`96000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
+test('Feed public author lookup is consistent between viewers without opening private profiles or identities',async()=>{
+ const db=new PGlite();
+ try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema private;
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create table profiles(id uuid primary key,display_name text);
+ alter table profiles enable row level security;create policy own on profiles for select to authenticated using(id=auth.uid());
+ create function public.current_profile_id() returns uuid language sql as $$select auth.uid()$$;
+ create table private_identity_profiles(profile_id uuid primary key,public_display_name text,legal_given_name text,legal_family_name text);
+ create table memberships(profile_id uuid,neighborhood_id uuid,verified boolean);
+ create function has_verified_neighborhood_membership(uuid) returns boolean language sql security definer set search_path='' as $$select exists(select 1 from public.memberships where profile_id=auth.uid() and neighborhood_id=$1 and verified)$$;
+ create table blocks(blocker_id uuid,blocked_id uuid);
+ create table neighborhood_feed_posts(id uuid primary key,neighborhood_id uuid,author_id uuid,moderation_status text);
+ create table neighborhood_feed_comments(id uuid primary key,post_id uuid,author_id uuid,moderation_status text);
+ grant usage on schema public,private,auth to authenticated;grant select on profiles to authenticated;`);
+ const controls=readFileSync('../migrations/20260923222710_verified_job_reviews.sql','utf8');
+ await db.exec(controls.slice(controls.indexOf('create table private.community_account_controls'),controls.indexOf('alter table public.reviews')));
+ await db.exec(readFileSync('../migrations/20260926004155_messaging_public_display_name.sql','utf8'));
+ await db.exec(readFileSync('../migrations/20260926213111_canonical_public_profile_name.sql','utf8'));
+ const retrieval=readFileSync('../migrations/20260925032118_ai_neighborhood_retrieval.sql','utf8');
+ await db.exec(retrieval.slice(retrieval.indexOf('create function private.ai_source_author_allowed'),retrieval.indexOf('create function public.neighborhood_ai_context')));
+ await db.exec(readFileSync('../migrations/20260927162909_feed_public_author_names.sql','utf8'));
+ await db.exec(`insert into profiles values('${id(1)}','Legacy public A'),('${id(2)}','PRIVATE IDENTITY MUST NOT FALL BACK'),('${id(3)}','Ambiguous legacy name'),('${id(4)}','Outsider');
+ insert into private_identity_profiles values('${id(2)}','Approved Public B','PRIVATE LEGAL B','PRIVATE FAMILY B'),('${id(3)}','','PRIVATE LEGAL C','PRIVATE FAMILY C');
+ insert into memberships values('${id(1)}','${id(90)}',true),('${id(2)}','${id(90)}',true),('${id(4)}','${id(91)}',true);
+ insert into neighborhood_feed_posts values('${id(11)}','${id(90)}','${id(1)}','clean'),('${id(12)}','${id(90)}','${id(2)}','clean'),('${id(13)}','${id(90)}','${id(3)}','clean'),('${id(14)}','${id(91)}','${id(4)}','clean');
+ insert into neighborhood_feed_comments values('${id(21)}','${id(11)}','${id(2)}','clean');`);
+ const read=async(posts:number[],comments:number[]=[])=> (await db.query<{data:any}>('select public.feed_author_names($1::uuid[],$2::uuid[]) data',[posts.map(id),comments.map(id)])).rows[0].data;
+ const login=async(n:number)=>{await db.exec(`reset role;set role authenticated;set request.jwt.claim.sub='${id(n)}'`);};
+ for(const viewer of [1,2]){
+  await login(viewer);
+  assert.equal((await db.query('select * from profiles')).rows.length,1,'base profiles remain self-only');
+  const names=await read([11,12,13]);
+  assert.deepEqual(names,[{id:id(1),name:'Legacy public A'},{id:id(2),name:'Approved Public B'},{id:id(3),name:'Neighbor'}]);
+  assert.doesNotMatch(JSON.stringify(names),/PRIVATE|Ambiguous/);
+  assert.deepEqual(await read([],[21]),[{id:id(2),name:'Approved Public B'}]);
+  assert.deepEqual(await read([14]),[]);
+ }
+ await db.query("select public.own_public_name('Updated Public B')");
+ await login(1);assert.deepEqual(await read([12]),[{id:id(2),name:'Updated Public B'}]);
+ await assert.rejects(db.query('select private.neighbor_name($1)',[id(2)]),/permission denied/);
+ await assert.rejects(read(Array(101).fill(11)),/Too many/);
+ await login(4);assert.deepEqual(await read([11,12,13],[21]),[]);
+ await db.exec(`reset role;insert into blocks values('${id(2)}','${id(1)}')`);
+ await login(1);assert.deepEqual(await read([12],[21]),[],'reverse block hides author');
+ await db.exec(`reset role;delete from blocks;update neighborhood_feed_posts set moderation_status='blocked' where id='${id(11)}'`);
+ await login(1);assert.deepEqual(await read([11],[21]),[],'hidden parent denies comment name');
+ await db.exec(`reset role;update neighborhood_feed_posts set moderation_status='clean';update neighborhood_feed_comments set moderation_status='blocked'`);
+ await login(1);assert.deepEqual(await read([],[21]),[]);
+ await db.exec(`reset role;update memberships set verified=false where profile_id='${id(1)}'`);
+ await login(1);assert.deepEqual(await read([11,12,13]),[],'revoked neighborhood membership denies');
+ await db.exec('reset role;set role anon');await assert.rejects(read([12]),/permission denied/);
+ await db.exec(`reset role;drop table neighborhood_feed_comments`);await login(2);
+ assert.deepEqual(await read([12],[21]),[{id:id(2),name:'Updated Public B'}],'comments absent on clean DB do not break posts');
+ await db.exec('reset role');
+ assert.equal((await db.query<{display_name:string}>('select display_name from profiles where id=$1',[id(2)])).rows[0].display_name,'PRIVATE IDENTITY MUST NOT FALL BACK');
+ }finally{await db.close();}
+});
