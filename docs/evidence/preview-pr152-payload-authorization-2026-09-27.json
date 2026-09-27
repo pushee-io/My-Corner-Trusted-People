@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "source": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+  "pr": 152,
+  "authorization": "I approve Deploy PR #152 to Preview only, retaining JWT verification. Authorize sending redacted questions and bounded, access-authorized Feed, Group, Event, provider/review, Marketplace and Agency content to https://api.openai.com/v1/responses for evidence selection.",
+  "preflight": {
+    "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+    "checkpoint": "cea1c301114a69e5361b024a43f9019015f68265",
+    "edgeVersion": 9,
+    "verifyJwt": true,
+    "sqlAlreadyApplied": true
+  },
+  "deployment": "pending",
+  "productionAuthorized": false,
+  "apkBuildAuthorized": false
+}
