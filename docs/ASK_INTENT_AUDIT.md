@@ -69,3 +69,8 @@ Live backend readback on 2026-09-27: new migration and RPC both absent; deployed
 ## Final gate — automatic approval review
 
 Final CI at `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` passed: Database 36293942320, Mobile 36293942313, server/Deno 36293942319. The new migration was submitted through the normal migration tool and rejected by automatic approval review because the prior explicit authorization names different migrations. No migration was applied, no workaround used and no dependent function deployment attempted. Founder approval is required for exactly `20260927040151_assistant_structured_retrieval.sql` plus tested #148 ask-my-corner on Preview `opeojxwkwwnnncnsuaag`, with JWT verification retained. No new APK approval is requested at this backend gate. Full definition of done remains pending live deployment, valid provider coverage, authenticated HTTP/model and native acceptance.
+
+
+## Approved Preview deployment — complete, 2026-09-27
+
+The founder explicitly approved the exact new migration and tested #148 function. Migration applied as remote version `20260927042839`, stored SQL exact; Edge v8 active with JWT verification true, all seven files exact. Forty live authenticated-role read-only RPC checks and anonymous HTTP 401 completed. See `docs/evidence/ask-intent-preview-deployment-2026-09-27.json` for every query, date/data gaps, scope checks and unchanged advisors. No user data/coverage/identity edits, production change, PR merge or paid build. Authenticated Edge/model and native acceptance still pending.
