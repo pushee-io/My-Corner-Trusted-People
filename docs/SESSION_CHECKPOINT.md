@@ -1,3 +1,9 @@
+## 2026-09-27 — Approved assistant migration applied; Edge deployment next
+
+- Founder explicitly approved the new migration and tested #148 ask-my-corner deployment to Preview `opeojxwkwwnnncnsuaag` only, retaining JWT verification. The previous automatic approval block is resolved.
+- Applied `20260927040151_assistant_structured_retrieval.sql` successfully through the migration tool. Source SHA-256 `54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`. No provider coverage, identity, feature flag, secret or production data changed.
+- Tested source remains `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` in #148; all final CI green. Next authorized operation: deploy its seven function/config files with JWT verification true, then scoped read-only verification. No merge or paid APK build authorized by this approval.
+
 ## 2026-09-27 — Assistant upgrade ready; exact Preview deployment approval required
 
 - Reviewable work is pushed in **#145 (audit), #146 (concepts/planning), #147 (structured retrieval), #148 (grounded response/mobile integration)**. Stack preserves #143/#144 history. Tested application/database/test source: `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074`; later commits are checkpoint-only. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; no PR merged in this task.
