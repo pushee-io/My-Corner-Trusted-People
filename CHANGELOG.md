@@ -1,3 +1,10 @@
+## 2026-09-27 — Ask My Corner intent upgrade: checkpoint A
+
+- Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; preserves #143/#144 checkpoint history. Full 16-query root-cause table: `docs/ASK_INTENT_AUDIT.md`; machine-readable evidence: `docs/evidence/ask-intent-audit-2026-09-27.json`.
+- Actual Preview authenticated-role SQL reproduces zero Plumbing/Electrical providers: four Plumbing and two Electrical records lack any service-area rows. Do not weaken neighborhood authorization or invent provider coverage. Alias/source-planning/metric defects independently confirmed in source.
+- Work proceeds in reviewable checkpoints: domain concepts/planning, authorized structured retrieval/comparisons, response/UI integration and regression verification. Existing Event fixes remain intact. No live HTTP/model answer or native visual pass is claimed.
+- APK 46 installation succeeded in founder terminal; UI acceptance remains pending. No production writes, Preview mutation, identity edits, communications, merges or new EAS build in this audit.
+
 ## 2026-09-26 — Corrected Preview APK 46 built and verified
 
 - The one approved build completed successfully: **APK 46**, EAS **`b6ea9558-74c4-49fe-9f28-f8a9baed72ff`**, build source **`4192a8ac26b5d4059ff066cee3f33abd43f76e19`**, workflow **`36274964615`**. Application/database source exactly matches merged main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; only build workflow and checkpoint docs differ. PR #144 preserves documentation-only #143 as an ancestor; both remain open pending separate merge authorization.

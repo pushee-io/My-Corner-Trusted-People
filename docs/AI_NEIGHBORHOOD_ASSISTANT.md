@@ -1,3 +1,10 @@
+## 2026-09-27 — Ask My Corner intent upgrade: checkpoint A
+
+- Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; preserves #143/#144 checkpoint history. Full 16-query root-cause table: `docs/ASK_INTENT_AUDIT.md`; machine-readable evidence: `docs/evidence/ask-intent-audit-2026-09-27.json`.
+- Actual Preview authenticated-role SQL reproduces zero Plumbing/Electrical providers: four Plumbing and two Electrical records lack any service-area rows. Do not weaken neighborhood authorization or invent provider coverage. Alias/source-planning/metric defects independently confirmed in source.
+- Work proceeds in reviewable checkpoints: domain concepts/planning, authorized structured retrieval/comparisons, response/UI integration and regression verification. Existing Event fixes remain intact. No live HTTP/model answer or native visual pass is claimed.
+- APK 46 installation succeeded in founder terminal; UI acceptance remains pending. No production writes, Preview mutation, identity edits, communications, merges or new EAS build in this audit.
+
 ## 2026-09-26 — Corrected Preview APK 46 available for native retest
 
 Founder-approved APK 46 is verified: EAS `b6ea9558-74c4-49fe-9f28-f8a9baed72ff`, source `4192a8ac26b5d4059ff066cee3f33abd43f76e19`, successful workflow `36274964615`. Application source matches merged main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; actual bundle retains assistant/Home/public-name markers and only the Preview Supabase target. Preview assistant v6/JWT verification and the deployed canonical public-name resolver are unchanged. Native phone/tablet acceptance and authenticated Edge/model synthesis remain distinct pending checks. No additional build is authorized; details and checksum are in CURRENT_STATE and the canonical-public-name APK evidence file.

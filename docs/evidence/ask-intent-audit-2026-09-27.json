@@ -1,0 +1,142 @@
+{
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "verification": "local actual planner plus read-only authenticated-role Preview SQL; no HTTP/LLM",
+  "rows": [
+    {
+      "query": "plumber",
+      "terms": "plumb OR plumber OR plumbing",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "0",
+      "cause": "No Plumbing service-area records"
+    },
+    {
+      "query": "plumbing",
+      "terms": "plumb OR plumber OR plumbing",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "0",
+      "cause": "No Plumbing service-area records"
+    },
+    {
+      "query": "electrician",
+      "terms": "electrician",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "0",
+      "cause": "Missing service areas; category alias missing"
+    },
+    {
+      "query": "electrical",
+      "terms": "electrical",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "post 1, group 1",
+      "cause": "No eligible provider; generic source priority"
+    },
+    {
+      "query": "what electrician has the most reviews",
+      "terms": "electrician",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "0",
+      "cause": "No metric operation; areas and alias missing"
+    },
+    {
+      "query": "lights off",
+      "terms": "lights off",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "post 2, event 1, marketplace 1",
+      "cause": "Literal light matches; no outage concept"
+    },
+    {
+      "query": "power off",
+      "terms": "power off",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "0",
+      "cause": "No outage concept"
+    },
+    {
+      "query": "power outage",
+      "terms": "outage",
+      "intent": "alerts",
+      "sources": "agency, post",
+      "candidates": "0",
+      "cause": "Literal outage only; group omitted"
+    },
+    {
+      "query": "electricity outage",
+      "terms": "outage",
+      "intent": "alerts",
+      "sources": "agency, post",
+      "candidates": "0",
+      "cause": "Literal outage only; group omitted"
+    },
+    {
+      "query": "fence",
+      "terms": "fence",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "1",
+      "cause": "Works for eligible fence provider"
+    },
+    {
+      "query": "fencing",
+      "terms": "fencing",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "provider 1",
+      "cause": "Stemming works; intent inconsistent"
+    },
+    {
+      "query": "repair fence",
+      "terms": "fence",
+      "intent": "providers",
+      "sources": "provider",
+      "candidates": "1",
+      "cause": "Works for eligible fence provider"
+    },
+    {
+      "query": "music",
+      "terms": "music",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "event 2, post 1",
+      "cause": "Works lexically; generic priority"
+    },
+    {
+      "query": "musical",
+      "terms": "musical",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "event 2, post 1",
+      "cause": "Stemming already works"
+    },
+    {
+      "query": "festival",
+      "terms": "festival",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "event 4",
+      "cause": "Existing repair works"
+    },
+    {
+      "query": "festivals",
+      "terms": "festivals",
+      "intent": "digest",
+      "sources": "all six",
+      "candidates": "event 4",
+      "cause": "Existing repair works"
+    }
+  ],
+  "plumbing": {
+    "visible": 4,
+    "withServiceAreas": 0
+  },
+  "electrical": {
+    "visible": 2,
+    "withServiceAreas": 0
+  }
+}
