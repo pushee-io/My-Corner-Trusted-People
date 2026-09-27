@@ -1,3 +1,10 @@
+## 2026-09-27 — One Preview APK approved for Feed names and Hire category fixes
+
+- Founder approved **one new Preview Android APK** after verified v10 deployment. Build branch `codex/feed-discovery-preview-apk` starts at #153 checkpoint `fbfb1421511adfed04ab57065e3e61e4e8c1d860`. Application/database source equals tested #153 `728814892944d565f111f24b53fb0a81de8b5b14`; source CI is green (556 mobile tests/98 suites, 52 server tests). Main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`.
+- New client features since APK48: approved public-name hydration throughout Feed posts/comments/own submissions/realtime, with account-switch/unsubscribe guards; selected Hire category labels and clearer coverage directory copy. Build must contain `feed_author_names` and the new directory text, preserve existing markers/font, match the exact EAS source, target only Preview, and have versionCode above 48.
+- Existing verified baseline is **APK48**, EAS `8608e3fd-fe98-4d7a-88ac-713830f806e9`. Workflow keeps active/unexpected newer build rejection, records the EAS receipt before waiting and verifies the completed artifact. Do not submit a replacement after interruption; inspect receipt/live EAS state first. Submission pending at this approval checkpoint.
+- Preview backend **v10 ACTIVE/JWT true**, seven files verified against #152; 108 live retrieval checks and prior 40 Feed name checks recorded. No backend redeployment, SQL reapplication, quota/identity/secret change, production or main merge authorized for this build. Signed-in HTTP/model and native phone/emulator/tablet acceptance remain pending.
+
 ## 2026-09-27 — PR #152 deployed to Preview v10 after explicit payload approval
 
 - Founder explicitly approved Preview-only deployment and sending redacted questions plus bounded access-authorized Feed, Group, Event, provider/review, Marketplace and Agency content to `https://api.openai.com/v1/responses`. Approval persisted before deployment in `docs/evidence/preview-pr152-payload-authorization-2026-09-27.json`. This resolves the prior automatic-review blocker; no workaround was used.
