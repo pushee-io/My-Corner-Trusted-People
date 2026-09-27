@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "account": "vc-requester-20260927@example.com",
+  "displayName": "VC Demo Requester",
+  "seedKey": "preview-vc-requester-20260927",
+  "authConfirmed": true,
+  "profileCreated": true,
+  "role": "requester",
+  "phoneVerified": false,
+  "canonicalPublicName": "VC Demo Requester",
+  "neighborhoodMemberships": 0,
+  "providerLinks": 0,
+  "questionsUsedToday": 0,
+  "assistantRuns": 0,
+  "quotaChanged": false,
+  "productionChanged": false,
+  "membershipGrantStatus": "blocked by automatic approval review; explicit founder approval for verified East Legon demo access required",
+  "preparedOperation": "supabase/ops/preview_vc_requester_20260927.sql",
+  "credentialHandling": "Founder entered and retains password; no credential saved in repository",
+  "nativeAndHttpAcceptance": "pending"
+}
