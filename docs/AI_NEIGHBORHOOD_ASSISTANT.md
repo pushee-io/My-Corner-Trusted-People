@@ -1,3 +1,12 @@
+## 2026-09-27 — Integrated assistant source green; Preview deployment boundary
+
+- Four reviewable PRs are open: #145 audit, #146 concepts/planning, #147 structured database retrieval, #148 grounded response/mobile integration. Final source/test head `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` preserves #143/#144 history; no PR was merged.
+- Integrated source `1f51931477fa11a78d3f2e73f3f41456ffdbda49` passed Database 36293816023, Mobile 36293816027 and server/Deno 36293816003. Final test-only extension adds RSVP/newest-listing cap regressions; its Database run 36293942320 is pending, Mobile 36293942313 and server/Deno 36293942319 passed. Local: 42 server tests, 544 mobile tests/96 suites, typecheck/format/diff pass, lint 0 errors/15 baseline warnings.
+- Live readback corrects the stale function version: Preview `ask-my-corner` is v7, JWT verification true; all five deployed files equal main. New migration/RPC are absent. No current-session deployment or secret change occurred.
+- Concrete Preview deployment candidate: only `20260927040151_assistant_structured_retrieval.sql`, SHA-256 `54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`, then this tested `ask-my-corner` source with JWT verification retained, project `opeojxwkwwnnncnsuaag` only. It changes retrieval functions, not user/identity/service-area data or feature flags. Completed work is durable before any deployment attempt.
+- Positive provider acceptance also needs valid service-area assignments: the two Electrical public labels name Adenta/Madina and Osu/Labone, so they must not be invented as East Legon coverage. Some Plumbing labels mention East Legon but have no structured coverage. Current "lights off" matches include non-outage lighting discussion; v2 guards this with phrase evidence.
+- Authenticated HTTP/model execution and Android phone/tablet acceptance remain pending. APK 46 predates clarification/provider-selection UI. No paid build or production action. Evidence: `docs/evidence/ask-intent-verification-2026-09-27.json`; audit and safe semantic-layer design: `docs/ASK_INTENT_AUDIT.md`.
+
 ## 2026-09-27 — Ask My Corner intent upgrade prepared in reviewable checkpoints
 
 - Audit #145, concepts/planning #146 and structured retrieval #147 are pushed, stacked above #144 to retain prior deployment/APK records. Integration follows on `codex/ask-grounded-integration`. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`.
