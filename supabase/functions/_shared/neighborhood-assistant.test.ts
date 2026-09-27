@@ -10,7 +10,7 @@ const response=(v:unknown)=>({status:'completed',output:[{content:[{type:'output
 test('five demo intents select bounded retrieval families and follow-up preserves topic',()=>{
  const questions=[['What’s happening in my neighborhood this weekend?','events'],['Who can repair a fence nearby?','providers'],['Is there a road closure?','alerts'],['Who is organizing the food drive?','organizer'],['What did the neighborhood decide about the park project?','memory']];
  for(const [q,intent]of questions)assert.equal(fallbackPlan(q).intent,intent);
- assert.equal(fallbackPlan('Who can repair a fence nearby?').terms,'fence');
+ assert.equal(fallbackPlan('Who can repair a fence nearby?').terms,'fence fencing gate');
  assert.equal(fallbackPlan('Which ones are good for families?',[questions[0][0]]).intent,'events');
 });
 test('Accra weekend handles Friday, Sunday and year rollover',()=>{
@@ -68,7 +68,7 @@ function harness(options:{removed?:boolean;denied?:boolean;modelFail?:boolean}={
 test('service reauthorizes, returns source excerpt and stores metadata only',async()=>{
  const h=harness();const answer=await answerQuestion({question:'What is happening this weekend?'},h.deps);
  assert.equal(answer.sources.length,1);assert.equal(answer.excerpts[0].quote,source().text);
- assert.equal(h.calls.filter(c=>c.name==='neighborhood_ai_search').length,6);
+ assert.equal(h.calls.filter(c=>c.name==='neighborhood_ai_search').length,8);
  const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.doesNotMatch(JSON.stringify(metric),/food drive|What is happening/);
  assert.equal((metric.args!.payload as {inputTokens:number}).inputTokens,20);
 });
@@ -111,14 +111,14 @@ test('general keyword discovery preserves topics without model-generated titles'
   assert.ok(calls.some(c=>c.kind==='event'),question);
   assert.ok(calls.every(c=>c.terms===plan.terms));
  }
- assert.equal(fallbackPlan('What festivals are happening?').terms,'festivals');
- assert.equal(fallbackPlan('What music events are happening this weekend?').terms,'music');
+ assert.equal(fallbackPlan('What festivals are happening?').terms,'festival');
+ assert.equal(fallbackPlan('What music events are happening this weekend?').terms,'music concert');
  assert.equal(fallbackPlan('What music events are happening this weekend?').window,'weekend');
 });
 test('keyword service skips planner and preserves terms on authorization recheck',async()=>{
  const h=harness();
  await answerQuestion({question:'What festivals are happening?'},h.deps);
  const searches=h.calls.filter(c=>c.name==='neighborhood_ai_search');
- assert.equal(searches.length,6);
- assert.ok(searches.every(c=>c.args?.terms==='festivals'));
+ assert.equal(searches.length,8);
+ assert.ok(searches.every(c=>c.args?.terms==='festival'));
 });

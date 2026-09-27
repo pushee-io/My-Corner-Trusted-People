@@ -1,20 +1,19 @@
 // No database/client secrets here: deterministic boundaries shared by server tests.
+import { understand, sourcePriority, keywordTerms } from './neighborhood-concepts.ts';
+import type { QueryDetails } from './neighborhood-concepts.ts';
 import { outputJson } from './openai-responses.ts';
 export const ANSWER_VERSION = 'ask-v1';
 export type Intent = 'events'|'providers'|'alerts'|'organizer'|'memory'|'marketplace'|'digest'|'unsupported';
-export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all';
+export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all'|'next_week'|'last_week';
 export type Kind = 'event'|'provider'|'agency'|'post'|'group'|'marketplace';
-export type Plan = {intent: Intent; terms: string; window: Window};
+export type Plan = {intent: Intent; terms: string; window: Window; details?: QueryDetails};
 export type Source = {id: string; kind: Kind; title: string; text: string; href: string; authority: string; publishedAt: string;
  startsAt?: string; endsAt?: string; expiresAt?: string; timezone?: string; organizer?: string; availability?: string; priceGhs?: number;
  reputation?: {average: number; count: number; verifiedCount: number; recommendationPercent: number|null;
  reviews: {title: string; body: string; rating: number; author: string; recommends: boolean; createdAt: string; response: string|null}[]}|null};
 const intents: Intent[] = ['events','providers','alerts','organizer','memory','marketplace','digest','unsupported'];
-const windows: Window[] = ['weekend','saturday','sunday','tomorrow','today','week','month','upcoming','all'];
-export const toolKinds: Record<Intent,Kind[]> = {
- events:['event','agency','group'],providers:['provider'],alerts:['agency','post'],organizer:['event','group','post'],
- memory:['post','group','agency'],marketplace:['marketplace'],digest:['agency','event','post','group','marketplace','provider'],unsupported:[],
-};
+const windows: Window[] = ['weekend','saturday','sunday','tomorrow','today','week','month','upcoming','all','next_week','last_week'];
+export const toolKinds = sourcePriority;
 export function redact(text: string, max = 1600): string {
  return text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'')
   .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[contact hidden]')
@@ -44,12 +43,10 @@ export function parsePlan(value: unknown): Plan {
  return {intent:p.intent,terms:redact(p.terms,160),window:p.window};
 }
 // Remove question scaffolding, never topic/category words. SQL performs stemming and prefix matching.
-export function keywordTerms(question: string): string {
- const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or'.split(' '));
- return [...new Set(question.toLowerCase().replace(/[’']/g,'').match(/[\p{L}\p{N}]+/gu)??[])]
-  .filter(word=>!stop.has(word)).slice(0,12).join(' ').slice(0,160);
-}
+export { keywordTerms };
 export function fallbackPlan(question: string, previous: string[]=[]): Plan {
+ const understood=understand(question,previous);
+ if(understood)return {...understood.plan,details:understood.details};
  const q=question.toLowerCase();
  const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.slice(-1).join(' ')} ${q}`.toLowerCase():q;
  const window: Window = /saturday/.test(context)?'saturday':/sunday/.test(context)?'sunday':/tomorrow/.test(context)?'tomorrow':/weekend/.test(context)?'weekend':/today|tonight|right now/.test(context)?'today':/last month/.test(context)?'month':/this week|miss|latest/.test(context)?'week':'all';
@@ -81,6 +78,7 @@ export function timeRange(window: Window, now: Date): {since_at: string|null; un
  if(window==='tomorrow'){start.setUTCDate(start.getUTCDate()+1);end.setUTCDate(end.getUTCDate()+2);}
  if(window==='today')end.setUTCDate(end.getUTCDate()+1);
  if(window==='week'||window==='month'){start.setUTCDate(start.getUTCDate()-(window==='week'?7:30));end.setTime(now.getTime());}
+ if(window==='next_week'||window==='last_week'){const monday=(start.getUTCDay()+6)%7;start.setUTCDate(start.getUTCDate()-monday+(window==='next_week'?7:-7));end.setTime(start.getTime());end.setUTCDate(end.getUTCDate()+7);}
  if(window==='upcoming'){start.setTime(now.getTime());end.setUTCDate(end.getUTCDate()+30);}
  return {since_at:start.toISOString(),until_at:end.toISOString()};
 }
@@ -134,6 +132,7 @@ export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms:
   kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
  // Round-robin avoids one source type crowding every other type out of a digest.
  const sources: Source[]=[];
+ if(plan.intent!=='digest')return results.flat().map(safeSource).slice(0,16);
  for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<16)sources.push(safeSource(rows[i]));
  return sources;
 }

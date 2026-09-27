@@ -39,3 +39,9 @@ D/F/H. Extend existing authorized RPC retrieval with structured provider categor
 J. Grounded answers, clarification actions, privacy-safe diagnostics and regression corpus; full CI; scoped Preview checks after approved deployment. APK 46 installed successfully according to founder terminal; native visual acceptance remains pending and any new UI needs a freshly approved build.
 
 No production changes, Preview writes, communications, identity changes or paid build were performed. No merge or deployment has been claimed.
+
+## Checkpoint B/C/E/G/I — query concepts and source planning
+
+Implemented a reviewable server vocabulary with concept families, stored-category aliases, unique one-edit typo correction, structured comparison metrics, calendar week windows and bounded prior-question inheritance. Provider/Event/Marketplace/alert intents search relevant secondary sources in parallel and prioritize primary records. Tests cover the requested morphology/synonym/typo corpus, metrics and time boundaries; 36 server tests pass. Database comparison execution and UI clarification are deliberately integrated in the following checkpoint, so this intermediate branch must not be deployed alone.
+
+Existing Hire repository lists accepting providers by category without checking `provider_service_areas`; this explains why a provider can appear in Hire while absent from authorized neighborhood assistant retrieval. This upgrade does not silently adopt that weaker coverage inference.
