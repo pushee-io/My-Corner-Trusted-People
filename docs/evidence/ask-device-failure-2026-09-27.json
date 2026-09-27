@@ -54,7 +54,15 @@
     "method": "Actual authenticated-role Preview retrieval; local service replay with simulated context/meter and no live model call"
   },
   "serverTests": 58,
-  "ci": "pending",
+  "ci": {
+    "status": "success",
+    "runs": [
+      36350321356,
+      36350321346,
+      36350317540,
+      36350317549
+    ]
+  },
   "deployed": false,
   "apkRequired": false,
   "apk49Unchanged": true,
@@ -63,5 +71,7 @@
   "productionChanges": false,
   "schemaChanges": false,
   "identityChanges": false,
-  "secretsChanged": false
+  "secretsChanged": false,
+  "testedSource": "4d74885b91349a9dd6a4d539e4aac0b887232687",
+  "pr": 155
 }

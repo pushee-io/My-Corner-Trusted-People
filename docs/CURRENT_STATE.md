@@ -1,3 +1,9 @@
+## 2026-09-27 — PR #155 source CI green; fresh demo requester requested
+
+- Server recovery source **`4d74885b91349a9dd6a4d539e4aac0b887232687`**, [PR #155](https://github.com/pushee-io/My-Corner-Trusted-People/pull/155), passed **58 server tests and Deno check**. All required source CI succeeded: Media Functions PR **36350321356**, Database PR **36350321346**, Media Functions push **36350317540**, Database push **36350317549**. Mobile source remains APK49; no new build required.
+- **Deployment remains pending founder approval** for this new #155 source on Preview `opeojxwkwwnnncnsuaag` only, retaining JWT verification. Prior #152 approval does not authorize #155. Preview remains v10; no quota changes, production changes or new APK build.
+- Founder requested a separate requester test profile for a VC screen recording. Account creation is pending. Preview Auth signup requires email confirmation; ordinary signup would send email, so investigate supported administrative creation without communications. Do not copy private identities, reset existing quotas or claim a new account fixes the pending server issue. No requester credential belongs in this repository.
+
 ## 2026-09-27 — Device quota/503 difference diagnosed; server evidence recovery prepared
 
 - Founder screenshots show the same request, “I need a plumber today,” with a Preview-limit message on emulator and temporary unavailability on phone. Live Preview v10 logs at 20:50–20:53 UTC show **different authenticated accounts**, **429** versus **503**. Quota account: **40/40 daily**; unavailable account: **35/40 daily**; global use **75/500**. Limits were not changed/reset. This is not evidence of a client error-message decoding defect or an old APK.
