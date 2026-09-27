@@ -142,5 +142,15 @@ insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,modera
  ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','A suggestion for better park lighting.','clean');
 set local role authenticated;
 select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_retrieve('post','power outage electricity blackout lights off',null,null,null,'{"phrases":["power off","lights off","power outage","blackout"]}'))=1,'Lighting discussion misrepresented as outage');
+-- Deterministic event/Marketplace comparisons must also precede the eight-row cap.
+select public.rsvp_to_event('a7000000-0000-4000-8000-000000000001');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('event','',null,now(),now()+interval '7 days','{"metric":"rsvps"}')->0->>'id'='a7000000-0000-4000-8000-000000000001','RSVP winner lost');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('event','',null,now(),now()+interval '7 days','{"metric":"rsvps"}')->0->'comparison'->>'value'='1','RSVP metric fabricated');
+reset role;
+insert into public.marketplace_listings(neighborhood_id,seller_id,title,description,availability,pickup_area,created_at)
+ select 'a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Table table table '||n,'Older table table listing','available','General area',now()-interval '1 day' from generate_series(1,10) n;
+set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('marketplace','table',null,null,null,'{"metric":"newest"}')->0->>'id'='a6000000-0000-4000-8000-000000000001','Newest listing lost behind lexical cap');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('marketplace','table',null,null,null,'{"metric":"newest"}')->0->'comparison'->>'eligibleCount'='11','Listing comparison population capped');
 reset role;
 rollback;
