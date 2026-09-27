@@ -4,6 +4,13 @@ import type { Intent, Source } from './neighborhood-assistant.ts';
 import { outputJson } from './openai-responses.ts';
 type Rpc = (name: string, args?: Record<string,unknown>)=>Promise<{data: unknown;error: unknown}>;
 type Dependencies = {debug?: boolean; trace?: (metadata: Record<string,unknown>)=>void; rpc: Rpc; model: string; respond: (payload: unknown)=>Promise<Record<string,unknown>>; now?: ()=>Date};
+export class AskAllowanceError extends Error {
+ readonly code='ASK_ALLOWANCE_REACHED';
+ constructor(){super('The Preview question limit has been reached. Try again later or use Search.');}
+}
+export function askFailure(error:unknown){
+ return error instanceof AskAllowanceError?{status:429,body:{code:error.code,error:error.message}}:{status:503,body:{error:UNAVAILABLE}};
+}
 export const UNAVAILABLE='Ask My Corner is temporarily unavailable. You can still search your neighborhood.';
 export async function answerQuestion(body: {question?: unknown;history?: unknown;neighborhoodId?: unknown; providerId?: unknown}, deps: Dependencies) {
  const started=Date.now();const now=deps.now?.()??new Date();
@@ -13,7 +20,10 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
  if(context.error||!context.data)throw new Error(UNAVAILABLE);
  const hood=context.data as {id:string;name:string;timezone:string};
  const allowance=await deps.rpc('neighborhood_ai_meter',{action:'start'});
- if(allowance.error||!allowance.data)throw new Error('Ask My Corner allowance reached or unavailable. You can still use Search.');
+ if(allowance.error||!allowance.data){
+  if((allowance.error as {code?:string}|null)?.code==='54000')throw new AskAllowanceError();
+  throw new Error(UNAVAILABLE);
+ }
  const runId=(allowance.data as {id:string}).id;
  let intent: Intent='unsupported',outcome='unavailable',sources: Source[]=[],inputTokens=0,outputTokens=0,retrievalMs=0;
  const modelCall=async(payload: unknown)=>{
@@ -46,7 +56,16 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   sources=await retrieve(plan,now,search);
   retrievalMs=Date.now()-retrievalStarted;
   let excerpts: {index:number;quote:string}[]=[];
-  if(sources.length&&!plan.details?.metric&&!plan.details?.availability)excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
+  if(sources.length&&!plan.details?.metric&&!plan.details?.availability){
+   excerpts=validatedExcerpts(await modelCall(synthesisPayload(question,sources,deps.model)),sources);
+   // A candidate discussion is not an answer merely because one search term matched.
+   // Keep structured providers, but show related discussions only with selected evidence.
+   if(plan.intent==='providers'){
+    const selected=new Set(excerpts.map(e=>e.index));const original=sources;
+    sources=sources.filter((s,i)=>s.kind==='provider'||selected.has(i));
+    excerpts=excerpts.map(e=>({index:sources.indexOf(original[e.index]),quote:e.quote}));
+   }
+  }
   // Re-authorize immediately before returning. A block/removal/membership change during
   // model latency must revoke the source and its excerpt in this response, too.
   if(sources.length){

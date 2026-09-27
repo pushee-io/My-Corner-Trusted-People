@@ -5,6 +5,7 @@ import AskScreen from '../../app/ask';
 import { MessagesAccess } from '@/components/MessagesAccess';
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import {
+  AskAllowanceError,
   askFeedback,
   askNeighborhood,
   askSourceClick,
@@ -354,4 +355,14 @@ it('a pronoun follow-up can use one provider but cannot choose between tied prov
       ],
     }),
   ).toBeUndefined();
+});
+
+it('shows the question-limit explanation and keeps Search available', async () => {
+  jest.mocked(askNeighborhood).mockRejectedValue(new AskAllowanceError());
+  await render();
+  await ask();
+  expect(output()).toContain('Preview question limit has been reached');
+  expect(output()).not.toContain('temporarily unavailable');
+  await press('Search your neighborhood');
+  expect(router.push).toHaveBeenCalledWith('/search');
 });

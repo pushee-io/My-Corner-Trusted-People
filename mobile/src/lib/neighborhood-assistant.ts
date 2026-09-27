@@ -36,6 +36,15 @@ export type AskAnswer = {
   excerpts: { index: number; quote: string }[];
 };
 export const askUnavailable = 'Ask My Corner AI is temporarily unavailable. You can still use Search.';
+export const askAllowanceReached = 'The Preview question limit has been reached. Try again later or use Search.';
+export class AskAllowanceError extends Error {
+  constructor() {
+    super(askAllowanceReached);
+  }
+}
+export function askErrorMessage(error: unknown): string {
+  return error instanceof AskAllowanceError ? askAllowanceReached : askUnavailable;
+}
 export async function loadAskContext(): Promise<AskContext | null> {
   const { data, error } = await supabase.rpc('neighborhood_ai_context');
   if (error || !data?.id || !data?.name) return null;
@@ -65,7 +74,16 @@ export async function askNeighborhood(
   const { data, error } = await supabase.functions.invoke('ask-my-corner', {
     body: { question, history: history.slice(-2), neighborhoodId, ...(providerId ? { providerId } : {}) },
   });
+  let failure: unknown = data;
+  if (error?.context?.status === 429) {
+    try {
+      failure = await error.context.json();
+    } catch {
+      failure = null;
+    }
+  }
   assertMediaSession(session);
+  if ((failure as { code?: string } | null)?.code === 'ASK_ALLOWANCE_REACHED') throw new AskAllowanceError();
   if (error || !data?.enabled || !Array.isArray(data.answer?.sources) || typeof data.answer?.notice !== 'string')
     throw new Error(askUnavailable);
   const answer = data.answer as AskAnswer;

@@ -23,7 +23,7 @@ export const concepts: Concept[] = [
  {id:'table',family:'commerce',intent:'marketplace',aliases:['dining table','used table','table for sale'],terms:'table dining'},
 ];
 export type Metric = 'verified_reviews'|'rating'|'completed_jobs'|'rsvps'|'newest';
-export type QueryDetails = {evidencePhrases?:string[]; concepts:string[]; categories:string[]; metric?:Metric; availability?:boolean; closest?:boolean;
+export type QueryDetails = {serviceTerms?:string; evidencePhrases?:string[]; concepts:string[]; categories:string[]; metric?:Metric; availability?:boolean; closest?:boolean;
  correction?:{from:string;to:string}[]; clarification?:{question:string;choices:string[]}; providerId?:string};
 export const sourcePriority: Record<Intent,Kind[]> = {
  providers:['provider','post','group'],alerts:['agency','post','group'],events:['event','post','group','agency'],
@@ -58,7 +58,7 @@ export function understand(question:string,previous:string[]=[]): {plan:Plan;det
  else if(/newest|most recent listing/.test(q))metric='newest';
  const availability=/\bavailable|availability\b/.test(q),closest=/\bclosest\b/.test(q);
  let window:Window=/next week/.test(q)?'next_week':/last week/.test(q)?'last_week':/saturday/.test(q)?'saturday':/sunday/.test(q)?'sunday':/tomorrow/.test(q)?'tomorrow':/weekend/.test(q)?'weekend':/today|tonight|right now/.test(q)?'today':/last month/.test(q)?'month':/this week|recent|latest/.test(q)?'week':'all';
- const details:QueryDetails={...(found.some(c=>c.family==='utilities')?{evidencePhrases:found.filter(c=>c.family==='utilities').flatMap(c=>c.aliases).slice(0,20)}:{}),concepts:found.map(c=>c.id),categories:found.flatMap(c=>c.category?[c.category]:[]),...(metric?{metric}:{}),...(availability?{availability}:{}),...(closest?{closest}:{}),...(correction.length?{correction}: {})};
+ const details:QueryDetails={...(found.some(c=>c.intent==='providers')?{serviceTerms:[...new Set(found.filter(c=>c.intent==='providers').flatMap(c=>c.terms.split(' ')))].join(' ')}:{}),...(found.some(c=>c.family==='utilities')?{evidencePhrases:found.filter(c=>c.family==='utilities').flatMap(c=>c.aliases).slice(0,20)}:{}),concepts:found.map(c=>c.id),categories:found.flatMap(c=>c.category?[c.category]:[]),...(metric?{metric}:{}),...(availability?{availability}:{}),...(closest?{closest}:{}),...(correction.length?{correction}: {})};
  if(q==='power')return {plan:{intent:'alerts',terms:'',window:'week'},details:{...details,clarification:{question:'Do you mean a power outage nearby, or are you looking for an electrician?',choices:['Power outage','Find electrician']}}};
  if(!found.length&&!metric&&!availability&&!closest)return null;
  const intent:Intent=metric==='rsvps'?'events':metric==='newest'?'marketplace':metric||availability?'providers':found[0]?.intent??'providers';
@@ -70,7 +70,7 @@ export function understand(question:string,previous:string[]=[]): {plan:Plan;det
 }
 
 export function keywordTerms(question: string): string {
- const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or'.split(' '));
+ const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or i im we us need needs needing want wants wanted looking look get getting someone somebody anyone help helps please would like'.split(' '));
  return [...new Set(question.toLowerCase().replace(/[’']/g,'').match(/[\p{L}\p{N}]+/gu)??[])]
   .filter(word=>!stop.has(word)).slice(0,12).join(' ').slice(0,160);
 }

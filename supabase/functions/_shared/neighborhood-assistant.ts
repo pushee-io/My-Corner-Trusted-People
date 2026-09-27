@@ -130,7 +130,7 @@ export function answerNotice(intent: Intent, sources: Source[]): string {
 export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>) {
  const range=timeRange(plan.window,now);
  const kinds:Kind[]=plan.intent==='providers'&&(!plan.terms||plan.details?.providerId)?['provider']:toolKinds[plan.intent];
- const results=await Promise.all(kinds.map(kind=>search(kind,plan.terms,
+ const results=await Promise.all(kinds.map(kind=>search(kind,plan.intent==='providers'&&kind!=='provider'&&plan.details?.serviceTerms?plan.details.serviceTerms:plan.terms,
   // Weekend activity startsAt applies to Events; surrounding announcements remain recent.
   kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
  // Round-robin avoids one source type crowding every other type out of a digest.

@@ -129,6 +129,14 @@ join (
 on conflict (provider_id, category_id) do update
 set service_label = excluded.service_label;
 
+-- The named East Legon pilot coverage is explicit; "nearby" creates no extra areas.
+-- Keep the Hire display label and structured assistant coverage aligned on fresh seeds.
+insert into public.provider_service_areas(provider_id,neighborhood_id,area_label)
+select p.id,n.id,'East Legon' from public.provider_profiles p cross join public.neighborhoods n
+where p.seed_key='pilot-provider-kwame-pipecare'
+ and n.name='East Legon' and n.city='Accra' and n.country_code='GH'
+ and not exists(select 1 from public.provider_service_areas a where a.provider_id=p.id and a.neighborhood_id=n.id);
+
 insert into public.provider_trust_signals (provider_id, signal_type, label, value, moderator_reviewed)
 select
   provider.id,

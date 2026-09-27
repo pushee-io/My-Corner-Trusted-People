@@ -11,6 +11,7 @@ import {
   askNeighborhood,
   askSourceClick,
   askUnavailable,
+  askErrorMessage,
   loadAskContext,
   reviewCountLabel,
   safeAskHref,
@@ -98,8 +99,8 @@ export default function AskScreen() {
         : await askNeighborhood(submitted, history, neighborhood);
       if (generation.current !== current) return;
       setAnswer(next);
-    } catch {
-      if (generation.current === current) setError(askUnavailable);
+    } catch (error) {
+      if (generation.current === current) setError(askErrorMessage(error));
     } finally {
       if (generation.current === current) {
         sending.current = false;

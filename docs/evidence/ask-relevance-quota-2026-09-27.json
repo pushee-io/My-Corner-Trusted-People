@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-27",
+  "preview_project": "opeojxwkwwnnncnsuaag",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "base_checkpoint": "7ec127a4f16e02aa13c98ad4fa9eefb068b103e5",
+  "screenshots": [
+    "IMG_0285.jpg",
+    "IMG_0286.jpg",
+    "IMG_0287.jpg",
+    "IMG_0288.jpg",
+    "Screenshot 2026-09-27 at 11.23.32 AM.png"
+  ],
+  "provider": {
+    "name": "Kwame PipeCare",
+    "id": "dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+    "seed_key": "pilot-provider-kwame-pipecare",
+    "display_area": "East Legon and nearby",
+    "structured_area_count": 0,
+    "proposed_neighborhood": "90ac8954-e9ca-467f-8a2e-de7eecbd5422",
+    "repair_sql": "supabase/ops/preview_kwame_east_legon_coverage.sql",
+    "repair_sha256": "22d473ead9ecda9ca683c182ea29b8b9776be77847b473841948faedc5353cee",
+    "live_applied": false
+  },
+  "retrieval_read_only_reproduction": {
+    "method": "Preview authenticated-role RPC under existing successful caller context; read-only transaction rolled back; no HTTP session issued, no model call, no quota consumed",
+    "old_post_count": 2,
+    "old_hair_present": true,
+    "topic_post_count": 1,
+    "topic_hair_present": false,
+    "plumbing_provider_count": 0
+  },
+  "unavailable": {
+    "edge_503_utc": [
+      "2026-09-27T15:17:54.087Z",
+      "2026-09-27T15:18:28.004Z",
+      "2026-09-27T15:23:09.822Z"
+    ],
+    "confirmed_meter_error_utc": "2026-09-27T15:23:09.777Z",
+    "postgres_code": "54000",
+    "message": "Ask My Corner allowance reached.",
+    "observed_daily_counts": [
+      31,
+      40
+    ],
+    "daily_user_limit": 40,
+    "minute_user_limit": 6,
+    "global_daily_limit": 500,
+    "quotas_changed": false,
+    "other_failures": "No assertion about unseen errors; the screenshot-time failure is confirmed quota rejection."
+  },
+  "validation": {
+    "server_tests": 45,
+    "mobile_tests": 548,
+    "mobile_suites": 97,
+    "typecheck": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "lint_errors": 0,
+    "lint_baseline_warnings": 15,
+    "ci": "pending"
+  },
+  "deployment": "not performed; new Preview approval required",
+  "new_apk": "not built; APK47 cannot show new quota-specific copy",
+  "production_changes": false,
+  "identity_changes": false,
+  "live_coverage_changes": false
+}
