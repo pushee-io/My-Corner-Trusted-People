@@ -4,7 +4,7 @@
   "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
   "cause": "Feed directly selects profiles.id/display_name; live profiles policy permits only auth.uid()=auth_user_id. Immediate own posts/comments use profile.displayName; realtime inserts had no hydration.",
   "migration": "20260927162909_feed_public_author_names.sql",
-  "applied": false,
+  "applied": true,
   "fix": "Bounded content-authorized RPC calls existing canonical neighbor_name; posts/comments/read/create/realtime use it. No base profile widening or identity copying.",
   "publicNameTests": [
     "Two viewers see the same approved public name",
@@ -35,7 +35,7 @@
   },
   "nativeAcceptance": "pending",
   "newApkSubmitted": false,
-  "backendMutations": false,
+  "backendMutations": true,
   "productionChanges": false,
   "pr": 153,
   "testedSource": "728814892944d565f111f24b53fb0a81de8b5b14",
@@ -45,5 +45,7 @@
     "mobile": 36333987194,
     "serverDeno": 36333987084,
     "result": "all passed"
-  }
+  },
+  "remoteMigrationVersion": "20260927200502",
+  "deploymentEvidence": "discovery-feed-preview-deployment-2026-09-27.json"
 }

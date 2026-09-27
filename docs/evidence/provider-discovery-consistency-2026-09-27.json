@@ -583,7 +583,7 @@
   ],
   "coverageRepair": {
     "file": "supabase/ops/preview_provider_coverage_catalog.sql",
-    "applied": false,
+    "applied": true,
     "expectedNewRows": 18,
     "profilesChanged": 12,
     "totalCatalogProfiles": 14,
@@ -608,7 +608,7 @@
     "native": "pending"
   },
   "productionChanges": false,
-  "backendChanges": false,
+  "backendChanges": true,
   "paidBuild": false,
   "pr": 152,
   "testedSource": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
@@ -618,5 +618,7 @@
     "mobile": 36333358268,
     "serverDeno": 36333358300,
     "result": "all passed"
-  }
+  },
+  "deploymentEvidence": "discovery-feed-preview-deployment-2026-09-27.json",
+  "edgeDeployment": "blocked by automatic approval review; remains v9/JWT true"
 }
