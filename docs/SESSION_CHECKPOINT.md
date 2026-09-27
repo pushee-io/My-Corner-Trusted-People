@@ -1,3 +1,12 @@
+## 2026-09-27 — One new assistant Preview APK approved; submission checkpoint
+
+- Founder explicitly approved one new Preview Android APK after the verified v8 backend deployment. This resolves the previous APK approval gate for one submission only. No main merge, production change, secret change or identity/provider-coverage edit is included.
+- Build branch `codex/ask-intent-preview-apk` starts at #148 checkpoint `90b91e7d221704ede8ac0b67517af317d3eac4c3`; application/database source is unchanged from tested `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074`. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. Existing PR stack branches remain unchanged.
+- Latest source checkpoint CI passed: Database 36294726852, Mobile 36294726819, server/Deno 36294726817. The build reruns release gates and verifies Preview-only environment, exact source, version greater than 46, previous product markers and new provider follow-up/completed-job labels.
+- EAS duplicate guard retains active/unexpected completed-build rejection and recognizes already verified APK 46 (`b6ea9558-74c4-49fe-9f28-f8a9baed72ff`) as the prior baseline. A build receipt is uploaded before the long completion wait. Do not submit a replacement if the chat stalls; inspect this workflow's recorded build first.
+- New native source includes clarification choices, selected-provider availability follow-ups and completed-job display. Preview backend v8 remains JWT-verified; 40 scoped RPC checks and anonymous HTTP 401 passed. Authenticated Edge/model and native phone/tablet visual acceptance remain pending. Missing structured Plumbing/Electrical service areas remain a separate data gate.
+- Status at this checkpoint: authorized submission prepared; no new EAS build ID recorded yet. Completion evidence and actual APK checksum follow after artifact verification.
+
 ## 2026-09-27 — Approved assistant upgrade deployed to Preview and scoped checks complete
 
 - Founder explicitly approved this exact migration and tested #148 function deployment to Preview only. Applied **`20260927040151_assistant_structured_retrieval.sql`** to **`opeojxwkwwnnncnsuaag`**. Remote history version **`20260927042839`**; stored SQL matches source byte-for-byte, SHA-256 **`54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`**. The tool assigns the remote timestamp; do not reapply because it differs from the filename.
