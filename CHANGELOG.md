@@ -1,3 +1,11 @@
+## 2026-09-28 — canonical Search and AI reliability program (in progress)
+
+Live main: `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. Integration branch `codex/canonical-neighborhood-reliability` starts at #156 `95ffa8cc1f069547a972f83dcdeccf4504cb099c`, preserving #143–#156. Preview remains ask-my-corner v10 / #152, JWT verified. #155 is not deployed. No new migration, function deployment or APK is authorized by this checkpoint.
+
+Diagnosis: Basic Search uses whole-query literal substring matching, so plumber misses Plumbing. Hire lacks AI's structured coverage predicate. “Most rated” is not a deterministic comparison alias. Three September 28 HTTP 503s followed successful retrieval and model usage; v10 does not record the exact thrown exception. Current usage is below allowance; quota is 40 per UTC calendar day, six per minute and 500 global per UTC day. Old usage rows are lazily reset and must not be presented as current usage. Next observed daily reset: 2026-09-29T00:00:00Z.
+
+Next: one canonical authorized retrieval platform, deterministic fallback, accurate quota status, Search and comment UX, broad regression and privacy acceptance. Persistent Preview changes require one consolidated approval after source/CI readiness. Native phone + Pixel Tablet and VC readiness remain unaccepted; no new APK yet. See `GLOBAL_SEARCH_AND_AI_ARCHITECTURE.md`, `AI_RELIABILITY_ACCEPTANCE_MATRIX.md`, and sanitized `evidence/global-search-baseline-2026-09-28.json`.
+
 ## 2026-09-27 — Approved Preview APK50 finished and independently verified
 
 - Completed the one approved build: **APK50**, EAS **`234dd105-1a06-469e-b16a-c8b42cea6e78`**, source **`763276b701b161507d8f8cf967878286ad234bcb`**, workflow **36356385371 success**. Receipt artifact **10943692491**; verified APK/provenance artifact **10943882839**. Checkpoint **#156**. Approval consumed; do not submit a replacement after interruption.
@@ -479,6 +487,307 @@
 - Audited live main `a5842b79c173833adf25299d74f169dfe8f49f42`, Search, existing Responses/Edge integration and authorization.
 - Added disabled-by-default, bounded SECURITY INVOKER neighborhood retrieval for Events, Feed, accepted Groups, verified Agencies, providers/real reviews and Marketplace; private data sources excluded. Approved public organizer identity replaces potentially legal profile name.
 - Added private quotas/metadata/feedback foundation and role-switched SQL security tests. Database CI pending before merge; no Preview deployment or activation yet.
+- Continue with grounded server orchestration and global UI. Business/deal and formal poll data are absent; do not fabricate them. See `docs/AI_NEIGHBORHOOD_ASSISTANT.md`. No APK/production activation aut…128990 tokens truncated…w/weekend zeroes must not be reported as broken lexical retrieval or filled with fabricated Events.
+- **Scoped boundaries passed:** anonymous RPC denied, invoker RLS retained, unauthorized neighborhood denied, returned Events approved/current/authorized, Group membership required, Agency notices approved/nonexpired, providers have explicit coverage, and Event/provider/Marketplace action routes match source IDs. Completed-job metrics match the existing verified-review projection; RSVP counts match public structured counts; newest-listing values match creation times. Live comparisons show 1 RSVP among 2 eligible Events, 1 completed job for the 1 covered provider, and newest selection from 11 eligible listings. No Plumbing/Electrical comparison winner can be established without eligible providers.
+- Security advisors unchanged from baseline (including existing unrelated findings); not certified advisor-clean. Reference: https://supabase.com/docs/guides/database/database-linter . Full source CI remains green: Database/RLS **36293942320**, Mobile **36293942313**, server/Deno **36293942319**; **544 mobile tests / 96 suites; 42 server tests; typecheck/format/diff passed; lint 0 errors / 15 baseline warnings**.
+- **NEW PREVIEW APK APPROVAL REQUIRED** for full Android testing of new clarification choices, selected-provider availability follow-ups and completed-job display. APK 46 predates these mobile changes. Current main is still **`a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`**; approved backend source lives in open #148 stack. Merge/source selection must preserve #145–#148 and prior #143/#144 history before a new build. No build started. Authenticated Edge/model execution and phone/tablet visual acceptance remain pending; provider coverage remains a separate data gate.
+- Durable deployment evidence: `docs/evidence/ask-intent-preview-deployment-2026-09-27.json`; 40-query result matrix included. Existing audit: `docs/ASK_INTENT_AUDIT.md`. Resume from live GitHub/Preview; do not redeploy/reapply merely because a chat session stalls.
+
+## 2026-09-27 — Approved assistant migration applied; Edge deployment next
+
+- Founder explicitly approved the new migration and tested #148 ask-my-corner deployment to Preview `opeojxwkwwnnncnsuaag` only, retaining JWT verification. The previous automatic approval block is resolved.
+- Applied `20260927040151_assistant_structured_retrieval.sql` successfully through the migration tool. Source SHA-256 `54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`. No provider coverage, identity, feature flag, secret or production data changed.
+- Tested source remains `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` in #148; all final CI green. Next authorized operation: deploy its seven function/config files with JWT verification true, then scoped read-only verification. No merge or paid APK build authorized by this approval.
+
+## 2026-09-27 — Assistant upgrade ready; exact Preview deployment approval required
+
+- Reviewable work is pushed in **#145 (audit), #146 (concepts/planning), #147 (structured retrieval), #148 (grounded response/mobile integration)**. Stack preserves #143/#144 history. Tested application/database/test source: `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074`; later commits are checkpoint-only. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; no PR merged in this task.
+- **All final CI passed:** Database/RLS **36293942320** (and push **36293940628**), Mobile **36293942313**, server/Deno **36293942319**. Local **544 mobile tests / 96 suites; 42 server tests; typecheck, format and diff pass; lint 0 errors / 15 existing baseline warnings**. Includes actual SQL metric comparisons before caps, RSVP/newest-listing regressions, outage false-positive exclusion, privacy and existing Event checks.
+- **Automatic approval review rejected** applying the new persistent Preview DDL migration: the founder's prior explicit approval covered different named migrations and the existing Edge function, not this new migration. No workaround was used. Readback confirms new migration/RPC absent. Dependent Edge deployment was **not attempted**. Live `ask-my-corner` remains **v7**, JWT verification enabled, deployed files equal main.
+- **Exact approval needed:** apply only `20260927040151_assistant_structured_retrieval.sql` (SHA-256 `54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`) to Preview **`opeojxwkwwnnncnsuaag`**, then deploy the tested #148 `ask-my-corner` source with **JWT verification retained**, and run scoped verification. This replaces retrieval functions and adds authorized comment/concept helpers; it does not change user records, identity, provider coverage, feature flags or secrets. Protected-main merges remain separately unperformed.
+- **Data/acceptance gate:** four Plumbing/two Electrical records have no structured service areas. Electrical public labels name Adenta/Madina and Osu/Labone; never invent East Legon coverage. Valid provider-supplied coverage must be resolved for positive local provider demo acceptance. Existing lighting discussions are not outage evidence. SQL/source checks are not authenticated HTTP/model or native phone/tablet acceptance.
+- APK 46 installed successfully but predates the new clarification/provider-follow-up UI. A new Preview APK will require fresh founder approval after backend verification; **no build was submitted**. Production, identities, real communications and unrelated schema/secrets remain untouched.
+- Durable evidence: `docs/ASK_INTENT_AUDIT.md`, `docs/evidence/ask-intent-audit-2026-09-27.json`, `docs/evidence/ask-intent-verification-2026-09-27.json`. Resume from live GitHub and these records; do not recreate completed checkpoints or reapply earlier migrations.
+
+## 2026-09-27 — Integrated assistant source green; Preview deployment boundary
+
+- Four reviewable PRs are open: #145 audit, #146 concepts/planning, #147 structured database retrieval, #148 grounded response/mobile integration. Final source/test head `1e9f4f4b5e41c788ff695b117dc29b7bdde4d074` preserves #143/#144 history; no PR was merged.
+- Integrated source `1f51931477fa11a78d3f2e73f3f41456ffdbda49` passed Database 36293816023, Mobile 36293816027 and server/Deno 36293816003. Final test-only extension adds RSVP/newest-listing cap regressions; its Database run 36293942320 is pending, Mobile 36293942313 and server/Deno 36293942319 passed. Local: 42 server tests, 544 mobile tests/96 suites, typecheck/format/diff pass, lint 0 errors/15 baseline warnings.
+- Live readback corrects the stale function version: Preview `ask-my-corner` is v7, JWT verification true; all five deployed files equal main. New migration/RPC are absent. No current-session deployment or secret change occurred.
+- Concrete Preview deployment candidate: only `20260927040151_assistant_structured_retrieval.sql`, SHA-256 `54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca`, then this tested `ask-my-corner` source with JWT verification retained, project `opeojxwkwwnnncnsuaag` only. It changes retrieval functions, not user/identity/service-area data or feature flags. Completed work is durable before any deployment attempt.
+- Positive provider acceptance also needs valid service-area assignments: the two Electrical public labels name Adenta/Madina and Osu/Labone, so they must not be invented as East Legon coverage. Some Plumbing labels mention East Legon but have no structured coverage. Current "lights off" matches include non-outage lighting discussion; v2 guards this with phrase evidence.
+- Authenticated HTTP/model execution and Android phone/tablet acceptance remain pending. APK 46 predates clarification/provider-selection UI. No paid build or production action. Evidence: `docs/evidence/ask-intent-verification-2026-09-27.json`; audit and safe semantic-layer design: `docs/ASK_INTENT_AUDIT.md`.
+
+## 2026-09-27 — Ask My Corner intent upgrade prepared in reviewable checkpoints
+
+- Audit #145, concepts/planning #146 and structured retrieval #147 are pushed, stacked above #144 to retain prior deployment/APK records. Integration follows on `codex/ask-grounded-integration`. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`.
+- Added concept/category aliases, controlled typo matching, intent priorities, time windows, utility phrase evidence, SQL comparisons before caps, authorized text/comments, grounded notices, clarification actions and selected-provider follow-ups. Details and 16-query baseline: `docs/ASK_INTENT_AUDIT.md`.
+- Local integrated checks: 42 server tests; 544 mobile tests / 96 suites; typecheck/format/diff pass; lint 0 errors / 15 baseline warnings. Database checkpoint CI passed; final integration CI pending.
+- New migration `20260927040151_assistant_structured_retrieval.sql` remains unapplied. No Edge redeployment, main merge, production action, identity/coverage backfill or EAS build performed.
+- Preview data gate: four Plumbing/two Electrical providers have no recorded service areas. Existing "lights off" lexical matches include unrelated lighting discussions; these must not be called outage confirmation. Authenticated HTTP/model and native acceptance remain pending. APK 46 installation succeeded, but it predates the new UI.
+
+## 2026-09-27 — Ask My Corner intent upgrade: checkpoint A
+
+- Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; preserves #143/#144 checkpoint history. Full 16-query root-cause table: `docs/ASK_INTENT_AUDIT.md`; machine-readable evidence: `docs/evidence/ask-intent-audit-2026-09-27.json`.
+- Actual Preview authenticated-role SQL reproduces zero Plumbing/Electrical providers: four Plumbing and two Electrical records lack any service-area rows. Do not weaken neighborhood authorization or invent provider coverage. Alias/source-planning/metric defects independently confirmed in source.
+- Work proceeds in reviewable checkpoints: domain concepts/planning, authorized structured retrieval/comparisons, response/UI integration and regression verification. Existing Event fixes remain intact. No live HTTP/model answer or native visual pass is claimed.
+- APK 46 installation succeeded in founder terminal; UI acceptance remains pending. No production writes, Preview mutation, identity edits, communications, merges or new EAS build in this audit.
+
+## 2026-09-26 — Corrected Preview APK 46 built and verified
+
+- The one approved build completed successfully: **APK 46**, EAS **`b6ea9558-74c4-49fe-9f28-f8a9baed72ff`**, build source **`4192a8ac26b5d4059ff066cee3f33abd43f76e19`**, workflow **`36274964615`**. Application/database source exactly matches merged main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; only build workflow and checkpoint docs differ. PR #144 preserves documentation-only #143 as an ancestor; both remain open pending separate merge authorization.
+- APK URL: https://expo.dev/artifacts/eas/-CKQO0JNzc_mLN39FrqBaX9ZJ_wW9ZmSab1c-c5EP70.apk . Size **72,009,198 bytes**; SHA-256 **`839f52a059be36fb5d94cf775517b621124ef47fa0b6fece4a5606f6f7fb7197`**. An independent download matched the workflow checksum.
+- Actual artifact passed source SHA, Android version 46, package ID `com.mycorner.trustedpeople`, Preview-only Supabase URL, ZIP integrity, navigation font, media/assistant/Home/public-name markers and the newly added public-name signup text checks. Android apksigner verified the v2 signature. Signer SHA-256 **`79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76`** matches APK 45, supporting an in-place update that retains app data.
+- Release gates passed: **541 mobile tests / 96 suites**, typecheck, formatting and lint **0 errors / 15 baseline warnings**, Preview environment validation and EAS duplicate preflight. Mobile CI **36274971925** / **36274964618**, Database CI **36274964613**, server/Deno CI **36274964715**, and build workflow **36274964615** all passed at the submitted source. Server tests remain **32 passed**.
+- Preview backend canonical public-name repair was already deployed and verified: four historical conversations/two distinct peers resolve public names consistently, with no identity backfill. This build adds the merged canonical self-profile display, explicit signup public-name copy and Find Neighbors avatar batching to the installed Android source. No backend, production, secret or identity changes were made for the build.
+- **One-build approval is consumed. Do not submit another EAS build without new founder approval.** Native Samsung phone/Pixel Tablet visual acceptance remains **PENDING**: verify the same public name in Profile, Find Neighbors, inbox and thread; avatars, latest message, timestamp/unread and accessibility; explicit name edits after refocus/polling; genuine unnamed-account fallback; Home Active/Past collapse/counts; phone/tablet rotation. Component/SQL/bytecode checks are not native acceptance.
+- Mac install/update: download the URL, verify the SHA-256, then use `adb -d install -r "$HOME/Downloads/my-corner-preview-46.apk"` for one USB phone. Use `adb -e` for one emulator, or `adb devices -l` and `adb -s DEVICE_SERIAL install -r ...` to select among multiple physical devices. Do not uninstall or clear app data as part of this update.
+- Evidence: `docs/evidence/canonical-public-name-apk-2026-09-26.json`. The APK and build remain recoverable through EAS and workflow #36274964615; do not start a replacement merely because a chat session stalls.
+
+## Mac download and USB-phone update for APK 46
+
+```sh
+export PATH="$PATH:$HOME/Library/Android/sdk/platform-tools"
+curl -fL --retry 3 'https://expo.dev/artifacts/eas/-CKQO0JNzc_mLN39FrqBaX9ZJ_wW9ZmSab1c-c5EP70.apk' -o "$HOME/Downloads/my-corner-preview-46.apk" &&
+printf '%s  %s\n' '839f52a059be36fb5d94cf775517b621124ef47fa0b6fece4a5606f6f7fb7197' "$HOME/Downloads/my-corner-preview-46.apk" | shasum -a 256 -c - &&
+adb -d install -r "$HOME/Downloads/my-corner-preview-46.apk"
+```
+
+## 2026-09-26 — One corrected Preview APK explicitly approved
+
+- Founder approved one new Android Preview APK after PR #142 merged and its exact Preview migration was verified. Application source is current main `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; build base also preserves documentation-only PR #143 (`4efce7ad487f1a581a47a59e7bff3daab64a014c`). No application/schema changes are added for this build.
+- Build purpose: native verification of canonical self-profile public-name display, explicit public-name signup wording and Find Neighbors avatar batching, alongside Messages list/thread, avatar, latest message, timestamp/unread and existing Home disclosure behavior. Backend name resolution is already live and can be consumed by APK 45 on refresh.
+- Use the existing `codex/vc-media-foundation` workflow branch, fast-forward only. One submission via the existing Preview profile/environment/internal APK/signing configuration. No production deployment, secret edits, messages or identity mutation.
+- Last verified finished build is APK 45 (`c7f685a6-6ffc-4463-99ac-626b7f61c8a2`). Duplicate guard now recognizes that completed build as the prior baseline while retaining all active/unexpected-new-build rejection checks. Require resulting version >45 and confirm the new public-name signup copy in the actual bundle, exact source SHA, Preview project, app ID and navigation font.
+- Release gates must pass before submission. Initial build ID/artifact/checksum pending. If submission or later verification encounters an error, inspect/reuse the recorded build rather than submit a duplicate. One-build approval is consumed by that one submission; native phone/tablet acceptance remains pending.
+
+## 2026-09-26 — Public-name repair merged and deployed to Preview
+
+- Founder explicitly approved merging PR #142 and applying only `20260926213111_canonical_public_profile_name.sql` to Preview `opeojxwkwwnnncnsuaag`. The prior merge-approval blocker is resolved. PR #142 merged at **`a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`**; #140 and #141 were also marked merged because both heads are preserved in its ancestry.
+- Exact approved migration applied successfully. Remote history version **`20260926215220`**, name `canonical_public_profile_name`; stored SQL equals the committed source byte-for-byte, and deployed function body matches. Source SHA-256: `b731e2ad0f1f5a5a5938e43aa5a3e8ed193b5e1278a6a3f523b56d6fd3341aef`. The remote timestamp is assigned by the deployment tool: do not reapply based on filename timestamp differences.
+- Root cause/fix: Messages omitted the existing public `profiles.display_name` source. The shared resolver now uses saved public edit → identity public name → legacy public profile name (only without a private-identity record) → Neighbor; inactive/missing accounts are unavailable. No legal fields are selected and no identity data is copied. Self Profile uses this canonical RPC; signup explicitly identifies the public-name field; Find Neighbors batches avatars.
+- Live verification used read-only transactions and authenticated database-role RPCs. All four historical requester conversations now return public names: two distinct names for two peers. Inbox/thread/Find Neighbors/public-profile projections agree; peer IDs and display fields are correct. Reverse-participant thread resolution and self-name RPC match the same public identity. **No native phone/tablet visual acceptance or authenticated HTTP session is claimed.**
+
+| Participant | Conversations | Before deployment | After deployment | Cross-surface result |
+| --- | --- | --- | --- | --- |
+| Test peer A | 1 | Neighbor | Existing public name | Inbox/thread/discovery/public profile agree |
+| Test peer B | 3 | Neighbor | Existing public name | Inbox/thread/discovery/public profile agree |
+
+- Privacy checks: anonymous/authenticated direct helper execution remains denied; direct client reads of the private name store remain denied; the explicit-edit store still has **zero rows**. This demonstrates resolution without a backfill. No users were renamed, no messages were sent, and no private identity values are included in evidence. Advisor categories/counts are unchanged from baseline; existing findings remain documented, not certified clean (https://supabase.com/docs/guides/database/database-linter).
+- Shared Event organizer attribution was verified against authorized source records; all four Festival sources retained valid Event actions, approved visibility and neighborhood authorization. Direct Event retrieval counts: festival 4; festivals 4; What festivals are happening? 4; racing 1; pig 1; pig racing 1; music 2; music festival 5; food 1; food drive 1. These calls deliberately omit planner date bounds and therefore do not replace the prior 30-day planner check or authenticated Edge/model-synthesis acceptance. Assistant v6/JWT verification was not changed or redeployed.
+- Final PR-head CI at `07164ba9c1e67483c1de7d940d1049be318e92a5`: Mobile **36274196799**, Database **36274196755**, Media Functions **36274196736**, all passed. The checkpoint-only head has identical application/database/workflow source to tested `5187b52`: **541 mobile tests / 96 suites; 32 server tests; full database/RLS suite; typecheck, formatting, Deno and web export passed; lint 0 errors / 15 baseline warnings**. SQL fixtures cover new/historical conversations, distinct names, both participant directions, private-vs-public identity, missing names, explicit updates, block/suspension and grants; component/hook tests cover names, avatars, batching and refresh hydration.
+- **CORRECTED PREVIEW APK APPROVAL REQUIRED.** APK 45 can receive the backend name correction on Messages refresh/refocus; reinstall is not the fix. It cannot contain the newly merged self-profile canonical projection, public-name signup wording or Find Neighbors avatar batching. One corrected Preview APK is required for full Android phone/tablet verification of those source changes. No APK build has been triggered. Production, secrets and identity rows remain unchanged.
+- Deployment evidence and this checkpoint are committed on `codex/canonical-public-name-deployed` for a documentation PR. This does not assume authorization to merge another PR. Application main is already the approved merged repair above; no further source changes were made.
+
+## 2026-09-26 — Public-name repair tested and pushed; merge approval blocked
+
+- Repair PR **#142**: https://github.com/pushee-io/My-Corner-Trusted-People/pull/142 . Application/migration/test commit: `5187b5248cec8f7c8f6cca887836e1c177d84043`. Both #140 and #141 heads are preserved as ancestors. Main remains `24fc72db2ec12c6f761e53b2f66c994b903b1824`.
+- All relevant CI passed at the repair commit: Mobile `36273823084` (541 tests / 96 suites, format, typecheck, lint 0 errors / 15 baseline warnings, Expo checks and web export); Database `36273823103` (full reset and SQL/RLS suite); Media Functions `36273823112` (32 tests and Deno check). Local tests/typecheck/format/lint also passed. Initial fixture/lint failures and their corrections are recorded below; privacy assertions were retained.
+- Read-only Preview verification of the proposed resolver: four existing conversations / two active peers. Peer A: one conversation; peer B: three. Both have existing legacy public identity, current inbox/thread resolve Neighbor, and the proposed chain resolves a non-fallback public name. This is a query comparison, **not deployment or native acceptance**. Private identity values were not printed and no users were edited. The exact screenshot-to-conversation mapping has not been independently established; the verified inbox is the existing fictional requester test account.
+- **Automatic approval review rejected merging #142**, stating that prior push/open approval did not explicitly authorize mutation of protected/default main. No retry, alternate merge route or workaround was used. PR remains open; request explicit founder approval to merge it and deploy the reviewed migration to Preview. The new migration remains unapplied and the live resolver remains unchanged; the explicit-edit store still has zero rows.
+- Exact pending deployment: `supabase/migrations/20260926213111_canonical_public_profile_name.sql`, SHA-256 `b731e2ad0f1f5a5a5938e43aa5a3e8ed193b5e1278a6a3f523b56d6fd3341aef`, **Preview `opeojxwkwwnnncnsuaag` only**. It replaces the private resolver and retains revoked client execution; it performs no identity backfill/DML. After merge/approval, apply once, verify stored SQL and authenticated inbox/thread/profile/discovery reads, compare security advisors to baseline, and record results. No Edge Function redeploy is needed for this SQL helper change; existing assistant v6/JWT verification stays intact.
+- **Corrected APK approval is not yet being requested or consumed.** Backend name resolution will be available to APK 45 on refresh after deployment. A later APK is needed for the new self-profile canonical projection, explicit public-name signup wording and Find Neighbors avatar batching; phone/tablet visual acceptance remains pending. No build, production deployment, secret change, real communication or identity-data mutation occurred during this repair.
+- Existing Preview advisor findings are baseline, not a clean security assessment: this scoped change does not alter them. See https://supabase.com/docs/guides/database/database-linter . Application RLS and private-helper access are covered by the passing SQL suite.
+
+## 2026-09-26 — Canonical public-name repair in progress; APK 45 defect confirmed
+
+- Founder reports installed APK 45 still labels multiple conversations Neighbor. Previous verification was insufficient: it tested fallback behavior but did not cover existing legacy public identities.
+- Live base `24fc72db2ec12c6f761e53b2f66c994b903b1824`; repair branch preserves both open PR heads #140 (`70ad7c4`) and #141 (`7aa6713`) as ancestors. Deployment evidence, APK 45 build record and Saturday fixture correction are retained.
+- Root cause: `private.neighbor_name` consulted the empty explicit-edit store, then `private_identity_profiles.public_display_name`, omitting the established public `profiles.display_name`. Inbox/thread RPCs already select the correct peer dynamically; repository/UI pass the result through. This is backend resolution plus inconsistent self-profile mapping, not primarily stale cache.
+- Public-source evidence: `20260724042000_day2b_verified_neighborhood_access.sql` defines the public-profile projection with identity public name then profiles.display_name; `20260802010000_events_complete.sql` publishes profiles.display_name as Event organizer/comment/attendee name; self Profile displays it. Preview's compatibility schema lacks that historical public-profile view. Feed/Marketplace attempt batched profile-name reads but own-only profile RLS can suppress peers; those attempts alone are not proof of live public visibility. Legal identity fields remain separate and are never selected by this repair.
+- Read-only Preview trace: four existing requester conversations map to two distinct peers. Both have legacy public profile names and no explicit newer public name; all four inbox/thread results were Neighbor. Peer B also matches its existing public provider name. A broader diagnostic was rejected by automatic review for unnecessary identity fields; the successful replacement returned only participant labels and provenance booleans. No private names, auth IDs or seed keys are documented.
+
+| Participant | Legacy public name present? | Before RPC | Before UI | Root cause |
+| --- | --- | --- | --- | --- |
+| Test peer A (one conversation) | Yes | Neighbor | Neighbor from unchanged RPC mapping; founder reports device defect | Legacy public source omitted |
+| Test peer B (three conversations) | Yes; matches public provider name | Neighbor | Neighbor from unchanged RPC mapping; founder reports device defect | Legacy public source omitted |
+
+- Repair `20260926213111_canonical_public_profile_name.sql`: active account → explicit saved public edit → identity public name → legacy public profile name only without an identity record → Neighbor. Blank identity public names suppress legacy fallback; generated New neighbor is unnamed. Suspended/missing peers return Neighbor unavailable. No backfill or identity-data mutation; helper stays private, caller RLS/block/neighborhood checks unchanged.
+- Self Profile uses the same canonical RPC as the editor; Find Neighbors batches avatars; signup explicitly labels its name public. Existing inbox/header avatar behavior is retained. Foreground 10-second polling, refocus and authorized realtime refresh already hydrate current RPC values without reinstall.
+- Regression work: full-database fictional A/B/C/D/E fixtures test old/new conversations, both participant directions, consistency, explicit changes, legal-name separation, block/suspension/fallback and private helper grants. Component/hook tests verify display/accessibility, correct avatars, batching, self-profile source and changed-name hydration. Local validation: 541 mobile tests / 96 suites, 32 server tests and typecheck passed. Media Functions CI `36273554325` passed including Deno check. Initial Mobile CI caught JSX lint in the new avatar test; corrected before final verification. Database CI and final Mobile CI remain pending; migration is NOT YET applied to Preview.
+- Database CI exposed the shared Event organizer-name helper's dependency on this resolver. Existing privacy fixtures labeled legacy profile values private without creating private identity records. Fixtures now explicitly create private identity with blank public display name, retain their adversarial legacy values, and retain every non-leakage assertion. No production behavior was special-cased for test names. New A/B/C coverage separately proves legitimate legacy public identities resolve automatically. Initial avatar JSX file was outside the repository's `.test.ts` match; restored a lint-clean `.test.ts` test and verified it executes.
+- No paid build authorized: APK 45 build approval is consumed. The backend resolver can improve APK 45 on refresh after deployment; source changes to self Profile, signup copy and neighbor avatar batching require a corrected APK for full native acceptance. Do not falsely claim a backend-only correction requires reinstall. Production, communications and identity mutations remain prohibited.
+
+## 2026-09-26 — Preview APK 45 built and artifact verified
+
+- One approved Android Preview build completed: version 45, source `980570c4adf7c9ac9bd850f32265f32d7e7367b5`, EAS `c7f685a6-6ffc-4463-99ac-626b7f61c8a2`. Build workflow `36271219730` passed. The application source matches main `24fc72db2ec12c6f761e53b2f66c994b903b1824`; only build workflow and checkpoint documentation were added for submission.
+- APK: https://expo.dev/artifacts/eas/7teO9Nca9Thz6_JTQT87Lnc4aF7RYl1wTwhXP4gy2OE.apk . Size 72,009,054 bytes; SHA-256 `a0ddf0fb371281d08eea6985182eda937c30cc40e93c8b2d29f223c3446e14d9`.
+- Actual APK passed source SHA, Preview-only Supabase URL, application ID, version, ZIP integrity, media/navigation font and UI/RPC marker checks. Includes counted collapsible Active/Past sections, public-name editor and Messages avatar batching. Downloaded checksum independently matched; signing certificate SHA-256 `79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76` matches the previously verified APK. Install as an update and retain app data.
+- Release gates: 535 mobile tests / 94 suites, format, typecheck, Preview environment and EAS duplicate preflight passed; lint zero errors / 15 existing warnings. Mobile CI `36271219787` and Media Functions CI `36271219761` passed, including web bundle verification.
+- Initial Database CI `36271219839` failed on a time-sensitive test: Saturday's 10 AM fictional event was excluded by a lower bound of now() on Saturday afternoon. Corrected only `supabase/tests/neighborhood_ai_preview_fixture.sql` to include today's fixture. No application/migration/remote Preview changes. Local PostgreSQL date-window reproduction confirmed the issue; full Database CI `36271594200` passed at test-only commit `84be952bc58677a4e8252a1f48c66dde75f56d0b`. The APK source itself remains `980570c`; no replacement APK was submitted or needed for this test change.
+- One-build approval is consumed. No second EAS submission, production action, backend deployment, live fixture mutation, identity update or real communication occurred. PR #140 remains open; its earlier APK approval requirement is superseded by this build checkpoint.
+- Native Samsung phone/Pixel Tablet layout, accessibility, rotation, Home disclosure/counts, public-name save/header/avatar and signed-in assistant answer acceptance remain PENDING. Artifact/tests are not native acceptance. Preview backend v6 authenticated HTTP/model synthesis also remains unverified without a signed-in session.
+- Evidence: `docs/evidence/home-public-name-apk-2026-09-26.json`. Verify all ten search phrases while preserving date/neighborhood/private-event rules; accounts without an explicitly approved public name must remain Neighbor.
+
+## 2026-09-26 — One Preview APK approved for Home and public-name repairs
+
+- Founder explicitly approved one new Preview APK after checkpoint PR #140 was opened. Source base is freshly fetched main `24fc72db2ec12c6f761e53b2f66c994b903b1824`; the application includes merged PRs #136–#138. PR #140 remains open and is documentation-only.
+- Use the existing workflow-enabled `codex/vc-media-foundation` branch, confirmed to be an ancestor of main, for a fast-forward build trigger. Only workflow and checkpoint documentation differ from main. This does not merge PR #140 or alter production.
+- Existing Android `preview` profile, `preview` environment, internal APK distribution, remote version auto-increment and signing configuration retained. One submission only; inspect the same build after any subsequent verification failure.
+- Last known completed build is APK 44 (`b30911f6-4b82-47ef-91d2-38e7732cd0e2`). GitHub history shows its successful workflow `36148445698` and no newer EAS Preview workflow in the latest 100 runs. The submission workflow must independently check EAS and block active or unexpected newer builds.
+- Workflow gates run full mobile format/lint/typecheck/tests and Preview environment checks before submission. Actual artifact must match source SHA and Preview backend, have version greater than 44, and contain Home Active/Past labels and the public-name editor/RPC alongside existing media, navigation and assistant markers.
+- Preview deployment was completed in the preceding checkpoint: both migrations applied, assistant v6 with JWT retained, scoped retrieval checks passed. Detailed evidence is in PR #140; do not reapply/redeploy. Authenticated Edge synthesis and native phone/tablet visual acceptance remain unverified.
+- Build ID, artifact URL, checksum and actual native acceptance are pending. This commit records approval before external submission. No production or backend changes are authorized by this build checkpoint.
+
+## 2026-09-26 — Approved Preview migrations applied; assistant v6 verified at retrieval layer
+
+- Fresh live GitHub main remains `24fc72db2ec12c6f761e53b2f66c994b903b1824`. PRs #136–#139 were reused without reimplementation. Founder explicitly approved this Preview-only deployment.
+- Applied exact committed SQL to `opeojxwkwwnnncnsuaag`: `20260926003542_keyword_discovery.sql` recorded remotely as `20260926011059`; `20260926004155_messaging_public_display_name.sql` as `20260926011117`. MCP assigns deployment timestamps; both stored SQL statements match their source files byte-for-byte. Do not reapply based only on differing filename timestamps.
+- Deployed merged `ask-my-corner` v6, ACTIVE, `verify_jwt=true`. All five downloaded deployed files exactly match merged source. Anonymous HTTP invocation returns 401. No production, secrets, flags, paid EAS build, real communications, or persistent identity data were changed.
+- Live retrieval under authenticated role passed all ten requested searches. Merged planner and source validator were run against actual Preview results: festival/festivals each 4 Events; full question 1; racing/pig/pig racing each 1; music 2; music festival 5; food/food drive each 1. Full question retains the existing next-30-days window, returning the applicable Pig racing event; unrestricted direct SQL finds 4 festivals. Music festival ranks the music festival first. Prefix, explicit date bounds, unauthorized neighborhood denial, invite-only exclusion, RLS and source/action route checks pass. No Events were inserted or fabricated.
+- Non-Event live keyword checks pass: fence provider 1, table Marketplace listings 3, repair Group discussion 1, park Feed post 1, road Agency broadcasts 2. Matching occurs before the existing cap; local PostgreSQL regression covers more-than-eight candidates.
+- Public-name checks pass: original approved name retained; 16 profiles legitimately remain Neighbor; new consent store remains empty. Supported save/update/trim RPC tested only as the fictional fixture actor and rolled back; another account remained unchanged. Direct table reads/anonymous saves denied; no legal fallback. Four existing inbox conversations expose name/peer/preview/timestamp/unread fields, and thread names agree. Approved-name rendering, batched avatars and explicit editor flow pass component tests; no new live conversation or message was created.
+- Fresh validation: 47 scoped mobile tests / 6 suites, 31 server tests, mobile typecheck all pass. Relevant PR #136–#138 Database/server/Mobile CI rechecked live: all success (run IDs in evidence). Previous full mobile result remains 535 / 94; it was not rerun. Home defaults, counts, collapse/reopen and all same/different-provider requests pass source/component coverage.
+- Limits: no signed-in Preview Auth session/test-login credentials available in this workspace, so v6 authenticated HTTP model synthesis is NOT verified. SQL role tests and source readback are not end-to-end HTTP or native acceptance. Existing live inbox peers lacked approved names; approved-name inbox/header acceptance relies on component tests plus live consent resolver checks.
+- NEW PREVIEW APK APPROVAL REQUIRED: APK 44 predates Home disclosure, public-name editor and Messages batch avatars. Backend deployment cannot update its bundled React Native code. Phone/tablet visual/accessibility acceptance remains pending. Do not build until separately approved.
+- Persistence approval resolved: on 2026-09-26 the founder explicitly approved pushing `codex/preview-keyword-public-name-deployment` and opening its checkpoint PR. This branch carries all five requested docs and sanitized evidence. The earlier automatic publication rejection is historical; no workaround was used. This approval does not authorize merging, a paid APK build, or another backend deployment. The separate recovery report preserves the original verification record.
+- Evidence: `docs/evidence/preview-deployment-2026-09-26.json`. The older blocked-deployment entries below are historical and superseded by this entry.
+
+## 2026-09-26 — Explicit Preview deployment approval; execution started
+
+- Live GitHub main confirmed `24fc72db2ec12c6f761e53b2f66c994b903b1824`; PRs #136–#139 already merged and will not be recreated.
+- Founder explicitly authorized only `20260926003542_keyword_discovery.sql`, `20260926004155_messaging_public_display_name.sql`, merged `ask-my-corner` with JWT verification, and scoped verification on Preview `opeojxwkwwnnncnsuaag`.
+- Preflight: both migrations absent by name and version; assistant version 5 ACTIVE with `verify_jwt=true`. Deployment/verification pending; this is a pre-operation checkpoint.
+- No production, paid APK, secret changes, communications, manual identity edits, or unrelated schema authorized. APK 44 still predates Home collapse and public-name editor.
+
+## 2026-09-26 — Three repairs merged; Preview deployment blocked by approval review
+
+- Implemented in order and merged after green checks: keyword PR #136 (`249d17f`), Messages PR #137 (`fb296d6`), Home PR #138 (`8ae3c57635b8b1f08ef5feb47f6f92447a0bab51`). Source of truth was freshly fetched GitHub main; no failed-session state was recovered. Each checkpoint includes tests and durable documentation.
+- CI: #136 Database `36205768702` / server `36205768747`; #137 Database `36206086649` / Mobile `36206086625`; #138 Mobile `36206349039`, including web bundle. All passed. Local final mobile **535 tests / 94 suites**, server **31 tests**, typecheck/Deno check/format/diff review pass; lint **0 errors / 15 existing warnings**.
+- Automatic approval review **rejected** applying `20260926003542_keyword_discovery.sql` and `20260926004155_messaging_public_display_name.sql` to Preview `opeojxwkwwnnncnsuaag`: persistent live schema/function/privilege changes need explicit approval for that target and those migrations. No workaround was used. Readback confirms neither migration is applied. Edge deployment was not attempted because it depends on the keyword migration. Existing deployed assistant is version 5; all five files matched the handoff GitHub source exactly before any deployment attempt.
+- Exact next approval: apply those two committed migrations to Preview `opeojxwkwwnnncnsuaag`, then deploy the merged `ask-my-corner` source there with JWT verification retained and run scoped Preview retrieval/public-name checks. This does **not** include production or a paid EAS build. No production, user identity data, secrets, flags or paid build were changed.
+- Public-name root cause: 17 Preview profiles, only one populated public identity. Existing approved names are retained; an account without an approved public name legitimately remains Neighbor until its user saves one through the new Profile/Messages public-name editor. Never copy private legal identity or `profiles.display_name` as a shortcut. Inbox/thread name resolution stays in one RPC; avatars are batched.
+- APK 44 predates the Home collapse and public-name editor. Native phone/tablet visual/accessibility acceptance remains pending a future separately approved build. Do not claim deployed/live correction or native acceptance yet. Evidence: `docs/evidence/keyword-messages-home-2026-09-26.json`.
+
+## 2026-09-26 — Home request sections collapse without losing requests
+
+- Active Requests and Past Requests now have counted, full-width accessible disclosure buttons and vector chevrons. Active defaults expanded; Past defaults collapsed. Counts remain visible when collapsed, including zero counts. Request IDs/cards and active/past partitioning are unchanged; expanding still maps every request, including repeated jobs with the same provider.
+- Targeted coverage: 18 Home/partition/events tests, including six same-provider requests, multiple providers, active/completed/cancelled mix, collapse/reopen and live count updates. Full mobile suite: **535 tests / 94 suites passed**. Typecheck/format pass; lint zero errors/15 existing warnings. Mobile CI is the merge gate. Native phone/tablet visual and screen-reader acceptance remain pending; no paid APK build or production deployment.
+- Messages PR #137 merged at `fb296d6a4f3da2f058ff8d74091fba4bb5fe799c` after Mobile CI `36206086625` and Database CI `36206086649` passed. Keyword PR #136 is already merged with Database/server CI success. Preview backend deployment remains pending at this implementation checkpoint.
+
+## 2026-09-26 — Messages public-name repair
+
+- Keyword PR #136 merged at `249d17f01f6962ce6457e52aced9e73d565acf9b`; Database CI `36205768702` and Media Functions CI `36205768747` passed.
+- Root cause verified read-only in Preview: 17 profiles, only one private identity/public-name row. Inbox/thread already rendered the database projection correctly. Never use `profiles.display_name` or legal identity as an implicit public fallback.
+- Add a private, RLS-protected public-name consent store and caller-only RPC. Existing explicitly public identity names remain supported; users without one can explicitly save their public display name from Profile or Messages. Names resolve inside the existing inbox/thread RPC, without per-peer profile requests. Inbox avatars now use the existing batch loader. Missing approved names still display Neighbor until the account supplies one; migration does not invent/backfill legal names.
+- Local mobile targeted name/repository/realtime tests and typecheck pass; lint zero errors/15 baseline warnings. SQL regressions verify public names, missing-name fallback, updates, isolation, suspension and legal-name exclusion; Database/Mobile CI are merge gates. No production, Preview deployment or paid APK build in this checkpoint.
+
+## 2026-09-26 — General keyword discovery repair
+
+- Root cause: deterministic “happening” intent discarded topic terms before an eight-event chronological cap; model terms used AND/phrase-sensitive websearch with no prefix matching. Preserve topics, search short keyword requests across authorized source families, normalize English lexemes and use OR prefix recall with relevance ordering before the existing limit. No Festival-specific rules. Events expose title/description (no category column); provider service labels/categories remain searchable.
+- Added festival/festivals/question/racing/pig/music/food/food-drive, prefix/ranking and result-cap regressions. Existing authorization, RLS, date, block, removed-content, grounding and reauthorization gates remain unchanged.
+- Local: 31 server tests including real PostgreSQL keyword checks; 23 targeted mobile assistant/Search tests; mobile typecheck passes; lint zero errors/15 baseline warnings. Database and server CI are merge gates. Migration and Edge code are checked in only; Preview/production are not deployed and APK 44 predates the repairs. No paid build.
+
+## 2026-09-25 — AI pill/composer Preview APK 44 verified
+
+- The one approved build completed: Android version 44, source `c89b4a86d5efa81d867fa0f4c85ab5f06b574ba3`, EAS `b30911f6-4b82-47ef-91d2-38e7732cd0e2`. Build workflow `36148445698` and Mobile CI `36148445661` passed. Release gates: 524 tests/92 suites, typecheck, formatting, lint zero errors/15 baseline warnings, Preview configuration and duplicate preflight passed.
+- Download: https://expo.dev/artifacts/eas/C_0oNAHrFqB8lLnP5WkFZVEYTsIGc3Pvpkfoj3qwock.apk . SHA-256 `f2ecbf3f102d8ffd45438902266bf3e29c7c35e2ad83f98574e36c11eb59c4ee`.
+- Actual APK checks passed source commit, Preview backend, application ID, ZIP integrity, media/navigation font and AI bytecode, including Ask My Corner AI, composer placeholder/loading/fallback labels and manifest version 44. This APK includes AI/Messages pills, empty composer, optional Search handoff and compact Home.
+- Existing signing/profile retained. Install as an update (`adb install -r`) to retain data. Samsung phone and Pixel Tablet layout, keyboard, unread-count/navigation, screen-reader and portrait/landscape acceptance remain PENDING, as does browser visual/focus acceptance. Artifact checks do not establish native acceptance.
+- Evidence: `docs/evidence/ai-pill-preview-2026-09-25.json`. One-build approval is consumed; do not submit another paid build without fresh approval. No production/backend changes.
+
+## 2026-09-25 — AI pill/composer Preview APK approved
+
+- Founder explicitly approved one new APK after PR #134 merged at `1d678b66eabf49519f3f9bfad7da37fe300f6e27`. Main Mobile CI `36147988569` passed. This approval permits one Preview/internal Android APK using existing signing, backend and profile.
+- This single build-trigger commit records approval before submission. Duplicate preflight recognizes completed APKs 42 and 43 and blocks active or unexpected newer completed builds. Release gates run before submission.
+- Actual artifact checks now require Ask My Corner AI, empty-composer placeholder/loading/fallback labels and Android version greater than 43. AI/Messages pills, Search handoff and empty input are included. No backend/production changes.
+- Build ID, artifact and Samsung phone/Pixel Tablet acceptance pending. If submission succeeds and a later check fails, inspect that same build; do not submit another. Native layout/keyboard/screen-reader and web visual acceptance remain pending.
+
+## 2026-09-25 — AI and Messages pills; empty assistant composer
+
+- Visible assistant name is now **Ask My Corner AI**. AI and Messages share a compact full-radius ActionPill using existing Create Request AI color/spacing/typography tokens, 48 dp minimum target, wrapping, full-button navigation, pressed/focus styling and accessible labels. Messages retains unread counts and Notifications navigation. Home retains one AI entry and supporting copy with none of the four suggestion questions.
+- Composer starts empty with `Ask anything about your neighborhood...` as placeholder only. Generic entries no longer pass sample questions. Natural-language Search retains its actual query as an optional explicit-submit pill outside the empty composer; it never auto-submits. Send clears the field immediately, shows the last two submitted questions (existing bounded context), exposes loading feedback, disables blank/short questions and guards duplicate requests synchronously. Follow-up context, grounded sources/actions/feedback, account/background clearing and stale-response protection remain intact.
+- Rounded multiline input is bounded to 90–160 dp, with scrolling; iOS keyboard avoidance added and Android retains native resize/scroll handling. Ask hardware Back dismisses a visible keyboard before navigating. Actual IME, portrait/landscape, safe-area, screen-reader and large-text acceptance remains pending on Samsung phone and Pixel Tablet emulator. Browser visual/focus acceptance remains pending (prior preview blocked with ERR_BLOCKED_BY_CLIENT); component tests do not establish device/browser visual PASS.
+- Local verification: **524 tests / 92 suites passed**, typecheck and formatting passed, lint **0 errors / 15 existing warnings**. Coverage includes Home prompt absence, empty input/placeholder, optional Search handoff, submit/clear/follow-up, duplicate prevention, pill navigation/pressed/focus, Messages unread state, source actions/privacy and Android keyboard Back. CI is the merge gate.
+- No backend/production changes and no new APK submitted. APK 43 predates this checkpoint; prior build authorization is consumed. Before a separately approved future build, update the APK bytecode assertion from the old Home accessibility label to `Ask My Corner AI`, record fresh approval and recheck EAS for duplicates. The paid workflow is deliberately unchanged in this checkpoint.
+
+## 2026-09-25 — Compact Home Preview APK 43 verified
+
+- One approved build completed: Android version 43, source `46b71bba5281abe0a9b2d7fb7c390be4dd3e361c`, EAS `34e50a41-a32d-42ce-93b7-8baf91518764`. Build workflow `36103325111` and Mobile CI `36103325160` passed: 517 tests/92 suites, typecheck, format, lint (zero errors/15 baseline warnings), Preview configuration.
+- Download: https://expo.dev/artifacts/eas/rbEdLc518KOnDmbQ__8Y5Evvr5Tyky6DJfdYhBUfMn0.apk . SHA-256 `e17f485404280fd97b5510a8d7c48a6c82c2235139b0f3801d1f876b5e487be0`.
+- Actual artifact passed source/backend/package/ZIP/media/font/Ask checks, including the compact Home accessibility label and manifest version 43. Home now has one Ask My Corner entry and subtitle without the four suggestion buttons. AI functionality and Search remain intact.
+- Existing EAS Preview signing configuration retained. Install as an update and retain app data. This one-build authorization is consumed; no additional paid build is authorized.
+- Evidence: `docs/evidence/compact-home-preview-2026-09-25.json`. Samsung phone/Pixel Tablet visual, tap, screen-reader and responsive acceptance remains PENDING; web visual/focus acceptance is also pending. Test compact spacing and assistant navigation after installation. Artifact checks do not constitute native acceptance.
+- No backend or production changes.
+
+## 2026-09-25 — Compact Home Preview APK approved
+
+- Founder explicitly approved one new Preview APK after PR #132 merged at `de00de1b30987b3d7b92cf0b6ebfae519afed04f`; main Mobile CI `36103186541` passed.
+- Single build-trigger commit records approval before submission. Existing Preview/internal Android profile, backend and signing are retained. Duplicate preflight recognizes the already-completed APK 42 and blocks any active or newer unexpected completed build.
+- Actual artifact checks require the compact Home accessibility label and version greater than 42. Full release gates run before submission. No backend or production change.
+- Build ID/artifact and device acceptance pending. This permits one submission only; if subsequent verification fails, inspect that same build rather than submitting another.
+
+## 2026-09-25 — Compact Home Ask My Corner entry
+
+- Removed the four Home suggestion buttons and their wrapping containers. Home retains one content-sized Pressable with Ask My Corner, the existing subtitle, a 48 dp minimum touch height, keyboard focusability and the label "Ask My Corner, neighborhood assistant". No fixed section height or leftover prompt-row gap remains.
+- Existing assistant navigation/prefill, shared non-Home entries, Search handoff and the dedicated assistant placeholder are retained. No retrieval, source/action, feedback, follow-up or backend changes.
+- Added Home presence, one-target accessibility, four-prompt absence and tap-navigation coverage, plus dedicated-screen placeholder coverage. All 517 tests/92 suites pass; typecheck passes; lint has zero errors and 15 existing warnings. Targeted assistant/Search tests pass (17 tests). CI is the merge gate.
+- Samsung phone and Pixel Tablet native visual/accessibility acceptance remains pending: this workspace has no connected adb/device. Browser access to the local web component preview was blocked (ERR_BLOCKED_BY_CLIENT), so actual browser layout/focus verification is also pending; no screenshot/native PASS is claimed.
+- APK 42 predates this cleanup. No new build is authorized or submitted. A separately approved Preview APK is needed to verify the installed native change. Check compact height, subtitle wrapping, tap target and screen reader on phone/tablet, plus keyboard focus on web.
+
+## 2026-09-25 — Ask My Corner Preview APK 42 verified
+
+- The one approved build completed: Android version 42, source `55c7b5b5467303a7acd52099f6df90a24d977adb`, EAS `a352ebca-9cee-4155-b564-125df0a67288`. Build workflow `36100561584` and Mobile CI `36100561475` passed; 515 tests/92 suites, format, typecheck, lint and Preview environment gates passed.
+- Download: https://expo.dev/artifacts/eas/caC9gh57R6YHwyNZnlNDtuJhoZImytVPr8qruJlMfxE.apk . APK size 72004042 bytes; SHA-256 `53a85dec082742101dafd33887878d9a74644e94bc9ba530a46228489ef9f633`.
+- Workflow verified actual source commit, Preview backend, package, ZIP integrity, media/navigation font, existing review/comments/Back labels and Ask My Corner entry/endpoint/context/feedback bytecode. Local signing-certificate extraction matches the previously verified APK certificate `79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76`.
+- EAS build-history preflight passed before the single submission. Approval is consumed; do not submit another paid build without fresh approval. Evidence: `docs/evidence/ask-my-corner-apk-2026-09-25.json`.
+- Install as an update using Android Update or `adb install -r`, retaining app data. Samsung phone/Pixel Tablet acceptance is PENDING: all five questions, source actions/RSVP/provider request, feedback, keyboard, rotation, Back and conversation clearing. Follow `docs/AI_NEIGHBORHOOD_ASSISTANT.md`; artifact verification does not establish native acceptance.
+- No production deployment, backend modification or secret change occurred in this build checkpoint.
+
+## 2026-09-25 — One Ask My Corner Preview APK approved
+
+- Founder explicitly approved one new APK following the recovery gate. Base main: `f80d345a6a3132ec183f79658dac9b9f9cc290b0`. This build includes merged Ask My Corner UI and uses the existing Android Preview profile, backend and signing configuration.
+- This single explicit build-trigger commit records approval before external work. Release gates run before submission; EAS build-history preflight blocks active or newly completed Preview duplicates. Actual APK checks include Ask entry, endpoint, availability and feedback bytecode.
+- Approval permits one submission only. Build ID, download, version, checksum and native acceptance remain pending. If submission occurs and later inspection fails, inspect the same build; do not submit another.
+- No production deployment or backend change. Samsung phone and Pixel Tablet acceptance follows artifact verification.
+
+## 2026-09-25 — Recovery reconciled; Preview v4 deployed; APK approval gate
+
+- Reconciled live main against the recovery prompt: main initially remained `2e5968d170d53e4aeb0cef87150b82496ba5c73d`, but PR #129 and live Preview had already advanced. Reused completed work and its saved five-question HTTP 200 evidence; did not reseed fixtures or repeat paid model calls.
+- PR #129 merged at `2c08a8f8b701b2875cf0496f010ff6179db7c6be` after Database CI `36093128747` and Media Functions CI `36093128751` passed for head `8bfb211b7908f5bfeb09e686a0767b35bfa06440`. It fixes latest-topic follow-ups and preserves all five demo intents.
+- Preview `opeojxwkwwnnncnsuaag`: assistant flag confirmed enabled; fictional event, provider, road notice and park post each persisted once. Live metadata corroborates five answered intents, family follow-up, saved feedback/click and zero-token privacy refusal.
+- Deployed checked-in PR #129 source as `ask-my-corner` v4 with JWT verification. Readback exactly matches all five submitted files. Targeted assistant/privacy/grounding tests: 17/17 passed. Anonymous endpoint check: HTTP 401. Original authenticated five-question evidence remains explicitly v3; this recovery did not repeat it on v4.
+- Latest recorded EAS Preview APK workflow remains `35958534464`, source `912134c59fd046d772593aaadeb35e28da7288f8`, APK 41. No newer EAS Preview APK workflow was found among the latest 100 repository runs; direct EAS-console activity was not independently inspected. No build was triggered in recovery.
+- NEW PREVIEW APK APPROVAL REQUIRED: one Android `preview` / `preview` environment / internal-distribution APK using existing signing and backend, with remote version auto-increment. APK 41 lacks Ask entry/Home/Search handoff, sourced answer cards/actions, follow-ups, feedback and conversation clearing. Native Samsung phone/Pixel Tablet navigation, keyboard, lifecycle, RSVP and action acceptance remain pending and need the updated application installed.
+- Before submitting an approved build, recheck main and existing EAS builds to prevent duplicate submissions. Production, secrets, RLS and fixture data were not changed by recovery. See `docs/evidence/ai-neighborhood-preview-2026-09-25.json` for separate original-live and recovery evidence.
+
+## 2026-09-25 — Ask My Corner live Preview verified; native acceptance pending
+
+- Implemented and merged as separate green checkpoints: #125 retrieval (`f25c250`), #126 grounded server (`a7f9c5d`), #127 global UI (`3d8fae1`), #128 guarded demo (`2e5968d170d53e4aeb0cef87150b82496ba5c73d`). Final Database CI `36092431531`, server CI `36092431505` and mobile CI `36092015566` passed.
+- Preview `opeojxwkwwnnncnsuaag`: migration remote version `20260925033940`; `ask-my-corner` Edge v3 active with JWT verification; `ai_neighborhood_assistant=true`. Existing OpenAI configuration reused (`gpt-4.1-mini`). Production was not activated.
+- All five exact founder demo questions returned HTTP 200 with authorized sources and validated verbatim excerpts. FenceCare has actual 4.0/count 1 completed-job review; Food Drive uses approved Ama K. (fictional demo) identity. Park history correctly states no formal decision. Every demo record is explicitly fictional; fixture is guarded/idempotent/manual-only.
+- Family-friendly conversational follow-up passed live. Feedback and source click returned 200 and stored against the correct answer; private-DM query refused with zero sources/model tokens. Disabled flag previously returned safe 503/Search fallback. Verification login was signed out with local scope (204); test-account credentials and existing device sessions were not changed.
+- 515 mobile tests/92 suites, 28 server tests, SQL/RLS/fixture/quota/feedback CI, typecheck and format pass; lint zero errors/15 baseline warnings. New private metrics tables intentionally have RLS with no client policy/grant (deny all); security advisor reports this as informational, consistent with the private existing pattern.
+- Evidence: `docs/evidence/ai-neighborhood-preview-2026-09-25.json`. New code is NOT in APK 41. No new paid APK has been built. Next gate: separately approve one Preview APK, install as an update on phone/tablet, then execute `docs/AI_NEIGHBORHOOD_ASSISTANT.md` native acceptance. Do not claim Android acceptance or the complete definition of done yet.
+- Added a latest-topic follow-up regression: an earlier provider question must not override a newer event question. Local 28 server tests pass; final server CI and redeployment of this small correction are pending.
+- Source gaps remain explicit: business/deal repository, formal poll/decision store, and broader comment-history retrieval. Core five-question demo is live; no invented business deals, votes, safety guarantees or paid organic rankings.
+
+## 2026-09-25 — Ask My Corner Preview demo checkpoint
+
+- Global UI PR #127 merged at `3d8fae1d455519a86f6e0284b161614b83130ec3`; Mobile CI `36092015566` / `36092006196` passed. Local mobile: 515 tests, typecheck, format, lint zero errors/15 baseline warnings.
+- Added manual, idempotent, project/environment-guarded fictional Preview fixture: weekend Food Drive + approved public organizer, FenceCare/carpentry + matching completed job/review, clearly fictional approved road notice, and park discussion with no invented formal decision. Rollback-only live Preview retrieval verified the records and relationships.
+- Added fixture CI assertions, feedback ownership and quota tests; active Agency notices remain eligible even if published before a today query. 27 server tests pass; Deno/Database CI are merge gates.
+- Actual Preview fixture persistence/flag activation/live Responses verification pending. Android phone/tablet acceptance and new APK remain unperformed; APK 41 predates this feature. No production activation.
+
+## 2026-09-25 — Ask My Corner global UI checkpoint
+
+- Server PR #126 merged at `a7f9c5dd751a690bef9637c5afc9c92f5f4989bb`; Database CI `36091340416` and server CI `36091340433` passed. Preview Edge `ask-my-corner` v1 deployed with JWT verification; flag remains off pending fixture/live checks.
+- Added restrained shared-header entry, Home prompts and natural-language Search handoff. Answer cards expose dates/provenance, actual review counts, approved organizer identity, and existing event/RSVP, provider/request, Group, Feed, Agency and Marketplace actions.
+- Follow-ups retain two question texts only; account changes, backgrounding and leaving the screen clear answers/context and invalidate late requests. Source-focused Feed/Group links fetch the selected row rather than relying on the latest fifty posts. Helpful/Not helpful/Inaccurate feedback and Search fallback implemented.
+- Local 515 mobile tests/92 suites and typecheck passed. Lint has no errors; formatting/CI are merge gates. Preview fixtures/live verification and native phone/tablet acceptance remain pending; APK 41 does not contain Ask My Corner.
+
+## 2026-09-25 — Ask My Corner grounded server checkpoint
+
+- Retrieval PR #125 merged at `f25c25076c6edcfe56053cd4952241298c292055`; Database CI `36090935138` and `36090931760` passed. Authorized migration applied to Preview `opeojxwkwwnnncnsuaag`; assistant flag remains off until deployment/demo verification.
+- Added Ask Edge Function using existing OpenAI credentials/model configuration and shared Responses transport with Structure with AI. Fixed tools, bounded date windows, short question-only follow-ups, approved field projection and PII redaction. AI may select exact excerpts only; invented facts/links fail validation. Re-retrieval before response revokes sources removed during inference.
+- Feedback/click/version/intent/latency/token metrics contain no conversation text. Limits and no-store behavior retained. Search remains independent.
+- Local 25 server tests and Deno typecheck passed. Server CI/merge, mobile UI, Preview fixtures and Android acceptance pending. No paid APK or production activation authorized.
+
+## 2026-09-25 — Ask My Corner retrieval checkpoint
+
+- Audited live main `a5842b79c173833adf25299d74f169dfe8f49f42`, Search, existing Responses/Edge integration and authorization.
+- Added disabled-by-default, bounded SECURITY INVOKER neighborhood retrieval for Events, Feed, accepted Groups, verified Agencies, providers/real reviews and Marketplace; private data sources excluded. Approved public organizer identity replaces potentially legal profile name.
+- Added private quotas/metadata/feedback foundation and role-switched SQL security tests. Database CI pending before merge; no Preview deployment or activation yet.
 - Continue with grounded server orchestration and global UI. Business/deal and formal poll data are absent; do not fabricate them. See `docs/AI_NEIGHBORHOOD_ASSISTANT.md`. No APK/production activation authorized by this directive.
 
 ## 2026-09-24 — Review/comments/Back APK version 41 verified
@@ -686,120 +995,89 @@
 - Authenticated AI availability returned HTTP 503 with the Preview flag enabled; server key/model configuration remains blocked. The AI database flag was restored to false and temporary test identity/profile removed. New native acceptance and final-head CI/review remain gates. No additional APK has been built or authorized.
 - See `docs/VC_RELIABILITY_UX.md` for findings, file/test mapping, configuration and the two-device test plan. This entry supersedes stale earlier current-state/next-action statements.
 
-# Changelog
+## 2026-09-18 — Media cleanup and Preview service verification
 
-All notable project changes are recorded here. Dates use the `Africa/Accra` product timezone.
+This checkpoint supersedes earlier media deployment/cleanup status.
 
-## Unreleased
+- Draft PR #102 now adds durable Storage API cleanup for removal/replacement, failed or abandoned uploads, deleted parents, and deleted profiles. A worker authenticated by expiring, single-use tickets runs every five minutes; failures retry under leased queue entries.
+- Preview `opeojxwkwwnnncnsuaag` received the foundation, cleanup, and scheduling migrations plus `process-media` and `cleanup-media`. Repository migration filenames match the versions recorded by deployment; remote history was preserved.
+- All 22 authenticated HTTP assertions passed with fictional media and two temporary identities: upload, retry, processing, metadata removal, parent attachment, cross-account denial, malformed input, immediate read denial after removal, and worker authentication.
+- Storage API cleanup completed eight jobs covering four stored objects; no test objects remained. Only fixture job eligibility was accelerated. The real signed-upload/processing retention windows remain intact.
+- Temporary accounts, profiles, neighborhood and post were removed. `shared_media_uploads` is off. Delayed deletion receipts remain to catch any late signed PUTs.
+- Local checks: 75 mobile suites / 376 tests; six server/PostgreSQL tests; TypeScript and Deno passed. Lint has zero errors and 15 baseline warnings. Latest PR CI remains the merge gate.
+- Product screens remain disconnected. No APK was built. Next: review this checkpoint and its CI, then integrate one surface with parent-submit retry/text-preservation tests. Maximum-size/low-end-device performance and native picker/playback/cache behavior remain acceptance gates.
+- Evidence: `docs/VC_MEDIA_PREVIEW_VERIFICATION.md` and `docs/evidence/media-preview-2026-09-18.json`.
 
-### Verification and active work (2026-09-18)
+## 2026-09-18 — Approved media foundation published in draft PR #102
 
-- Built and verified the single approved corrected Preview APK from `62e3cec`, EAS build `7cbb3fcf-36e0-4ce7-85dc-620a3b8ba68c`. Source provenance, archive integrity, application ID, Preview backend and repaired media/Hire bytecode checks passed. The download and SHA-256 are recorded in `docs/VC_MEDIA_PRODUCT_INTEGRATION.md`; focused phone/tablet retesting remains pending.
-- Repaired the connected-media device findings in source: center portrait video previews/playback in a responsive frame, avoid pausing an already released native player on Close video, and replace the Hire Create request photo placeholder with real photo/video selection shared through Review. Added 12 regression cases (419 tests across 81 mobile suites). These changes are included in corrected APK `62e3cec` and await device retest; PR #102 stays draft.
-- Connected shared media to Profile, Neighborhood Feed, Hire, Groups, Events and Marketplace; PR #102 remains draft pending connected-screen device acceptance.
-- Added retry-safe parent submission, immutable Marketplace photo retry paths, and protection against account changes and repeated submission taps. Mobile regression coverage now totals 407 tests across 80 suites; six media processing/security tests also pass.
-- Built and verified the authorized Preview APK from `5d801dd`, EAS build `214b0a28-2476-4271-aabc-2c07faa4c1a3`. Source-commit, product-media bytecode, application ID, Preview environment and archive checks passed. See `docs/VC_MEDIA_PRODUCT_INTEGRATION.md` for the download, checksum and outstanding device checks.
-- Repaired both PR #102 foundation review findings and added 12 component/transport regressions before product-screen integration.
-- Added durable private media cleanup, scheduled worker authenticated by single-use tickets, and safe local picker-cache disposal.
-- Verified 22 Preview HTTP cases and eight Storage API deletion jobs with fictional fixtures; removed test accounts and restored the upload flag to off.
-- Matched repository migration filenames to the recorded Preview deployment versions without rewriting remote migration history.
+This checkpoint supersedes older next-action statements below.
 
-- Recorded completed native verification and the PR #101 offline-session repair.
-- Prepared the requested shared media foundation locally, with private storage/RPC policies, metadata processing, native controls and focused tests.
-- Published the founder-approved media foundation in draft PR #102 at `f17ad80`. Media deployment and a new APK remain separate checkpoints.
+- The founder explicitly adopted the uploaded VC media directive in chat and approved publishing the shared-media foundation to `pushee-io/My-Corner-Trusted-People` in PR #102. The earlier authorization block is resolved; do not request this approval again.
+- Baseline main: `debd1995ce5f599549d16ea932a04e639b1f411d`. Active branch: `codex/vc-media-foundation`; PR #102 remains draft pending foundation review and CI.
+- Published foundation commit: `f17ad80f8e00c443b4afb35b266e96cbe9654d01`; verified tree `f609578292a7db1da509125035ed595f78780888` matches the reviewed local implementation. It includes private media upload/attachment policies, JPEG/MP4 processing, native controls, account-transition guards and tests. Product-surface integration is pending.
+- Local verification: 74 mobile suites / 374 tests and five server/SQL tests passed; TypeScript, Deno, formatting, web export and Expo Doctor 18/18 passed. Lint: zero errors / 15 baseline warnings.
+- Remote Mobile, Database and Media Functions workflows run on the PR. Check the latest PR head for authoritative results before merging; publication alone does not close technical gates. Storage cleanup, complete Supabase service verification and native media acceptance remain open in `docs/VC_MEDIA_CHECKPOINT_A_REVIEW.md`.
+- No media deployment, flag activation or new APK is part of this publication. Paid EAS builds and production require separate approval.
 
+## 2026-09-08 — Job Safety key configuration checkpoint
 
-### Fixed
+- The three pending provider-account, active-provider assignment, and job-report migrations are verified in Preview. Existing account links and roles are preserved.
+- The internal Job Safety key helper now supports a named Supabase Vault secret when the existing server setting is absent. Existing configured keys retain precedence, and a missing or invalid key still fails closed.
+- Founder-approved Preview key provisioning and a fresh-transaction AES-256 round trip passed. Client roles remain denied direct access to the helper and decrypted Vault values. No key values are present in this repository.
+- The supporting migration only enables key lookup; it does not create or rotate secrets. The repository migration version matches the deployment record.
+- Added isolated SQL coverage for missing configuration, Vault fallback, encryption/decryption, existing-setting precedence, invalid settings, and client denial. Database CI results are recorded on this repair PR.
+- The installed Android build remains usable. Native fictional moderator sign-in and the complete requester/provider/moderator interaction are still pending.
 
-- Close expanded private photos during authorization refresh; reject stale selections and late responses after access, parent or account changes.
-- Resume media processing or a missing video poster when signed-upload preflight reports an already-uploaded original, preserving immutable paths and non-upserting uploads.
-- Reject new requests that target inactive or retired provider profiles, preventing stale cached provider IDs from creating unreachable assignments.
-- Validate provider availability before mobile submission and instruct the requester to refresh when a cached provider is no longer active.
+Earlier checkpoints follow; this status supersedes their pending migration and encryption-configuration gates.
 
-- Reconciled the fictional Preview provider account with the documented Kwame PipeCare seed profile through a forward-only, idempotent migration.
-- Preserved all provider profiles and request history while auditing the previous fictional account-link removal.
-- Added a database regression that recreates the observed Ama Spark Works mismatch and verifies the repaired provider contract.
+## 2026-09-08 — Android launch and provider-account guard checkpoint
 
+- The approved Android Preview APK is installed on the emulator and physical phone; installed artifact identity matches on both.
+- Both devices report successful starts of the app's explicit launcher activity. The emulator reused an existing activity; the phone completed a cold launch. Visible-screen confirmation and the full native requester/provider/moderator flow remain pending.
+- Pending provider-test reconciliation now locks and checks the destination before detaching any account. It skips occupied destinations and non-provider source/destination roles while preserving existing access.
+- SQL regression cases cover occupied moderator/provider destinations, unlinked non-provider destinations, non-provider source accounts, successful reconciliation, audit behavior, and repeated application. Database CI verifies the complete SQL/RLS suite; consult this repair PR's check results.
+- Typecheck passes. Lint has zero errors and 15 existing warnings on the unchanged mobile tree.
+- Preview migration deployment, fictional moderator readiness, and private-location encryption configuration remain prerequisites for native acceptance. Repository CI and device launch receipts do not establish live backend readiness.
+- The existing approved APK remains the application test artifact because this repair changes SQL, tests, and documentation only. No additional Android build was submitted.
 
-### Added
+Earlier checkpoints follow; the current status above supersedes conflicting historical next actions.
 
-- A verified Android Preview APK for commit `5eb06091e8352f949f7c78d87674f74b40833011`, EAS build `2f82dcdc-df32-459e-9690-5a236ec4d46b`, with application, staging-project, bytecode, hash, and provenance checks.
-- A server-controlled Job Safety Session with consent-based exact-location release, assigned-provider authorization, arrival confirmation, expiring one-time codes, server-owned status transitions, two-party completion, encrypted sensitive fields, scoped RPCs, and audit events.
-- Combined Marketplace and job-safety authorization verification in the clean Database CI path.
-- A dedicated Marketplace moderator queue with open, reviewing, resolved, and all filters.
-- Marketplace report detail review with approve, flag, and block-listing controls, controlled reasons, confirmation, and audit history.
-- A forward-only moderator migration with role-gated RPCs, RLS policies, append-only audit records, and pgTAP structural checks.
+## 2026-09-08 — Job report review repair checkpoint
 
-- RLS-authorized Event comments in the live and seeded detail flows.
-- Retryable, user-safe Events availability states and responsive tablet event cards.
-- A fail-closed Events feature-flag provision migration and database smoke test.
-- Tappable Groups directory summaries and a dedicated group-detail route.
-- Member-only group comments and likes using the existing social-group model.
-- Privacy-aware sharing and validated group-post reporting into human moderation.
-- Forward-only Supabase engagement migration and focused seeded/live-boundary tests.
-- Comprehensive Events post-merge verification report.
-- Events testing matrix, release gates, SQL scenarios, mobile scenarios, and CI corrections.
-- Repository-baseline dependency radar with explicit source and verification status.
+- Requester reporting, moderator review, audit history and requester outcomes are connected in the focused repair branch.
+- Local mobile verification passes: 68 suites / 329 tests, typecheck, formatting, and lint with zero errors / 15 existing warnings.
+- Application, database/RLS, and existing browser usability CI passed on application commit `50b4df5` in PR #97. Expo Doctor passed 18/18 checks.
+- Native two-device acceptance remains pending; no new Android build was started.
+- See `docs/ANDROID_JOB_SAFETY_MODERATION_VERIFICATION.md` for checkpoint status.
 
-### Changed
+# MY CORNER — SESSION CHECKPOINT
 
-- Reconciled Trusted Hire routing so only eligible submitted/viewed requests expose accept/decline actions and accepted/active jobs enter the shared safety session.
-- Reconciled durable continuity documents to live `main` after PR #84.
-- Correct preview Supabase verification so publishable API keys are not sent as Bearer JWTs; legacy anon JWT verification remains supported.
+**Updated:** 2026-09-02
+**Status source:** Live GitHub, Actions, Supabase Preview, and founder-supplied two-device evidence
 
-- Recorded founder approval for one paid Android EAS preview build and its fail-closed verification workflow.
+## Completed Checkpoint
 
-- Added a durable native verification report separating passed source/CI evidence from blocked real-device evidence.
+- Starting `main`: `43ac2d431342c409eb3c1a8066914b74e3aae5e5`.
+- Branch: `codex/reject-inactive-provider-requests`.
+- Final branch head: `8367f4702eddb2ca0687fba4d087d04ed5a8dfab`.
+- PR #94: merged.
+- Final `main`: `922a7c4671078ffc94e74141c2cff794c46764ef`.
+- Final Mobile CI `33574967156`: success.
+- Final Database CI `33574967154` and `33574965187`: success.
+- Post-merge Mobile CI `33575181099`: success.
+- Post-merge Database CI `33575181081`: success.
+- Supabase Preview check `100077604509`: success.
 
-- Give shared error-state retry actions explicit button semantics and a 48 dp minimum target.
+## Verified Outcome
 
-- Allow supported native tablets to rotate between portrait and landscape by using Expo's stable no-lock orientation setting.
+New requests cannot target inactive or retired provider profiles. The current client also performs an availability preflight and gives refresh guidance. Tests prove inactive assignments fail and active assignments succeed. Existing requests and providers were preserved.
 
-- Merged PR #70's systematic web-safe navigation migration after immutable-head, CI, mergeability, and manual browser replay verification.
-- Restored durable project continuity documents and advanced the exact next checkpoint to native compact/tablet/accessibility verification.
+The first CI head exposed two incomplete test fixtures. Both were repaired without weakening production code: the Module 1 flow now mocks the provider preflight, and the SQL test captures an inactive provider UUID before switching to authenticated RLS.
 
-- Prepared Events for explicit development activation without enabling staging or production.
-- Reconciled Events documentation with the complete authenticated Supabase runtime repository.
-- Moved posting and post actions out of the Groups directory and into `/groups/[groupId]`.
-- Preserved group creation, membership requests, Events, restored navigation, and all existing migrations.
-- Corrected the documented implementation baseline to Expo 54.0.37, React Native 0.81.5, and React 19.1.0.
-- Recorded that Events remains disabled pending live-repository parity, functional RLS verification, feature gating, and device testing.
-- Recommended Production Verification Services after an Events stabilization milestone, ahead of Push Notifications.
+## Exact Next Action
 
-### Known limitations
+Cancel the unreachable test request, restart both installed apps, submit one replacement to freshly loaded Kwame PipeCare, verify provider receipt, accept or decline, and verify requester-visible persistence.
 
-- The single approved Android Preview build is complete and verified; installation and real-device compact/tablet/accessibility evidence remain pending.
-- Earlier EAS preview runs `33455069758` and `33455643194` failed before submission; the repaired workflow later completed the single authorized build in run `33535507405`.
+## Restricted Actions
 
-- The Marketplace moderator migration is prepared locally but has not been applied to Preview; Preview application and device verification require separate founder approval.
-- Blocking in this slice hides a listing and does not ban or permanently restrict the seller account.
-
-- Events remains fail-closed until both the client flag and the environment-specific database flag are enabled.
-- Development activation and native compact/tablet evidence remain required for this cycle.
-- Database CI now performs a clean Supabase reset and enforces all three Events pgTAP suites with 31 assertions.
-- Pending Events/comments do not yet have an operational, audited moderator workflow.
-- Events stabilization passed local formatting, lint with zero errors, type checking, 51 Jest suites, 250 tests, a clean Supabase reset, all legacy SQL checks, and 31 Events pgTAP assertions. Native build and device evidence remain outstanding.
-
-## 2026-08-02 - Events vertical slice merge
-
-### Added
-
-- Events domain and runtime contracts for lifecycle, visibility, moderation, organizer roles, attendance, invitations, comments, reports, reminders, and outbox events.
-- Seeded Events repository and Supabase row adapter/repository boundary.
-- Event list, create-draft, and detail routes with Home and Community navigation.
-- Events database migration with private-location separation, RLS, security-definer RPCs, capacity locking, audit events, and notification outbox.
-- Unit tests for contracts, seeded repository behavior, and Supabase mapping.
-- Structural Events SQL smoke checks.
-
-### Security
-
-- Denied direct authenticated access to precise event locations and the domain outbox.
-- Restricted exact-location reads to organizers or confirmed attendees when release is enabled.
-- Added audit records for precise-location reads.
-- Added verified-neighborhood and cluster audience rules, invitation checks, rate limiting, and idempotency constraints.
-
-### Deferred
-
-- Live complete Events repository wiring.
-- Production feature activation and staging migration.
-- Real push delivery, cover upload, automatic waitlist promotion, and production moderation workflow.
+Do not submit another paid build, deploy to production, activate real messaging or identity services, apply destructive migrations, process sensitive real-user data, or disclose/change secrets without explicit founder authority.

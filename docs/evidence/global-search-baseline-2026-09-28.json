@@ -1,0 +1,469 @@
+{
+  "observedAt": "2026-09-28",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "integrationBase": "95ffa8cc1f069547a972f83dcdeccf4504cb099c",
+  "preview": {
+    "version": 10,
+    "verifyJWT": true,
+    "sourcePR": 152,
+    "recovery155Deployed": false
+  },
+  "pullRequests": [
+    {
+      "number": 156,
+      "head": "95ffa8cc1f069547a972f83dcdeccf4504cb099c",
+      "base": "codex/ask-evidence-failure-recovery",
+      "title": "Record verified Preview APK50 for VC requester recording",
+      "ci": [
+        {
+          "id": 36357231738,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "95ffa8cc1f069547a972f83dcdeccf4504cb099c"
+        }
+      ]
+    },
+    {
+      "number": 155,
+      "head": "6eae213ccbf57f61d0d564cd44516ab4a9435544",
+      "base": "codex/feed-discovery-preview-apk",
+      "title": "Keep authorized provider results when optional AI evidence fails",
+      "ci": [
+        {
+          "id": 36356187387,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "6eae213ccbf57f61d0d564cd44516ab4a9435544"
+        },
+        {
+          "id": 36356187393,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "6eae213ccbf57f61d0d564cd44516ab4a9435544"
+        },
+        {
+          "id": 36356184206,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "6eae213ccbf57f61d0d564cd44516ab4a9435544"
+        }
+      ]
+    },
+    {
+      "number": 154,
+      "head": "b672614803cd95d0925955e668fcaa2ed2a9634f",
+      "base": "codex/feed-public-author-names",
+      "title": "Record verified Preview APK 49 for Feed names and Hire fixes",
+      "ci": [
+        {
+          "id": 36349255483,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "b672614803cd95d0925955e668fcaa2ed2a9634f"
+        }
+      ]
+    },
+    {
+      "number": 153,
+      "head": "fbfb1421511adfed04ab57065e3e61e4e8c1d860",
+      "base": "codex/provider-discovery-consistency",
+      "title": "Use approved public author names consistently throughout the neighborhood Feed",
+      "ci": [
+        {
+          "id": 36348005877,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "fbfb1421511adfed04ab57065e3e61e4e8c1d860"
+        },
+        {
+          "id": 36348005864,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "fbfb1421511adfed04ab57065e3e61e4e8c1d860"
+        },
+        {
+          "id": 36348005866,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "fbfb1421511adfed04ab57065e3e61e4e8c1d860"
+        }
+      ]
+    },
+    {
+      "number": 152,
+      "head": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+      "base": "codex/ask-quota-preview-apk",
+      "title": "Repair provider coverage completeness and discovery across all authorized sources",
+      "ci": [
+        {
+          "id": 36333358300,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        },
+        {
+          "id": 36333358268,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        },
+        {
+          "id": 36333358271,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        },
+        {
+          "id": 36333322896,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        },
+        {
+          "id": 36333322894,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        },
+        {
+          "id": 36333322913,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "39b1c604ef8564989aa1c67d1a03a1857a5ea474"
+        }
+      ]
+    },
+    {
+      "number": 151,
+      "head": "d6f149fd27ec39e824b95c76d56f9dfad8ed4a5a",
+      "base": "codex/ask-relevance-quota-coverage",
+      "title": "Record verified Preview APK 48 with clear assistant question-limit feedback",
+      "ci": [
+        {
+          "id": 36331996762,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "d6f149fd27ec39e824b95c76d56f9dfad8ed4a5a"
+        }
+      ]
+    },
+    {
+      "number": 150,
+      "head": "1bf958836a673bc77d33f69911b5bd2f2d2c1182",
+      "base": "codex/ask-intent-preview-apk",
+      "title": "Fix assistant relevance and quota errors; prepare Kwame East Legon coverage",
+      "ci": [
+        {
+          "id": 36330811552,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "1bf958836a673bc77d33f69911b5bd2f2d2c1182"
+        },
+        {
+          "id": 36330811529,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "1bf958836a673bc77d33f69911b5bd2f2d2c1182"
+        },
+        {
+          "id": 36330811550,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "1bf958836a673bc77d33f69911b5bd2f2d2c1182"
+        }
+      ]
+    },
+    {
+      "number": 149,
+      "head": "7ec127a4f16e02aa13c98ad4fa9eefb068b103e5",
+      "base": "codex/ask-grounded-integration",
+      "title": "Record verified Preview APK 47 for assistant clarification and provider follow-ups",
+      "ci": [
+        {
+          "id": 36295685907,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7ec127a4f16e02aa13c98ad4fa9eefb068b103e5"
+        }
+      ]
+    },
+    {
+      "number": 148,
+      "head": "90b91e7d221704ede8ac0b67517af317d3eac4c3",
+      "base": "codex/ask-structured-retrieval",
+      "title": "Checkpoint J: grounded assistant comparisons and conversational actions",
+      "ci": [
+        {
+          "id": 36294726817,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "90b91e7d221704ede8ac0b67517af317d3eac4c3"
+        },
+        {
+          "id": 36294726819,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "90b91e7d221704ede8ac0b67517af317d3eac4c3"
+        },
+        {
+          "id": 36294726852,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "90b91e7d221704ede8ac0b67517af317d3eac4c3"
+        }
+      ]
+    },
+    {
+      "number": 147,
+      "head": "0d85989de3a511ae8f7b8c59003c173a9391602c",
+      "base": "codex/ask-concept-planner",
+      "title": "Checkpoints D/F/H: authorized structured retrieval and deterministic comparisons",
+      "ci": [
+        {
+          "id": 36293344676,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0d85989de3a511ae8f7b8c59003c173a9391602c"
+        },
+        {
+          "id": 36293344725,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0d85989de3a511ae8f7b8c59003c173a9391602c"
+        },
+        {
+          "id": 36293339677,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0d85989de3a511ae8f7b8c59003c173a9391602c"
+        },
+        {
+          "id": 36293339638,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0d85989de3a511ae8f7b8c59003c173a9391602c"
+        }
+      ]
+    },
+    {
+      "number": 146,
+      "head": "8fdfb7303af0c0d1e704603174585e3b52b72fb5",
+      "base": "codex/ask-intent-audit",
+      "title": "Checkpoints B/C/E/G/I: understand concepts and prioritize authorized sources",
+      "ci": [
+        {
+          "id": 36293139826,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "8fdfb7303af0c0d1e704603174585e3b52b72fb5"
+        },
+        {
+          "id": 36293139817,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "8fdfb7303af0c0d1e704603174585e3b52b72fb5"
+        },
+        {
+          "id": 36293135360,
+          "name": "Media Functions CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "8fdfb7303af0c0d1e704603174585e3b52b72fb5"
+        },
+        {
+          "id": 36293135358,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "8fdfb7303af0c0d1e704603174585e3b52b72fb5"
+        }
+      ]
+    },
+    {
+      "number": 145,
+      "head": "6b6838a0a3221bbb914044926822160fa6a07948",
+      "base": "codex/vc-media-foundation",
+      "title": "Checkpoint A: audit assistant intent failures and missing Preview coverage",
+      "ci": []
+    },
+    {
+      "number": 144,
+      "head": "b866ceea733d776260b3044f5a0b2637531606f4",
+      "base": "main",
+      "title": "Record verified corrected Preview APK 46 and update instructions",
+      "ci": [
+        {
+          "id": 36275855530,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "b866ceea733d776260b3044f5a0b2637531606f4"
+        }
+      ]
+    },
+    {
+      "number": 143,
+      "head": "4efce7ad487f1a581a47a59e7bff3daab64a014c",
+      "base": "main",
+      "title": "Record verified Preview public-name deployment and corrected APK gate",
+      "ci": []
+    },
+    {
+      "number": 96,
+      "head": "75fa551b84fffe96edb0146a62ac496d49ce27ad",
+      "base": "main",
+      "title": "docs: record pending Android verification and source checks",
+      "ci": []
+    },
+    {
+      "number": 54,
+      "head": "931d5e71135173be84f9c67637713a29ad8f48be",
+      "base": "main",
+      "title": "[codex] repair trusted-hire routing and Marketplace security verification",
+      "ci": [
+        {
+          "id": 32902553355,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "931d5e71135173be84f9c67637713a29ad8f48be"
+        },
+        {
+          "id": 32902553388,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "931d5e71135173be84f9c67637713a29ad8f48be"
+        },
+        {
+          "id": 32902549696,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "931d5e71135173be84f9c67637713a29ad8f48be"
+        }
+      ]
+    },
+    {
+      "number": 53,
+      "head": "c0a8ff6a34acabe79ff3508be4436c8c6a73c41e",
+      "base": "main",
+      "title": "[codex] add Job Safety Session",
+      "ci": [
+        {
+          "id": 32879286955,
+          "name": "Job Safety Usability",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "c0a8ff6a34acabe79ff3508be4436c8c6a73c41e"
+        },
+        {
+          "id": 32879286888,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "c0a8ff6a34acabe79ff3508be4436c8c6a73c41e"
+        },
+        {
+          "id": 32879287074,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "c0a8ff6a34acabe79ff3508be4436c8c6a73c41e"
+        },
+        {
+          "id": 32879281106,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "c0a8ff6a34acabe79ff3508be4436c8c6a73c41e"
+        }
+      ]
+    },
+    {
+      "number": 45,
+      "head": "e6d94c0e2834c82e7dda976d3e2c7a458fa2eea3",
+      "base": "main",
+      "title": "[codex] Expose complete Groups create, join, and moderate flow",
+      "ci": [
+        {
+          "id": 32409997087,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "e6d94c0e2834c82e7dda976d3e2c7a458fa2eea3"
+        },
+        {
+          "id": 32409997080,
+          "name": "Database CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "e6d94c0e2834c82e7dda976d3e2c7a458fa2eea3"
+        },
+        {
+          "id": 32409992101,
+          "name": "Mobile CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "e6d94c0e2834c82e7dda976d3e2c7a458fa2eea3"
+        }
+      ]
+    },
+    {
+      "number": 42,
+      "head": "472f241ff20bf332dae8f197ca87880f1d218d0e",
+      "base": "main",
+      "title": "docs: verify Events and threat-model Job Safety Session",
+      "ci": []
+    },
+    {
+      "number": 39,
+      "head": "552ee89181f0813ee074bd29ed99751a18ea82c4",
+      "base": "main",
+      "title": "docs: add sequenced product and media roadmap",
+      "ci": []
+    }
+  ],
+  "recentHTTP": [
+    {
+      "timestamp": "2026-09-28T20:08:16.599000",
+      "event": "POST | 503 | https://opeojxwkwwnnncnsuaag.supabase.co/functions/v1/ask-my-corner"
+    },
+    {
+      "timestamp": "2026-09-28T19:47:13.429000",
+      "event": "POST | 503 | https://opeojxwkwwnnncnsuaag.supabase.co/functions/v1/ask-my-corner"
+    },
+    {
+      "timestamp": "2026-09-28T19:45:30.699000",
+      "event": "POST | 503 | https://opeojxwkwwnnncnsuaag.supabase.co/functions/v1/ask-my-corner"
+    }
+  ]
+}
