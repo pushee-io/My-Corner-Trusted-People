@@ -90,14 +90,16 @@ export default function AskScreen() {
     if (previousNeighborhood.current && neighborhood && neighborhood !== previousNeighborhood.current) clear();
     if (neighborhood) previousNeighborhood.current = neighborhood;
   }, [neighborhood, clear]);
+  const quotaReset = quota.data?.blocked_scope ? quota.data.retry_at : quota.data?.reset_at;
+  const refreshQuota = quota.refresh;
   useEffect(() => {
-    const reset = quota.data?.blocked_scope ? quota.data.retry_at : quota.data?.reset_at;
+    const reset = quotaReset;
     if (!reset) return;
     const delay = Date.parse(reset) - Date.now();
     if (delay < 0) return;
-    const timer = setTimeout(() => void quota.refresh(), Math.min(delay + 500, 2147483647));
+    const timer = setTimeout(() => void refreshQuota(), Math.min(delay + 500, 2147483647));
     return () => clearTimeout(timer);
-  }, [quota.data?.reset_at, quota.data?.retry_at, quota.data?.blocked_scope, quota.refresh]);
+  }, [quotaReset, refreshQuota]);
   async function ask(value = question, selectedProviderId?: string) {
     if (!neighborhood || sending.current || value.trim().length < 3) return;
     composer.current?.blur();

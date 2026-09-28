@@ -41,12 +41,10 @@ it('both devices read identical account status and read again after server reset
 });
 it('429 includes exact reset and keeps Search available; minute/global scopes have distinct messages', async () => {
   const exhausted = { ...quota, used: 40, remaining: 0, percent: 100, blocked_scope: 'account_daily' as const };
-  jest
-    .mocked(supabase.functions.invoke)
-    .mockResolvedValue({
-      data: null,
-      error: { context: { status: 429, json: async () => ({ code: 'ASK_ALLOWANCE_REACHED', quota: exhausted }) } },
-    } as never);
+  jest.mocked(supabase.functions.invoke).mockResolvedValue({
+    data: null,
+    error: { context: { status: 429, json: async () => ({ code: 'ASK_ALLOWANCE_REACHED', quota: exhausted }) } },
+  } as never);
   await expect(askNeighborhood('plumber', [], 'fixture')).rejects.toBeInstanceOf(AskAllowanceError);
   await expect(askNeighborhood('plumber', [], 'fixture')).rejects.toThrow(/Resets.*Search is still available/);
   expect(quotaMessage({ ...quota, blocked_scope: 'account_minute' })).toMatch(/pause between questions/);

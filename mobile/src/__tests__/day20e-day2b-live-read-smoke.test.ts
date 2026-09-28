@@ -10,7 +10,6 @@ import { getDay2BLiveRepository } from '@/lib/day2b-live-repository';
 import {
   createDay2BSupabaseReadClient,
   day2bJobRequestColumns,
-  day2bProviderProfileColumns,
   day2bProviderResponseColumns,
   day2bProviderServiceColumns,
   day2bProviderTrustSignalColumns,
@@ -63,6 +62,18 @@ function createFakeSupabaseClient(rowsByTable: RowsByTable) {
   return {
     calls,
     client: {
+      async rpc(name: string, args: { category: string }) {
+        expect(name).toBe('neighborhood_provider_catalog');
+        const ids = (rowsByTable.provider_services ?? [])
+          .filter((s) => s.category_id === args.category)
+          .map((s) => s.provider_id);
+        return {
+          data: (rowsByTable.provider_profiles ?? []).filter(
+            (p) => ids.includes(p.id) && p.accepting_requests !== false,
+          ),
+          error: null,
+        };
+      },
       from(table: Day2BSupabaseReadTableName) {
         return {
           select(columns: string) {
@@ -186,20 +197,6 @@ describe('Day 20E Day 2b live read smoke path', () => {
       providerMessage: 'I can come tomorrow morning and will confirm before I leave.',
     });
     expect(calls).toEqual([
-      {
-        table: 'provider_services',
-        columns: 'provider_id',
-        filters: [{ kind: 'eq', column: 'category_id', value: 'plumbing' }],
-      },
-      {
-        table: 'provider_profiles',
-        columns: day2bProviderProfileColumns,
-        filters: [
-          { kind: 'in', column: 'id', value: ['prov-live-01'] },
-          { kind: 'eq', column: 'accepting_requests', value: true },
-        ],
-        order: { column: 'rating', ascending: false },
-      },
       {
         table: 'provider_services',
         columns: day2bProviderServiceColumns,

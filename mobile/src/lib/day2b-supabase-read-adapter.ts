@@ -34,6 +34,7 @@ type SupabaseLikeTable<Row> = {
 };
 
 type SupabaseLikeClient = {
+  rpc?: (name: string, args: Record<string, unknown>) => PromiseLike<SupabaseLikeResult<ProviderProfileRow>>;
   from: <Row = Record<string, unknown>>(table: Day2BSupabaseReadTableName) => SupabaseLikeTable<Row>;
 };
 
@@ -110,22 +111,8 @@ let cachedSupabaseDay2BReadClient: Day2BSupabaseReadClient | undefined;
 export function createDay2BSupabaseReadClient(client: SupabaseLikeClient): Day2BSupabaseReadClient {
   return {
     async listProvidersByCategory(categoryId) {
-      const servicesResult = await client
-        .from<ProviderServiceRow>('provider_services')
-        .select('provider_id')
-        .eq('category_id', categoryId);
-
-      if (servicesResult.error) return { data: null, error: toError(servicesResult.error) };
-
-      const providerIds = uniqueRows(asRows(servicesResult.data).map((service) => service.provider_id));
-      if (providerIds.length === 0) return { data: [], error: null };
-
-      const providersResult = await client
-        .from<ProviderProfileRow>('provider_profiles')
-        .select(day2bProviderProfileColumns)
-        .in('id', providerIds)
-        .eq('accepting_requests', true)
-        .order('rating', { ascending: false });
+      if (!client.rpc) return { data: null, error: new Error('Authorized provider catalog unavailable.') };
+      const providersResult = await client.rpc('neighborhood_provider_catalog', { category: categoryId });
 
       if (providersResult.error) return { data: null, error: toError(providersResult.error) };
 

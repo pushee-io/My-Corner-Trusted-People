@@ -15,7 +15,8 @@ jest.mock('react-native', () => ({
 jest.mock('expo-router', () => ({ useLocalSearchParams: () => ({}) }));
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
 jest.mock('@/components/AskMyCornerAccess', () => ({
-  AskMyCornerAccess: ({ beforeOpen }: { beforeOpen: () => void }) => jest.requireActual('react').createElement('AskPill', { onPress: beforeOpen }),
+  AskMyCornerAccess: ({ beforeOpen }: { beforeOpen: () => void }) =>
+    jest.requireActual('react').createElement('AskPill', { onPress: beforeOpen }),
 }));
 jest.mock('@/components/media/MediaThumbnail', () => ({ MediaThumbnail: () => null }));
 jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: ({ children }: { children: unknown }) => children }));

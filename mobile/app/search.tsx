@@ -103,6 +103,7 @@ export default function SearchScreen() {
                       <Text style={styles.body}>{result.sourceLabel}</Text>
                       <Text style={styles.title}>{result.title}</Text>
                       <Text style={styles.body}>{result.subtitle}</Text>
+                      <Text style={styles.body}>{result.body.slice(0, 240)}</Text>
                     </Pressable>
                   </WebSafeLink>
                 ))}
