@@ -1,0 +1,84 @@
+{
+  "observedAt": "2026-09-28",
+  "mainAtIntegrationMerge": "2136aac68d03cceb7774dce209e6f3520956ef08",
+  "testedIntegration": "02962a70526264bcea39634510701e456e16e445",
+  "integrationPR": 157,
+  "CI": {
+    "mobile": 36489863621,
+    "server": 36489863583,
+    "database": 36489863402,
+    "all": "success"
+  },
+  "local": {
+    "mobileTests": 563,
+    "mobileSuites": 100,
+    "serverTests": 64,
+    "typecheck": "passed",
+    "format": "passed",
+    "deno": "passed",
+    "previewContract": "passed",
+    "androidBundle": "passed; no APK",
+    "webBundle": "passed in Mobile CI"
+  },
+  "preview": {
+    "project": "opeojxwkwwnnncnsuaag",
+    "version": 11,
+    "verifyJWT": true,
+    "bundleHash": "e56d5c4fe16fa35e1667ebbc8c9689172400cc63a77dc9aa8a8842ccb97fab5c",
+    "versionChangedExternallyAt": "2026-09-28T22:07:46.360Z",
+    "allSevenFilesIdenticalToV10": true,
+    "canonicalMigrationApplied": false,
+    "canonicalSearchRPCPresent": false,
+    "quotaStatusRPCPresent": false
+  },
+  "requestedApproval": {
+    "migration": "20260928213631_canonical_neighborhood_search.sql",
+    "migrationSHA256": "9216c91a9d054ea23fe63bb9786bded3c486557ad989f96f9f3a51630b15050b",
+    "function": "ask-my-corner",
+    "retainJWT": true,
+    "files": [
+      {
+        "name": "ask-my-corner/index.ts",
+        "sha256": "ea0724d931286f896975d8cb5bdad072de00b42c1f86460d5da57753beaecbeb"
+      },
+      {
+        "name": "_shared/neighborhood-service.ts",
+        "sha256": "ea5d545a1b7dd132c963cb8571506f4a9f7fc8964f95c997d096eb22ace04d3a"
+      },
+      {
+        "name": "_shared/neighborhood-search.ts",
+        "sha256": "1eef9eabbf6359d4187e22f03b3f2e76571bd48631f114ce3b0f55ba99e2c0a6"
+      },
+      {
+        "name": "_shared/neighborhood-answer.ts",
+        "sha256": "8915a7c8ea387e39ee0ebe0c6e24375525f9ad0c8ea2330fd42145eb17789953"
+      },
+      {
+        "name": "_shared/neighborhood-assistant.ts",
+        "sha256": "d4f6c96bdae17b2812a3b0147458ba34fed8a5f2a79a082f4941a91c6d56cf99"
+      },
+      {
+        "name": "_shared/neighborhood-concepts.ts",
+        "sha256": "45cc449a1a28e549c4cc27caa1aec83fe9814467bdbb62a3926f4be071d59673"
+      },
+      {
+        "name": "_shared/openai-responses.ts",
+        "sha256": "2c765e9a6209f4843ec11661af46b9b10a804a6f393cd41f67b417f48e0f2287"
+      },
+      {
+        "name": "deno.json",
+        "sha256": "8cc488d7cb56b9cf41e19ad261f7677493d9ffcc285dcd65e9a247300cfb16ab"
+      }
+    ]
+  },
+  "gates": {
+    "authenticatedPreviewHTTP": "pending approval/deployment/secure session",
+    "APK": "not authorized before backend acceptance",
+    "phone": "pending",
+    "PixelTablet": "pending",
+    "VCReady": false
+  },
+  "noProductionChanges": true,
+  "noQuotaIncreaseOrReset": true,
+  "noPaidBuild": true
+}

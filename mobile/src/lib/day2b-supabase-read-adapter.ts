@@ -284,10 +284,6 @@ function asSingleRow<Row>(data: Row[] | Row | null): Row | undefined {
   return asRows(data)[0];
 }
 
-function uniqueRows(values: string[]): string[] {
-  return [...new Set(values.filter(Boolean))];
-}
-
 function toError(error: Day2BSupabaseReadError): Error {
   return new Error(error.message.slice(0, 180));
 }

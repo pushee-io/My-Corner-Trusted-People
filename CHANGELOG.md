@@ -1,3 +1,19 @@
+## 2026-09-28 — canonical reliability merged; one Preview approval required
+
+**Live main at release merge:** `2136aac68d03cceb7774dce209e6f3520956ef08` via **#157**, preserving all #143–#156 history. Tested integration source: `02962a70526264bcea39634510701e456e16e445`. Stacked #145–#156 are closed as integrated after ancestry verification; #143/#144 were integrated automatically. Historical unrelated divergent PRs are not merged blindly.
+
+**Source verification passed:** 563 mobile tests / 100 suites; 64 server tests; typecheck, formatting, Deno, Preview contract, web bundle and local Android Hermes export. CI: Mobile **36489863621**, server **36489863583**, Database/RLS **36489863402**, all successful. A follow-up removes one unused adapter helper and records this checkpoint; it does not change backend behavior.
+
+**Live Preview recheck:** ask-my-corner **v11 ACTIVE / JWT verified**, updated externally at 2026-09-28T22:07:46Z. All seven files are byte-for-byte identical to the earlier v10 / #152 bundle. This session did not deploy it. Bundle hash `e56d5c4fe16fa35e1667ebbc8c9689172400cc63a77dc9aa8a8842ccb97fab5c`. Neither #155 recovery nor the canonical integration is deployed. The canonical migration, Search context RPC and quota status RPC remain absent.
+
+**ONE CONSOLIDATED PREVIEW APPROVAL REQUIRED:** apply only `supabase/migrations/20260928213631_canonical_neighborhood_search.sql` (SHA256 `9216c91a9d054ea23fe63bb9786bded3c486557ad989f96f9f3a51630b15050b`), then deploy the merged #157 `ask-my-corner` source and its eight-file bundle to **`opeojxwkwwnnncnsuaag` only**, retaining JWT verification; then run authenticated scoped retrieval/quota/source-action/privacy verification. No other migration, feature activation, data backfill or quota mutation is included.
+
+Quota policy remains 40/account/UTC calendar day, six/minute and 500/shared Preview UTC day; no increase/reset. Read-only Preview baseline returned both plumbers and an electrical Feed recommendation; three earlier 503s occurred after retrieval/model use, not exhaustion. Exact old runtime exception is unlogged. See `AI_RELIABILITY_ACCEPTANCE_MATRIX.md`, `GLOBAL_SEARCH_AND_AI_ARCHITECTURE.md`, `SEARCH_RELIABILITY_PR_MAP.md` and sanitized release evidence.
+
+**APK/native gate:** APK50 predates the Search, quota and comment client changes. Do not request/build another APK until authenticated Preview backend acceptance succeeds. Physical phone and Pixel Tablet visual/interaction acceptance and VC readiness remain pending. No production changes, secrets changes, paid build, identity backfill or real communications occurred.
+
+**Next action:** obtain the single bundled Preview approval above. Use a secure authorized test session for HTTP acceptance; SQL-role checks and local bundles do not substitute for authenticated HTTP or native proof.
+
 ## 2026-09-28 — canonical reliability implementation checkpoint
 
 Source work is prepared on `codex/canonical-neighborhood-reliability`, preserving #143–#156. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; Preview remains v10 / #152 with JWT verification. No new Preview deployment or APK has occurred.
