@@ -1,0 +1,69 @@
+{
+  "reviewedAt": "2026-09-28",
+  "sourceMain": "6ea8682d489ef2ad2f9d4d6498081bd061f3e2d9",
+  "method": "Direct review of 11 founder-provided physical-phone photos, correlated with bounded non-identifying runtime diagnostics",
+  "installedAPK": "not visible in photos",
+  "results": [
+    {
+      "query": "Plumber",
+      "photos": [
+        "IMG_0302.jpg",
+        "IMG_0303.jpg",
+        "IMG_0304.jpg"
+      ],
+      "observed": "2 matching provider cards"
+    },
+    {
+      "query": "What plumber has the most reviews",
+      "photos": [
+        "IMG_0305.jpg",
+        "IMG_0306.jpg",
+        "IMG_0307.jpg"
+      ],
+      "observed": "Kwame leads with 3 verified reviews; second provider has 1"
+    },
+    {
+      "query": "Electrician",
+      "photos": [
+        "IMG_0308.jpg",
+        "IMG_0309.jpg"
+      ],
+      "observed": "No matching covered provider; relevant Feed recommendation shown"
+    },
+    {
+      "query": "Festival",
+      "photos": [
+        "IMG_0310.jpg",
+        "IMG_0311.jpg",
+        "IMG_0312.jpg"
+      ],
+      "observed": "2 upcoming Event cards retained; optional AI explanation unavailable"
+    }
+  ],
+  "diagnostics": {
+    "windowUTC": [
+      "2026-09-28T22:35:00Z",
+      "2026-09-28T22:40:00Z"
+    ],
+    "answeredRuns": 4,
+    "eventFallback": {
+      "timestampUTC": "2026-09-28T22:38:28.658Z",
+      "stage": "evidence_validation",
+      "exactFailure": "not recorded",
+      "inputTokens": 352,
+      "outputTokens": 69,
+      "answerMs": 2358
+    }
+  },
+  "pending": [
+    "source navigation",
+    "privacy refusal and cross-neighborhood denial",
+    "quota/reset behavior",
+    "full six-source acceptance",
+    "new client UI",
+    "Pixel Tablet"
+  ],
+  "VCReady": false,
+  "noNewBuild": true,
+  "noRemoteMutation": true
+}

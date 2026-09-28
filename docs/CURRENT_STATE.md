@@ -1,3 +1,15 @@
+## 2026-09-28 — founder phone retrieval smoke test reviewed
+
+Founder supplied IMG_0302–IMG_0312, reviewed directly after recovering attachments by upload ID. Screens show checks at **22:36–22:38 Accra/UTC** (18:36–18:38 America/New_York), after Preview v12 deployment. Exact installed APK version is not shown.
+
+**Observed passes:** “Plumber” returns both Kwame PipeCare and Real Neighbor Plumbing (Demo). “What plumber has the most reviews” ranks Kwame first with three verified reviews versus one; visible ratings are 4.3 and 5.0 respectively. “Electrician” distinguishes no eligible provider from a relevant neighborhood Feed recommendation. “Festival” returns Pig racing festival (October 10) and Traditional dancing festival (October 26), with Event actions. No whole-answer unavailable or allowance error is visible in these four tests.
+
+**Degraded explanation:** the Festival response says “AI explanation is temporarily unavailable” while retaining both Event cards. Sanitized runtime trace at **22:38:28.658Z** confirms `ask_evidence_fallback`, stage `evidence_validation`, intent `events`. It does not identify the exact validation failure; do not infer API outage, quota exhaustion, invalid key or timeout. Aggregate telemetry for 22:35–22:40Z shows all four runs `answered`: three provider-intent and one Event-intent run. The Event run used 352 input / 69 output tokens and completed in 2358ms. Optional evidence failure did not erase retrieval.
+
+**Acceptance boundary:** these are founder-supplied physical-phone results, not agent-authenticated HTTP tests or complete native acceptance. Screens show source buttons but not their destinations. Privacy refusal, cross-neighborhood denial, quota/reset/80-percent UX, full six-source matrix, current-source Search/comment UX and Pixel Tablet remain pending. No new APK is authorized or built. A fresh APK is still required for client changes newer than APK50 after the remaining backend gate.
+
+Source/deployment unchanged: main at review `6ea8682d489ef2ad2f9d4d6498081bd061f3e2d9`; Preview v12/JWT verified per deployment receipt. No redeployment, migration, identifier lookup, quota/identity/secret mutation, production action or real communications. Detailed evidence: `docs/evidence/phone-retrieval-smoke-2026-09-28.json`.
+
 ## 2026-09-28 — approved canonical backend deployed to Preview
 
 **Deployment completed:** Preview `opeojxwkwwnnncnsuaag` only. Exact approved `20260928213631_canonical_neighborhood_search.sql` applied (SHA256 `9216c91a9d054ea23fe63bb9786bded3c486557ad989f96f9f3a51630b15050b`). Supabase MCP recorded remote version **20260928222337**, name **canonical_neighborhood_search**; this is the approved migration, not an additional migration. Do not reapply based on the different application timestamp.
