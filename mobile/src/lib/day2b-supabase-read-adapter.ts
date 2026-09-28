@@ -34,6 +34,7 @@ type SupabaseLikeTable<Row> = {
 };
 
 type SupabaseLikeClient = {
+  rpc?: (name: string, args: Record<string, unknown>) => PromiseLike<SupabaseLikeResult<ProviderProfileRow>>;
   from: <Row = Record<string, unknown>>(table: Day2BSupabaseReadTableName) => SupabaseLikeTable<Row>;
 };
 
@@ -110,26 +111,12 @@ let cachedSupabaseDay2BReadClient: Day2BSupabaseReadClient | undefined;
 export function createDay2BSupabaseReadClient(client: SupabaseLikeClient): Day2BSupabaseReadClient {
   return {
     async listProvidersByCategory(categoryId) {
-      const servicesResult = await client
-        .from<ProviderServiceRow>('provider_services')
-        .select('provider_id')
-        .eq('category_id', categoryId);
-
-      if (servicesResult.error) return { data: null, error: toError(servicesResult.error) };
-
-      const providerIds = uniqueRows(asRows(servicesResult.data).map((service) => service.provider_id));
-      if (providerIds.length === 0) return { data: [], error: null };
-
-      const providersResult = await client
-        .from<ProviderProfileRow>('provider_profiles')
-        .select(day2bProviderProfileColumns)
-        .in('id', providerIds)
-        .eq('accepting_requests', true)
-        .order('rating', { ascending: false });
+      if (!client.rpc) return { data: null, error: new Error('Authorized provider catalog unavailable.') };
+      const providersResult = await client.rpc('neighborhood_provider_catalog', { category: categoryId });
 
       if (providersResult.error) return { data: null, error: toError(providersResult.error) };
 
-      return buildProviderRows(client, asRows(providersResult.data));
+      return buildProviderRows(client, asRows(providersResult.data), categoryId);
     },
 
     async getProvider(providerId) {
@@ -203,6 +190,7 @@ export function resetSupabaseDay2BReadClientForTests() {
 async function buildProviderRows(
   client: SupabaseLikeClient,
   providerRows: ProviderProfileRow[],
+  categoryId?: string,
 ): Promise<Day2BQueryResult<Day2BLiveProviderRow>> {
   if (providerRows.length === 0) return { data: [], error: null };
 
@@ -225,7 +213,7 @@ async function buildProviderRows(
   const signals = asRows(signalsResult.data);
 
   return {
-    data: providerRows.map((provider) => mapProviderRow(provider, services, signals)),
+    data: providerRows.map((provider) => mapProviderRow(provider, services, signals, categoryId)),
     error: null,
   };
 }
@@ -234,16 +222,19 @@ function mapProviderRow(
   provider: ProviderProfileRow,
   services: ProviderServiceRow[],
   signals: ProviderTrustSignalRow[],
+  categoryId?: string,
 ): Day2BLiveProviderRow {
   const providerServices = services.filter((service) => service.provider_id === provider.id);
   const providerSignals = signals.filter((signal) => signal.provider_id === provider.id);
-  const firstService = providerServices[0];
+  const serviceLabel = categoryId
+    ? providerServices.find((s) => s.category_id === categoryId)?.service_label
+    : [...new Set(providerServices.map((s) => s.service_label))].sort().join(' · ');
 
   return {
     id: provider.id,
     business_name: provider.business_name,
     headline: provider.headline,
-    service_label: firstService?.service_label,
+    service_label: serviceLabel,
     general_area: provider.general_area,
     category_ids: providerServices.map((service) => service.category_id),
     trust_signals: providerSignals.map((signal) => ({ id: signal.id, label: signal.label, value: signal.value })),

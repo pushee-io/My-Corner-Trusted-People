@@ -1,0 +1,671 @@
+{
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "source": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
+  "pullRequests": [
+    145,
+    146,
+    147,
+    148
+  ],
+  "preview": {
+    "project": "opeojxwkwwnnncnsuaag",
+    "edgeVersion": 8,
+    "jwtVerification": true,
+    "deployedFilesMatchMain": false,
+    "newMigrationPresent": true,
+    "newRpcPresent": true,
+    "authenticatedHttpVerified": false,
+    "deployedFilesMatchTestedPR148": true
+  },
+  "migration": {
+    "file": "20260927040151_assistant_structured_retrieval.sql",
+    "sha256": "54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca"
+  },
+  "local": {
+    "serverTests": 42,
+    "mobileTests": 544,
+    "mobileSuites": 96,
+    "typecheck": "passed",
+    "format": "passed",
+    "lintErrors": 0,
+    "baselineWarnings": 15,
+    "diff": "passed"
+  },
+  "ci": {
+    "integratedSource": {
+      "sha": "1f51931477fa11a78d3f2e73f3f41456ffdbda49",
+      "database": 36293816023,
+      "mobile": 36293816027,
+      "serverDeno": 36293816003,
+      "result": "success"
+    },
+    "additionalDatabaseRegression": {
+      "sha": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
+      "database": 36293942320,
+      "status": "success",
+      "mobile": 36293942313,
+      "serverDeno": 36293942319
+    }
+  },
+  "dataGates": [
+    "Four visible Plumbing and two Electrical providers have no service-area rows.",
+    "Electrical public area labels name Adenta/Madina and Osu/Labone, not East Legon.",
+    "Old lights-off lexical matches include a park lighting discussion, which is not outage evidence."
+  ],
+  "native": {
+    "installedApk": 46,
+    "visualAcceptance": false,
+    "newBuildSubmitted": false
+  },
+  "proposedPlans": [
+    {
+      "question": "plumber",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ]
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "plumbing",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ]
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "electrician",
+      "plan": {
+        "intent": "providers",
+        "terms": "electrical electrician wiring socket",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "electrical"
+          ],
+          "categories": [
+            "electrical"
+          ]
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "electrical",
+      "plan": {
+        "intent": "providers",
+        "terms": "electrical electrician wiring socket",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "electrical"
+          ],
+          "categories": [
+            "electrical"
+          ]
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "what electrician has the most reviews",
+      "plan": {
+        "intent": "providers",
+        "terms": "electrical electrician wiring socket",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "electrical"
+          ],
+          "categories": [
+            "electrical"
+          ],
+          "metric": "verified_reviews"
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "lights off",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "agency",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": "2026-09-20T00:00:00.000Z",
+        "until_at": "2026-09-27T04:00:00.000Z"
+      }
+    },
+    {
+      "question": "power off",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "agency",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": "2026-09-20T00:00:00.000Z",
+        "until_at": "2026-09-27T04:00:00.000Z"
+      }
+    },
+    {
+      "question": "power outage",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "agency",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": "2026-09-20T00:00:00.000Z",
+        "until_at": "2026-09-27T04:00:00.000Z"
+      }
+    },
+    {
+      "question": "electricity outage",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "agency",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": "2026-09-20T00:00:00.000Z",
+        "until_at": "2026-09-27T04:00:00.000Z"
+      }
+    },
+    {
+      "question": "fence",
+      "plan": {
+        "intent": "providers",
+        "terms": "fence fencing gate",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "fencing"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "fencing",
+      "plan": {
+        "intent": "providers",
+        "terms": "fence fencing gate",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "fencing"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "repair fence",
+      "plan": {
+        "intent": "providers",
+        "terms": "fence fencing gate",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "fencing"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "music",
+      "plan": {
+        "intent": "events",
+        "terms": "music concert",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "music"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": "2026-09-27T04:00:00.000Z",
+        "until_at": "2026-10-27T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "musical",
+      "plan": {
+        "intent": "events",
+        "terms": "music concert",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "music"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": "2026-09-27T04:00:00.000Z",
+        "until_at": "2026-10-27T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "festival",
+      "plan": {
+        "intent": "events",
+        "terms": "festival",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "festival"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": "2026-09-27T04:00:00.000Z",
+        "until_at": "2026-10-27T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "festivals",
+      "plan": {
+        "intent": "events",
+        "terms": "festival",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "festival"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": "2026-09-27T04:00:00.000Z",
+        "until_at": "2026-10-27T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "Who can fix a leaking pipe?",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ]
+        }
+      },
+      "sources": [
+        "provider",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "Are there any power outages?",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "agency",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": "2026-09-20T00:00:00.000Z",
+        "until_at": "2026-09-27T04:00:00.000Z"
+      }
+    },
+    {
+      "question": "What festivals are happening this weekend?",
+      "plan": {
+        "intent": "events",
+        "terms": "festival",
+        "window": "weekend",
+        "details": {
+          "concepts": [
+            "festival"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": "2026-09-25T00:00:00.000Z",
+        "until_at": "2026-09-28T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "Who is organizing the food drive?",
+      "plan": {
+        "intent": "organizer",
+        "terms": "food drive donation",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "food_drive"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "event",
+        "group",
+        "post"
+      ],
+      "range": {
+        "since_at": "2026-09-27T04:00:00.000Z",
+        "until_at": "2026-10-27T00:00:00.000Z"
+      }
+    },
+    {
+      "question": "What did the neighborhood decide about the park project?",
+      "plan": {
+        "intent": "memory",
+        "terms": "park",
+        "window": "all"
+      },
+      "sources": [
+        "post",
+        "group",
+        "agency"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    },
+    {
+      "question": "Find a dining table nearby.",
+      "plan": {
+        "intent": "marketplace",
+        "terms": "table dining",
+        "window": "all",
+        "details": {
+          "concepts": [
+            "table"
+          ],
+          "categories": []
+        }
+      },
+      "sources": [
+        "marketplace",
+        "post",
+        "group"
+      ],
+      "range": {
+        "since_at": null,
+        "until_at": null
+      }
+    }
+  ],
+  "deployment": {
+    "status": "deployed_and_scoped_sql_verified",
+    "migrationApplied": true,
+    "remoteMigrationVersion": "20260927042839",
+    "edgeVersion": 8,
+    "verifyJwt": true,
+    "source": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
+    "evidence": "docs/evidence/ask-intent-preview-deployment-2026-09-27.json",
+    "authenticatedHttpVerified": false,
+    "nativeVerified": false
+  }
+}

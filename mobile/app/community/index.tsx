@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
+import { CollapsibleComments, dismissCommentKeyboard, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
 import { MediaGallery } from '@/components/media/MediaGallery';
@@ -127,6 +127,7 @@ export default function CommunityFeedScreen() {
     try {
       const comment = await createNeighborhoodFeedComment(postId, reply);
       setReplyDrafts((drafts) => ({ ...drafts, [postId]: '' }));
+      dismissCommentKeyboard();
       setPosts((currentPosts) =>
         currentPosts.map((post) =>
           post.id === postId && !post.comments.some((item) => item.id === comment.id)

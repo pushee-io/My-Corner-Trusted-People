@@ -13,8 +13,6 @@ export type Day2BCachedRead<T> = {
 
 const previewProviderIdEnvKey = 'EXPO_PUBLIC_MY_CORNER_DAY2B_PROVIDER_PREVIEW_ID';
 const fallbackPreviewProviderId = 'prov-01';
-const providerListCache = new Map<string, Provider[]>();
-const maxProviderCacheEntries = 12;
 
 export function getDay2BReadRepository(): Day2BReadRepository {
   const repository = getDay2BLiveRepository();
@@ -32,19 +30,9 @@ export async function listDay2BProvidersByCategory(categoryId: string): Promise<
 }
 
 export async function loadDay2BProvidersByCategory(categoryId: string): Promise<Day2BCachedRead<Provider[]>> {
-  try {
-    const providers = await getDay2BReadRepository().listProvidersByCategory(categoryId);
-    if (!providerListCache.has(categoryId) && providerListCache.size >= maxProviderCacheEntries) {
-      const oldestKey = providerListCache.keys().next().value;
-      if (oldestKey) providerListCache.delete(oldestKey);
-    }
-    providerListCache.set(categoryId, providers);
-    return { items: providers, fromCache: false };
-  } catch (caught) {
-    const cached = providerListCache.get(categoryId);
-    if (cached) return { items: cached, fromCache: true };
-    throw caught;
-  }
+  // An old category cache cannot establish current neighborhood/block eligibility.
+  const items = await getDay2BReadRepository().listProvidersByCategory(categoryId);
+  return { items, fromCache: false };
 }
 
 export async function getDay2BProvider(providerId: string): Promise<Provider | undefined> {
@@ -60,7 +48,7 @@ export function getDay2BPreviewProviderId(): string {
 }
 
 export function clearDay2BProviderCache() {
-  providerListCache.clear();
+  // No cross-account provider list cache is retained.
 }
 
 function envValue(key: string): string | undefined {

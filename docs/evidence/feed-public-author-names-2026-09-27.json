@@ -1,0 +1,51 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "cause": "Feed directly selects profiles.id/display_name; live profiles policy permits only auth.uid()=auth_user_id. Immediate own posts/comments use profile.displayName; realtime inserts had no hydration.",
+  "migration": "20260927162909_feed_public_author_names.sql",
+  "applied": true,
+  "fix": "Bounded content-authorized RPC calls existing canonical neighbor_name; posts/comments/read/create/realtime use it. No base profile widening or identity copying.",
+  "publicNameTests": [
+    "Two viewers see the same approved public name",
+    "Explicit name edit visible to another viewer",
+    "Blank public name stays Neighbor; no private identity fallback",
+    "Anonymous/unverified/blocked/revoked content denied",
+    "Base profiles remain self-only",
+    "Name read failure after successful write does not invite duplicate submission",
+    "Realtime unsubscribe/account switch/hidden-parent races suppressed"
+  ],
+  "validation": {
+    "mobileTests": 556,
+    "mobileSuites": 98,
+    "serverTests": 52,
+    "typecheck": "passed",
+    "format": "passed",
+    "lintErrors": 0,
+    "baselineLintWarnings": 15
+  },
+  "previewAdvisorBaseline": {
+    "count": 7,
+    "levels": {
+      "INFO": 1,
+      "WARN": 5,
+      "ERROR": 1
+    },
+    "remediation": "https://supabase.com/docs/guides/database/database-linter"
+  },
+  "nativeAcceptance": "pending",
+  "newApkSubmitted": false,
+  "backendMutations": true,
+  "productionChanges": false,
+  "pr": 153,
+  "testedSource": "728814892944d565f111f24b53fb0a81de8b5b14",
+  "migrationSha256": "c181d2d07268757aaec1b1543c3af1b43f13bdf62b7a9ffd805062eb65c79eb5",
+  "ci": {
+    "database": 36333987143,
+    "mobile": 36333987194,
+    "serverDeno": 36333987084,
+    "result": "all passed"
+  },
+  "remoteMigrationVersion": "20260927200502",
+  "deploymentEvidence": "discovery-feed-preview-deployment-2026-09-27.json"
+}

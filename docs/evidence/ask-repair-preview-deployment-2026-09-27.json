@@ -1,0 +1,443 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "pr": 150,
+  "testedSource": "40957f92c72a509a184e8fa93c6847132d58a4fc",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "approval": "Explicit founder approval for one-provider East Legon coverage repair and PR150 tested Edge deployment with JWT verification.",
+  "coverage": {
+    "file": "supabase/ops/preview_kwame_east_legon_coverage.sql",
+    "sha256": "22d473ead9ecda9ca683c182ea29b8b9776be77847b473841948faedc5353cee",
+    "applied": true,
+    "provider": "dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+    "neighborhood": "90ac8954-e9ca-467f-8a2e-de7eecbd5422",
+    "before": 0,
+    "after": 1,
+    "otherCoverageHashUnchanged": true,
+    "providerProfilesHashUnchanged": true,
+    "featureFlagsHashUnchanged": true
+  },
+  "function": {
+    "version": 9,
+    "status": "ACTIVE",
+    "verify_jwt": true,
+    "bundleSha256": "aeb71eaec83082a0719d108a98cf3069857a91ab595471fff88263739c00ecbb",
+    "files": [
+      {
+        "name": "ask-my-corner/index.ts",
+        "match": true
+      },
+      {
+        "name": "_shared/openai-responses.ts",
+        "match": true
+      },
+      {
+        "name": "_shared/neighborhood-service.ts",
+        "match": true
+      },
+      {
+        "name": "_shared/neighborhood-assistant.ts",
+        "match": true
+      },
+      {
+        "name": "_shared/neighborhood-concepts.ts",
+        "match": true
+      },
+      {
+        "name": "_shared/neighborhood-answer.ts",
+        "match": true
+      },
+      {
+        "name": "deno.json",
+        "match": true
+      }
+    ]
+  },
+  "verification": {
+    "method": "41 live Preview authenticated-role read-only RPC checks for 12 queries using exact tested/deployed planning parameters, plus source readback and anonymous HTTP check. Not signed-in Edge/model execution or native visual acceptance.",
+    "queryCount": 12,
+    "rpcCount": 41,
+    "results": [
+      {
+        "q": "electrician",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "electrician",
+        "kind": "post",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "electrician",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festival",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festival",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festival",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festival",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festivals",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festivals",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festivals",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "festivals",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need a plumber",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need a plumber",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need a plumber",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": null,
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      },
+      {
+        "q": "I need an electrician",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need an electrician",
+        "kind": "post",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need an electrician",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need someone to fix my fence",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need someone to fix my fence",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "I need someone to fix my fence",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/56d4d636-000c-459c-b315-eb7f3efd25bc",
+            "title": "FenceCare (fictional demo)",
+            "comparison": null,
+            "completedJobs": 1,
+            "verifiedCount": 1
+          }
+        ]
+      },
+      {
+        "q": "Kwame PipeCare",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "Kwame PipeCare",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "Kwame PipeCare",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": null,
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      },
+      {
+        "q": "pig racing",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "pig racing",
+        "kind": "event",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "pig racing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "pig racing",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "pig racing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "pig racing",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumber",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumber",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumber",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": null,
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      },
+      {
+        "q": "plumber available today",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumber available today",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumber available today",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": null,
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      },
+      {
+        "q": "plumbing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumbing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "plumbing",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": null,
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      },
+      {
+        "q": "which plumber has the most reviews",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "which plumber has the most reviews",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "q": "which plumber has the most reviews",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          {
+            "href": "/hire/provider/dba23ab5-5fbf-496f-9fb7-ff575f93fb28",
+            "title": "Kwame PipeCare",
+            "comparison": {
+              "value": 2,
+              "metric": "verified_reviews",
+              "tiedCount": 1,
+              "eligibleCount": 1
+            },
+            "completedJobs": 5,
+            "verifiedCount": 2
+          }
+        ]
+      }
+    ],
+    "anonymousHttpStatus": 401,
+    "anonymousRpcDenied": true,
+    "unauthorizedNeighborhoodDenied": true,
+    "retrievalSecurityInvoker": true
+  },
+  "quota": {
+    "capsUnchanged": true,
+    "countersNotReset": true,
+    "limitResponse": "429 ASK_ALLOWANCE_REACHED",
+    "httpMappingValidated": "Tested source/CI; authenticated live HTTP path not exercised without a user login session.",
+    "apk47Message": "Still generic; new native APK required for specific limit copy."
+  },
+  "ci": {
+    "testedSource": "40957f92c72a509a184e8fa93c6847132d58a4fc",
+    "database": 36330082517,
+    "mobile": 36330082583,
+    "serverDeno": 36330082543,
+    "status": "passed",
+    "mobileTests": 548,
+    "mobileSuites": 97,
+    "serverTests": 45
+  },
+  "apk": {
+    "current": 47,
+    "newBuildSubmitted": false,
+    "approvalRequired": true,
+    "newFeature": "Recognized question-limit error message in mobile transport and screen."
+  },
+  "productionChanges": false,
+  "mainMerged": false,
+  "identityChanges": false,
+  "secretsChanges": false,
+  "otherProviderCoverageChanges": false
+}

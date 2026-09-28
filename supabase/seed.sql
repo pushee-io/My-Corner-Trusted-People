@@ -129,6 +129,45 @@ join (
 on conflict (provider_id, category_id) do update
 set service_label = excluded.service_label;
 
+-- BEGIN EXPLICIT PROVIDER COVERAGE CATALOG
+-- Stable pilot/demo keys only. Never derive authorization by parsing public prose.
+-- Missing named neighborhoods remain unresolved; nearby/border imply no extra area.
+do $$
+declare entry record; provider uuid; hood uuid; area text;
+begin
+ for entry in select * from (values
+  ('pilot-provider-kwame-pipecare','Kwame PipeCare','East Legon and nearby',array['East Legon']::text[]),
+  ('pilot-provider-ama-spark-works','Ama Spark Works','Osu and Labone',array['Osu','Labone']::text[]),
+  ('pilot-provider-brightclean-ghana','BrightClean Ghana','Labone and Cantonments',array['Labone','Cantonments']::text[]),
+  ('pilot-provider-kojo-wood-fit','Kojo Wood & Fit','Madina and Adenta',array['Madina','Adenta']::text[]),
+  ('pilot-provider-naa-homefix','Naa HomeFix','Adenta and Madina',array['Adenta','Madina']::text[]),
+  ('pilot-provider-coolair-tema','CoolAir Tema','Tema Community 25 and Spintex',array['Spintex']::text[]),
+  ('pilot-provider-freshnest-cleaners','FreshNest Cleaners','Cantonments and Airport Residential',array['Cantonments']::text[]),
+  ('pilot-provider-reliable-brush-co','Reliable Brush Co.','Airport Residential and Cantonments',array['Cantonments']::text[]),
+  ('pilot-provider-afi-pipe-drain','Afi Pipe & Drain','Spintex and Tema border',array['Spintex']::text[]),
+  ('pilot-provider-tidyspace-crew','TidySpace Crew','Dzorwulu and Achimota',array['Dzorwulu','Achimota']::text[]),
+  ('pilot-provider-eben-appliance-assist','Eben Appliance Assist','Dansoman and Kaneshie',array['Dansoman']::text[]),
+  ('pilot-provider-swiftmove-accra','SwiftMove Accra','Achimota and Dzorwulu',array['Achimota','Dzorwulu']::text[]),
+  ('preview-realneighbor-provider','Real Neighbor Plumbing (Demo)','East Legon',array['East Legon']::text[]),
+  ('preview-ai-fencecare','FenceCare (fictional demo)','East Legon',array['East Legon']::text[])
+ ) as catalog(seed_key,business_name,general_area,neighborhoods) loop
+  select p.id into provider from public.provider_profiles p where p.seed_key=entry.seed_key for update;
+  -- Demo profiles need not exist on a fresh seed. Existing profiles must match.
+  if provider is null then continue; end if;
+  if not exists(select 1 from public.provider_profiles p where p.id=provider
+   and p.business_name=entry.business_name and p.general_area=entry.general_area) then
+   raise exception 'Provider coverage catalog drift: %',entry.seed_key;
+  end if;
+  foreach area in array entry.neighborhoods loop
+   select n.id into hood from public.neighborhoods n where n.name=area and n.city='Accra' and n.country_code='GH';
+   if hood is null then raise exception 'Missing explicit coverage neighborhood: %',area; end if;
+   insert into public.provider_service_areas(provider_id,neighborhood_id,area_label)
+   select provider,hood,area where not exists(select 1 from public.provider_service_areas a where a.provider_id=provider and a.neighborhood_id=hood);
+  end loop;
+ end loop;
+end $$;
+-- END EXPLICIT PROVIDER COVERAGE CATALOG
+
 insert into public.provider_trust_signals (provider_id, signal_type, label, value, moderator_reviewed)
 select
   provider.id,

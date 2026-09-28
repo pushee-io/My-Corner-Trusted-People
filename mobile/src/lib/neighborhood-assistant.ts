@@ -1,3 +1,4 @@
+import { parseQuota, quotaMessage, type AskQuota } from '@/lib/ask-quota';
 import { supabase } from '@/lib/supabase';
 import { assertMediaSession, mediaSessionRevision } from '@/lib/media-session';
 export type AskContext = { id: string; name: string; city: string; timezone: string };
@@ -15,7 +16,14 @@ export type AskSource = {
   organizer?: string;
   availability?: string;
   priceGhs?: number;
-  reputation?: { average: number; count: number; verifiedCount: number; recommendationPercent: number | null } | null;
+  comparison?: { metric: string; value: number; eligibleCount: number; tiedCount: number };
+  reputation?: {
+    completedJobs?: number;
+    average: number;
+    count: number;
+    verifiedCount: number;
+    recommendationPercent: number | null;
+  } | null;
 };
 export type AskAnswer = {
   id: string;
@@ -25,9 +33,22 @@ export type AskAnswer = {
   generatedAt: string;
   notice: string;
   sources: AskSource[];
+  clarification?: string[];
+  quota?: AskQuota;
   excerpts: { index: number; quote: string }[];
 };
 export const askUnavailable = 'Ask My Corner AI is temporarily unavailable. You can still use Search.';
+export const askAllowanceReached = 'The Preview question limit has been reached. Try again later or use Search.';
+export class AskAllowanceError extends Error {
+  readonly quota?: AskQuota;
+  constructor(quota?: AskQuota) {
+    super(quota ? quotaMessage(quota) : askAllowanceReached);
+    this.quota = quota;
+  }
+}
+export function askErrorMessage(error: unknown): string {
+  return error instanceof AskAllowanceError ? error.message : askUnavailable;
+}
 export async function loadAskContext(): Promise<AskContext | null> {
   const { data, error } = await supabase.rpc('neighborhood_ai_context');
   if (error || !data?.id || !data?.name) return null;
@@ -47,12 +68,27 @@ export function safeAskHref(source: AskSource): string {
     throw new Error('Source unavailable');
   return source.href;
 }
-export async function askNeighborhood(question: string, history: string[], neighborhoodId: string): Promise<AskAnswer> {
+export async function askNeighborhood(
+  question: string,
+  history: string[],
+  neighborhoodId: string,
+  providerId?: string,
+): Promise<AskAnswer> {
   const session = mediaSessionRevision();
   const { data, error } = await supabase.functions.invoke('ask-my-corner', {
-    body: { question, history: history.slice(-2), neighborhoodId },
+    body: { question, history: history.slice(-2), neighborhoodId, ...(providerId ? { providerId } : {}) },
   });
+  let failure: unknown = data;
+  if (error?.context?.status === 429) {
+    try {
+      failure = await error.context.json();
+    } catch {
+      failure = null;
+    }
+  }
   assertMediaSession(session);
+  if ((failure as { code?: string } | null)?.code === 'ASK_ALLOWANCE_REACHED')
+    throw new AskAllowanceError(parseQuota((failure as { quota?: unknown }).quota));
   if (error || !data?.enabled || !Array.isArray(data.answer?.sources) || typeof data.answer?.notice !== 'string')
     throw new Error(askUnavailable);
   const answer = data.answer as AskAnswer;
@@ -82,4 +118,15 @@ export function askPromptForPath(path: string): string {
   if (path.startsWith('/marketplace')) return 'Find a used dining table nearby.';
   if (path.startsWith('/agency')) return 'Any important alerts today?';
   return 'What’s happening in my neighborhood this weekend?';
+}
+
+// Carry only a selected public source ID, never its prose, review data or identity.
+export function followupProvider(answer?: AskAnswer): string | undefined {
+  const providers = answer?.sources.filter((s) => s.kind === 'provider') ?? [];
+  if (providers.length === 1) return providers[0].id;
+  const winner = providers[0];
+  return winner?.comparison?.tiedCount === 1 &&
+    ['verified_reviews', 'rating', 'completed_jobs'].includes(winner.comparison.metric)
+    ? winner.id
+    : undefined;
 }

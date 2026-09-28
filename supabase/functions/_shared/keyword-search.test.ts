@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import { fallbackPlan } from './neighborhood-assistant.ts';
 import { PGlite } from '@electric-sql/pglite';
 
 test('Postgres keyword normalization, prefix, OR recall and relevance before limit',async()=>{
@@ -21,6 +22,13 @@ test('Postgres keyword normalization, prefix, OR recall and relevance before lim
   ] as [string,string[]][]){
    const r=await db.query<{title:string}>(`select title from documents where to_tsvector('english',title||' '||body) @@ private.neighborhood_keyword_query($1) order by title`,[q]);
    assert.deepEqual(r.rows.map(r=>r.title),expected,q);
+  }
+  const hair='I am getting married next month and I need someone to come before my wedding. The picture is for reference only. This is the style I want.';
+  const evidence='My friend is a good electrician. Search for his electric store.';
+  for(const question of ['I need an electrician','I am looking for someone to repair electrical wiring','Can someone help me find an electrician']){
+   const plan=fallbackPlan(question);
+   const result=await db.query<{hair:boolean;electrical:boolean}>(`select to_tsvector('english',$1)@@private.neighborhood_keyword_query($3) hair,to_tsvector('english',$2)@@private.neighborhood_keyword_query($3) electrical`,[hair,evidence,plan.details?.serviceTerms]);
+   assert.deepEqual(result.rows,[{hair:false,electrical:true}],question);
   }
   const ranked=await db.query<{title:string}>(`select title from documents where to_tsvector('english',title||' '||body) @@ private.neighborhood_keyword_query('music festival') order by ts_rank(to_tsvector('english',title||' '||body),private.neighborhood_keyword_query('music festival')) desc limit 1`);
   assert.equal(ranked.rows[0].title,'Music Festival');

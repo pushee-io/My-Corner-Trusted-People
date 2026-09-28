@@ -94,11 +94,18 @@ async function providerTrustSignals(providerIds: string[]) {
   return (data ?? []) as TrustSignalRow[];
 }
 
-function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: TrustSignalRow[]): Provider {
+function mapProvider(
+  row: ProviderRow,
+  services: ProviderServiceRow[],
+  signals: TrustSignalRow[],
+  categoryId?: string,
+): Provider {
   const providerServicesForRow = services.filter((service) => service.provider_id === row.id);
   const trustSignals = signals.filter((signal) => signal.provider_id === row.id);
   const categoryIds = providerServicesForRow.map((service) => service.category_id);
-  const firstService = providerServicesForRow[0];
+  const serviceLabel = categoryId
+    ? providerServicesForRow.find((s) => s.category_id === categoryId)?.service_label
+    : [...new Set(providerServicesForRow.map((s) => s.service_label))].sort().join(' · ');
   const rating = typeof row.rating === 'string' ? Number(row.rating) : row.rating;
 
   return {
@@ -106,7 +113,7 @@ function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: 
     profileId: row.profile_id,
     name: row.business_name,
     headline: row.headline,
-    serviceLabel: firstService?.service_label ?? 'Local service',
+    serviceLabel: serviceLabel || 'Local service',
     neighborhood: row.general_area.split(' and ')[0] ?? row.general_area,
     areaLabel: row.general_area,
     categoryIds,
@@ -124,10 +131,10 @@ function mapProvider(row: ProviderRow, services: ProviderServiceRow[], signals: 
   };
 }
 
-async function mapProviders(rows: ProviderRow[]) {
+async function mapProviders(rows: ProviderRow[], categoryId?: string) {
   const providerIds = rows.map((row) => row.id);
   const [services, signals] = await Promise.all([providerServices(providerIds), providerTrustSignals(providerIds)]);
-  return rows.map((row) => mapProvider(row, services, signals));
+  return rows.map((row) => mapProvider(row, services, signals, categoryId));
 }
 
 async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> {
@@ -191,27 +198,9 @@ async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> 
 
 export async function listProvidersByCategory(categoryId: string): Promise<Provider[]> {
   assertSupabaseConfigured();
-  const { data: services, error: servicesError } = await supabase
-    .from('provider_services')
-    .select('provider_id')
-    .eq('category_id', categoryId);
-
-  if (servicesError) throw servicesError;
-
-  const providerIds = [...new Set((services ?? []).map((service) => service.provider_id))];
-  if (providerIds.length === 0) return [];
-
-  const { data, error } = await supabase
-    .from('provider_profiles')
-    .select(
-      'id, profile_id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
-    )
-    .in('id', providerIds)
-    .eq('accepting_requests', true)
-    .order('rating', { ascending: false });
-
+  const { data, error } = await supabase.rpc('neighborhood_provider_catalog', { category: categoryId });
   if (error) throw error;
-  return mapProviders((data ?? []) as ProviderRow[]);
+  return mapProviders((data ?? []) as ProviderRow[], categoryId);
 }
 
 export async function getProvider(providerId: string): Promise<Provider | undefined> {

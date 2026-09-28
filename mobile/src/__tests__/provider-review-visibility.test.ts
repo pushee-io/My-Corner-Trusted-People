@@ -50,7 +50,7 @@ jest.mock('@/hooks/useProtectedResource', () => ({
     useEffect(() => {
       void load();
     }, [load]);
-    return { data: mockData, loading: false, refresh: jest.fn() };
+    return { data: { ...mockData, items: [mockProvider] }, loading: false, refresh: jest.fn() };
   },
 }));
 let renderer: ReactTestRenderer;

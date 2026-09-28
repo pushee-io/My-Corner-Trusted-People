@@ -37,7 +37,7 @@ describe('preview device repairs', () => {
     mockedGetRepository.mockReset();
   });
 
-  it('returns the last successful provider read when the next read fails', async () => {
+  it('fails closed instead of reusing providers with stale neighborhood or block eligibility', async () => {
     const listProvidersByCategory = jest
       .fn()
       .mockResolvedValueOnce([provider])
@@ -53,10 +53,7 @@ describe('preview device repairs', () => {
       items: [provider],
       fromCache: false,
     });
-    await expect(loadDay2BProvidersByCategory('plumbing')).resolves.toEqual({
-      items: [provider],
-      fromCache: true,
-    });
+    await expect(loadDay2BProvidersByCategory('plumbing')).rejects.toThrow('Network unavailable');
   });
 
   it('keeps provider selection and request composition user controlled', () => {

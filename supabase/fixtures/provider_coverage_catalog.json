@@ -1,0 +1,146 @@
+[
+  {
+    "seed_key": "pilot-provider-kwame-pipecare",
+    "business_name": "Kwame PipeCare",
+    "general_area": "East Legon and nearby",
+    "neighborhoods": [
+      "East Legon"
+    ],
+    "unmapped_labels": [
+      "nearby"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-ama-spark-works",
+    "business_name": "Ama Spark Works",
+    "general_area": "Osu and Labone",
+    "neighborhoods": [
+      "Osu",
+      "Labone"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "pilot-provider-brightclean-ghana",
+    "business_name": "BrightClean Ghana",
+    "general_area": "Labone and Cantonments",
+    "neighborhoods": [
+      "Labone",
+      "Cantonments"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "pilot-provider-kojo-wood-fit",
+    "business_name": "Kojo Wood & Fit",
+    "general_area": "Madina and Adenta",
+    "neighborhoods": [
+      "Madina",
+      "Adenta"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "pilot-provider-naa-homefix",
+    "business_name": "Naa HomeFix",
+    "general_area": "Adenta and Madina",
+    "neighborhoods": [
+      "Adenta",
+      "Madina"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "pilot-provider-coolair-tema",
+    "business_name": "CoolAir Tema",
+    "general_area": "Tema Community 25 and Spintex",
+    "neighborhoods": [
+      "Spintex"
+    ],
+    "unmapped_labels": [
+      "Tema Community 25"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-freshnest-cleaners",
+    "business_name": "FreshNest Cleaners",
+    "general_area": "Cantonments and Airport Residential",
+    "neighborhoods": [
+      "Cantonments"
+    ],
+    "unmapped_labels": [
+      "Airport Residential"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-reliable-brush-co",
+    "business_name": "Reliable Brush Co.",
+    "general_area": "Airport Residential and Cantonments",
+    "neighborhoods": [
+      "Cantonments"
+    ],
+    "unmapped_labels": [
+      "Airport Residential"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-afi-pipe-drain",
+    "business_name": "Afi Pipe & Drain",
+    "general_area": "Spintex and Tema border",
+    "neighborhoods": [
+      "Spintex"
+    ],
+    "unmapped_labels": [
+      "Tema border"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-tidyspace-crew",
+    "business_name": "TidySpace Crew",
+    "general_area": "Dzorwulu and Achimota",
+    "neighborhoods": [
+      "Dzorwulu",
+      "Achimota"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "pilot-provider-eben-appliance-assist",
+    "business_name": "Eben Appliance Assist",
+    "general_area": "Dansoman and Kaneshie",
+    "neighborhoods": [
+      "Dansoman"
+    ],
+    "unmapped_labels": [
+      "Kaneshie"
+    ]
+  },
+  {
+    "seed_key": "pilot-provider-swiftmove-accra",
+    "business_name": "SwiftMove Accra",
+    "general_area": "Achimota and Dzorwulu",
+    "neighborhoods": [
+      "Achimota",
+      "Dzorwulu"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "preview-realneighbor-provider",
+    "business_name": "Real Neighbor Plumbing (Demo)",
+    "general_area": "East Legon",
+    "neighborhoods": [
+      "East Legon"
+    ],
+    "unmapped_labels": []
+  },
+  {
+    "seed_key": "preview-ai-fencecare",
+    "business_name": "FenceCare (fictional demo)",
+    "general_area": "East Legon",
+    "neighborhoods": [
+      "East Legon"
+    ],
+    "unmapped_labels": []
+  }
+]

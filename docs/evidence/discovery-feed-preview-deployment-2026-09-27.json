@@ -1,0 +1,1145 @@
+{
+  "date": "2026-09-27",
+  "project": "opeojxwkwwnnncnsuaag",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "testedEdgeSource": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+  "coverage": {
+    "file": "supabase/ops/preview_provider_coverage_catalog.sql",
+    "applied": true,
+    "newRows": 18,
+    "profilesChanged": 12,
+    "totalRows": 20,
+    "activeProfilesMissingCoverage": 0
+  },
+  "feedMigration": {
+    "file": "20260927162909_feed_public_author_names.sql",
+    "applied": true,
+    "remoteVersion": "20260927200502",
+    "exactSqlHashVerified": true
+  },
+  "verification": {
+    "method": "Read-only actual Preview RPC calls under authenticated-role claims; no authenticated HTTP/model or native acceptance claimed",
+    "retrieval": [
+      {
+        "question": "dining table",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "dining table",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "dining table",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "dining table",
+        "kind": "marketplace",
+        "count": 3,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "dining table",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "dining table",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "post",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "electrician",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festival",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "festivals",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "event",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "marketplace",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "food drive",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "I need a plumber",
+        "kind": "provider",
+        "count": 2,
+        "hair_present": false,
+        "providers": [
+          "Kwame PipeCare",
+          "Real Neighbor Plumbing (Demo)"
+        ]
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Kwame PipeCare",
+        "kind": "provider",
+        "count": 1,
+        "hair_present": false,
+        "providers": [
+          "Kwame PipeCare"
+        ]
+      },
+      {
+        "question": "music",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "music festival",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "event",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "event",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "pig racing",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumber",
+        "kind": "provider",
+        "count": 2,
+        "hair_present": false,
+        "providers": [
+          "Kwame PipeCare",
+          "Real Neighbor Plumbing (Demo)"
+        ]
+      },
+      {
+        "question": "plumbing",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumbing",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumbing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumbing",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumbing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "plumbing",
+        "kind": "provider",
+        "count": 2,
+        "hair_present": false,
+        "providers": [
+          "Kwame PipeCare",
+          "Real Neighbor Plumbing (Demo)"
+        ]
+      },
+      {
+        "question": "power off",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "power off",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "power off",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "power off",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "power off",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "power off",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "event",
+        "count": 1,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "racing",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "event",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "Real Neighbor Plumbing",
+        "kind": "provider",
+        "count": 2,
+        "hair_present": false,
+        "providers": [
+          "Real Neighbor Plumbing (Demo)",
+          "Kwame PipeCare"
+        ]
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "agency",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "event",
+        "count": 2,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "group",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "marketplace",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "post",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      },
+      {
+        "question": "What festivals are happening?",
+        "kind": "provider",
+        "count": 0,
+        "hair_present": false,
+        "providers": null
+      }
+    ],
+    "feedPosts": [
+      {
+        "result": {
+          "checks": [
+            {
+              "reportedPost": true,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": true,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            }
+          ],
+          "anonymousDenied": true
+        },
+        "public_security_invoker": true,
+        "canonical_resolver_not_directly_callable": true
+      }
+    ],
+    "feedComments": [
+      {
+        "result": {
+          "checks": [
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": true,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            },
+            {
+              "reportedPost": false,
+              "viewerIsAuthor": false,
+              "otherBaseProfileVisible": false,
+              "legitimateNeighborFallback": false,
+              "matchesCanonicalPublicName": true
+            }
+          ],
+          "anonymousDenied": true
+        },
+        "public_security_invoker": true,
+        "canonical_resolver_not_directly_callable": true
+      }
+    ],
+    "nonmember": [
+      {
+        "nonmember_denied_checks": 1
+      }
+    ],
+    "invariants": [
+      {
+        "applied_migration_sha256": "c181d2d07268757aaec1b1543c3af1b43f13bdf62b7a9ffd805062eb65c79eb5",
+        "active_missing_coverage": 0,
+        "profiles_hash": "f0d44ced550b626552b0b24b6771695a",
+        "identity_profile_hash": "4b2d8548689ddd8647b48b723014c09d",
+        "flags_hash": "a6e7a91becb002fa23516b176a074965"
+      }
+    ],
+    "advisors": {
+      "count": 7,
+      "levels": {
+        "INFO": 1,
+        "WARN": 5,
+        "ERROR": 1
+      },
+      "feedFindings": []
+    },
+    "nameEditAndBlankFallback": "CI verified; no live identity edits or blank-name fixtures created"
+  },
+  "edge": {
+    "deployed": false,
+    "attempt": "Blocked by automatic approval review; no workaround or retry",
+    "reason": "Reviewer requires explicit authorization for sending retrieved Feed, Group, provider-review, Marketplace and other potentially sensitive content to the external OpenAI API.",
+    "destination": "https://api.openai.com/v1/responses",
+    "currentVersion": 9,
+    "jwtVerification": true,
+    "bundleSha256": "aeb71eaec83082a0719d108a98cf3069857a91ab595471fff88263739c00ecbb",
+    "supersededBy": "preview-pr152-v10-deployment-2026-09-27.json",
+    "latestStatus": "Explicit payload/destination approval received; v10 deployed and verified. Original blocked attempt below retained as history."
+  },
+  "ci": {
+    "result": "tested source all passed",
+    "mobileTests": 556,
+    "mobileSuites": 98,
+    "serverTests": 52,
+    "database": 36333987143,
+    "mobile": 36333987194,
+    "serverDeno": 36333987084
+  },
+  "newApkRequired": true,
+  "newApkBuilt": false,
+  "productionChanges": false,
+  "mainMerged": false
+}

@@ -1,0 +1,533 @@
+{
+  "verifiedAt": "2026-09-27T04:33:59.737Z",
+  "project": "opeojxwkwwnnncnsuaag",
+  "source": "1e9f4f4b5e41c788ff695b117dc29b7bdde4d074",
+  "pr": 148,
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "migration": {
+    "sourceFile": "20260927040151_assistant_structured_retrieval.sql",
+    "sha256": "54bc903bbcf85b7dae072a786f0bf28f4ede47a8a4623dc6f952bd418b2fa1ca",
+    "remoteVersion": "20260927042839",
+    "storedSqlExactMatch": true
+  },
+  "function": {
+    "version": 8,
+    "verify_jwt": true,
+    "files": [
+      {
+        "name": "ask-my-corner/index.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/openai-responses.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-service.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-answer.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-assistant.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "_shared/neighborhood-concepts.ts",
+        "exactMatch": true
+      },
+      {
+        "name": "deno.json",
+        "exactMatch": true
+      }
+    ],
+    "bundleSha256": "b7cbc2a54c4b4fb96b57efcce08bab439bf2d87624d08b2dfd172d54c1f1559c"
+  },
+  "verification": {
+    "method": "Actual Preview authenticated-role read-only RPCs using tested local planner parameters; anonymous HTTP check. Not authenticated Edge/model execution.",
+    "queryChecks": [
+      {
+        "query": "plumber",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 0
+        }
+      },
+      {
+        "query": "plumbing",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 0
+        }
+      },
+      {
+        "query": "electrician",
+        "intent": "providers",
+        "sources": {
+          "post": 1,
+          "group": 1,
+          "provider": 0
+        }
+      },
+      {
+        "query": "electrical",
+        "intent": "providers",
+        "sources": {
+          "post": 1,
+          "group": 1,
+          "provider": 0
+        }
+      },
+      {
+        "query": "what electrician has the most reviews",
+        "intent": "providers",
+        "sources": {
+          "post": 1,
+          "group": 1,
+          "provider": 0
+        }
+      },
+      {
+        "query": "lights off",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "power off",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "power outage",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "electricity outage",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "fence",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 1
+        }
+      },
+      {
+        "query": "fencing",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 1
+        }
+      },
+      {
+        "query": "repair fence",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 1
+        }
+      },
+      {
+        "query": "music",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "musical",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "festival",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 2,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "festivals",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 2,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "What festivals are happening?",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 2,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "racing",
+        "intent": "digest",
+        "sources": {
+          "post": 0,
+          "event": 1,
+          "group": 0,
+          "agency": 0,
+          "provider": 0,
+          "marketplace": 0
+        }
+      },
+      {
+        "query": "pig",
+        "intent": "digest",
+        "sources": {
+          "post": 0,
+          "event": 1,
+          "group": 0,
+          "agency": 0,
+          "provider": 0,
+          "marketplace": 0
+        }
+      },
+      {
+        "query": "pig racing",
+        "intent": "digest",
+        "sources": {
+          "post": 0,
+          "event": 1,
+          "group": 0,
+          "agency": 0,
+          "provider": 0,
+          "marketplace": 0
+        }
+      },
+      {
+        "query": "music festival",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 2,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "food",
+        "intent": "digest",
+        "sources": {
+          "post": 0,
+          "event": 1,
+          "group": 1,
+          "agency": 0,
+          "provider": 0,
+          "marketplace": 1
+        }
+      },
+      {
+        "query": "food drive",
+        "intent": "organizer",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0
+        }
+      },
+      {
+        "query": "Who can fix a leaking pipe?",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 0
+        }
+      },
+      {
+        "query": "Are there any power outages?",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "What festivals are happening this weekend?",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "Who is organizing the food drive?",
+        "intent": "organizer",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0
+        }
+      },
+      {
+        "query": "What did the neighborhood decide about the park project?",
+        "intent": "memory",
+        "sources": {
+          "post": 1,
+          "group": 0,
+          "agency": 1
+        }
+      },
+      {
+        "query": "Find a dining table nearby.",
+        "intent": "marketplace",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "marketplace": 3
+        }
+      },
+      {
+        "query": "plumer",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 0
+        }
+      },
+      {
+        "query": "electritian",
+        "intent": "providers",
+        "sources": {
+          "post": 1,
+          "group": 1,
+          "provider": 0
+        }
+      },
+      {
+        "query": "festval",
+        "intent": "events",
+        "sources": {
+          "post": 0,
+          "event": 2,
+          "group": 0,
+          "agency": 0
+        }
+      },
+      {
+        "query": "which plumber has the best rating",
+        "intent": "providers",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "provider": 0
+        }
+      },
+      {
+        "query": "who has the most completed jobs",
+        "intent": "providers",
+        "sources": {
+          "provider": 1
+        }
+      },
+      {
+        "query": "which event has the most RSVPs",
+        "intent": "events",
+        "sources": {
+          "post": 1,
+          "event": 2,
+          "group": 1,
+          "agency": 1
+        }
+      },
+      {
+        "query": "which Marketplace listing is newest",
+        "intent": "marketplace",
+        "sources": {
+          "post": 8,
+          "group": 7,
+          "marketplace": 8
+        }
+      },
+      {
+        "query": "road closed",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 2
+        }
+      },
+      {
+        "query": "road closure",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 2
+        }
+      },
+      {
+        "query": "traffic issue",
+        "intent": "alerts",
+        "sources": {
+          "post": 0,
+          "group": 0,
+          "agency": 2
+        }
+      },
+      {
+        "query": "qzxvbnm",
+        "intent": "digest",
+        "sources": {
+          "post": 0,
+          "event": 0,
+          "group": 0,
+          "agency": 0,
+          "provider": 0,
+          "marketplace": 0
+        }
+      }
+    ],
+    "security": {
+      "comparisons": [
+        {
+          "kind": "event",
+          "metric": {
+            "value": 1,
+            "metric": "rsvps",
+            "tiedCount": 1,
+            "eligibleCount": 2
+          }
+        },
+        {
+          "kind": "provider",
+          "metric": {
+            "value": 1,
+            "metric": "completed_jobs",
+            "tiedCount": 1,
+            "eligibleCount": 1
+          }
+        },
+        {
+          "kind": "marketplace",
+          "metric": {
+            "value": 1790038641.868563,
+            "metric": "newest",
+            "tiedCount": 1,
+            "eligibleCount": 11
+          }
+        }
+      ],
+      "food_upcoming": 0,
+      "food_all_dates": 1,
+      "music_upcoming": 0,
+      "nonsense_empty": true,
+      "music_all_dates": 2,
+      "event_routes_valid": true,
+      "retrieval_uses_rls": true,
+      "groups_members_only": true,
+      "anonymous_rpc_denied": true,
+      "provider_routes_valid": true,
+      "marketplace_routes_valid": true,
+      "agencies_current_approved": true,
+      "events_authorized_current": true,
+      "newest_matches_creation_time": true,
+      "providers_have_explicit_coverage": true,
+      "rsvp_metric_matches_public_count": true,
+      "completed_job_metric_matches_review_projection": true
+    },
+    "unauthorizedNeighborhoodDenied": true,
+    "anonymousHttpStatus": 401,
+    "advisors": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 17
+      },
+      {
+        "name": "function_search_path_mutable",
+        "level": "WARN",
+        "count": 3
+      },
+      {
+        "name": "rls_disabled_in_public",
+        "level": "ERROR",
+        "count": 1
+      },
+      {
+        "name": "extension_in_public",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 17
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 59
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ],
+    "advisorsUnchanged": true
+  },
+  "remaining": [
+    "Plumbing/Electrical have no recorded provider service areas; no coverage backfill performed.",
+    "No authorized authenticated user HTTP session available for Edge/model execution.",
+    "Music and food-drive Event records exist outside the upcoming time window; none were invented or date-shifted.",
+    "APK46 predates new clarification and provider-follow-up UI; native acceptance pending."
+  ],
+  "productionChanged": false,
+  "identityOrCoverageDataChanged": false,
+  "paidApkBuildSubmitted": false,
+  "prsMerged": false
+}

@@ -4,11 +4,15 @@ on:
   push:
     paths:
       - 'mobile/**'
+      - 'supabase/functions/_shared/neighborhood-*.ts'
+      - 'supabase/functions/_shared/openai-responses.ts'
       - '.github/workflows/mobile-ci.yml'
       - '.github/workflows/eas-preview-apk.yml'
   pull_request:
     paths:
       - 'mobile/**'
+      - 'supabase/functions/_shared/neighborhood-*.ts'
+      - 'supabase/functions/_shared/openai-responses.ts'
       - '.github/workflows/mobile-ci.yml'
       - '.github/workflows/eas-preview-apk.yml'
   workflow_dispatch:

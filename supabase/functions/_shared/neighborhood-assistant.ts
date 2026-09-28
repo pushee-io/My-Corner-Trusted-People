@@ -1,20 +1,20 @@
 // No database/client secrets here: deterministic boundaries shared by server tests.
+import { understand, sourcePriority, keywordTerms } from './neighborhood-concepts.ts';
+import type { QueryDetails } from './neighborhood-concepts.ts';
 import { outputJson } from './openai-responses.ts';
-export const ANSWER_VERSION = 'ask-v1';
+export const ANSWER_VERSION = 'ask-v3';
 export type Intent = 'events'|'providers'|'alerts'|'organizer'|'memory'|'marketplace'|'digest'|'unsupported';
-export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all';
+export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all'|'next_week'|'last_week';
 export type Kind = 'event'|'provider'|'agency'|'post'|'group'|'marketplace';
-export type Plan = {intent: Intent; terms: string; window: Window};
+export type Plan = {intent: Intent; terms: string; window: Window; details?: QueryDetails};
 export type Source = {id: string; kind: Kind; title: string; text: string; href: string; authority: string; publishedAt: string;
  startsAt?: string; endsAt?: string; expiresAt?: string; timezone?: string; organizer?: string; availability?: string; priceGhs?: number;
- reputation?: {average: number; count: number; verifiedCount: number; recommendationPercent: number|null;
+ comparison?: {metric: import('./neighborhood-concepts.ts').Metric; value:number; eligibleCount:number; tiedCount:number};
+ reputation?: {completedJobs?:number; average: number; count: number; verifiedCount: number; recommendationPercent: number|null;
  reviews: {title: string; body: string; rating: number; author: string; recommends: boolean; createdAt: string; response: string|null}[]}|null};
 const intents: Intent[] = ['events','providers','alerts','organizer','memory','marketplace','digest','unsupported'];
-const windows: Window[] = ['weekend','saturday','sunday','tomorrow','today','week','month','upcoming','all'];
-export const toolKinds: Record<Intent,Kind[]> = {
- events:['event','agency','group'],providers:['provider'],alerts:['agency','post'],organizer:['event','group','post'],
- memory:['post','group','agency'],marketplace:['marketplace'],digest:['agency','event','post','group','marketplace','provider'],unsupported:[],
-};
+const windows: Window[] = ['weekend','saturday','sunday','tomorrow','today','week','month','upcoming','all','next_week','last_week'];
+export const toolKinds = sourcePriority;
 export function redact(text: string, max = 1600): string {
  return text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'')
   .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[contact hidden]')
@@ -44,17 +44,15 @@ export function parsePlan(value: unknown): Plan {
  return {intent:p.intent,terms:redact(p.terms,160),window:p.window};
 }
 // Remove question scaffolding, never topic/category words. SQL performs stemming and prefix matching.
-export function keywordTerms(question: string): string {
- const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or'.split(' '));
- return [...new Set(question.toLowerCase().replace(/[’']/g,'').match(/[\p{L}\p{N}]+/gu)??[])]
-  .filter(word=>!stop.has(word)).slice(0,12).join(' ').slice(0,160);
-}
+export { keywordTerms };
 export function fallbackPlan(question: string, previous: string[]=[]): Plan {
+ const understood=understand(question,previous);
+ if(understood)return {...understood.plan,details:understood.details};
  const q=question.toLowerCase();
  const context=/\b(which ones|those|them|families|family-friendly)\b/.test(q)?`${previous.slice(-1).join(' ')} ${q}`.toLowerCase():q;
  const window: Window = /saturday/.test(context)?'saturday':/sunday/.test(context)?'sunday':/tomorrow/.test(context)?'tomorrow':/weekend/.test(context)?'weekend':/today|tonight|right now/.test(context)?'today':/last month/.test(context)?'month':/this week|miss|latest/.test(context)?'week':'all';
  if (/find local help|who can help me/.test(context)&&! /fence|plumb|pipe|repair|electric/.test(context)) return {intent:'providers',terms:'',window:'all'};
- if (/\b(fence|plumb|plumber|pipe|repair|electrician|hire|cater)/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
+ if (/\b(fence|plumb(?:er|ing)?|pipes?|repair|electrician|hire|cater)\b/.test(context)) return {intent:'providers',terms:/fence/.test(context)?'fence':/plumb|pipe/.test(context)?'plumb OR plumber OR plumbing':/electric/.test(context)?'electrician':/cater/.test(context)?'cater OR catering':'repair',window:'all'};
  if (/road|closure|outage|alert|traffic/.test(context)) return {intent:'alerts',terms:/road|closure|traffic/.test(context)?'road OR closure OR traffic':/outage/.test(context)?'outage':'',window:window==='all'?'week':window};
  if (/decid|decision|park project|parking|last year/.test(context)) return {intent:'memory',terms:/parking/.test(context)?'parking':/park/.test(context)?'park':/water/.test(context)?'water':/cleanup|clean-up/.test(context)?'cleanup':'',window:'all'};
  if (/organiz|food drive/.test(context)) return {intent:'organizer',terms:keywordTerms(context).replace(/\borganiz\w*\b/g,'').trim(),window:window==='all'?'upcoming':window};
@@ -81,6 +79,7 @@ export function timeRange(window: Window, now: Date): {since_at: string|null; un
  if(window==='tomorrow'){start.setUTCDate(start.getUTCDate()+1);end.setUTCDate(end.getUTCDate()+2);}
  if(window==='today')end.setUTCDate(end.getUTCDate()+1);
  if(window==='week'||window==='month'){start.setUTCDate(start.getUTCDate()-(window==='week'?7:30));end.setTime(now.getTime());}
+ if(window==='next_week'||window==='last_week'){const monday=(start.getUTCDay()+6)%7;start.setUTCDate(start.getUTCDate()-monday+(window==='next_week'?7:-7));end.setTime(start.getTime());end.setUTCDate(end.getUTCDate()+7);}
  if(window==='upcoming'){start.setTime(now.getTime());end.setUTCDate(end.getUTCDate()+30);}
  return {since_at:start.toISOString(),until_at:end.toISOString()};
 }
@@ -93,9 +92,10 @@ export function safeSource(raw: Source): Source {
  for(const k of ['startsAt','endsAt','expiresAt'] as const)if(raw[k]&&!isNaN(Date.parse(raw[k]!)))s[k]=raw[k];
  for(const k of ['timezone','organizer','availability'] as const)if(typeof raw[k]==='string')s[k]=redact(raw[k]!,120);
  if(typeof raw.priceGhs==='number'&&Number.isFinite(raw.priceGhs))s.priceGhs=raw.priceGhs;
+ if(raw.comparison){const c=raw.comparison;if(!['verified_reviews','rating','completed_jobs','rsvps','newest'].includes(c.metric)||!Number.isFinite(c.value)||c.value<0||!Number.isInteger(c.eligibleCount)||c.eligibleCount<1||!Number.isInteger(c.tiedCount)||c.tiedCount<1||c.tiedCount>c.eligibleCount)throw new Error('Invalid comparison');s.comparison={metric:c.metric,value:c.value,eligibleCount:c.eligibleCount,tiedCount:c.tiedCount};}
  if(raw.kind==='provider'&&raw.reputation){const r=raw.reputation;
   if(!Number.isInteger(r.count)||r.count<0||r.verifiedCount!==r.count||r.average<0||r.average>5)throw new Error('Invalid reputation');
-  s.reputation={average:r.average,count:r.count,verifiedCount:r.verifiedCount,recommendationPercent:r.recommendationPercent,
+  s.reputation={...(Number.isInteger(r.completedJobs)&&r.completedJobs!>=0?{completedJobs:r.completedJobs}:{}),average:r.average,count:r.count,verifiedCount:r.verifiedCount,recommendationPercent:r.recommendationPercent,
    reviews:r.reviews.slice(0,3).map(v=>({title:redact(v.title,100),body:redact(v.body,600),rating:v.rating,author:redact(v.author,80),recommends:v.recommends,createdAt:v.createdAt,response:v.response?redact(v.response,400):null}))};}
  return s;
 }
@@ -127,13 +127,21 @@ export function answerNotice(intent: Intent, sources: Source[]): string {
  if(intent==='providers')return 'Compare these matching providers and their actual verified-job reviews. This is not a safety guarantee or a neighborhood-wide ranking. Availability is provider-stated.';
  return 'Based on the My Corner sources available to you. Open a source for details and available actions.';
 }
-export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>) {
+export class SourceUnavailableError extends Error {}
+export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>, unavailable?: (kind:Kind)=>void) {
  const range=timeRange(plan.window,now);
- const results=await Promise.all(toolKinds[plan.intent].map(kind=>search(kind,plan.terms,
+ const primary=toolKinds[plan.intent];
+ // Intent determines priority, not a hard source silo. Empty topics must not
+ // broaden a generic provider request into unrelated neighborhood content.
+ const kinds:Kind[]=plan.intent==='providers'&&(!plan.terms||plan.details?.providerId)?['provider']:
+  plan.intent!=='unsupported'&&plan.terms.trim()?[...new Set([...primary,...toolKinds.digest])]:primary;
+ const results=await Promise.all(kinds.map(async kind=>{try{return await search(kind,plan.intent==='providers'&&kind!=='provider'&&plan.details?.serviceTerms?plan.details.serviceTerms:plan.terms,
   // Weekend activity startsAt applies to Events; surrounding announcements remain recent.
-  kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
- // Round-robin avoids one source type crowding every other type out of a digest.
+  kind==='event'&&plan.intent==='providers'&&plan.window==='all'?timeRange('upcoming',now):kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range);}catch(error){if(!(error instanceof SourceUnavailableError))throw error;unavailable?.(kind);return [];}}));
+ // Retain all bounded candidates (6 families x 8) until evidence selection.
+ // A relevant later source must not be lost to a global cap before relevance.
  const sources: Source[]=[];
- for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<16)sources.push(safeSource(rows[i]));
+ if(plan.intent!=='digest'&&results.length)sources.push(...results.shift()!.slice(0,8).map(safeSource));
+ for(let i=0;i<8;i++)for(const rows of results)if(rows[i]&&sources.length<48)sources.push(safeSource(rows[i]));
  return sources;
 }

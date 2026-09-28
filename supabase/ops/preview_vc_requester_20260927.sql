@@ -1,0 +1,7 @@
+-- OPERATION COMPLETED 2026-09-27 on Preview opeojxwkwwnnncnsuaag only.
+-- Founder explicitly approved one verified East Legon demo membership.
+-- The requester, confirmed Auth account and neighborhood were checked before insertion.
+-- Exactly one primary verified membership was inserted and read back successfully.
+-- This is a non-executable receipt. Account identifiers are deliberately omitted.
+-- Do not rerun or use this file to grant any additional access.
+-- No Auth, phone, identity, quota, provider, moderator or admin changes.

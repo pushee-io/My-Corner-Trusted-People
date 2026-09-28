@@ -24,12 +24,15 @@ psql "$database_url" \
 legacy_tests=(
   supabase/tests/neighborhood_ai_preview_fixture.sql
   supabase/tests/neighborhood_ai_security.sql
+  supabase/tests/assistant_structured_retrieval.sql
+  supabase/tests/canonical_neighborhood_search.sql
   supabase/tests/provider_review_preview_fixture.sql
   supabase/tests/provider_review_visibility.sql
   supabase/tests/preview_identity_dependency.sql
   supabase/tests/community_notifications.sql
   supabase/tests/private_neighbor_messaging.sql
   supabase/tests/canonical_public_profile_name.sql
+  supabase/tests/feed_public_author_names.sql
   supabase/tests/verified_job_reviews.sql
   supabase/tests/self_registration.sql
   supabase/tests/request_structuring_allowance.sql

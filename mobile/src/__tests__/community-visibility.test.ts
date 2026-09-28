@@ -117,6 +117,15 @@ describe('community repository visibility', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockedGetCurrentProfile.mockResolvedValue(currentProfile);
+    mockedSupabase.rpc.mockResolvedValue({
+      data: [
+        { id: 'profile-requester', name: 'Ama Public' },
+        { id: 'neighbor-1', name: 'Kojo' },
+        { id: 'neighbor-2', name: 'Efua' },
+        { id: 'neighbor-3', name: 'Aba' },
+      ],
+      error: null,
+    });
   });
 
   it('loads only the signed-in user primary neighborhood', async () => {
@@ -194,14 +203,6 @@ describe('community repository visibility', () => {
       error: null,
     });
 
-    const profilesQuery = createQuery({
-      data: [
-        { id: 'neighbor-1', display_name: 'Kojo' },
-        { id: 'neighbor-2', display_name: 'Efua' },
-      ],
-      error: null,
-    });
-
     const reportsQuery = createQuery({
       data: [
         {
@@ -216,7 +217,6 @@ describe('community repository visibility', () => {
       neighborhood_feed_posts: [postsQuery],
       neighborhood_feed_comments: [commentsQuery],
       neighborhood_feed_reactions: [reactionsQuery],
-      profiles: [profilesQuery],
       reports: [reportsQuery],
     });
 
@@ -277,7 +277,7 @@ describe('community repository visibility', () => {
       id: 'post-new',
       neighborhoodId: 'east-legon',
       authorId: 'profile-requester',
-      authorName: 'Ama Mensah',
+      authorName: 'Ama Public',
       body: 'Streetlight question',
       moderationStatus: 'not_run',
     });
@@ -288,6 +288,27 @@ describe('community repository visibility', () => {
       body: 'Streetlight question',
       moderation_status: 'not_run',
     });
+  });
+
+  it('never uses the own profile value when no public name is supplied', async () => {
+    mockedSupabase.rpc.mockResolvedValue({ data: [{ id: 'profile-requester', name: 'Neighbor' }], error: null });
+    useTableQueries({
+      neighborhood_feed_posts: [
+        createQuery({
+          data: {
+            id: 'post-new',
+            author_id: 'profile-requester',
+            neighborhood_id: 'east-legon',
+            body: 'Public post',
+            moderation_status: 'not_run',
+            created_at: '2026-09-27T12:00:00Z',
+          },
+          error: null,
+        }),
+      ],
+    });
+    expect((await createNeighborhoodFeedPost('east-legon', 'Public post')).authorName).toBe('Neighbor');
+    expect(mockedSupabase.from).not.toHaveBeenCalledWith('profiles');
   });
 
   it('creates neighborhood comments with pending moderation', async () => {
@@ -313,7 +334,7 @@ describe('community repository visibility', () => {
       id: 'comment-new',
       postId: 'post-1',
       authorId: 'profile-requester',
-      authorName: 'Ama Mensah',
+      authorName: 'Ama Public',
       body: 'Please share the ECG reference if you get one.',
       moderationStatus: 'not_run',
       isReported: false,
@@ -457,7 +478,7 @@ describe('community repository visibility', () => {
     });
   });
 
-  it('subscribes to visible realtime feed inserts and hidden-content updates', () => {
+  it('subscribes to visible realtime feed inserts and hidden-content updates', async () => {
     const handlers: Record<string, (payload: RealtimePayload) => void> = {};
 
     const channel: RealtimeChannelMock = {
@@ -525,6 +546,8 @@ describe('community repository visibility', () => {
       },
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     handlers['neighborhood_feed_posts:UPDATE']({
       new: { id: 'post-1', moderation_status: 'blocked' },
     });
@@ -537,10 +560,10 @@ describe('community repository visibility', () => {
     expect(onStatus).toHaveBeenCalledWith('live');
 
     expect(onPost).toHaveBeenCalledTimes(1);
-    expect(onPost).toHaveBeenCalledWith(expect.objectContaining({ id: 'post-1' }));
+    expect(onPost).toHaveBeenCalledWith(expect.objectContaining({ id: 'post-1', authorName: 'Kojo' }));
 
     expect(onComment).toHaveBeenCalledTimes(1);
-    expect(onComment).toHaveBeenCalledWith(expect.objectContaining({ id: 'comment-1' }));
+    expect(onComment).toHaveBeenCalledWith(expect.objectContaining({ id: 'comment-1', authorName: 'Aba' }));
 
     expect(onPostHidden).toHaveBeenCalledWith('post-1');
     expect(onCommentHidden).toHaveBeenCalledWith('comment-1');

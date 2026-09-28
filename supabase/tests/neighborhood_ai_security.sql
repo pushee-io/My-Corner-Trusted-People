@@ -95,7 +95,7 @@ do $$ begin
  perform public.neighborhood_ai_meter('start');raise exception 'Minute quota bypassed';
  exception when program_limit_exceeded then null;end $$;
 -- Verify no forbidden relations/columns occur in the retrieval definition.
-select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_search(text,text,uuid,timestamptz,timestamptz)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
+select pg_temp.ai_assert(pg_get_functiondef('public.neighborhood_ai_retrieve(text,text,uuid,timestamptz,timestamptz,jsonb)'::regprocedure) !~ 'marketplace_messages|private_addresses|job_requests|job_safety_sessions|moderation_cases|pickup_notes|pickup_area|exact_address|legal_given_name','Forbidden retrieval source');
 reset role;
 -- Matching records must survive more than eight earlier unrelated events.
 set local request.jwt.claim.sub='a1000000-0000-4000-8000-000000000002';
@@ -128,5 +128,29 @@ insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,modera
 set local role authenticated;
 select pg_temp.ai_assert(public.neighborhood_ai_search('post','garden')::text like '%gardening%','Feed keyword lost');
 select pg_temp.ai_assert(public.neighborhood_ai_search('group','discuss')::text like '%DISCUSSION%','Group keyword lost');
+reset role;
+insert into public.social_group_post_comments(post_id,author_profile_id,body,moderation_status) values
+ ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','Transformer repair discussion','clean'),
+ ('a4000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000002','PRIVATE transformer held comment','flagged');
+set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','Members')::text like '%Members only%','Group description discovery absent');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text like '%Transformer repair discussion%','Authorized comment discovery absent');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('group','transformer')::text not like '%PRIVATE transformer%','Held comment leaked');
+reset role;
+insert into public.neighborhood_feed_posts(neighborhood_id,author_id,body,moderation_status) values
+ ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Lights off near the public square. Neighbor report, not official confirmation.','clean'),
+ ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','A suggestion for better park lighting.','clean');
+set local role authenticated;
+select pg_temp.ai_assert(jsonb_array_length(public.neighborhood_ai_retrieve('post','power outage electricity blackout lights off',null,null,null,'{"phrases":["power off","lights off","power outage","blackout"]}'))=1,'Lighting discussion misrepresented as outage');
+-- Deterministic event/Marketplace comparisons must also precede the eight-row cap.
+select public.rsvp_to_event('a7000000-0000-4000-8000-000000000001');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('event','',null,now(),now()+interval '7 days','{"metric":"rsvps"}')->0->>'id'='a7000000-0000-4000-8000-000000000001','RSVP winner lost');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('event','',null,now(),now()+interval '7 days','{"metric":"rsvps"}')->0->'comparison'->>'value'='1','RSVP metric fabricated');
+reset role;
+insert into public.marketplace_listings(neighborhood_id,seller_id,title,description,availability,pickup_area,created_at)
+ select 'a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000002','Table table table '||n,'Older table table listing','available','General area',now()-interval '1 day' from generate_series(1,10) n;
+set local role authenticated;
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('marketplace','table',null,null,null,'{"metric":"newest"}')->0->>'id'='a6000000-0000-4000-8000-000000000001','Newest listing lost behind lexical cap');
+select pg_temp.ai_assert(public.neighborhood_ai_retrieve('marketplace','table',null,null,null,'{"metric":"newest"}')->0->'comparison'->>'eligibleCount'='11','Listing comparison population capped');
 reset role;
 rollback;

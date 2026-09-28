@@ -1,0 +1,625 @@
+{
+  "date": "2026-09-27",
+  "main": "a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b",
+  "project": "opeojxwkwwnnncnsuaag",
+  "providerAudit": [
+    {
+      "seed_key": "pilot-provider-afi-pipe-drain",
+      "business_name": "Afi Pipe & Drain",
+      "general_area": "Spintex and Tema border",
+      "accepting_requests": true,
+      "categories": [
+        "plumbing"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-ama-spark-works",
+      "business_name": "Ama Spark Works",
+      "general_area": "Osu and Labone",
+      "accepting_requests": true,
+      "categories": [
+        "electrical"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-brightclean-ghana",
+      "business_name": "BrightClean Ghana",
+      "general_area": "Labone and Cantonments",
+      "accepting_requests": true,
+      "categories": [
+        "cleaning"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-coolair-tema",
+      "business_name": "CoolAir Tema",
+      "general_area": "Tema Community 25 and Spintex",
+      "accepting_requests": true,
+      "categories": [
+        "air-conditioning"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-eben-appliance-assist",
+      "business_name": "Eben Appliance Assist",
+      "general_area": "Dansoman and Kaneshie",
+      "accepting_requests": true,
+      "categories": [
+        "appliance-repair"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "preview-ai-fencecare",
+      "business_name": "FenceCare (fictional demo)",
+      "general_area": "East Legon",
+      "accepting_requests": true,
+      "categories": [
+        "carpentry"
+      ],
+      "coverage": [
+        "East Legon"
+      ]
+    },
+    {
+      "seed_key": "pilot-provider-freshnest-cleaners",
+      "business_name": "FreshNest Cleaners",
+      "general_area": "Cantonments and Airport Residential",
+      "accepting_requests": true,
+      "categories": [
+        "cleaning"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-kojo-wood-fit",
+      "business_name": "Kojo Wood & Fit",
+      "general_area": "Madina and Adenta",
+      "accepting_requests": true,
+      "categories": [
+        "carpentry"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-kwame-pipecare",
+      "business_name": "Kwame PipeCare",
+      "general_area": "East Legon and nearby",
+      "accepting_requests": true,
+      "categories": [
+        "plumbing"
+      ],
+      "coverage": [
+        "East Legon"
+      ]
+    },
+    {
+      "seed_key": "pilot-provider-naa-homefix",
+      "business_name": "Naa HomeFix",
+      "general_area": "Adenta and Madina",
+      "accepting_requests": true,
+      "categories": [
+        "electrical",
+        "plumbing"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "preview-realneighbor-provider",
+      "business_name": "Real Neighbor Plumbing (Demo)",
+      "general_area": "East Legon",
+      "accepting_requests": true,
+      "categories": [
+        "plumbing"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-reliable-brush-co",
+      "business_name": "Reliable Brush Co.",
+      "general_area": "Airport Residential and Cantonments",
+      "accepting_requests": true,
+      "categories": [
+        "painting"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-swiftmove-accra",
+      "business_name": "SwiftMove Accra",
+      "general_area": "Achimota and Dzorwulu",
+      "accepting_requests": true,
+      "categories": [
+        "moving-delivery"
+      ],
+      "coverage": []
+    },
+    {
+      "seed_key": "pilot-provider-tidyspace-crew",
+      "business_name": "TidySpace Crew",
+      "general_area": "Dzorwulu and Achimota",
+      "accepting_requests": true,
+      "categories": [
+        "cleaning"
+      ],
+      "coverage": []
+    }
+  ],
+  "readOnlyRetrievalChecks": [
+    {
+      "question": "dining table",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "dining table",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "dining table",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "dining table",
+      "kind": "marketplace",
+      "count": 3,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "dining table",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "dining table",
+      "kind": "provider",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "post",
+      "count": 1,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "electrician",
+      "kind": "provider",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "event",
+      "count": 2,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "festival",
+      "kind": "provider",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "I need a plumber",
+      "kind": "provider",
+      "count": 1,
+      "hair_present": false,
+      "providers": [
+        "Kwame PipeCare"
+      ]
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Kwame PipeCare",
+      "kind": "provider",
+      "count": 1,
+      "hair_present": false,
+      "providers": [
+        "Kwame PipeCare"
+      ]
+    },
+    {
+      "question": "pig racing",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "pig racing",
+      "kind": "event",
+      "count": 1,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "pig racing",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "pig racing",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "pig racing",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "pig racing",
+      "kind": "provider",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumber",
+      "kind": "provider",
+      "count": 1,
+      "hair_present": false,
+      "providers": [
+        "Kwame PipeCare"
+      ]
+    },
+    {
+      "question": "plumbing",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumbing",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumbing",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumbing",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumbing",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "plumbing",
+      "kind": "provider",
+      "count": 1,
+      "hair_present": false,
+      "providers": [
+        "Kwame PipeCare"
+      ]
+    },
+    {
+      "question": "power off",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "power off",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "power off",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "power off",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "power off",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "power off",
+      "kind": "provider",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "agency",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "event",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "group",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "marketplace",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "post",
+      "count": 0,
+      "hair_present": false,
+      "providers": null
+    },
+    {
+      "question": "Real Neighbor Plumbing",
+      "kind": "provider",
+      "count": 1,
+      "hair_present": false,
+      "providers": [
+        "Kwame PipeCare"
+      ]
+    }
+  ],
+  "coverageRepair": {
+    "file": "supabase/ops/preview_provider_coverage_catalog.sql",
+    "applied": true,
+    "expectedNewRows": 18,
+    "profilesChanged": 12,
+    "totalCatalogProfiles": 14,
+    "totalExplicitAssignments": 20
+  },
+  "changes": [
+    "Topical queries inspect all six authorized source families",
+    "Relevance selection before final combined cap; secondary evidence selected with exact excerpts",
+    "Same source reauthorization and privacy restrictions",
+    "Multi-service label follows selected category; profile shows all services",
+    "Fresh seed explicit coverage catalog and generic completeness audit"
+  ],
+  "verification": {
+    "mobileTests": 550,
+    "mobileSuites": 97,
+    "serverTests": 51,
+    "typecheck": "passed",
+    "format": "passed",
+    "lintErrors": 0,
+    "lintBaselineWarnings": 15,
+    "authenticatedEdgeModel": "not tested",
+    "native": "pending"
+  },
+  "productionChanges": false,
+  "backendChanges": true,
+  "paidBuild": false,
+  "pr": 152,
+  "testedSource": "39b1c604ef8564989aa1c67d1a03a1857a5ea474",
+  "repairSha256": "cc20f5a87432d509798f9e526d3003bf73137affd1d4979c789209cdbecac322",
+  "ci": {
+    "database": 36333358271,
+    "mobile": 36333358268,
+    "serverDeno": 36333358300,
+    "result": "all passed"
+  },
+  "deploymentEvidence": "discovery-feed-preview-deployment-2026-09-27.json",
+  "edgeDeployment": "v10 ACTIVE/JWT true; seven files equal tested #152 source",
+  "latestDeploymentEvidence": "preview-pr152-v10-deployment-2026-09-27.json"
+}

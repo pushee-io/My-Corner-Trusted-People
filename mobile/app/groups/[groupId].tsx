@@ -1,4 +1,4 @@
-import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
+import { CollapsibleComments, dismissCommentKeyboard, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
 import { MediaGallery } from '@/components/media/MediaGallery';
@@ -156,6 +156,7 @@ export default function GroupDetailScreen() {
         ),
       );
       setCommentDrafts((current) => ({ ...current, [postId]: '' }));
+      dismissCommentKeyboard();
     } catch {
       setError('Could not add your comment. Check your connection and try again.');
     } finally {

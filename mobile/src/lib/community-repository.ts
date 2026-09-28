@@ -1,3 +1,4 @@
+import { assertMediaSession, mediaSessionRevision } from '@/lib/media-session';
 import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile } from '@/lib/auth';
 import { assertSupabaseConfigured, supabase } from '@/lib/supabase';
@@ -114,14 +115,37 @@ export async function getCurrentNeighborhood(): Promise<CurrentNeighborhood> {
   };
 }
 
-async function authorNames(authorIds: string[]) {
-  const uniqueIds = [...new Set(authorIds)];
-  if (uniqueIds.length === 0) return new Map<string, string>();
+async function authorNames(postIds: string[], commentIds: string[] = []) {
+  const posts = [...new Set(postIds)];
+  const comments = [...new Set(commentIds)];
+  const names = new Map<string, string>();
+  const session = mediaSessionRevision();
+  for (let start = 0; start < Math.max(posts.length, comments.length); start += 100) {
+    const { data, error } = await supabase.rpc('feed_author_names', {
+      post_ids: posts.slice(start, start + 100),
+      comment_ids: comments.slice(start, start + 100),
+    });
+    assertMediaSession(session);
+    if (error) throw error;
+    for (const row of (data ?? []) as { id: string; name: string }[]) {
+      if (typeof row.id === 'string' && typeof row.name === 'string') names.set(row.id, row.name.trim() || 'Neighbor');
+    }
+  }
+  return names;
+}
 
-  const { data, error } = await supabase.from('profiles').select('id, display_name').in('id', uniqueIds);
-  if (error) throw error;
-
-  return new Map((data ?? []).map((row) => [row.id, row.display_name]));
+// The write has already succeeded. A name-read outage must not invite duplicate
+// submissions or substitute a private/self-profile value for an approved name.
+async function createdAuthorName(postIds: string[], commentIds: string[], authorId: string) {
+  const session = mediaSessionRevision();
+  let name = 'Neighbor';
+  try {
+    name = (await authorNames(postIds, commentIds)).get(authorId) ?? name;
+  } catch {
+    /* retry on next Feed load */
+  }
+  assertMediaSession(session);
+  return name;
 }
 
 async function reportsForCurrentUser(postIds: string[], commentIds: string[]) {
@@ -158,6 +182,7 @@ export async function listNeighborhoodFeedPosts(
   sourcePostId?: string,
 ): Promise<NeighborhoodFeedPost[]> {
   assertSupabaseConfigured();
+  const session = mediaSessionRevision();
   const profile = await getCurrentProfile();
 
   let query = supabase
@@ -194,15 +219,16 @@ export async function listNeighborhoodFeedPosts(
 
   const commentRows = (comments ?? []) as FeedCommentRow[];
   const reactionRows = (reactions ?? []) as ReactionRow[];
-  const names = await authorNames([
-    ...postRows.map((post) => post.author_id),
-    ...commentRows.map((comment) => comment.author_id),
-  ]);
+  const names = await authorNames(
+    postIds,
+    commentRows.map((comment) => comment.id),
+  );
   const reports = await reportsForCurrentUser(
     postIds,
     commentRows.map((comment) => comment.id),
   );
 
+  assertMediaSession(session);
   return postRows.map((post) => {
     const postComments = commentRows
       .filter((comment) => comment.post_id === post.id)
@@ -241,7 +267,7 @@ export async function createNeighborhoodFeedPost(
     profile.id,
     clientId,
   );
-  return mapFeedPost(row, profile.displayName);
+  return mapFeedPost(row, await createdAuthorName([row.id], [], row.author_id));
 }
 
 export async function createNeighborhoodFeedComment(postId: string, body: string): Promise<NeighborhoodFeedComment> {
@@ -260,7 +286,8 @@ export async function createNeighborhoodFeedComment(postId: string, body: string
     .single();
 
   if (error) throw error;
-  return mapFeedComment(data as FeedCommentRow, profile.displayName);
+  const row = data as FeedCommentRow;
+  return mapFeedComment(row, await createdAuthorName([], [row.id], row.author_id));
 }
 
 export async function toggleNeighborhoodFeedLike(
@@ -378,6 +405,29 @@ export function subscribeToNeighborhoodFeedPosts(
   onError: (message: string) => void,
   onStatus: (status: 'live' | 'reconnecting' | 'paused') => void,
 ) {
+  let active = true;
+  const session = mediaSessionRevision();
+  const hiddenPosts = new Set<string>();
+  const hiddenComments = new Set<string>();
+  const current = () => active && session === mediaSessionRevision();
+  async function publishPost(row: FeedPostRow) {
+    try {
+      const names = await authorNames([row.id]);
+      if (current() && !hiddenPosts.has(row.id) && names.has(row.author_id))
+        onPost(mapFeedPost(row, names.get(row.author_id)));
+    } catch {
+      if (current()) onError('Could not refresh the Feed author. Reopen the Feed to retry.');
+    }
+  }
+  async function publishComment(row: FeedCommentRow) {
+    try {
+      const names = await authorNames([], [row.id]);
+      if (current() && !hiddenPosts.has(row.post_id) && !hiddenComments.has(row.id) && names.has(row.author_id))
+        onComment(mapFeedComment(row, names.get(row.author_id)));
+    } catch {
+      if (current()) onError('Could not refresh the Feed author. Reopen the Feed to retry.');
+    }
+  }
   const channel = supabase
     .channel(`neighborhood-feed:${neighborhoodId}`)
     .on(
@@ -390,7 +440,8 @@ export function subscribeToNeighborhoodFeedPosts(
       },
       (payload) => {
         const row = payload.new as FeedPostRow;
-        if (row.moderation_status !== 'blocked') onPost(mapFeedPost(row));
+        if (current() && row.neighborhood_id === neighborhoodId && row.moderation_status !== 'blocked')
+          void publishPost(row);
       },
     )
     .on(
@@ -403,7 +454,10 @@ export function subscribeToNeighborhoodFeedPosts(
       },
       (payload) => {
         const row = payload.new as FeedPostRow;
-        if (row.moderation_status === 'blocked') onPostHidden(row.id);
+        if (row.moderation_status === 'blocked') {
+          hiddenPosts.add(row.id);
+          if (current()) onPostHidden(row.id);
+        }
       },
     )
     .on(
@@ -415,7 +469,7 @@ export function subscribeToNeighborhoodFeedPosts(
       },
       (payload) => {
         const row = payload.new as FeedCommentRow;
-        if (row.moderation_status !== 'blocked') onComment(mapFeedComment(row));
+        if (current() && row.moderation_status !== 'blocked') void publishComment(row);
       },
     )
     .on(
@@ -427,10 +481,14 @@ export function subscribeToNeighborhoodFeedPosts(
       },
       (payload) => {
         const row = payload.new as FeedCommentRow;
-        if (row.moderation_status === 'blocked') onCommentHidden(row.id);
+        if (row.moderation_status === 'blocked') {
+          hiddenComments.add(row.id);
+          if (current()) onCommentHidden(row.id);
+        }
       },
     )
     .subscribe((status, error) => {
+      if (!current()) return;
       if (status === 'SUBSCRIBED') onStatus('live');
       if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') onStatus('reconnecting');
       if (status === 'CLOSED') onStatus('paused');
@@ -440,6 +498,7 @@ export function subscribeToNeighborhoodFeedPosts(
     });
 
   return () => {
+    active = false;
     supabase.removeChannel(channel);
   };
 }
