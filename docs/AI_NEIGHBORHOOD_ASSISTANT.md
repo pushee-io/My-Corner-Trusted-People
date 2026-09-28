@@ -1,3 +1,11 @@
+## 2026-09-28 — canonical Search and AI reliability program (in progress)
+
+Live main: `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. Integration branch `codex/canonical-neighborhood-reliability` starts at #156 `95ffa8cc1f069547a972f83dcdeccf4504cb099c`, preserving #143–#156. Preview remains ask-my-corner v10 / #152, JWT verified. #155 is not deployed. No new migration, function deployment or APK is authorized by this checkpoint.
+
+Diagnosis: Basic Search uses whole-query literal substring matching, so plumber misses Plumbing. Hire lacks AI's structured coverage predicate. “Most rated” is not a deterministic comparison alias. Three September 28 HTTP 503s followed successful retrieval and model usage; v10 does not record the exact thrown exception. Current usage is below allowance; quota is 40 per UTC calendar day, six per minute and 500 global per UTC day. Old usage rows are lazily reset and must not be presented as current usage. Next observed daily reset: 2026-09-29T00:00:00Z.
+
+Next: one canonical authorized retrieval platform, deterministic fallback, accurate quota status, Search and comment UX, broad regression and privacy acceptance. Persistent Preview changes require one consolidated approval after source/CI readiness. Native phone + Pixel Tablet and VC readiness remain unaccepted; no new APK yet. See `GLOBAL_SEARCH_AND_AI_ARCHITECTURE.md`, `AI_RELIABILITY_ACCEPTANCE_MATRIX.md`, and sanitized `evidence/global-search-baseline-2026-09-28.json`.
+
 ## 2026-09-27 — Approved Preview APK50 finished and independently verified
 
 - Completed the one approved build: **APK50**, EAS **`234dd105-1a06-469e-b16a-c8b42cea6e78`**, source **`763276b701b161507d8f8cf967878286ad234bcb`**, workflow **36356385371 success**. Receipt artifact **10943692491**; verified APK/provenance artifact **10943882839**. Checkpoint **#156**. Approval consumed; do not submit a replacement after interruption.
