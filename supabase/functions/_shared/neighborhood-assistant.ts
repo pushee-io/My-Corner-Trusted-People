@@ -110,12 +110,32 @@ export function synthesisPayload(question: string, sources: Source[], model: str
   text:{format:{type:'json_schema',name:'neighborhood_evidence',strict:true,schema:{type:'object',additionalProperties:false,
    properties:{excerpts:{type:'array',items:{type:'object',additionalProperties:false,properties:{index:{type:'integer'},quote:{type:'string'}},required:['index','quote']}}},required:['excerpts']}}}};
 }
+export type EvidenceFailureReason = 'response_incomplete'|'response_failed'|'response_not_completed'|'model_refusal'|'missing_output_text'|'invalid_json'|'invalid_schema'|'too_many_excerpts'|'invalid_index'|'duplicate_index'|'invalid_quote'|'quote_not_in_source';
+export class EvidenceValidationError extends Error {
+ readonly reason: EvidenceFailureReason;
+ constructor(reason: EvidenceFailureReason){super('Evidence validation failed');this.reason=reason;}
+}
+export function evidenceFailureReason(error:unknown):EvidenceFailureReason|'unclassified'{
+ return error instanceof EvidenceValidationError?error.reason:'unclassified';
+}
 export function validatedExcerpts(response: Parameters<typeof outputJson>[0],sources: Source[]): {index:number;quote:string}[] {
- const result=outputJson(response) as {excerpts: {index:number;quote:string}[]};
- if(!result||!Array.isArray(result.excerpts)||result.excerpts.length>5)throw new Error('Invalid evidence');
+ const reject=(reason:EvidenceFailureReason):never=>{throw new EvidenceValidationError(reason);};
+ if(!response||response.status!=='completed')reject(response?.status==='incomplete'?'response_incomplete':response?.status==='failed'?'response_failed':'response_not_completed');
+ if(!Array.isArray(response.output))return reject('missing_output_text');
+ const content=response.output.flatMap(x=>Array.isArray(x?.content)?x.content:[]);
+ if(content.some(x=>x?.type==='refusal'))reject('model_refusal');
+ const text=content.find(x=>x?.type==='output_text')?.text;
+ if(typeof text!=='string')return reject('missing_output_text');
+ const result=(()=>{try{return JSON.parse(text);}catch{return reject('invalid_json');}})() as {excerpts:{index:number;quote:string}[]}|null;
+ if(!result||!Array.isArray(result.excerpts))return reject('invalid_schema');
+ if(result.excerpts.length>5)reject('too_many_excerpts');
  const seen=new Set<number>();
  return result.excerpts.map(e=>{
-  if(!Number.isInteger(e.index)||!sources[e.index]||seen.has(e.index)||typeof e.quote!=='string'||e.quote.length<1||e.quote.length>400||!sources[e.index].text.includes(e.quote))throw new Error('Ungrounded excerpt');
+  if(!e||typeof e!=='object')reject('invalid_schema');
+  if(!Number.isInteger(e.index)||!sources[e.index])reject('invalid_index');
+  if(seen.has(e.index))reject('duplicate_index');
+  if(typeof e.quote!=='string'||e.quote.length<1||e.quote.length>400)reject('invalid_quote');
+  if(!sources[e.index].text.includes(e.quote))reject('quote_not_in_source');
   seen.add(e.index);return {index:e.index,quote:e.quote};
  });
 }

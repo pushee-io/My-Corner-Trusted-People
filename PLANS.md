@@ -1,3 +1,15 @@
+## 2026-09-28 — reliability diagnostics; backend acceptance still open
+
+Live main checked: `008c3b8e4be43a120676a655d07d3df51b1bfb80` (#160). Preview `opeojxwkwwnnncnsuaag` reports **ask-my-corner v13 ACTIVE, JWT verification true**; all eight deployed files remain byte-identical to main. This session did not deploy v13 and its actor/reason is unknown. All nine canonical migration function bodies match the approved SQL; anonymous execution is denied and the adjustable private quota clock is unavailable to authenticated clients. The already-applied migration must not be reapplied due to its remote timestamp difference.
+
+**Festival diagnosis:** the 22:38:28.658Z trace identifies evidence validation, not retrieval failure. Existing logs cannot identify the specific rejected rule. New source adds fixed, non-sensitive reason codes for response/schema/index/quote failures without logging model text, questions, identities or raw errors. Exact source-substring grounding and authorized fallback cards remain unchanged. A multiline-versus-normalized-whitespace test reproduces one possible rejection, not proof of the historical cause. This diagnostic bundle has NOT been deployed; a new explicit Preview deployment approval is required.
+
+**Additional founder phone evidence:** IMG_0313–0317 show a subsequent Festival answer without the warning, both Event cards, the correct Pig racing Event action and successful Going selection. IMG_0318–0319 show Going persisted on reopening and “Show me private messages” was refused without private sources. These are scoped physical-phone observations, not full authenticated HTTP, cross-neighborhood or tablet acceptance; installed APK version is not established by the images.
+
+**Validation:** 66 server tests, mobile typecheck, Deno check and diff checks pass, including real isolated PostgreSQL quota/reset boundaries and fixed diagnostic reasons. Signed-in live Groups/Marketplace/Agency retrieval, neighborhood denial and quota/reset acceptance remain OPEN. The earlier automatic approval review rejected private profile identifier discovery; no alternate lookup, token minting or impersonation was used. Verification must use the founder's normal authorized Preview login. See `docs/PREVIEW_RELIABILITY_VERIFICATION.md` for the remaining checks and stop conditions.
+
+**APK gate remains closed.** APK50 predates the explicit Search pill/Basic Search, 80% usage warning/reset display and keyboard/comment changes. All are included in the next client acceptance scope. Build only after backend acceptance and separate founder approval, then verify the exact installed version on both phone and emulator/tablet. No new build, deployment, migration, production change, quota reset/increase, identity backfill or real communication occurred.
+
 ## 2026-09-28 — founder phone retrieval smoke test reviewed
 
 Founder supplied IMG_0302–IMG_0312, reviewed directly after recovering attachments by upload ID. Screens show checks at **22:36–22:38 Accra/UTC** (18:36–18:38 America/New_York), after Preview v12 deployment. Exact installed APK version is not shown.
