@@ -1,15 +1,17 @@
+import { canonicalPlan, deterministicMatches, retrieveCanonical } from './neighborhood-search.ts';
 import { groundedNotice, providerReference } from './neighborhood-answer.ts';
-import { ANSWER_VERSION, toolKinds, fallbackPlan, historyQuestions, parsePlan, plannerPayload, privacyRefusal, retrieve, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
+import { ANSWER_VERSION, historyQuestions, privacyRefusal, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
 import type { Intent, Source } from './neighborhood-assistant.ts';
-import { outputJson } from './openai-responses.ts';
+
 type Rpc = (name: string, args?: Record<string,unknown>)=>Promise<{data: unknown;error: unknown}>;
 type Dependencies = {debug?: boolean; trace?: (metadata: Record<string,unknown>)=>void; rpc: Rpc; model: string; respond: (payload: unknown)=>Promise<Record<string,unknown>>; now?: ()=>Date};
 export class AskAllowanceError extends Error {
  readonly code='ASK_ALLOWANCE_REACHED';
- constructor(){super('The Preview question limit has been reached. Try again later or use Search.');}
+ readonly quota?:unknown;
+ constructor(quota?:unknown){super('The Preview question limit has been reached. Use Search or try again at the reset time.');this.quota=quota;}
 }
 export function askFailure(error:unknown){
- return error instanceof AskAllowanceError?{status:429,body:{code:error.code,error:error.message}}:{status:503,body:{error:UNAVAILABLE}};
+ return error instanceof AskAllowanceError?{status:429,body:{code:error.code,error:error.message,quota:error.quota}}:{status:503,body:{error:UNAVAILABLE}};
 }
 export const UNAVAILABLE='Ask My Corner is temporarily unavailable. You can still search your neighborhood.';
 export async function answerQuestion(body: {question?: unknown;history?: unknown;neighborhoodId?: unknown; providerId?: unknown}, deps: Dependencies) {
@@ -21,7 +23,7 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
  const hood=context.data as {id:string;name:string;timezone:string};
  const allowance=await deps.rpc('neighborhood_ai_meter',{action:'start'});
  if(allowance.error||!allowance.data){
-  if((allowance.error as {code?:string}|null)?.code==='54000')throw new AskAllowanceError();
+  if((allowance.error as {code?:string}|null)?.code==='54000'){let quota:unknown;try{quota=JSON.parse((allowance.error as {details?:string}).details??'null');}catch{}throw new AskAllowanceError(quota);}
   throw new Error(UNAVAILABLE);
  }
  const runId=(allowance.data as {id:string}).id;
@@ -41,8 +43,7 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
    outcome='refused';return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),
     notice:'I cannot look up private messages, home locations, job safety details or sensitive group membership. Ask about authorized neighborhood information instead.',sources:[],excerpts:[]};
   }
-  let plan=fallbackPlan(question,history);
-  if(plan.intent==='unsupported')plan=parsePlan(outputJson(await modelCall(plannerPayload(question,history,deps.model,now.toISOString(),hood.name))));
+  const plan=canonicalPlan(question,history);
   intent=plan.intent;
   const selected=providerReference(body.providerId);
   if(/\b(he|she|they|this provider|that provider)\b/i.test(question)&&plan.details?.availability){
@@ -51,44 +52,40 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   }
   if(plan.details?.clarification){outcome='answered';return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),notice:plan.details.clarification.question,clarification:plan.details.clarification.choices,sources:[],excerpts:[]};}
   const counts:Record<string,number>={};
-  const search=async(kind: import('./neighborhood-assistant.ts').Kind,terms:string,range:ReturnType<typeof import('./neighborhood-assistant.ts').timeRange>)=>{
-   const options=kind==='provider'?{categories:plan.details?.categories??[],metric:plan.details?.metric,providerId:plan.details?.providerId}:{metric:plan.details?.metric,phrases:plan.details?.evidencePhrases};
-   const r=await deps.rpc('neighborhood_ai_retrieve',{source_kind:kind,terms,selected_neighborhood:hood.id,...range,options});
-   if(r.error||!Array.isArray(r.data))throw new Error('Retrieval unavailable');counts[kind]=r.data.length;return r.data as Source[];
+  const unavailable=new Set<string>();
+  const fetchSources=async()=>{
+   const result=await retrieveCanonical(plan,now,async(name,args)=>{
+    const response=await deps.rpc(name,args);
+    if(Array.isArray(response.data))counts[String(args?.source_kind)]=response.data.length;
+    return response;
+   },hood.id,kind=>unavailable.add(kind));
+   return deterministicMatches(plan,result);
   };
   const retrievalStarted=Date.now();
   stage='retrieval';
-  sources=await retrieve(plan,now,search);
+  sources=await fetchSources();
   retrievalMs=Date.now()-retrievalStarted;
   let excerpts: {index:number;quote:string}[]=[];
-  const primary=toolKinds[plan.intent][0];
-  const structured=plan.details?.metric||plan.details?.availability;
-  // Structured comparisons are computed only by SQL. Related evidence can come
-  // from any family, but must be selected and quoted, even for a metric question.
-  // Provider cards already come from authorized structured retrieval. Model
-  // selection is needed only when related content actually exists.
-  if(sources.length&&((plan.intent!=='providers'&&!structured)||sources.some(s=>s.kind!==primary))){
+  // Retrieval and comparison are deterministic. The model may select exact
+  // supporting excerpts but cannot remove good cards or manufacture a source.
+  if(sources.some(s=>s.kind!=='provider')){
    try{
     stage='evidence_model';
     const response=await modelCall(synthesisPayload(question,sources,deps.model));
     stage='evidence_validation';
     excerpts=validatedExcerpts(response,sources);
-   }catch(error){
-    // Fail closed for model evidence without discarding independently matched
-    // providers. The normal filter below drops every unselected secondary item.
-    if(plan.intent!=='providers'||!sources.some(s=>s.kind==='provider'))throw error;
+   }catch{
     relatedEvidenceUnavailable=true;
     traceFailure('ask_evidence_fallback');
    }
   }
-  const selectedEvidence=new Set(excerpts.map(e=>e.index));const candidates=sources;
-  sources=sources.filter((s,i)=>(plan.intent!=='digest'&&s.kind===primary)||selectedEvidence.has(i)).slice(0,16);
-  excerpts=excerpts.filter(e=>sources.includes(candidates[e.index])).map(e=>({index:sources.indexOf(candidates[e.index]),quote:e.quote}));
+  sources=sources.slice(0,16);
+  excerpts=excerpts.filter(e=>e.index<sources.length);
   // Re-authorize immediately before returning. A block/removal/membership change during
   // model latency must revoke the source and its excerpt in this response, too.
   if(sources.length){
    stage='reauthorization';
-   const fresh=await retrieve(plan,now,search);
+   const fresh=await fetchSources();
    const current=new Map(fresh.map(s=>[`${s.kind}:${s.id}`,JSON.stringify(s)]));
    const keep=sources.map(s=>current.get(`${s.kind}:${s.id}`)===JSON.stringify(s));
    const old=sources;sources=sources.filter((_,i)=>keep[i]);
@@ -96,12 +93,12 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
   }
   stage='final_context';
   const finalContext=await deps.rpc('neighborhood_ai_context',{selected_neighborhood:hood.id});
-  if(finalContext.error)throw new Error(UNAVAILABLE);
+  if(finalContext.error||!(finalContext.data as {id?:string}|null)?.id)throw new Error(UNAVAILABLE);
   outcome=sources.length?'answered':'no_results';
-  const diagnostics={concepts:plan.details?.concepts??[],intent,tools:Object.keys(counts),counts,noResultReason:sources.length?null:'no_authorized_matching_evidence',fallbackLevel:plan.details?.correction?.length?'controlled_typo':plan.details?.concepts.length?'concept_expansion':'lexical',retrievalMs,inputTokens,outputTokens};
+  const diagnostics={stage,unavailableSources:[...unavailable],modelFallback:relatedEvidenceUnavailable,concepts:plan.details?.concepts??[],intent,tools:Object.keys(counts),counts,noResultReason:sources.length?null:'no_authorized_matching_evidence',fallbackLevel:plan.details?.correction?.length?'controlled_typo':plan.details?.concepts.length?'concept_expansion':'lexical',retrievalMs,inputTokens,outputTokens};
   if(deps.debug)trace(diagnostics);
   return {id:runId,version:ANSWER_VERSION,intent,neighborhood:hood.name,generatedAt:now.toISOString(),
-   notice:groundedNotice(plan,sources)+(relatedEvidenceUnavailable?' Related neighborhood evidence could not be checked for this answer.':''),sources,excerpts,
+   notice:groundedNotice(plan,sources)+(relatedEvidenceUnavailable?' Showing matching records; AI explanation is temporarily unavailable.':'')+(unavailable.size?' Some source categories are temporarily unavailable.':''),sources,excerpts,quota:(allowance.data as {quota?:unknown}).quota,
    ...(deps.debug?{diagnostics}:{})};
  }catch(error){
   traceFailure('ask_failure');

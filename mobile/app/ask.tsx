@@ -1,6 +1,17 @@
+import { loadAskQuota, quotaMessage } from '@/lib/ask-quota';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  AppState,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { ActionPill } from '@/components/ActionPill';
 import { Screen } from '@/components/Screen';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
@@ -31,6 +42,8 @@ const date = (value: string) =>
   new Date(value).toLocaleString('en-GH', { timeZone: 'Africa/Accra', dateStyle: 'medium', timeStyle: 'short' });
 export default function AskScreen() {
   const params = useLocalSearchParams<{ question?: string }>();
+  const composer = useRef<TextInput>(null);
+  const quota = useProtectedResource(loadAskQuota, 15000);
   const context = useProtectedResource(loadAskContext, 30000);
   const [question, setQuestion] = useState('');
   const [history, setHistory] = useState<string[]>([]);
@@ -77,8 +90,18 @@ export default function AskScreen() {
     if (previousNeighborhood.current && neighborhood && neighborhood !== previousNeighborhood.current) clear();
     if (neighborhood) previousNeighborhood.current = neighborhood;
   }, [neighborhood, clear]);
+  useEffect(() => {
+    const reset = quota.data?.blocked_scope ? quota.data.retry_at : quota.data?.reset_at;
+    if (!reset) return;
+    const delay = Date.parse(reset) - Date.now();
+    if (delay < 0) return;
+    const timer = setTimeout(() => void quota.refresh(), Math.min(delay + 500, 2147483647));
+    return () => clearTimeout(timer);
+  }, [quota.data?.reset_at, quota.data?.retry_at, quota.data?.blocked_scope, quota.refresh]);
   async function ask(value = question, selectedProviderId?: string) {
     if (!neighborhood || sending.current || value.trim().length < 3) return;
+    composer.current?.blur();
+    Keyboard.dismiss();
     sending.current = true;
     const current = ++generation.current;
     const submitted = value.trim();
@@ -103,6 +126,7 @@ export default function AskScreen() {
       if (generation.current === current) setError(askErrorMessage(error));
     } finally {
       if (generation.current === current) {
+        void quota.refresh();
         sending.current = false;
         setBusy(false);
       }
@@ -151,7 +175,13 @@ export default function AskScreen() {
             onPress={() => void ask(searchSuggestion)}
           />
         ) : null}
+        {quota.data ? (
+          <Text accessibilityLiveRegion="polite" style={styles.meta}>
+            {quotaMessage(quota.data)}
+          </Text>
+        ) : null}
         <TextInput
+          ref={composer}
           accessibilityLabel="Neighborhood question"
           placeholder="Ask anything about your neighborhood..."
           placeholderTextColor={tokens.color.textSecondary}
@@ -175,7 +205,15 @@ export default function AskScreen() {
             My Corner AI is checking your neighborhood...
           </Text>
         ) : null}
-        <Pressable accessibilityRole="button" onPress={() => router.push('/search')} style={styles.button}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            composer.current?.blur();
+            Keyboard.dismiss();
+            router.push({ pathname: '/search', params: { query: question || history.at(-1) || '' } });
+          }}
+          style={styles.button}
+        >
           <Text style={styles.body}>Search your neighborhood</Text>
         </Pressable>
         {error ? (

@@ -1,10 +1,17 @@
+import { Keyboard, TextInput } from 'react-native';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
-import { CollapsibleComments, CommentsProvider, useCommentDraft } from '@/components/CollapsibleComments';
+import {
+  CollapsibleComments,
+  CommentsProvider,
+  dismissCommentKeyboard,
+  useCommentDraft,
+} from '@/components/CollapsibleComments';
 import { invalidateMediaSession } from '@/lib/media-session';
 jest.mock('react-native', () => ({
   View: 'View',
   Text: 'Text',
+  TextInput: { State: { currentlyFocusedInput: jest.fn() } },
   Pressable: 'Pressable',
   Modal: 'Modal',
   ScrollView: 'ScrollView',
@@ -59,7 +66,7 @@ it('starts collapsed, expands accessibly and explicit Hide closes', async () => 
   await press('Hide comments');
   expect(modals().every((n) => !n.props.visible)).toBe(true);
 });
-it('outside tap closes, but focused composer remains open and preserves draft', async () => {
+it('outside tap closes even when composer is focused and preserves draft', async () => {
   await render();
   await press('2 comments, collapsed');
   const c = renderer.root.findByType('Composer' as never);
@@ -67,9 +74,6 @@ it('outside tap closes, but focused composer remains open and preserves draft', 
     c.props.onFocus();
     c.props.onChangeText('Unsent text');
   });
-  await press('Close comments');
-  expect(modals()[0].props.visible).toBe(true);
-  await act(async () => c.props.onBlur());
   await press('Close comments');
   expect(modals()[0].props.visible).toBe(false);
   await press('2 comments, collapsed');
@@ -105,4 +109,29 @@ it('closes private comment content on account transition', async () => {
   await press('2 comments, collapsed');
   await act(async () => invalidateMediaSession());
   expect(modals().every((n) => !n.props.visible)).toBe(true);
+});
+
+it('Back dismisses the keyboard before closing comments and keeps unsent text', async () => {
+  await render();
+  await press('2 comments, collapsed');
+  const composer = renderer.root.findByType('Composer' as never);
+  await act(async () => {
+    composer.props.onFocus();
+    composer.props.onChangeText('Unsent');
+  });
+  await act(async () => modals()[0].props.onRequestClose());
+  expect(modals()[0].props.visible).toBe(true);
+  expect(Keyboard.dismiss).toHaveBeenCalled();
+  await act(async () => modals()[0].props.onRequestClose());
+  expect(modals()[0].props.visible).toBe(false);
+  await press('2 comments, collapsed');
+  expect(renderer.root.findByType('Composer' as never).props.value).toBe('Unsent');
+});
+it('successful comment completion blurs the actual composer and dismisses the keyboard', async () => {
+  await render();
+  const blur = jest.fn();
+  jest.mocked(TextInput.State.currentlyFocusedInput).mockReturnValue({ blur } as never);
+  dismissCommentKeyboard();
+  expect(blur).toHaveBeenCalled();
+  expect(Keyboard.dismiss).toHaveBeenCalled();
 });

@@ -127,16 +127,17 @@ export function answerNotice(intent: Intent, sources: Source[]): string {
  if(intent==='providers')return 'Compare these matching providers and their actual verified-job reviews. This is not a safety guarantee or a neighborhood-wide ranking. Availability is provider-stated.';
  return 'Based on the My Corner sources available to you. Open a source for details and available actions.';
 }
-export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>) {
+export class SourceUnavailableError extends Error {}
+export async function retrieve(plan: Plan, now: Date, search: (kind: Kind,terms: string,range: ReturnType<typeof timeRange>)=>Promise<Source[]>, unavailable?: (kind:Kind)=>void) {
  const range=timeRange(plan.window,now);
  const primary=toolKinds[plan.intent];
  // Intent determines priority, not a hard source silo. Empty topics must not
  // broaden a generic provider request into unrelated neighborhood content.
  const kinds:Kind[]=plan.intent==='providers'&&(!plan.terms||plan.details?.providerId)?['provider']:
   plan.intent!=='unsupported'&&plan.terms.trim()?[...new Set([...primary,...toolKinds.digest])]:primary;
- const results=await Promise.all(kinds.map(kind=>search(kind,plan.intent==='providers'&&kind!=='provider'&&plan.details?.serviceTerms?plan.details.serviceTerms:plan.terms,
+ const results=await Promise.all(kinds.map(async kind=>{try{return await search(kind,plan.intent==='providers'&&kind!=='provider'&&plan.details?.serviceTerms?plan.details.serviceTerms:plan.terms,
   // Weekend activity startsAt applies to Events; surrounding announcements remain recent.
-  kind==='event'&&plan.intent==='providers'&&plan.window==='all'?timeRange('upcoming',now):kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range)));
+  kind==='event'&&plan.intent==='providers'&&plan.window==='all'?timeRange('upcoming',now):kind==='agency'&&plan.intent==='alerts'?{since_at:null,until_at:now.toISOString()}:kind!=='event'&&['weekend','saturday','sunday','tomorrow','upcoming'].includes(plan.window)?timeRange('week',now):range);}catch(error){if(!(error instanceof SourceUnavailableError))throw error;unavailable?.(kind);return [];}}));
  // Retain all bounded candidates (6 families x 8) until evidence selection.
  // A relevant later source must not be lost to a global cap before relevance.
  const sources: Source[]=[];

@@ -21,15 +21,15 @@ test('direct provider questions keep both SQL matches without a model dependency
  for(const question of ['I need a plumber today','plumbing','I need an electrician','electrician most reviews']){
   const h=harness();const answer=await answerQuestion({question},h.deps);
   assert.equal(answer.sources.length,2,question);assert.equal(h.modelCalls,0);
-  assert.deepEqual(answer.excerpts,[]);assert.equal(h.calls.filter(x=>x.name==='neighborhood_ai_retrieve').length,12);
+  assert.deepEqual(answer.excerpts,[]);assert.equal(h.calls.filter(x=>x.name==='neighborhood_search_retrieve').length,12);
   assert.equal((h.calls.find(x=>x.args?.action==='finish')!.args!.payload as {outcome:string}).outcome,'answered');
  }
 });
-test('invalid quotes and upstream failure drop all secondary evidence, retain providers and disclose the incomplete related evidence',async()=>{
+test('invalid quotes and upstream failure retain deterministic provider and Feed matches with no model fabrication',async()=>{
  for(const modelThrows of [false,true]){
   const h=harness({secondary:true,modelThrows});const answer=await answerQuestion({question:'plumber'},h.deps);
-  assert.equal(h.modelCalls,1);assert.equal(answer.sources.length,2);assert.ok(answer.sources.every(s=>s.kind==='provider'));
-  assert.deepEqual(answer.excerpts,[]);assert.match(answer.notice,/Related neighborhood evidence could not be checked/);
+  assert.equal(h.modelCalls,1);assert.equal(answer.sources.length,3);assert.equal(answer.sources.filter(s=>s.kind==='provider').length,2);
+  assert.deepEqual(answer.excerpts,[]);assert.match(answer.notice,/AI explanation is temporarily unavailable/);
   assert.doesNotMatch(JSON.stringify([answer,h.traces]),/PRIVATE|UPSTREAM|FABRICATION/);
   assert.deepEqual(h.traces,[{event:'ask_evidence_fallback',stage:modelThrows?'evidence_model':'evidence_validation',intent:'providers',providerCount:2}]);
  }
@@ -40,19 +40,19 @@ test('fallback cannot retain a provider removed during evidence selection or byp
  const denied=harness({secondary:true,denied:true});await assert.rejects(answerQuestion({question:'plumber'},denied.deps));
  assert.equal(denied.traces.at(-1)?.stage,'final_context');
 });
-test('no matched provider means failed evidence cannot become a fabricated answer or a false empty result',async()=>{
- const h=harness({secondary:true,providers:false});await assert.rejects(answerQuestion({question:'plumber'},h.deps));
- assert.deepEqual(h.traces,[{event:'ask_failure',stage:'evidence_validation',intent:'providers',providerCount:0}]);
- assert.equal((h.calls.find(x=>x.args?.action==='finish')!.args!.payload as {outcome:string}).outcome,'unavailable');
+test('Feed-only matches survive evidence failure without fabricating a provider',async()=>{
+ const h=harness({secondary:true,providers:false});const answer=await answerQuestion({question:'plumber'},h.deps);
+ assert.equal(answer.sources.length,1);assert.equal(answer.sources[0].kind,'post');assert.deepEqual(answer.excerpts,[]);
+ assert.equal((h.calls.find(x=>x.args?.action==='finish')!.args!.payload as {outcome:string}).outcome,'answered');
 });
 test('daily allowance is still enforced before retrieval and stays distinct from evidence failures',async()=>{
  const h=harness({quota:true});await assert.rejects(answerQuestion({question:'plumber'},h.deps),AskAllowanceError);
- assert.equal(h.modelCalls,0);assert.ok(!h.calls.some(x=>x.name==='neighborhood_ai_retrieve'));
+ assert.equal(h.modelCalls,0);assert.ok(!h.calls.some(x=>x.name==='neighborhood_search_retrieve'));
  assert.equal(askFailure(new AskAllowanceError()).status,429);
  assert.equal(askFailure(new Error('PRIVATE')).status,503);
  assert.doesNotMatch(JSON.stringify(askFailure(new Error('PRIVATE'))),/PRIVATE/);
 });
 test('diagnostic sink failure cannot erase recovered provider cards',async()=>{
  const h=harness({secondary:true});const answer=await answerQuestion({question:'plumber'},{...h.deps,debug:true,trace:()=>{throw Error('logger unavailable');}});
- assert.equal(answer.sources.length,2);
+ assert.equal(answer.sources.length,3);
 });

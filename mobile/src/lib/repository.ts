@@ -198,25 +198,7 @@ async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> 
 
 export async function listProvidersByCategory(categoryId: string): Promise<Provider[]> {
   assertSupabaseConfigured();
-  const { data: services, error: servicesError } = await supabase
-    .from('provider_services')
-    .select('provider_id')
-    .eq('category_id', categoryId);
-
-  if (servicesError) throw servicesError;
-
-  const providerIds = [...new Set((services ?? []).map((service) => service.provider_id))];
-  if (providerIds.length === 0) return [];
-
-  const { data, error } = await supabase
-    .from('provider_profiles')
-    .select(
-      'id, profile_id, business_name, headline, general_area, rating, review_count, completed_jobs, response_rate, community_recommendations, availability, accepting_requests',
-    )
-    .in('id', providerIds)
-    .eq('accepting_requests', true)
-    .order('rating', { ascending: false });
-
+  const { data, error } = await supabase.rpc('neighborhood_provider_catalog', { category: categoryId });
   if (error) throw error;
   return mapProviders((data ?? []) as ProviderRow[], categoryId);
 }

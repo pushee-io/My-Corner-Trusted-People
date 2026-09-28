@@ -1,3 +1,13 @@
+## 2026-09-28 — canonical reliability implementation checkpoint
+
+Source work is prepared on `codex/canonical-neighborhood-reliability`, preserving #143–#156. Live main remains `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`; Preview remains v10 / #152 with JWT verification. No new Preview deployment or APK has occurred.
+
+Implemented shared deterministic query/retrieval modules for Search and AI, common Hire coverage eligibility, optional-model fallback for all six source families, phrase filters before Event/Marketplace caps, verified public review evidence, server UTC quota status/reset details, explicit Search/AI actions and keyboard/comment behavior. Removed stale cross-account Hire list fallback. New migration `20260928213631_canonical_neighborhood_search.sql` is NOT applied. AI recovery #155 is incorporated.
+
+Read-only Preview baseline: 66 query/source checks; both plumbers found for service/comparison queries, one electrical Feed recommendation, two upcoming Festival Events, zero current music/food-drive matches. Outage query returned an Event candidate requiring the new phrase restriction. These are authenticated-role SQL checks, not authenticated HTTP or native acceptance. See `evidence/canonical-query-baseline-2026-09-28.json`.
+
+Initial mobile 556 tests and typecheck passed; new quota tests and isolated Postgres migration/quota/catalog checks passed. Expanded final source tests and full Database/RLS CI remain in progress. Next action: finish regression/privacy CI and reconcile integration to main, then request one consolidated Preview migration/function deployment approval. No quota increase/reset, production changes, secret changes, communications or paid build.
+
 ## 2026-09-28 — canonical Search and AI reliability program (in progress)
 
 Live main: `a77bbe73ad83458ee9f0819a4e2e1cb2aa42008b`. Integration branch `codex/canonical-neighborhood-reliability` starts at #156 `95ffa8cc1f069547a972f83dcdeccf4504cb099c`, preserving #143–#156. Preview remains ask-my-corner v10 / #152, JWT verified. #155 is not deployed. No new migration, function deployment or APK is authorized by this checkpoint.

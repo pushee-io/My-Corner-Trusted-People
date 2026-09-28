@@ -17,18 +17,18 @@ test('comparison executes structured RPC and reauthorization without asking mode
  const calls:any[]=[];
  const result=await answerQuestion({question:'what electrician has the most reviews'}, {model:'test',debug:true,rpc:async(name,args)=>{calls.push({name,args});if(name==='neighborhood_ai_context')return {data:{id,name:'Fixture neighborhood'},error:null};if(name==='neighborhood_ai_meter')return {data:{id},error:null};return {data:args?.source_kind==='provider'?[provider]:[],error:null};},respond:async()=>{throw new Error('Model must not compute');}});
  assert.match(result.notice,/7 verified reviews/);
- assert.equal(calls.filter(c=>c.name==='neighborhood_ai_retrieve').length,12);
+ assert.equal(calls.filter(c=>c.name==='neighborhood_search_retrieve').length,12);
  const options=calls.find(c=>c.args?.source_kind==='provider').args.options;
  assert.equal(options.metric,'verified_reviews');assert.deepEqual(options.categories,['electrical']);
  assert.doesNotMatch(JSON.stringify(result.diagnostics),/Fixture Electrician|what electrician|a1000000/);
 });
 test('power clarification executes no source retrieval or model call',async()=>{
- const result=await answerQuestion({question:'power'},{model:'test',rpc:async(name)=>{assert.notEqual(name,'neighborhood_ai_retrieve');return {data:{id,name:'Fixture'},error:null};},respond:async()=>{throw new Error('No model needed');}});
+ const result=await answerQuestion({question:'power'},{model:'test',rpc:async(name)=>{assert.notEqual(name,'neighborhood_search_retrieve');return {data:{id,name:'Fixture'},error:null};},respond:async()=>{throw new Error('No model needed');}});
  assert.deepEqual(result.clarification,['Power outage','Find electrician']);assert.deepEqual(result.sources,[]);
 });
 test('availability pronoun is ambiguous without selected source and reauthorized when selected',async()=>{
  const calls:any[]=[];
- const deps={model:'test',rpc:async(name:string,args?:Record<string,unknown>)=>{calls.push({name,args});return {data:name==='neighborhood_ai_retrieve'?(args?.source_kind==='provider'?[provider]:[]):{id,name:'Fixture'},error:null};},respond:async()=>{throw new Error('No inferred availability');}};
+ const deps={model:'test',rpc:async(name:string,args?:Record<string,unknown>)=>{calls.push({name,args});return {data:name==='neighborhood_search_retrieve'?(args?.source_kind==='provider'?[provider]:[]):{id,name:'Fixture'},error:null};},respond:async()=>{throw new Error('No inferred availability');}};
  const ambiguous=await answerQuestion({question:'is he available today',history:['show electricians']},deps);assert.ok(ambiguous.clarification);
  const selected=await answerQuestion({question:'is he available today',history:['show electricians'],providerId:id},deps);assert.match(selected.notice,/cannot confirm/);
  assert.equal(calls.find(c=>c.args?.source_kind==='provider').args.options.providerId,id);
@@ -46,10 +46,10 @@ test('provider discussion queries use the service topic and discard unselected h
  const relevant:Source={...hair,id:'a1000000-0000-4000-8000-000000000003',text:'My friend is a good electrician',href:'/community?postId=a1000000-0000-4000-8000-000000000003'};
  const terms:string[]=[];
  const result=await answerQuestion({question:'I need an electrician'},{model:'test',rpc:async(name,args)=>{
-  if(name!=='neighborhood_ai_retrieve')return {data:{id,name:'Fixture'},error:null};
+  if(name!=='neighborhood_search_retrieve')return {data:{id,name:'Fixture'},error:null};
   if(args?.source_kind!=='provider')terms.push(String(args?.terms));
   return {data:args?.source_kind==='provider'?[provider]:args?.source_kind==='post'?[hair,relevant]:[],error:null};
- },respond:async()=>({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({excerpts:[{index:2,quote:relevant.text}]})}]}]})});
+ },respond:async()=>({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({excerpts:[{index:1,quote:relevant.text}]})}]}]})});
  assert.ok(terms.every(t=>t==='electrical electrician wiring socket'));
  assert.deepEqual(result.sources.map(s=>s.id),[provider.id,relevant.id]);
  assert.deepEqual(result.excerpts,[{index:1,quote:relevant.text}]);

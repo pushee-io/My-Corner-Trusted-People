@@ -1,5 +1,6 @@
+import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { ProviderCard } from '@/components/ProviderCard';
 import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
@@ -7,16 +8,17 @@ import { Screen } from '@/components/Screen';
 import { categories } from '@/lib/mock-data';
 import { loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
 import { tokens } from '@/theme/tokens';
-import type { Provider } from '@/types/contracts';
 
 export default function ProvidersScreen() {
   const params = useLocalSearchParams<{ categoryId?: string }>();
   const categoryId = params.categoryId ?? 'plumbing';
   const category = categories.find((item) => item.id === categoryId);
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isShowingSaved, setIsShowingSaved] = useState(false);
+  const resource = useProtectedResource(useCallback(() => loadDay2BProvidersByCategory(categoryId), [categoryId]));
+  const providers = resource.data?.items ?? [];
+  const error = resource.error;
+  const isLoading = resource.loading;
+  const isShowingSaved = false;
+  const loadProviders = resource.refresh;
 
   function openProvider(providerId: string) {
     router.push({
@@ -24,27 +26,6 @@ export default function ProvidersScreen() {
       params: { providerId, categoryId },
     });
   }
-
-  const loadProviders = useCallback(async () => {
-    setIsLoading(true);
-    setError(undefined);
-
-    try {
-      const result = await loadDay2BProvidersByCategory(categoryId);
-      setProviders(result.items);
-      setIsShowingSaved(result.fromCache);
-    } catch (caught) {
-      setProviders([]);
-      setIsShowingSaved(false);
-      setError(caught instanceof Error ? caught.message : 'Could not load providers.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [categoryId]);
-
-  useEffect(() => {
-    void loadProviders();
-  }, [loadProviders]);
 
   return (
     <Screen title={category ? category.name : 'Providers'}>

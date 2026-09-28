@@ -1,3 +1,4 @@
+import { parseQuota, quotaMessage, type AskQuota } from '@/lib/ask-quota';
 import { supabase } from '@/lib/supabase';
 import { assertMediaSession, mediaSessionRevision } from '@/lib/media-session';
 export type AskContext = { id: string; name: string; city: string; timezone: string };
@@ -33,17 +34,20 @@ export type AskAnswer = {
   notice: string;
   sources: AskSource[];
   clarification?: string[];
+  quota?: AskQuota;
   excerpts: { index: number; quote: string }[];
 };
 export const askUnavailable = 'Ask My Corner AI is temporarily unavailable. You can still use Search.';
 export const askAllowanceReached = 'The Preview question limit has been reached. Try again later or use Search.';
 export class AskAllowanceError extends Error {
-  constructor() {
-    super(askAllowanceReached);
+  readonly quota?: AskQuota;
+  constructor(quota?: AskQuota) {
+    super(quota ? quotaMessage(quota) : askAllowanceReached);
+    this.quota = quota;
   }
 }
 export function askErrorMessage(error: unknown): string {
-  return error instanceof AskAllowanceError ? askAllowanceReached : askUnavailable;
+  return error instanceof AskAllowanceError ? error.message : askUnavailable;
 }
 export async function loadAskContext(): Promise<AskContext | null> {
   const { data, error } = await supabase.rpc('neighborhood_ai_context');
@@ -83,7 +87,8 @@ export async function askNeighborhood(
     }
   }
   assertMediaSession(session);
-  if ((failure as { code?: string } | null)?.code === 'ASK_ALLOWANCE_REACHED') throw new AskAllowanceError();
+  if ((failure as { code?: string } | null)?.code === 'ASK_ALLOWANCE_REACHED')
+    throw new AskAllowanceError(parseQuota((failure as { quota?: unknown }).quota));
   if (error || !data?.enabled || !Array.isArray(data.answer?.sources) || typeof data.answer?.notice !== 'string')
     throw new Error(askUnavailable);
   const answer = data.answer as AskAnswer;

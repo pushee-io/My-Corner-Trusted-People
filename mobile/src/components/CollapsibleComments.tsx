@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +16,11 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { subscribeMediaSession } from '@/lib/media-session';
 import { tokens } from '@/theme/tokens';
+
+export function dismissCommentKeyboard() {
+  TextInput.State.currentlyFocusedInput()?.blur();
+  Keyboard.dismiss();
+}
 
 export function useCommentDraft<T>(initial: T, scope?: string) {
   const initialValue = useRef(initial);
@@ -57,12 +63,18 @@ export function CollapsibleComments({
   const controller = useContext(CommentsContext);
   const [localOpen, setLocalOpen] = useState(false);
   const focused = useRef(false);
+  useEffect(() => {
+    const sub = Keyboard.addListener?.('keyboardDidHide', () => {
+      focused.current = false;
+    });
+    return () => sub?.remove();
+  }, []);
   const expanded = controller ? controller.active === id : localOpen;
   useEffect(() => {
     if (!expanded) focused.current = false;
   }, [expanded]);
-  function close(outside = false) {
-    if (busy || (outside && focused.current)) return;
+  function close() {
+    if (busy) return;
     Keyboard.dismiss();
     focused.current = false;
     if (controller) controller.close();
@@ -82,13 +94,23 @@ export function CollapsibleComments({
       >
         <Text style={styles.controlText}>Comments ({count})</Text>
       </Pressable>
-      <Modal visible={expanded} transparent animationType="fade" onRequestClose={() => close()}>
+      <Modal
+        visible={expanded}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (Keyboard.isVisible?.() || focused.current) {
+            Keyboard.dismiss();
+            focused.current = false;
+          } else close();
+        }}
+      >
         <SafeAreaView style={styles.overlay}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close comments"
             style={StyleSheet.absoluteFill}
-            onPress={() => close(true)}
+            onPress={() => close()}
           />
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.panel}>
             <View accessibilityViewIsModal style={styles.thread}>

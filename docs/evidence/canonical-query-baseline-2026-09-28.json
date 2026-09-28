@@ -1,0 +1,610 @@
+{
+  "observedAt": "2026-09-28",
+  "method": "Read-only transaction as authenticated Preview demo requester; current SQL retrieval, not HTTP/model/native acceptance",
+  "queries": [
+    {
+      "question": "plumber",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "serviceTerms": "plumbing plumber pipe leak",
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ]
+        }
+      }
+    },
+    {
+      "question": "plumbing",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "serviceTerms": "plumbing plumber pipe leak",
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ]
+        }
+      }
+    },
+    {
+      "question": "highest rated plumber near me",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "serviceTerms": "plumbing plumber pipe leak",
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ],
+          "metric": "rating"
+        }
+      }
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "plan": {
+        "intent": "providers",
+        "terms": "plumbing plumber pipe leak",
+        "window": "all",
+        "details": {
+          "serviceTerms": "plumbing plumber pipe leak",
+          "concepts": [
+            "plumbing"
+          ],
+          "categories": [
+            "plumbing"
+          ],
+          "metric": "verified_reviews"
+        }
+      }
+    },
+    {
+      "question": "electrician",
+      "plan": {
+        "intent": "providers",
+        "terms": "electrical electrician wiring socket",
+        "window": "all",
+        "details": {
+          "serviceTerms": "electrical electrician wiring socket",
+          "concepts": [
+            "electrical"
+          ],
+          "categories": [
+            "electrical"
+          ]
+        }
+      }
+    },
+    {
+      "question": "electrical",
+      "plan": {
+        "intent": "providers",
+        "terms": "electrical electrician wiring socket",
+        "window": "all",
+        "details": {
+          "serviceTerms": "electrical electrician wiring socket",
+          "concepts": [
+            "electrical"
+          ],
+          "categories": [
+            "electrical"
+          ]
+        }
+      }
+    },
+    {
+      "question": "power off",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      }
+    },
+    {
+      "question": "lights off",
+      "plan": {
+        "intent": "alerts",
+        "terms": "power outage electricity blackout lights off",
+        "window": "week",
+        "details": {
+          "evidencePhrases": [
+            "power off",
+            "lights off",
+            "electricity off",
+            "power outage",
+            "power outages",
+            "electricity outage",
+            "electricity outages",
+            "blackout",
+            "blackouts",
+            "no power",
+            "power cut",
+            "electricity is out",
+            "power is out",
+            "happening with the power"
+          ],
+          "concepts": [
+            "outage"
+          ],
+          "categories": []
+        }
+      }
+    },
+    {
+      "question": "festival",
+      "plan": {
+        "intent": "events",
+        "terms": "festival",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "festival"
+          ],
+          "categories": []
+        }
+      }
+    },
+    {
+      "question": "music",
+      "plan": {
+        "intent": "events",
+        "terms": "music concert",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "music"
+          ],
+          "categories": []
+        }
+      }
+    },
+    {
+      "question": "food drive",
+      "plan": {
+        "intent": "organizer",
+        "terms": "food drive donation",
+        "window": "upcoming",
+        "details": {
+          "concepts": [
+            "food_drive"
+          ],
+          "categories": []
+        }
+      }
+    }
+  ],
+  "sourceCounts": [
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 2
+    },
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "plumber",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 2
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "plumbing",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 2
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "highest rated plumber near me",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 2
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "what plumber has the most reviews",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "post",
+      "count": 1
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "electrician",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "post",
+      "count": 1
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "electrical",
+      "intent": "providers",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "event",
+      "count": 1
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "power off",
+      "intent": "alerts",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "event",
+      "count": 1
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "lights off",
+      "intent": "alerts",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "event",
+      "count": 2
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "festival",
+      "intent": "events",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "music",
+      "intent": "events",
+      "kind": "marketplace",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "provider",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "post",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "group",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "event",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "agency",
+      "count": 0
+    },
+    {
+      "question": "food drive",
+      "intent": "organizer",
+      "kind": "marketplace",
+      "count": 0
+    }
+  ]
+}

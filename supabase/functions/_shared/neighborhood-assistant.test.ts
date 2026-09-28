@@ -5,7 +5,7 @@ import type { Kind, Source } from './neighborhood-assistant.ts';
 import { answerQuestion } from './neighborhood-service.ts';
 const now=new Date('2026-09-25T08:00:00Z');
 const id='a1000000-0000-4000-8000-000000000001';
-const source=(kind:Kind='event'):Source=>({id,kind,title:'Fictional food drive',text:'Family-friendly food drive organized by Ama K. (Demo).',authority:'Event',publishedAt:now.toISOString(),href:kind==='event'?`/events/${id}`:`/hire/provider/${id}`});
+const source=(kind:Kind='event'):Source=>({id,kind,title:'Fictional food drive festival',text:'Family-friendly food drive organized by Ama K. (Demo).',authority:'Event',publishedAt:now.toISOString(),href:kind==='event'?`/events/${id}`:`/hire/provider/${id}`});
 const response=(v:unknown)=>({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify(v)}]}],usage:{input_tokens:20,output_tokens:10}});
 test('five demo intents select bounded retrieval families and follow-up preserves topic',()=>{
  const questions=[['What’s happening in my neighborhood this weekend?','events'],['Who can repair a fence nearby?','providers'],['Is there a road closure?','alerts'],['Who is organizing the food drive?','organizer'],['What did the neighborhood decide about the park project?','memory']];
@@ -68,7 +68,7 @@ function harness(options:{removed?:boolean;denied?:boolean;modelFail?:boolean}={
 test('service reauthorizes, returns source excerpt and stores metadata only',async()=>{
  const h=harness();const answer=await answerQuestion({question:'What is happening this weekend?'},h.deps);
  assert.equal(answer.sources.length,1);assert.equal(answer.excerpts[0].quote,source().text);
- assert.equal(h.calls.filter(c=>c.name==='neighborhood_ai_retrieve').length,8);
+ assert.equal(h.calls.filter(c=>c.name==='neighborhood_search_retrieve').length,8);
  const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.doesNotMatch(JSON.stringify(metric),/food drive|What is happening/);
  assert.equal((metric.args!.payload as {inputTokens:number}).inputTokens,20);
 });
@@ -78,12 +78,12 @@ test('removal during inference revokes sources and excerpts',async()=>{
 test('auth, flag or context denial stops retrieval before model',async()=>{
  const h=harness({denied:true});await assert.rejects(answerQuestion({question:'What is happening this weekend?'},h.deps));assert.equal(h.calls.length,1);
 });
-test('provider failure records unavailable and cannot fabricate an answer',async()=>{
- const h=harness({modelFail:true});await assert.rejects(answerQuestion({question:'What is happening this weekend?'},h.deps));
- const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.equal((metric.args!.payload as {outcome:string}).outcome,'unavailable');
+test('model failure preserves authorized Event records without fabricated explanation',async()=>{
+ const h=harness({modelFail:true});const answer=await answerQuestion({question:'What is happening this weekend?'},h.deps);assert.equal(answer.sources.length,1);assert.deepEqual(answer.excerpts,[]);
+ const metric=h.calls.find(c=>c.args?.action==='finish')!;assert.equal((metric.args!.payload as {outcome:string}).outcome,'answered');
 });
 test('sensitive query retrieves no content',async()=>{
- const h=harness();const a=await answerQuestion({question:'Is John in the church group?'},h.deps);assert.equal(a.sources.length,0);assert.match(a.notice,/cannot look up/);assert.ok(!h.calls.some(c=>c.name==='neighborhood_ai_retrieve'));
+ const h=harness();const a=await answerQuestion({question:'Is John in the church group?'},h.deps);assert.equal(a.sources.length,0);assert.match(a.notice,/cannot look up/);assert.ok(!h.calls.some(c=>c.name==='neighborhood_search_retrieve'));
 });
 test('active agency notice survives a today query even when published earlier',async()=>{
  const calls:{kind:string;since:string|null}[]=[];
@@ -118,7 +118,7 @@ test('general keyword discovery preserves topics without model-generated titles'
 test('keyword service skips planner and preserves terms on authorization recheck',async()=>{
  const h=harness();
  await answerQuestion({question:'What festivals are happening?'},h.deps);
- const searches=h.calls.filter(c=>c.name==='neighborhood_ai_retrieve');
+ const searches=h.calls.filter(c=>c.name==='neighborhood_search_retrieve');
  assert.equal(searches.length,12);
  assert.ok(searches.every(c=>c.args?.terms==='festival'));
 });

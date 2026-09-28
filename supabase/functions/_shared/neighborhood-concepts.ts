@@ -43,16 +43,16 @@ function oneEdit(a:string,b:string):boolean {
 export function understand(question:string,previous:string[]=[]): {plan:Plan;details:QueryDetails}|null {
  let q=normalize(question);const correction:{from:string;to:string}[]=[];
  const vocabulary=[...new Set(concepts.flatMap(c=>c.aliases).filter(a=>!a.includes(' ')&&a.length>=5))];
- q=q.split(' ').map(word=>{if(word.length<5||vocabulary.includes(word))return word;const matches=vocabulary.filter(v=>oneEdit(word,v));if(matches.length!==1)return word;correction.push({from:word,to:matches[0]});return matches[0];}).join(' ');
+ q=q.split(' ').map(word=>{if(word.length<5||vocabulary.includes(word))return word;const matches=vocabulary.filter(v=>oneEdit(word,v));if(!matches.length||new Set(concepts.filter(c=>matches.some(m=>c.aliases.includes(m))).map(c=>c.id)).size!==1)return word;correction.push({from:word,to:matches[0]});return matches[0];}).join(' ');
  const own=concepts.filter(c=>c.aliases.some(a=>includes(q,a)));
- const followup=/\b(which one|which has|who has|most reviews|highest rated|is he|is she|are they|is it|those|them)\b/.test(q);
+ const followup=/\b(which one|which has|who has|most reviews|highest rated|is he|is she|are they|is it|is that provider|is this provider|those|them)\b/.test(q);
  if(!own.length&&followup&&previous.length){const recent=[...previous].reverse().find(p=>concepts.some(c=>c.aliases.some(a=>includes(normalize(p),a))));if(recent)q=`${normalize(recent)} ${q}`;}
  let found=concepts.filter(c=>c.aliases.some(a=>includes(q,a)));
  // Utility outage intent wins over incidental electricity vocabulary; never invent a provider need.
  if(found.some(c=>c.id==='outage'))found=found.filter(c=>c.intent==='alerts');
  let metric:Metric|undefined;
  if(/most (verified )?reviews/.test(q))metric='verified_reviews';
- else if(/highest rated|best rated|highest rating|best rating/.test(q))metric='rating';
+ else if(/highest rated|most rated|top rated|best rated|highest rating|best rating/.test(q))metric='rating';
  else if(/most (completed )?(my corner )?jobs/.test(q))metric='completed_jobs';
  else if(/most rsvps|most attendees/.test(q))metric='rsvps';
  else if(/newest|most recent listing/.test(q))metric='newest';

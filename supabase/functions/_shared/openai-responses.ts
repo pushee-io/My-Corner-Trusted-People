@@ -1,12 +1,12 @@
 // Shared server-only transport for Structure with AI and Ask My Corner.
-export function requestResponses(apiKey: string, payload: unknown, fetcher: typeof fetch = fetch) {
+export function requestResponses(apiKey: string, payload: unknown, fetcher: typeof fetch = fetch, timeoutMs = 20000) {
   return fetcher('https://api.openai.com/v1/responses', {
     method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload), signal: AbortSignal.timeout(20000),
+    body: JSON.stringify(payload), signal: AbortSignal.timeout(timeoutMs),
   });
 }
-export async function callResponses(apiKey: string, payload: unknown, fetcher: typeof fetch = fetch) {
-  const response = await requestResponses(apiKey,payload,fetcher);
+export async function callResponses(apiKey: string, payload: unknown, fetcher: typeof fetch = fetch, timeoutMs = 20000) {
+  const response = await requestResponses(apiKey,payload,fetcher,timeoutMs);
   if (!response.ok) throw new Error(`provider_${response.status}`);
   return response.json();
 }

@@ -21,6 +21,7 @@ let mockClear: (() => void) | undefined;
 let mockBackground: ((state: string) => void) | undefined;
 jest.mock('react-native', () => ({
   View: 'View',
+  Keyboard: { dismiss: jest.fn() },
   KeyboardAvoidingView: 'KeyboardAvoidingView',
   Platform: { OS: 'android' },
   Text: 'Text',
@@ -45,7 +46,11 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
 jest.mock('@/hooks/useProtectedResource', () => ({
-  useProtectedResource: () => ({ data: mockContext, loading: false }),
+  useProtectedResource: (load: () => unknown) => ({
+    data: load.name === 'loadAskQuota' ? undefined : mockContext,
+    loading: false,
+    refresh: jest.fn(),
+  }),
 }));
 jest.mock('@/lib/media-session', () => ({
   subscribeMediaSession: (cb: () => void) => {
@@ -144,7 +149,7 @@ it('Search remains available during assistant failure', async () => {
   await ask();
   expect(output()).toContain('temporarily unavailable');
   await press('Search your neighborhood');
-  expect(router.push).toHaveBeenCalledWith('/search');
+  expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/search' }));
 });
 it('follow-up sends question-only context', async () => {
   await render();
@@ -364,5 +369,5 @@ it('shows the question-limit explanation and keeps Search available', async () =
   expect(output()).toContain('Preview question limit has been reached');
   expect(output()).not.toContain('temporarily unavailable');
   await press('Search your neighborhood');
-  expect(router.push).toHaveBeenCalledWith('/search');
+  expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/search' }));
 });

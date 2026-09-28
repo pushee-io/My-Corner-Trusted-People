@@ -25,10 +25,12 @@ export type SearchResult = {
   mediaParent?: import('@/lib/media-contract').MediaParent;
   mediaParentId?: string;
   thumbnailUrl?: string;
+  unavailableSources?: string[];
 };
 
+export type SearchResults = SearchResult[] & { unavailableSources?: string[] };
 export type SearchRepository = {
-  search: (query: string) => Promise<SearchResult[]>;
+  search: (query: string) => Promise<SearchResults>;
 };
 
 type MarketplaceReadSource = {
@@ -83,77 +85,38 @@ export function createSearchRepository(options: SearchRepositoryOptions = {}): S
   };
 }
 
-// Live defaults resolve the viewer for every query; never search a seeded identity.
+// Live Search uses the same pure plan, source registry and authorized SQL as AI.
 export const searchRepository: SearchRepository = {
   async search(query) {
-    if (normalize(query).length < minimumQueryLength) return [];
-    const { getCurrentCapabilities } = await import('@/lib/capabilities');
-    const capabilities = await getCurrentCapabilities();
-    const live = await import('@/lib/repository');
-    const { createCommunityActionsReadRepository } = await import('@/lib/community-actions-repository');
-    const community = createCommunityActionsReadRepository({ mode: 'supabase' });
-    if (community.mode !== 'supabase') throw new Error('Live search is unavailable. Please try again.');
-    const viewer = {
-      ...getActiveDay3NeighborhoodContext(),
-      profileId: capabilities.profileId,
-      neighborhoodId: capabilities.neighborhoodId ?? '',
-      clusterId: capabilities.clusterId ?? '',
-      isVerifiedNeighborhoodMember: capabilities.community,
-    };
-    return createSearchRepository({
-      day2bReadRepository: {
-        mode: 'live-readonly',
-        listProvidersByCategory: live.listProvidersByCategory,
-        getProvider: live.getProvider,
-        listProviderRequests: capabilities.provider ? live.listProviderRequests : async () => [],
-      },
-      communityReadRepository: capabilities.community
-        ? community
-        : {
-            mode: 'supabase',
-            listSocialGroupScreenSections: async () => [],
-            listAgencyBroadcasts: async () => [],
-            listModerationCases: async () => [],
-          },
-      communityViewer: viewer,
-      marketplaceReadSource: capabilities.community ? defaultMarketplaceReadSource : { listListings: async () => [] },
-      extraReadSources: capabilities.community
-        ? [
-            async () => {
-              const { listNeighborhoodFeedPosts } = await import('@/lib/community-repository');
-              const posts = await listNeighborhoodFeedPosts(capabilities.neighborhoodId!);
-              return posts.map((post) => ({
-                id: `post-${post.id}`,
-                kind: 'post' as const,
-                title: post.body.slice(0, 80),
-                subtitle: 'Neighborhood post',
-                body: post.body,
-                href: '/community',
-                sourceLabel: 'Neighborhood',
-                mediaParent: 'neighborhood_post' as const,
-                mediaParentId: post.id,
-              }));
-            },
-            async () => {
-              const { eventsRuntimeRepository, isEventsClientEnabled } = await import(
-                '@/lib/events-runtime-repository'
-              );
-              if (!isEventsClientEnabled() || !(await eventsRuntimeRepository.isEnabled())) return [];
-              return (await eventsRuntimeRepository.listEvents()).map((event) => ({
-                id: `event-${event.id}`,
-                kind: 'event' as const,
-                title: event.title,
-                subtitle: 'Event',
-                body: event.description,
-                href: `/events/${event.id}`,
-                sourceLabel: 'Event',
-                mediaParent: 'event' as const,
-                mediaParentId: event.id,
-              }));
-            },
-          ]
-        : [],
-    }).search(query);
+    const { supabase } = await import('@/lib/supabase');
+    const { mediaSessionRevision, assertMediaSession } = await import('@/lib/media-session');
+    const { searchNeighborhood, sourceRegistry } = await import(
+      '../../../supabase/functions/_shared/neighborhood-search'
+    );
+    const revision = mediaSessionRevision();
+    const result = await searchNeighborhood(query, async (name, args) => supabase.rpc(name, args));
+    assertMediaSession(revision);
+    return Object.assign(
+      result.sources.map(
+        (source) =>
+          ({
+            id: `${source.kind}-${source.id}`,
+            kind:
+              source.kind === 'agency'
+                ? 'agency_broadcast'
+                : source.kind === 'marketplace'
+                  ? 'marketplace_listing'
+                  : source.kind,
+            title: source.title,
+            subtitle: source.authority,
+            body: source.text,
+            href: source.href,
+            sourceLabel: sourceRegistry[source.kind].label,
+            unavailableSources: result.unavailable.map((kind) => sourceRegistry[kind].label),
+          }) as SearchResult,
+      ),
+      { unavailableSources: result.unavailable.map((kind) => sourceRegistry[kind].label) },
+    );
   },
 };
 

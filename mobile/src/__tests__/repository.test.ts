@@ -17,6 +17,7 @@ jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
   supabase: {
     from: jest.fn(),
+    rpc: jest.fn(),
   },
 }));
 
@@ -38,6 +39,7 @@ type QueryMock = PromiseLike<QueryResult> & {
 
 type SupabaseMock = {
   from: jest.Mock;
+  rpc: jest.Mock;
 };
 
 const mockedGetCurrentProfile = getCurrentProfile as jest.MockedFunction<typeof getCurrentProfile>;
@@ -66,6 +68,11 @@ function createQuery(result: QueryResult = { data: [], error: null }): QueryMock
 }
 
 function useTableQueries(queriesByTable: Record<string, QueryMock[]>) {
+  mockedSupabase.rpc.mockImplementation((name: string) => {
+    expect(name).toBe('neighborhood_provider_catalog');
+    queriesByTable.provider_services?.shift();
+    return queriesByTable.provider_profiles?.shift();
+  });
   mockedSupabase.from.mockImplementation((table: string) => {
     const query = queriesByTable[table]?.shift();
 
@@ -206,6 +213,7 @@ describe('Module 1 repository', () => {
 
     const providers = await listProvidersByCategory('plumbing');
 
+    expect(mockedSupabase.rpc).toHaveBeenCalledWith('neighborhood_provider_catalog', { category: 'plumbing' });
     expect(mockedAssertSupabaseConfigured).toHaveBeenCalled();
     expect(providers.length).toBeGreaterThanOrEqual(3);
     expect(providers[0]).toMatchObject({

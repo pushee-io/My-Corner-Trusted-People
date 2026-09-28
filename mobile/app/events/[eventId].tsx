@@ -1,4 +1,4 @@
-import { CollapsibleComments, useCommentDraft } from '@/components/CollapsibleComments';
+import { CollapsibleComments, dismissCommentKeyboard, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { router, type Href, useLocalSearchParams } from 'expo-router';
@@ -100,7 +100,10 @@ function EventDetailsContent() {
     await act(
       () => eventsRuntimeRepository.addComment(event!.id, body),
       'Comment submitted for review.',
-      () => setCommentBody(''),
+      () => {
+        setCommentBody('');
+        dismissCommentKeyboard();
+      },
     );
   }
 
