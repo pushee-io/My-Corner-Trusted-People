@@ -1,0 +1,93 @@
+{
+  "observedAt": "2026-09-28T22:26:38.143Z",
+  "project": "opeojxwkwwnnncnsuaag",
+  "sourceMain": "29908d35761ffd19195716c4b6aa9bd64c1158f5",
+  "sourcePR": 157,
+  "migration": {
+    "file": "20260928213631_canonical_neighborhood_search.sql",
+    "sha256": "9216c91a9d054ea23fe63bb9786bded3c486557ad989f96f9f3a51630b15050b",
+    "applied": true,
+    "remoteVersion": "20260928222337",
+    "remoteName": "canonical_neighborhood_search",
+    "note": "Supabase MCP assigns the remote application timestamp; exact approved SQL was applied. Do not reapply by filename timestamp."
+  },
+  "function": {
+    "version": 12,
+    "status": "ACTIVE",
+    "verifyJWT": true,
+    "bundleSHA256": "bc39416259f8f9f5acaf033df4033a77df21e71345c337d5b172592722b49940",
+    "allEightFilesByteIdentical": true
+  },
+  "verification": {
+    "rpcPresence": "passed",
+    "fixedSearchPaths": "passed",
+    "retrievalSecurityInvoker": "passed",
+    "anonymousRPCDenied": "passed",
+    "privateQuotaClockNotClientCallable": "passed",
+    "unauthenticatedHTTP": {
+      "status": 401,
+      "code": "UNAUTHORIZED_NO_AUTH_HEADER"
+    },
+    "authenticatedRetrieval": "blocked: no normal test session; automatic approval review rejected profile seed-key discovery",
+    "authenticatedQuota": "pending normal test-account session",
+    "authenticatedPrivacy": "pending normal test-account session",
+    "native": "pending",
+    "VCReady": false
+  },
+  "advisors": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 17,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "affectedNewFunctions": []
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "count": 3,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+      "affectedNewFunctions": []
+    },
+    {
+      "name": "rls_disabled_in_public",
+      "level": "ERROR",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public",
+      "affectedNewFunctions": []
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public",
+      "affectedNewFunctions": []
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 17,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "affectedNewFunctions": []
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 60,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "affectedNewFunctions": [
+        "neighborhood_ai_quota_status"
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "affectedNewFunctions": []
+    }
+  ],
+  "noProductionChanges": true,
+  "noQuotaResetOrIncrease": true,
+  "noAPKBuild": true
+}
