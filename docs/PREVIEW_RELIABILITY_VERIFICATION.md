@@ -2,7 +2,7 @@
 
 Target only `opeojxwkwwnnncnsuaag`. Use a normal signed-in, founder-authorized requester. Keep passwords and session tokens out of chat, reports and shell history. Do not discover private profile identifiers, impersonate users, increase/reset quotas, change identity or send communications. Do not run the destructive local database smoke/reset script against Preview.
 
-Current deployed v13 matches main #160; fixed evidence-failure reason codes in this branch require a separately approved deployment before runtime diagnosis. Retain JWT verification. No schema migration is needed for these diagnostics.
+Approved #161 is deployed as v14 on Preview, JWT verification true; all eight live files match main `0ee724aeec452fb8213d7af8cbc96ebb6b0cea94`. Fixed evidence-failure reason codes are deployed. Runtime reason capture still needs a normal signed-in account and a reproducible failure. No schema migration was needed.
 
 ## Evidence and retrieval
 
