@@ -1,3 +1,7 @@
+## 2026-09-28 — evidence diagnostics
+
+Evidence-validation failures now have a fixed reason enum in source. Logs include only this enum plus the existing bounded stage/intent/provider count. No model response, quote, question or identity is logged. Exact-substring validation, final authorization and deterministic fallback remain unchanged. This source instrumentation is not yet deployed. See `PREVIEW_RELIABILITY_VERIFICATION.md`.
+
 ## 2026-09-28 — approved canonical backend deployed to Preview
 
 **Deployment completed:** Preview `opeojxwkwwnnncnsuaag` only. Exact approved `20260928213631_canonical_neighborhood_search.sql` applied (SHA256 `9216c91a9d054ea23fe63bb9786bded3c486557ad989f96f9f3a51630b15050b`). Supabase MCP recorded remote version **20260928222337**, name **canonical_neighborhood_search**; this is the approved migration, not an additional migration. Do not reapply based on the different application timestamp.

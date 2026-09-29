@@ -1,6 +1,6 @@
 import { canonicalPlan, deterministicMatches, retrieveCanonical } from './neighborhood-search.ts';
 import { groundedNotice, providerReference } from './neighborhood-answer.ts';
-import { ANSWER_VERSION, historyQuestions, privacyRefusal, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
+import { ANSWER_VERSION, evidenceFailureReason, historyQuestions, privacyRefusal, synthesisPayload, validateQuestion, validatedExcerpts } from './neighborhood-assistant.ts';
 import type { Intent, Source } from './neighborhood-assistant.ts';
 
 type Rpc = (name: string, args?: Record<string,unknown>)=>Promise<{data: unknown;error: unknown}>;
@@ -74,9 +74,10 @@ export async function answerQuestion(body: {question?: unknown;history?: unknown
     const response=await modelCall(synthesisPayload(question,sources,deps.model));
     stage='evidence_validation';
     excerpts=validatedExcerpts(response,sources);
-   }catch{
+   }catch(error){
     relatedEvidenceUnavailable=true;
-    traceFailure('ask_evidence_fallback');
+    // Fixed reason codes only: never response prose, source text or error messages.
+    trace({event:'ask_evidence_fallback',stage,intent,providerCount:sources.filter(s=>s.kind==='provider').length,reason:stage==='evidence_validation'?evidenceFailureReason(error):'model_call_failed'});
    }
   }
   sources=sources.slice(0,16);

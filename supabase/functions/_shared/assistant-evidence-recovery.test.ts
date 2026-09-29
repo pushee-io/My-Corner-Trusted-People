@@ -31,7 +31,7 @@ test('invalid quotes and upstream failure retain deterministic provider and Feed
   assert.equal(h.modelCalls,1);assert.equal(answer.sources.length,3);assert.equal(answer.sources.filter(s=>s.kind==='provider').length,2);
   assert.deepEqual(answer.excerpts,[]);assert.match(answer.notice,/AI explanation is temporarily unavailable/);
   assert.doesNotMatch(JSON.stringify([answer,h.traces]),/PRIVATE|UPSTREAM|FABRICATION/);
-  assert.deepEqual(h.traces,[{event:'ask_evidence_fallback',stage:modelThrows?'evidence_model':'evidence_validation',intent:'providers',providerCount:2}]);
+  assert.deepEqual(h.traces,[{event:'ask_evidence_fallback',stage:modelThrows?'evidence_model':'evidence_validation',intent:'providers',providerCount:2,reason:modelThrows?'model_call_failed':'quote_not_in_source'}]);
  }
 });
 test('fallback cannot retain a provider removed during evidence selection or bypass final authorization',async()=>{
