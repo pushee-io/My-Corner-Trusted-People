@@ -56,7 +56,7 @@ export function fallbackPlan(question: string, previous: string[]=[]): Plan {
  if (/road|closure|outage|alert|traffic/.test(context)) return {intent:'alerts',terms:/road|closure|traffic/.test(context)?'road OR closure OR traffic':/outage/.test(context)?'outage':'',window:window==='all'?'week':window};
  if (/decid|decision|park project|parking|last year/.test(context)) return {intent:'memory',terms:/parking/.test(context)?'parking':/park/.test(context)?'park':/water/.test(context)?'water':/cleanup|clean-up/.test(context)?'cleanup':'',window:'all'};
  if (/organiz|food drive/.test(context)) return {intent:'organizer',terms:keywordTerms(context).replace(/\borganiz\w*\b/g,'').trim(),window:window==='all'?'upcoming':window};
- if (/marketplace|dining table|used table|buy|sell/.test(context)) return {intent:'marketplace',terms:/table/.test(context)?'table':'',window:'all'};
+ if (/\b(marketplace|buy|buying|sell|selling|purchase|purchasing)\b/.test(context)) return {intent:'marketplace',terms:keywordTerms(context).replace(/\b(marketplace|buy|buying|sell|selling|purchase|purchasing|sale)\b/g,'').replace(/\s+/g,' ').trim(),window:'all'};
  if (/event|weekend|saturday|sunday|happening|families/.test(context)) return {intent:'events',terms:/famil/.test(q)?'family OR families OR children':keywordTerms(context),window:window==='all'?'upcoming':window};
  if (/miss|summary|this week/.test(context)) return {intent:'digest',terms:'',window:'week'};
  // Short keyword requests search every authorized source family without requiring AI title guessing.

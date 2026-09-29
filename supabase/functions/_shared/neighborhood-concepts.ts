@@ -65,7 +65,8 @@ export function understand(question:string,previous:string[]=[]): {plan:Plan;det
  if(intent==='events'||intent==='organizer'){if(window==='all')window='upcoming';}
  if(intent==='alerts'&&window==='all')window='week';
  const residual=keywordTerms(q).split(' ').filter(w=>w&&!found.some(c=>c.aliases.some(a=>a.split(' ').includes(w)))&&!/^(has|have|help|fix|someone|most|highest|best|rated|rating|reviews|verified|available|availability|now|closest|one|he|she|they|it|completed|jobs|provider|providers|rsvps|attendees|newest|listing|listings|marketplace|next|last|off|with|organizing|organizer|organise|organize)$/.test(w));
- const terms=[...new Set([...found.filter(c=>c.intent===intent||intent==='organizer').flatMap(c=>c.terms.split(' ')),...residual].filter(Boolean))].join(' ').slice(0,160);
+ const topicResidual=intent==='marketplace'?residual.filter(w=>!/^(buy|buying|sell|selling|purchase|purchasing|sale)$/.test(w)):residual;
+ const terms=[...new Set([...found.filter(c=>c.intent===intent||intent==='organizer').flatMap(c=>c.terms.split(' ')),...topicResidual].filter(Boolean))].join(' ').slice(0,160);
  return {plan:{intent,terms,window,details},details};
 }
 
