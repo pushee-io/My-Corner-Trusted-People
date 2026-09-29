@@ -1,7 +1,7 @@
 // Canonical, model-free retrieval used by Basic Search and Ask. No secrets or SDK.
 import { fallbackPlan, privacyRefusal, retrieve, SourceUnavailableError } from './neighborhood-assistant.ts';
 import type { Kind, Plan, Source } from './neighborhood-assistant.ts';
-import { keywordTerms } from './neighborhood-concepts.ts';
+import { concepts, keywordTerms } from './neighborhood-concepts.ts';
 export const sourceRegistry: Record<Kind,{label:string; policy:string}> = {
  provider:{label:'Providers',policy:'Active, unblocked, recorded neighborhood coverage; verified public reviews'},
  post:{label:'Neighborhood Feed',policy:'Verified neighborhood; public posts and allowed comments'},
@@ -13,14 +13,17 @@ export const sourceRegistry: Record<Kind,{label:string; policy:string}> = {
 export type SearchRpc = (name:string,args?:Record<string,unknown>)=>Promise<{data:unknown;error:unknown}>;
 export function canonicalPlan(question:string,history:string[]=[]):Plan {
  const plan=fallbackPlan(question,history);
- return plan.intent==='unsupported'?{intent:'digest',terms:keywordTerms(question),window:'all'}:plan;
+ // Keep specific query words separate from broad concept expansion for cross-source ranking.
+ const expanded=new Set(concepts.filter(c=>plan.details?.concepts.includes(c.id)).flatMap(c=>[...c.terms.split(' '),...c.aliases.flatMap(a=>a.split(' '))]));
+ plan.rankingTerms=keywordTerms(question).split(' ').filter(w=>!expanded.has(w)&&!['address','contact','location','reference','hidden'].includes(w)).join(' ');
+ return plan.intent==='unsupported'?{intent:'digest',terms:keywordTerms(question),window:'all',rankingTerms:plan.rankingTerms}:plan;
 }
 const words=(s:string)=>s.toLowerCase().match(/[\p{L}\p{N}]+/gu)??[];
 // Defense in depth: structured provider/category matches are authoritative;
 // unstructured cards still need topic evidence before model-free fallback.
 export function deterministicMatches(plan:Plan,sources:Source[]):Source[]{
  const terms=words(plan.details?.serviceTerms??plan.terms);
- return sources.filter(s=>{
+ const matches=sources.filter(s=>{
   if(s.kind==='provider'&&(plan.details?.categories.length||plan.details?.providerId))return true;
   const content=[s.title,s.text,...(s.reputation?.reviews??[]).flatMap(r=>[r.title,r.body])].join(' ');
   if(plan.details?.evidencePhrases?.length){
@@ -30,6 +33,14 @@ export function deterministicMatches(plan:Plan,sources:Source[]):Source[]{
   if(!terms.length)return true;
   const tokens=words(content);
   return terms.some(t=>tokens.some(w=>w.startsWith(t)||t.startsWith(w)&&w.length>=4));
+ });
+ // SQL owns metric comparisons; never override its population/order with lexical scores.
+ if(plan.details?.metric||plan.details?.providerId)return matches;
+ const specific=words(plan.rankingTerms??'');
+ const score=(s:Source)=>{const tokens=words(s.title+' '+s.text);return specific.filter(t=>tokens.some(w=>w.startsWith(t)||t.startsWith(w)&&w.length>=4)).length;};
+ return matches.sort((a,b)=>{
+  if(plan.intent==='providers'&&a.kind!==b.kind&&(a.kind==='provider'||b.kind==='provider'))return a.kind==='provider'?-1:1;
+  return score(b)-score(a)||(plan.intent==='alerts'?(Date.parse(b.publishedAt)||0)-(Date.parse(a.publishedAt)||0):0);
  });
 }
 export async function retrieveCanonical(plan:Plan,now:Date,rpc:SearchRpc,hood:string,onUnavailable?:(kind:Kind)=>void){

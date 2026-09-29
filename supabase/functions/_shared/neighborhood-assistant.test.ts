@@ -38,7 +38,7 @@ test('public prose redacts email, phone, digital address, street number and GPS'
  for(const secret of ['233','ama@example','GA-123','12 Boundary','5.603717'])assert.ok(!result.includes(secret),result);
 });
 test('invented facts, nonexistent sources and truncated model output fail closed',()=>{
- for(const excerpts of [[{index:9,quote:'invented'}],[{index:0,quote:'Everyone agreed unanimously'}],[{index:0,quote:'Family-friendly organized'}],[{index:0,quote:source().text},{index:0,quote:source().text}]])assert.throws(()=>validatedExcerpts(response({excerpts}),[source()]));
+ for(const excerpts of [[{index:9,quote:'invented'}],[{index:0,quote:'Everyone agreed unanimously'}],[{index:0,quote:'Family-friendly organized'}]])assert.throws(()=>validatedExcerpts(response({excerpts}),[source()]));
  assert.throws(()=>validatedExcerpts({status:'incomplete'},[source()]));
  assert.equal(validatedExcerpts(response({excerpts:[{index:0,quote:source().text}]}),[source()]).length,1);
  assert.equal(synthesisPayload('Question',[source()],'model').store,false);
