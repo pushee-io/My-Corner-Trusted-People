@@ -11,7 +11,7 @@ test('every evidence rejection has a fixed non-sensitive reason',()=>{
   [{status:'completed',output:[{content:[{type:'refusal',refusal:'PRIVATE'}]}]},'model_refusal'],
   [{status:'completed'},'missing_output_text'],[reply('PRIVATE INVALID JSON'),'invalid_json'],[reply('null'),'invalid_schema'],
   [quotes([null]),'invalid_schema'],[quotes(Array(6).fill({index:0,quote:'pigs'})),'too_many_excerpts'],
-  [quotes([{index:9,quote:'pigs'}]),'invalid_index'],[quotes([{index:0,quote:'pigs'},{index:0,quote:'pigs'}]),'duplicate_index'],
+  [quotes([{index:9,quote:'pigs'}]),'invalid_index'],
   [quotes([{index:0,quote:''}]),'invalid_quote'],[quotes([{index:0,quote:'PRIVATE invented fact'}]),'quote_not_in_source'],
  ];
  for(const [input,reason]of cases)assert.throws(()=>validatedExcerpts(input as Parameters<typeof validatedExcerpts>[0],[source]),(e:unknown)=>{
@@ -23,4 +23,8 @@ test('exact multiline source excerpts pass; changed whitespace and invented summ
  assert.deepEqual(validatedExcerpts(quotes([{index:0,quote:source.text}]),[source]),[{index:0,quote:source.text}]);
  assert.throws(()=>validatedExcerpts(quotes([{index:0,quote:source.text.replace('\n',' ')}]),[source]),(e:unknown)=>evidenceFailureReason(e)==='quote_not_in_source');
  assert.deepEqual(validatedExcerpts(quotes([]),[source]),[]);
+});
+test('valid duplicate selections collapse only after every quote passes grounding',()=>{
+ assert.deepEqual(validatedExcerpts(quotes([{index:0,quote:'pigs'},{index:0,quote:'Large and small'}]),[source]),[{index:0,quote:'pigs'}]);
+ assert.throws(()=>validatedExcerpts(quotes([{index:0,quote:'pigs'},{index:0,quote:'Invented traffic fact'}]),[source]),(e:unknown)=>evidenceFailureReason(e)==='quote_not_in_source');
 });

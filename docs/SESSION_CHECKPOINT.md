@@ -1,3 +1,15 @@
+## 2026-09-29 UTC — traffic relevance and duplicate evidence repair (not deployed)
+
+Founder IMG_0328–0329 at about 02:00 UTC shows the general July East Legon roadworks notice before a September Feed question mentioning Cedi House, with the AI explanation fallback warning. Preview read-only function logs at `2026-09-29T02:00:13.390000` identify `ask_evidence_fallback`, alerts, evidence_validation, **duplicate_index**. This is a specific evidence-selection failure, not proof of an API outage. The displayed query omits “today”; the reported variant includes it. Both variants are covered by regression tests.
+
+Source repair ranks specific query words ahead of broad concept/source-family priority across authorized retrieved candidates; equal alert relevance uses recency. Explicit metric ordering and selected-provider flows remain authoritative. Retrieval date and authorization restrictions are unchanged. Exact validated duplicate source selections are collapsed only AFTER every quote passes index, length and verbatim-grounding checks. Invalid repeated quotes still fail closed. No fabricated explanation is substituted.
+
+The Feed record is a question, not confirmation of traffic today. The old agency record is not proof of present conditions. Existing redaction of “house …” remains unchanged; no private address policy was relaxed.
+
+Server regressions: **72 passed**. Mobile typecheck passed; full mobile suite recorded in PR validation. Preview is still the previously deployed #163 bundle; this repair needs explicit Preview-only deployment approval retaining JWT verification after CI. No deployment, migration or new APK was performed. Canonical Basic Search shares the changed ranking code, so a future client build would also carry it; no paid build is authorized by this defect report.
+
+Founder prior passes remain recorded in #166: Search results, keyboard/comment interactions and physical-phone verification; emulator Osu/Home consistency and quota/reset display were observed. The 80% threshold and exact live reset boundary remain unobserved. #166 remains a separate APK51 checkpoint.
+
 ## 2026-09-29 UTC — Home verified-neighborhood label repair
 
 Founder Osu test screenshot at 01:08 UTC (September 28, 21:08 New York) shows Ask context “Osu” and no matching records for “pig racing festival”. This is a scoped live cross-neighborhood negative retrieval pass for that Event; it does not establish every access boundary. Prior banku topic exclusion and previously exhausted account recovery are recorded as passed. Exact reset timing, 80%/reset UI and full native acceptance remain unverified.

@@ -6,7 +6,7 @@ export const ANSWER_VERSION = 'ask-v3';
 export type Intent = 'events'|'providers'|'alerts'|'organizer'|'memory'|'marketplace'|'digest'|'unsupported';
 export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all'|'next_week'|'last_week';
 export type Kind = 'event'|'provider'|'agency'|'post'|'group'|'marketplace';
-export type Plan = {intent: Intent; terms: string; window: Window; details?: QueryDetails};
+export type Plan = {intent: Intent; terms: string; window: Window; rankingTerms?: string; details?: QueryDetails};
 export type Source = {id: string; kind: Kind; title: string; text: string; href: string; authority: string; publishedAt: string;
  startsAt?: string; endsAt?: string; expiresAt?: string; timezone?: string; organizer?: string; availability?: string; priceGhs?: number;
  comparison?: {metric: import('./neighborhood-concepts.ts').Metric; value:number; eligibleCount:number; tiedCount:number};
@@ -133,11 +133,10 @@ export function validatedExcerpts(response: Parameters<typeof outputJson>[0],sou
  return result.excerpts.map(e=>{
   if(!e||typeof e!=='object')reject('invalid_schema');
   if(!Number.isInteger(e.index)||!sources[e.index])reject('invalid_index');
-  if(seen.has(e.index))reject('duplicate_index');
   if(typeof e.quote!=='string'||e.quote.length<1||e.quote.length>400)reject('invalid_quote');
   if(!sources[e.index].text.includes(e.quote))reject('quote_not_in_source');
-  seen.add(e.index);return {index:e.index,quote:e.quote};
- });
+  return {index:e.index,quote:e.quote};
+ }).filter(e=>{if(seen.has(e.index))return false;seen.add(e.index);return true;});
 }
 export function answerNotice(intent: Intent, sources: Source[]): string {
  if(intent==='unsupported')return 'I can help with neighborhood posts, events, local providers, Marketplace and agency updates. Business deals and formal poll records are not available yet.';
