@@ -1,0 +1,67 @@
+{
+  "approval": "Founder approved one new Preview APK on 2026-09-29 UTC",
+  "baseMain": "70e3f71fb893cb72c72397e005b84f3f87de61d6",
+  "project": "opeojxwkwwnnncnsuaag",
+  "previousBuildId": "234dd105-1a06-469e-b16a-c8b42cea6e78",
+  "previousVersion": 50,
+  "status": "FINISHED; workflow and independent download checks passed",
+  "features": [
+    "Search pill",
+    "canonical Basic Search",
+    "80 percent warning and reset display",
+    "keyboard/comment fixes",
+    "verified Home neighborhood"
+  ],
+  "nativeAcceptance": "Founder reports Search results, keyboard/comment interactions and physical-phone verification passed; remaining quota threshold/reset boundary checks below",
+  "productionChanged": false,
+  "source": "054eba21e3fc3c7a13b219c4aa41ef4aa52a1a36",
+  "workflow": 36507533857,
+  "checkpointPR": 166,
+  "easBuildId": "56b70a4b-0f0d-4e67-8709-6625a6848192",
+  "receiptArtifact": 11008295109,
+  "approvalConsumed": true,
+  "version": 51,
+  "workflowResult": "success",
+  "verifiedArtifact": 11008585061,
+  "apkUrl": "https://expo.dev/artifacts/eas/KTqYKX-Bke6VUijFrPDsadaTWgkAJtHavDL3sm_6UTE.apk",
+  "sha256": "6035e0786db040a76c008c0e3ee5c08b690f4427228dd5cfdf2a8d699aa570c6",
+  "sizeBytes": 72076846,
+  "mobileTests": 564,
+  "mobileSuites": 100,
+  "lintErrors": 0,
+  "baselineWarnings": 15,
+  "independentDownloadMatches": true,
+  "zipIntegrity": true,
+  "previewOnly": true,
+  "navigationFontMatches": true,
+  "signerMatchesAPK50": true,
+  "signatureVerification": "Certificate comparison only; no independent cryptographic verification",
+  "signerSHA256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
+  "mobilePushCI": 36507533900,
+  "mobilePRCI": 36507573877,
+  "ciResult": "success",
+  "deviceRetest": {
+    "reportedAt": "2026-09-28T21:56:56-04:00",
+    "founderReportedPasses": [
+      "Search results",
+      "keyboard/comment interactions",
+      "physical-phone verification"
+    ],
+    "emulatorScreenshots": [
+      "Home Osu/Accra matches Ask Osu",
+      "2 of 40 used, 38 remaining and reset time visible",
+      "Search pill visible",
+      "Active expanded/Past collapsed with counts"
+    ],
+    "phoneScreenshots": [
+      "IMG_0326.jpg: availability follow-up submitted, 14/40 used, 26 remaining, reset display and provider-stated availability caveat",
+      "IMG_0327.jpg: Real Neighbor Plumbing (Demo) source card, stated availability, View provider and Request help actions"
+    ],
+    "availabilityAction": "Expected same-screen AI follow-up; screenshot confirms submitted question and answer. View provider opens profile per founder. No navigation repair required.",
+    "remaining": [
+      "80 percent threshold warning not observed",
+      "exact live reset boundary not observed"
+    ],
+    "installedVersionEvidence": "APK51 test context; screenshots do not expose Android versionCode"
+  }
+}
