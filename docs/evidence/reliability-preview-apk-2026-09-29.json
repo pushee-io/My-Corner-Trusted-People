@@ -1,0 +1,11 @@
+{
+  "approval": "Founder approved one new Preview APK on 2026-09-29 UTC",
+  "baseMain": "70e3f71fb893cb72c72397e005b84f3f87de61d6",
+  "project": "opeojxwkwwnnncnsuaag",
+  "previousBuildId": "234dd105-1a06-469e-b16a-c8b42cea6e78",
+  "previousVersion": 50,
+  "status": "Approved submission; inspect live workflow receipt before any retry",
+  "features": ["Search pill", "canonical Basic Search", "80 percent warning and reset display", "keyboard/comment fixes", "verified Home neighborhood"],
+  "nativeAcceptance": "pending separately on phone and emulator/tablet",
+  "productionChanged": false
+}
