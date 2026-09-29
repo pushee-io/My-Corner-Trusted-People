@@ -1,0 +1,8 @@
+-- NON-EXECUTABLE RECEIPT: completed on Preview opeojxwkwwnnncnsuaag only.
+-- Founder approved one fictional requester for cross-neighborhood access testing.
+-- Existing confirmed Auth account was linked to one new requester profile.
+-- Fictional display name: Preview Access Test. Primary verified membership: Osu only.
+-- Read-back: active requester, phone_verified false, no East Legon membership.
+-- No credentials, legal names, other accounts, quotas or production changes.
+-- Account identifiers intentionally omitted. Do not rerun or grant additional access.
+-- Normal signed-in negative retrieval check remains pending.
