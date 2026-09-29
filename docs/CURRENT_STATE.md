@@ -1,3 +1,11 @@
+## 2026-09-29 UTC — approved Preview APK submitted (checkpoint #166)
+
+Founder approved one new Preview Android APK after #165 merged. Base main is `70e3f71fb893cb72c72397e005b84f3f87de61d6`; build source is `054eba21e3fc3c7a13b219c4aa41ef4aa52a1a36`. Application and Supabase source are byte-identical to that main; only build workflow and evidence differ. EAS build `56b70a4b-0f0d-4e67-8709-6625a6848192`, workflow `36507533857`, receipt artifact `11008295109`. Approval is consumed: resume this build, never submit a replacement automatically.
+
+Release gates and Preview environment/duplicate guards passed. EAS completion and artifact verification are pending. The build includes Search pill, canonical Basic Search with commerce-topic preservation, 80% usage warning/reset display, keyboard/comment fixes and the verified Home neighborhood label. Build target is Preview `opeojxwkwwnnncnsuaag` only; no backend, production, secret, identity, quota or communication changes.
+
+Native acceptance remains pending separately on the physical phone and emulator/tablet: install the verified artifact on each target and confirm its version; test Osu/Home consistency, Search/Ask actions, keyboard dismissal and comment controls. Exact reset boundary and 80%/reset UI remain unverified. Earlier founder banku, quota recovery and scoped Osu negative test evidence remains valid within its recorded limits. Evidence: `docs/evidence/reliability-preview-apk-2026-09-29.json`.
+
 ## 2026-09-29 UTC — Home verified-neighborhood label repair
 
 Founder Osu test screenshot at 01:08 UTC (September 28, 21:08 New York) shows Ask context “Osu” and no matching records for “pig racing festival”. This is a scoped live cross-neighborhood negative retrieval pass for that Event; it does not establish every access boundary. Prior banku topic exclusion and previously exhausted account recovery are recorded as passed. Exact reset timing, 80%/reset UI and full native acceptance remain unverified.
