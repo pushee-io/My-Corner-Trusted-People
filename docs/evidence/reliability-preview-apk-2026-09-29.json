@@ -4,8 +4,20 @@
   "project": "opeojxwkwwnnncnsuaag",
   "previousBuildId": "234dd105-1a06-469e-b16a-c8b42cea6e78",
   "previousVersion": 50,
-  "status": "Approved submission; inspect live workflow receipt before any retry",
-  "features": ["Search pill", "canonical Basic Search", "80 percent warning and reset display", "keyboard/comment fixes", "verified Home neighborhood"],
+  "status": "EAS submitted; waiting for final artifact; do not submit a replacement",
+  "features": [
+    "Search pill",
+    "canonical Basic Search",
+    "80 percent warning and reset display",
+    "keyboard/comment fixes",
+    "verified Home neighborhood"
+  ],
   "nativeAcceptance": "pending separately on phone and emulator/tablet",
-  "productionChanged": false
+  "productionChanged": false,
+  "source": "054eba21e3fc3c7a13b219c4aa41ef4aa52a1a36",
+  "workflow": 36507533857,
+  "checkpointPR": 166,
+  "easBuildId": "56b70a4b-0f0d-4e67-8709-6625a6848192",
+  "receiptArtifact": 11008295109,
+  "approvalConsumed": true
 }
