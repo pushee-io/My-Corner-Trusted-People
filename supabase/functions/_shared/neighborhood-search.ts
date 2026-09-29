@@ -13,10 +13,15 @@ export const sourceRegistry: Record<Kind,{label:string; policy:string}> = {
 export type SearchRpc = (name:string,args?:Record<string,unknown>)=>Promise<{data:unknown;error:unknown}>;
 export function canonicalPlan(question:string,history:string[]=[]):Plan {
  const plan=fallbackPlan(question,history);
+ // Recommendation scaffolding is not evidence. A topicless request needs clarification, not a feed dump.
+ if(!keywordTerms(question)&&!plan.terms&&!plan.details?.categories.length&&!plan.details?.metric&&!plan.details?.providerId&&/\b(best|good|recommend\w*|suggest\w*|where)\b/i.test(question))return {intent:'digest',terms:'',window:'all',details:{concepts:[],categories:[],clarification:{question:'What are you looking for? Name a service, item or topic so I can search your neighborhood.',choices:[]}}};
  // Keep specific query words separate from broad concept expansion for cross-source ranking.
  const expanded=new Set(concepts.filter(c=>plan.details?.concepts.includes(c.id)).flatMap(c=>[...c.terms.split(' '),...c.aliases.flatMap(a=>a.split(' '))]));
  plan.rankingTerms=keywordTerms(question).split(' ').filter(w=>!expanded.has(w)&&!['address','contact','location','reference','hidden'].includes(w)).join(' ');
- return plan.intent==='unsupported'?{intent:'digest',terms:keywordTerms(question),window:'all',rankingTerms:plan.rankingTerms}:plan;
+ const resolved:Plan=plan.intent==='unsupported'?{intent:'digest',terms:keywordTerms(question),window:'all',rankingTerms:plan.rankingTerms}:plan;
+ // Literal multiword topics require all their words; concept expansions remain alternatives.
+ resolved.matchAllTerms=!plan.details?.concepts.length&&!plan.details?.metric&&!/\bor\b/i.test(question);
+ return resolved;
 }
 const words=(s:string)=>s.toLowerCase().match(/[\p{L}\p{N}]+/gu)??[];
 // Defense in depth: structured provider/category matches are authoritative;
@@ -32,7 +37,8 @@ export function deterministicMatches(plan:Plan,sources:Source[]):Source[]{
   }
   if(!terms.length)return true;
   const tokens=words(content);
-  return terms.some(t=>tokens.some(w=>w.startsWith(t)||t.startsWith(w)&&w.length>=4));
+  const matchesTerm=(t:string)=>tokens.some(w=>w===t||(t.length>=3&&w.startsWith(t))||(w.length>=4&&t.startsWith(w)));
+  return plan.matchAllTerms?terms.every(matchesTerm):terms.some(matchesTerm);
  });
  // SQL owns metric comparisons; never override its population/order with lexical scores.
  if(plan.details?.metric||plan.details?.providerId)return matches;
@@ -63,11 +69,12 @@ export async function retrieveCanonical(plan:Plan,now:Date,rpc:SearchRpc,hood:st
 export async function searchNeighborhood(question:string,rpc:SearchRpc,now=new Date()){
  if(question.trim().length<2)return {sources:[],unavailable:[] as Kind[]};
  if(question.length>600||privacyRefusal(question))return {sources:[],unavailable:[] as Kind[]};
+ const plan=canonicalPlan(question);
+ if(plan.details?.clarification)return {sources:[],unavailable:[] as Kind[]};
  const context=await rpc('neighborhood_search_context');
  const hood=context.data as {id?:string}|null;
  if(context.error||!hood?.id)throw new Error('Verify your neighborhood to search.');
  const unavailable:Kind[]=[];
- const plan=canonicalPlan(question);
  const sources=deterministicMatches(plan,await retrieveCanonical(plan,now,rpc,hood.id,k=>unavailable.push(k)));
  const final=await rpc('neighborhood_search_context',{selected_neighborhood:hood.id});
  if(final.error||!(final.data as {id?:string}|null)?.id)throw new Error('Neighborhood access changed.');

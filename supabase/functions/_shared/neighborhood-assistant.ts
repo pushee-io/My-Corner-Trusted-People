@@ -6,7 +6,7 @@ export const ANSWER_VERSION = 'ask-v3';
 export type Intent = 'events'|'providers'|'alerts'|'organizer'|'memory'|'marketplace'|'digest'|'unsupported';
 export type Window = 'weekend'|'saturday'|'sunday'|'tomorrow'|'today'|'week'|'month'|'upcoming'|'all'|'next_week'|'last_week';
 export type Kind = 'event'|'provider'|'agency'|'post'|'group'|'marketplace';
-export type Plan = {intent: Intent; terms: string; window: Window; rankingTerms?: string; details?: QueryDetails};
+export type Plan = {intent: Intent; terms: string; window: Window; rankingTerms?: string; matchAllTerms?: boolean; details?: QueryDetails};
 export type Source = {id: string; kind: Kind; title: string; text: string; href: string; authority: string; publishedAt: string;
  startsAt?: string; endsAt?: string; expiresAt?: string; timezone?: string; organizer?: string; availability?: string; priceGhs?: number;
  comparison?: {metric: import('./neighborhood-concepts.ts').Metric; value:number; eligibleCount:number; tiedCount:number};

@@ -71,7 +71,7 @@ export function understand(question:string,previous:string[]=[]): {plan:Plan;det
 }
 
 export function keywordTerms(question: string): string {
- const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or i im we us need needs needing want wants wanted looking look get getting someone somebody anyone help helps please would like'.split(' '));
+ const stop=new Set('what whats which who is are was were do does did can could would should the a an in on at of for to me my our your this that these those there here near nearby neighborhood neighbourhood happening happen events event find show tell about any some please today tonight tomorrow weekend saturday sunday week month upcoming all and or i im we us need needs needing want wants wanted looking look get getting someone somebody anyone help helps please would like you where when how anybody know knows recommend recommends recommended recommendation recommendations suggest suggests suggested suggestion suggestions best good great excellent top place places spot spots somewhere anywhere serving serves'.split(' '));
  return [...new Set(question.toLowerCase().replace(/[’']/g,'').match(/[\p{L}\p{N}]+/gu)??[])]
   .filter(word=>!stop.has(word)).slice(0,12).join(' ').slice(0,160);
 }
