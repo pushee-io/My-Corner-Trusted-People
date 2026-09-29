@@ -4,6 +4,7 @@ import HomeScreen from '../../app/home';
 import type { JobRequest } from '@/types/contracts';
 
 let mockRequests: JobRequest[] = [];
+let mockNeighborhood: { name: string; city: string } | null = { name: 'Osu', city: 'Accra' };
 jest.mock('react-native', () => ({
   View: 'View',
   Text: 'Text',
@@ -18,12 +19,15 @@ jest.mock('@/components/StatusPill', () => ({ StatusPill: () => null }));
 jest.mock('@/components/StateBlocks', () => ({ EmptyState: 'EmptyState' }));
 jest.mock('@/lib/capabilities', () => ({ getCurrentCapabilities: jest.fn() }));
 jest.mock('@/lib/auth', () => ({ getCurrentProfile: async () => ({ role: 'requester' }) }));
-jest.mock('@/lib/location-context', () => ({ getActiveLocationLabel: () => 'East Legon' }));
+jest.mock('@/lib/verified-neighborhood', () => ({ loadVerifiedNeighborhood: jest.fn() }));
 jest.mock('@/lib/events-runtime-repository', () => ({ isEventsClientEnabled: () => false }));
 jest.mock('@/lib/repository', () => ({ getProvider: jest.fn(), listRequesterRequests: jest.fn() }));
 jest.mock('@/hooks/useProtectedResource', () => ({
-  useProtectedResource: () => ({
-    data: { requests: mockRequests, providers: { a: 'Provider A', b: 'Provider B' } },
+  useProtectedResource: (load: unknown) => ({
+    data:
+      load === jest.requireMock('@/lib/verified-neighborhood').loadVerifiedNeighborhood
+        ? mockNeighborhood
+        : { requests: mockRequests, providers: { a: 'Provider A', b: 'Provider B' } },
     loading: false,
     refresh: jest.fn(),
   }),
@@ -86,4 +90,20 @@ it('keeps both empty counts and accessible toggles', async () => {
   });
   expect(toggle('Active Requests (0)').props.accessibilityRole).toBe('button');
   expect(toggle('Past Requests (0)').props.accessibilityRole).toBe('button');
+});
+
+it('uses verified membership and clears the old neighborhood when context disappears', async () => {
+  mockNeighborhood = { name: 'Osu', city: 'Accra' };
+  await act(async () => {
+    view = create(createElement(HomeScreen));
+  });
+  expect(output()).toContain('Osu · Accra');
+  expect(output()).not.toContain('East Legon');
+  mockNeighborhood = null;
+  await act(async () => view.update(createElement(HomeScreen)));
+  expect(output()).not.toContain('Osu · Accra');
+  expect(output()).toContain('Verify your neighborhood');
+  mockNeighborhood = { name: 'East Legon', city: 'Accra' };
+  await act(async () => view.update(createElement(HomeScreen)));
+  expect(output()).toContain('East Legon · Accra');
 });

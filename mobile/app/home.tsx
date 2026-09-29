@@ -12,7 +12,7 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
 import { getCurrentProfile } from '@/lib/auth';
-import { getActiveLocationLabel } from '@/lib/location-context';
+import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { tokens } from '@/theme/tokens';
@@ -34,6 +34,7 @@ export default function HomeScreen() {
   const { error, loading: isLoading } = resource;
   const { active, past } = partitionRequests(resource.data?.requests ?? []);
   const capabilities = useProtectedResource(getCurrentCapabilities);
+  const neighborhood = useProtectedResource(loadVerifiedNeighborhood);
   const [activeExpanded, setActiveExpanded] = useState(true);
   const [pastExpanded, setPastExpanded] = useState(false);
   const [eventsAvailable, setEventsAvailable] = useState(false);
@@ -82,10 +83,19 @@ export default function HomeScreen() {
       title="My Corner home"
       onRefresh={() => {
         void resource.refresh();
+        void neighborhood.refresh();
       }}
       refreshing={isLoading}
     >
-      <Text style={styles.body}>{getActiveLocationLabel()}</Text>
+      <Text style={styles.body}>
+        {neighborhood.data
+          ? `${neighborhood.data.name} · ${neighborhood.data.city}`
+          : neighborhood.loading
+            ? 'Loading neighborhood…'
+            : neighborhood.error
+              ? 'Neighborhood unavailable'
+              : 'Verify your neighborhood'}
+      </Text>
       <AskMyCornerAccess home />
 
       {capabilities.data?.provider ? (
