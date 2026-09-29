@@ -1,3 +1,11 @@
+## 2026-09-29 UTC — approved #163 commerce fix deployed to Preview
+
+Founder-approved #163 merged as `d5ad4f3772db9464399fd2a61d37484c58b29953`. Its tested eight-file ask-my-corner bundle is deployed to Preview `opeojxwkwwnnncnsuaag` as **v16 ACTIVE / JWT verification true**, at `2026-09-29T00:38:49.927Z` (September 28, 20:38:49 New York). All eight live files exactly match approved head `96b11856ed3ac94f2019a7d62c0a8c7f9b09a03c`. Bundle SHA256: `7d2eba002f5e7ee3d4beb67de44714710d6e0bf15c54046150615ad249109c21`. This session issued one deployment; the intervening version beyond previously observed v14 is not attributed to an actor here.
+
+The item-keyword repair is now live for Ask: buy/sell/purchase requests retain their item topic before retrieval ranking/caps. Shared Basic Search client changes still require a current-source client. Prior source checks: 68 server tests, 563 mobile tests/100 suites, typechecks and all required Mobile/server/Database-RLS CI passed. Deployment verification is source parity/JWT plus anonymous HTTP denial; **the signed-in banku retest remains pending**, as do neighborhood restrictions and quota/reset acceptance. Do not describe a banku machine as prepared food for sale.
+
+Receipt: `docs/evidence/preview-commerce-deployment-2026-09-29.json`. No migration, production changes, quota reset/increase, identity or secret changes, real communications or paid APK build. Next: founder retests “I want to buy banku” while signed in and provides the result/time. The APK gate remains pending remaining backend acceptance and separate build approval.
+
 ## 2026-09-29 UTC — commerce topic loss repaired in source; Preview approval pending
 
 Baseline main: `8cbf31c961153d386e05784b77796bd067e8c00a` (#162); Preview remains v14 with JWT verification. Founder emulator screenshots at September 28 20:16–20:19 New York (September 29 00:15–00:18 answer timestamps) show Group results for “Omo tuo”, an Agency road works notice plus a distinct neighbor report, and a Marketplace relevance defect for “I want to buy banku”. The banku machine listing appeared third behind unrelated fufu-pounder and dining-table listings. Groups/Agency have scoped positive visual retrieval evidence; privacy, action destinations and date applicability are not all established by these screenshots.
