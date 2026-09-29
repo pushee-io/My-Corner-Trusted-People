@@ -1,3 +1,13 @@
+## 2026-09-29 UTC — #167 merged and approved Preview deployment verified
+
+Founder explicitly approved merging #167 and deploying its ask-my-corner bundle to Preview only with JWT verification. Merge/main: `1dae1f72882d95142729c37f2f2be0da38ca314a`; tested PR head: `32c44a49e017bb680a38b167e4ac87f46c17ba6c`. Mobile, server/Deno and Database PR CI passed; 72 server and 564 mobile tests passed.
+
+Target: `opeojxwkwwnnncnsuaag`. Live state before deployment was v17 (not the previously recorded v16). This session issued exactly one deployment, returning v18 ACTIVE/JWT true. Immediate read-back observed **v19 ACTIVE/JWT true**, updated **2026-09-29T02:15:18.710Z**, with all eight deployed files byte-identical to the approved #167 bundle. The intervening version advance was not initiated by this session; no duplicate deployment was attempted. Current read-back bundle hash: `350d1e45e7ecdc99a2c839f99a699b4f0448fe2b5f70f16b7ab64860c499b365`.
+
+Verification: anonymous POST returned **401**; six scoped ranking/evidence regressions passed again. The scoped tests use fixtures; no signed-in production or Preview user session was fabricated. Live authenticated query acceptance remains pending founder retest on APK51: “Is there any traffic near the cedi house?” and the “today” variant. Confirm specific matching evidence precedes generic notices, no duplicate-index explanation warning, and source actions work. A neighbor question/old agency notice must not be treated as proof of current traffic.
+
+No migration, new APK, production, secret, identity or quota change. Ask uses the deployed fix immediately on APK51. Basic Search uses client-shared ranking and needs a future approved APK to receive this source change. The existing APK51 build approval remains consumed. #166 is still a separate unmerged checkpoint, including founder-reported Search, keyboard/comments and physical-phone passes. The 80% warning and exact reset boundary remain unobserved.
+
 ## 2026-09-29 UTC — traffic relevance and duplicate evidence repair (not deployed)
 
 Founder IMG_0328–0329 at about 02:00 UTC shows the general July East Legon roadworks notice before a September Feed question mentioning Cedi House, with the AI explanation fallback warning. Preview read-only function logs at `2026-09-29T02:00:13.390000` identify `ask_evidence_fallback`, alerts, evidence_validation, **duplicate_index**. This is a specific evidence-selection failure, not proof of an API outage. The displayed query omits “today”; the reported variant includes it. Both variants are covered by regression tests.
