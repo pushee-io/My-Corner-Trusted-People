@@ -1,0 +1,49 @@
+{
+  "project": "opeojxwkwwnnncnsuaag",
+  "source_pr": 161,
+  "source_sha": "0ee724aeec452fb8213d7af8cbc96ebb6b0cea94",
+  "deployed_at": "2026-09-29T00:03:58.316Z",
+  "version": 14,
+  "status": "ACTIVE",
+  "verify_jwt": true,
+  "bundle_sha256": "ecb0732a66056d7571f4e8feb66a0b3be65f6cb26ef1505cc880fa28ebd272a9",
+  "files": [
+    {
+      "name": "ask-my-corner/index.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/openai-responses.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/neighborhood-service.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/neighborhood-search.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/neighborhood-assistant.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/neighborhood-concepts.ts",
+      "identical": true
+    },
+    {
+      "name": "_shared/neighborhood-answer.ts",
+      "identical": true
+    },
+    {
+      "name": "deno.json",
+      "identical": true
+    }
+  ],
+  "unauthenticated_http_status": 401,
+  "authenticated_acceptance": "Pending normal authorized test-account session; no identifier lookup or impersonation",
+  "production_changes": false,
+  "apk_built": false,
+  "migrations_applied": []
+}

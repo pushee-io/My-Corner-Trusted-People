@@ -1,3 +1,15 @@
+## 2026-09-29 UTC / September 28 New York — approved #161 diagnostics deployed
+
+Founder explicitly approved #161 deployment to Preview `opeojxwkwwnnncnsuaag` only. Deployed the merged eight-file bundle from main **`0ee724aeec452fb8213d7af8cbc96ebb6b0cea94`** as **ask-my-corner v14 ACTIVE / JWT verification true**, at **2026-09-29T00:03:58.316Z** (September 28, 20:03:58 New York). Deployment bundle SHA256: `ecb0732a66056d7571f4e8feb66a0b3be65f6cb26ef1505cc880fa28ebd272a9`.
+
+**Verified after deployment:** all eight retrieved live files exactly match the approved source; an unauthenticated HTTP POST returns 401 `UNAUTHORIZED_NO_AUTH_HEADER`. Fixed non-sensitive evidence-rejection reasons are now in the deployed bundle. This is diagnostic instrumentation, not proof that the historical Festival failure has been identified or repaired. Strict grounding, authorized fallback cards and quotas are unchanged.
+
+**Source gate passed:** 563 mobile tests / 100 suites, 66 server tests, mobile typecheck, Deno check and required Mobile/server/Database-RLS CI passed for #161 before merge/deployment. See `docs/evidence/preview-evidence-diagnostics-deployment-2026-09-29.json` for the sanitized receipt.
+
+**Still pending:** a normal authorized signed-in Preview test-account session for runtime Festival reason capture, Groups/Marketplace/Agency retrieval, neighborhood restrictions and quota/reset acceptance. No private identifier lookup, minted session or impersonation was used after the earlier approval-review rejection. A missing normal login must not be represented as a backend pass. Founder phone Festival/Going/private-message refusal observations remain scoped passes as recorded below.
+
+No migration, production operation, secret/identity modification, quota reset/increase, real communication or paid APK build occurred. APK gate remains closed until remaining backend acceptance plus separate build approval. Explicit Search pill/Basic Search, 80% warning/reset display and keyboard/comment fixes remain included in the next phone and emulator/tablet acceptance scope.
+
 ## 2026-09-28 — reliability diagnostics; backend acceptance still open
 
 Live main checked: `008c3b8e4be43a120676a655d07d3df51b1bfb80` (#160). Preview `opeojxwkwwnnncnsuaag` reports **ask-my-corner v13 ACTIVE, JWT verification true**; all eight deployed files remain byte-identical to main. This session did not deploy v13 and its actor/reason is unknown. All nine canonical migration function bodies match the approved SQL; anonymous execution is denied and the adjustable private quota clock is unavailable to authenticated clients. The already-applied migration must not be reapplied due to its remote timestamp difference.

@@ -1,6 +1,6 @@
 ## 2026-09-28 — evidence diagnostics
 
-Evidence-validation failures now have a fixed reason enum in source. Logs include only this enum plus the existing bounded stage/intent/provider count. No model response, quote, question or identity is logged. Exact-substring validation, final authorization and deterministic fallback remain unchanged. This source instrumentation is not yet deployed. See `PREVIEW_RELIABILITY_VERIFICATION.md`.
+Evidence-validation failures now have a fixed reason enum in source. Logs include only this enum plus the existing bounded stage/intent/provider count. No model response, quote, question or identity is logged. Exact-substring validation, final authorization and deterministic fallback remain unchanged. This source instrumentation was approved and deployed to Preview as v14 on 2026-09-29T00:03:58.316Z, with JWT verification true and all eight files matching #161. See `PREVIEW_RELIABILITY_VERIFICATION.md`.
 
 ## 2026-09-28 — approved canonical backend deployed to Preview
 
