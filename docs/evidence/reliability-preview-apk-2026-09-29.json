@@ -12,7 +12,7 @@
     "keyboard/comment fixes",
     "verified Home neighborhood"
   ],
-  "nativeAcceptance": "pending separately on phone and emulator/tablet",
+  "nativeAcceptance": "Founder reports Search results, keyboard/comment interactions and physical-phone verification passed; remaining quota threshold/reset boundary checks below",
   "productionChanged": false,
   "source": "054eba21e3fc3c7a13b219c4aa41ef4aa52a1a36",
   "workflow": 36507533857,
@@ -39,5 +39,29 @@
   "signerSHA256": "79de09929e726b418f4447d1b7f73d6b529b636b5d05a9766fcb39cd068bdc76",
   "mobilePushCI": 36507533900,
   "mobilePRCI": 36507573877,
-  "ciResult": "success"
+  "ciResult": "success",
+  "deviceRetest": {
+    "reportedAt": "2026-09-28T21:56:56-04:00",
+    "founderReportedPasses": [
+      "Search results",
+      "keyboard/comment interactions",
+      "physical-phone verification"
+    ],
+    "emulatorScreenshots": [
+      "Home Osu/Accra matches Ask Osu",
+      "2 of 40 used, 38 remaining and reset time visible",
+      "Search pill visible",
+      "Active expanded/Past collapsed with counts"
+    ],
+    "phoneScreenshots": [
+      "IMG_0326.jpg: availability follow-up submitted, 14/40 used, 26 remaining, reset display and provider-stated availability caveat",
+      "IMG_0327.jpg: Real Neighbor Plumbing (Demo) source card, stated availability, View provider and Request help actions"
+    ],
+    "availabilityAction": "Expected same-screen AI follow-up; screenshot confirms submitted question and answer. View provider opens profile per founder. No navigation repair required.",
+    "remaining": [
+      "80 percent threshold warning not observed",
+      "exact live reset boundary not observed"
+    ],
+    "installedVersionEvidence": "APK51 test context; screenshots do not expose Android versionCode"
+  }
 }
