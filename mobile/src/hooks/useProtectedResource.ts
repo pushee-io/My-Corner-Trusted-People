@@ -28,6 +28,12 @@ export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalM
       let authRefresh: ReturnType<typeof setTimeout> | undefined;
       const { data } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'INITIAL_SESSION') return;
+        if (event === 'TOKEN_REFRESHED') {
+          // Refresh authorization without blanking the screen on a normal token rotation.
+          clearTimeout(authRefresh);
+          authRefresh = setTimeout(() => void current.refresh(true), 0);
+          return;
+        }
         clearTimeout(authRefresh);
         current.clear();
         signedOut = event === 'SIGNED_OUT';

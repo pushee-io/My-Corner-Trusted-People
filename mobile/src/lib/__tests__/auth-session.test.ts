@@ -5,7 +5,7 @@ import {
   readCachedSessionProfile,
   writeCachedSessionProfile,
 } from '@/lib/session-profile-cache';
-import { registerWithEmailPassword, restoreSessionProfile, signOutFromDevice } from '../auth';
+import { forgetEndedSession, registerWithEmailPassword, restoreSessionProfile, signOutFromDevice } from '../auth';
 
 jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
@@ -154,9 +154,9 @@ describe('session restoration', () => {
       isInternetReachable: false,
     } as Awaited<ReturnType<typeof NetInfo.fetch>>);
 
+    mockedSupabase.auth.getSession.mockResolvedValue({ data: { session: null }, error: null });
     await expect(restoreSessionProfile()).resolves.toBeNull();
-    expect(mockedSupabase.auth.getSession).not.toHaveBeenCalled();
-    expect(mockedClearCachedSessionProfile).not.toHaveBeenCalled();
+    expect(mockedSupabase.auth.getSession).toHaveBeenCalled();
   });
 
   it('uses the verified profile if connectivity drops while Supabase is initializing', async () => {
@@ -316,4 +316,40 @@ describe('self registration', () => {
     await expect(registerWithEmailPassword('N', 'bad', 'short')).rejects.toThrow();
     expect(mockedSupabase.auth.signUp).not.toHaveBeenCalled();
   });
+});
+
+it('rejects revoked sessions and clears routing fallback instead of restoring it', async () => {
+  mockedNetInfoFetch.mockResolvedValue({ isConnected: true, isInternetReachable: true } as never);
+  mockedSupabase.auth.getSession.mockResolvedValue({ data: { session: { user: { id: 'revoked' } } }, error: null });
+  mockedSupabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: { status: 401, code: 'bad_jwt' } });
+  mockedReadCachedSessionProfile.mockResolvedValue({ id: 'old', authUserId: 'revoked', role: 'requester' } as never);
+  await expect(restoreSessionProfile()).rejects.toThrow('no longer valid');
+  expect(mockedClearCachedSessionProfile).toHaveBeenCalled();
+});
+
+it('invalidates an in-flight startup when Supabase terminates the session', async () => {
+  let complete!: (value: unknown) => void;
+  let started!: () => void;
+  const began = new Promise<void>((done) => {
+    started = done;
+  });
+  mockedNetInfoFetch.mockResolvedValue({ isConnected: true, isInternetReachable: true } as never);
+  mockedSupabase.auth.getSession.mockImplementationOnce(() => {
+    started();
+    return new Promise((resolve) => {
+      complete = resolve;
+    });
+  });
+  const restore = restoreSessionProfile();
+  const rejected = expect(restore).rejects.toThrow('no longer valid');
+  await began;
+  await forgetEndedSession();
+  complete({ data: { session: null }, error: null });
+  await rejected;
+});
+
+it('bounds network detection and offers retry rather than treating a stalled probe as logout', async () => {
+  mockedNetInfoFetch.mockReturnValueOnce(new Promise(() => undefined));
+  mockedReadCachedSessionProfile.mockResolvedValue(null);
+  await expect(restoreSessionProfile(1)).rejects.toThrow('Please retry');
 });

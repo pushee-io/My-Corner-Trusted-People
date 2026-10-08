@@ -1,3 +1,4 @@
+import { contentPublicNames, contentPublicNameAfterWrite } from '@/lib/content-public-names';
 import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile } from '@/lib/auth';
 import { seededCommunityActionsRepository } from '@/lib/community-actions-repository';
@@ -164,12 +165,13 @@ function mapPostRow(
   comments: SocialGroupPostComment[],
   reactions: SocialGroupPostReactionRow[],
   isReported: boolean,
+  authorName = 'Neighbor',
 ): SocialGroupPostDetail {
   return {
     id: row.id,
     groupId: row.group_id,
     authorProfileId: row.author_profile_id,
-    authorName: row.author_profile_id === profile.id ? profile.displayName : 'Group member',
+    authorName,
     body: row.body,
     createdAt: row.created_at,
     moderationStatus: row.moderation_status,
@@ -220,6 +222,13 @@ const supabaseRepository: SocialGroupDetailRepository = {
     }
 
     const commentRows = (commentResult.data ?? []) as SocialGroupPostCommentRow[];
+    const [names, commentNames] = await Promise.all([
+      contentPublicNames('group_post', postIds),
+      contentPublicNames(
+        'group_comment',
+        commentRows.map((row) => row.id),
+      ),
+    ]);
     const reactions = (reactionResult.data ?? []) as SocialGroupPostReactionRow[];
     const reportedPostIds = new Set(
       ((reportResult.data ?? []) as SocialGroupPostReportRow[]).flatMap((report) =>
@@ -237,12 +246,13 @@ const supabaseRepository: SocialGroupDetailRepository = {
             id: comment.id,
             postId: comment.post_id,
             authorProfileId: comment.author_profile_id,
-            authorName: comment.author_profile_id === profile.id ? profile.displayName : 'Group member',
+            authorName: commentNames.get(comment.author_profile_id) ?? 'Neighbor',
             body: comment.body,
             createdAt: comment.created_at,
           })),
         reactions.filter((reaction) => reaction.post_id === post.id),
         reportedPostIds.has(post.id),
+        names.get(post.author_profile_id),
       ),
     );
   },
@@ -263,7 +273,7 @@ const supabaseRepository: SocialGroupDetailRepository = {
       profile.id,
       clientId,
     );
-    return mapPostRow(row, profile, [], [], false);
+    return mapPostRow(row, profile, [], [], false, await contentPublicNameAfterWrite('group_post', row.id, profile.id));
   },
 
   async createComment(postId, body) {
@@ -286,7 +296,7 @@ const supabaseRepository: SocialGroupDetailRepository = {
       id: row.id,
       postId: row.post_id,
       authorProfileId: row.author_profile_id,
-      authorName: profile.displayName,
+      authorName: await contentPublicNameAfterWrite('group_comment', row.id, profile.id),
       body: row.body,
       createdAt: row.created_at,
     };

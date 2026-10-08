@@ -1,6 +1,6 @@
 import { createElement, Fragment } from 'react';
 import { act, create, type ReactTestRenderer, type ReactTestInstance } from 'react-test-renderer';
-import { Image, Pressable, Text, TextInput } from 'react-native';
+import { Alert, Image, Pressable, Text, TextInput } from 'react-native';
 import { router, Stack, useGlobalSearchParams, useLocalSearchParams, usePathname } from 'expo-router';
 import RequestLayout from '../../app/hire/request/_layout';
 import NewRequest from '../../app/hire/request/new';
@@ -14,6 +14,7 @@ import { invalidateMediaSession } from '@/lib/media-session';
 import type { MediaDraft } from '@/lib/media-contract';
 
 jest.mock('react-native', () => ({
+  Alert: { alert: jest.fn() },
   View: 'View',
   Text: 'Text',
   TextInput: 'TextInput',
@@ -124,7 +125,13 @@ async function fillForm() {
       .find((node) => node.props.accessibilityLabel === 'Job description')!
       .props.onChangeText('Fictional leak under the sink');
   });
-  await press('I understand My Corner');
+  await press('Review and Accept');
+  await act(async () =>
+    jest
+      .mocked(Alert.alert)
+      .mock.calls.at(-1)![2]!
+      .find((button) => button.text === 'Accept')!.onPress!(),
+  );
 }
 async function chooseBoth() {
   await press('Add media');
@@ -344,4 +351,28 @@ test('AI results from a previous account are discarded', async () => {
   await act(async () => invalidateMediaSession());
   await act(async () => resolve(aiSuggestion));
   expect(button('Use suggested title and description')).toBeUndefined();
+});
+
+it('requires explicit confirmation and rejects direct Review without acknowledgement', async () => {
+  await navigate(newPath);
+  await press('Review and Accept');
+  expect(button('Accepted')).toBeUndefined();
+  // Cancelling the confirmation does not accept it; a deep link cannot bypass it.
+  await navigate(reviewPath);
+  expect(button('Submit request').props.disabled).toBe(true);
+  await act(async () => button('Submit request').props.onPress());
+  expect(createJobRequest).not.toHaveBeenCalled();
+});
+it('keeps acceptance in the flow and clears it on a provider or account change', async () => {
+  await navigate(newPath);
+  await fillForm();
+  await review();
+  expect(button('Submit request').props.disabled).not.toBe(true);
+  await navigate(newPath);
+  expect(button('Accepted')).toBeDefined();
+  await navigate(newPath, { providerId: 'provider-b' });
+  expect(button('Review and Accept')).toBeDefined();
+  await fillForm();
+  await act(async () => invalidateMediaSession());
+  expect(button('Review and Accept')).toBeDefined();
 });

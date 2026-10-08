@@ -17,6 +17,7 @@ jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
   supabase: {
     from: jest.fn(),
+    rpc: jest.fn(async () => ({ data: [{ id: 'seller', name: 'QA seller' }], error: null })),
     storage: { from: () => ({ upload: mockUpload, remove: mockRemove, createSignedUrls: mockSigned }) },
   },
 }));
@@ -65,7 +66,6 @@ it('recovers a lost photo-row response without re-uploading or deleting a refere
   expect(mockUpload).toHaveBeenCalledWith(path, expect.any(ArrayBuffer), expect.objectContaining({ upsert: false }));
   expect(mockRemove).not.toHaveBeenCalled();
   query([{ object_path: path }]);
-  query([{ id: 'seller', display_name: 'QA seller' }]);
   query([{ listing_id: 'stable-id', object_path: path, position: 0 }]);
   await expect(createMarketplaceListing('area', draft, 'stable-id')).resolves.toMatchObject({ id: 'stable-id' });
   expect(mockUpload).toHaveBeenCalledTimes(1);

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { MediaComposer } from '@/components/media/MediaComposer';
 import { useRequestMedia } from '@/components/media/RequestMediaProvider';
@@ -70,10 +70,9 @@ export default function NewRequestScreen() {
   const [preferredTime, setPreferredTime] = useState('Afternoon');
   const [urgency, setUrgency] = useState<RequestUrgency>('soon');
   const [contactPreference, setContactPreference] = useState<ContactPreference>('app_update');
-  const { media, submission } = useRequestMedia();
+  const { media, submission, trustAccepted: consentAccepted, acceptTrust } = useRequestMedia();
   const photoCount = media.drafts.filter((item) => item.kind === 'image').length;
   const editingDisabled = submission.busy || submission.locked;
-  const [consentAccepted, setConsentAccepted] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -298,11 +297,34 @@ export default function NewRequestScreen() {
         <Text style={styles.help}>Continue to Review to finish this same request and its attachments.</Text>
       ) : null}
 
-      <Pressable disabled={editingDisabled} onPress={() => setConsentAccepted((value) => !value)} style={styles.notice}>
+      <View style={styles.notice}>
         <Text style={styles.noticeText}>
-          {consentAccepted ? 'Selected: ' : ''}I understand My Corner shows trust evidence but does not guarantee
-          provider conduct.
+          I understand My Corner shows trust evidence but does not guarantee provider conduct.
         </Text>
+        {consentAccepted ? (
+          <Text accessibilityLiveRegion="polite" style={styles.noticeText}>
+            Acknowledgement accepted
+          </Text>
+        ) : null}
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Review and Accept"
+        accessibilityState={{ disabled: editingDisabled || consentAccepted }}
+        disabled={editingDisabled || consentAccepted}
+        style={[styles.button, editingDisabled || consentAccepted ? { opacity: 0.55 } : null]}
+        onPress={() =>
+          Alert.alert(
+            'Review trust acknowledgement',
+            'I understand My Corner shows trust evidence but does not guarantee provider conduct.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Accept', onPress: acceptTrust },
+            ],
+          )
+        }
+      >
+        <Text style={styles.buttonText}>{consentAccepted ? 'Accepted' : 'Review and Accept'}</Text>
       </Pressable>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}

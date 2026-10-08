@@ -1,5 +1,5 @@
 import { MediaGallery } from '@/components/media/MediaGallery';
-import { MediaAvatar } from '@/components/media/MediaAvatar';
+import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -199,77 +199,80 @@ export default function MarketplaceListingScreen() {
             Pickup requests
           </Text>
           {requests.length === 0 ? <Text style={styles.note}>No pickup proposals yet.</Text> : null}
-          {requests.map((request) => (
-            <View key={request.id} style={styles.panel}>
-              <Text style={styles.title}>{request.requesterName}</Text>
-              <Text style={styles.body}>{request.message}</Text>
-              <Text style={styles.note}>{pickupTimeLabel(request)}</Text>
-              <Text style={styles.note}>General area: {request.generalArea}</Text>
-              <Text style={styles.status}>Status: {request.status}</Text>
-              {request.privateDetails ? (
-                <Text style={styles.privateDetails}>Private pickup details: {request.privateDetails}</Text>
-              ) : null}
-              {request.status === 'proposed' ? (
-                <View style={styles.actions}>
+          <MediaAvatarCollection profileIds={requests.map((request) => request.requesterId)}>
+            {requests.map((request) => (
+              <View key={request.id} style={styles.panel}>
+                <MediaAvatar profileId={request.requesterId} name={request.requesterName} />
+                <Text style={styles.title}>{request.requesterName}</Text>
+                <Text style={styles.body}>{request.message}</Text>
+                <Text style={styles.note}>{pickupTimeLabel(request)}</Text>
+                <Text style={styles.note}>General area: {request.generalArea}</Text>
+                <Text style={styles.status}>Status: {request.status}</Text>
+                {request.privateDetails ? (
+                  <Text style={styles.privateDetails}>Private pickup details: {request.privateDetails}</Text>
+                ) : null}
+                {request.status === 'proposed' ? (
+                  <View style={styles.actions}>
+                    <ActionButton
+                      label="Accept proposed time"
+                      busy={Boolean(busyAction)}
+                      onPress={() => void respond(request.id, 'accept')}
+                    />
+                    <ActionButton
+                      label="Decline"
+                      busy={Boolean(busyAction)}
+                      onPress={() => void respond(request.id, 'decline')}
+                      secondary
+                    />
+                  </View>
+                ) : null}
+                {request.status === 'accepted' ? (
+                  <>
+                    <TextInput
+                      accessibilityLabel="Private pickup instructions"
+                      value={privateDetailsByRequest[request.id] ?? ''}
+                      onChangeText={(value) =>
+                        setPrivateDetailsByRequest((current) => ({ ...current, [request.id]: value }))
+                      }
+                      placeholder="Exact meeting point or address"
+                      multiline
+                      maxLength={500}
+                      style={styles.textArea}
+                    />
+                    <Text style={styles.note}>Visible only to this buyer after confirmation.</Text>
+                    <ActionButton
+                      label="Confirm private pickup details"
+                      busy={Boolean(busyAction)}
+                      onPress={() => void respond(request.id, 'confirm')}
+                    />
+                  </>
+                ) : null}
+                {request.status === 'confirmed' ? (
                   <ActionButton
-                    label="Accept proposed time"
+                    label="Mark pickup completed"
                     busy={Boolean(busyAction)}
-                    onPress={() => void respond(request.id, 'accept')}
+                    onPress={() => void respond(request.id, 'complete')}
                   />
+                ) : null}
+                {['proposed', 'accepted', 'confirmed'].includes(request.status) ? (
                   <ActionButton
-                    label="Decline"
+                    label="Cancel pickup"
                     busy={Boolean(busyAction)}
-                    onPress={() => void respond(request.id, 'decline')}
+                    onPress={() => void respond(request.id, 'cancel')}
                     secondary
                   />
-                </View>
-              ) : null}
-              {request.status === 'accepted' ? (
-                <>
-                  <TextInput
-                    accessibilityLabel="Private pickup instructions"
-                    value={privateDetailsByRequest[request.id] ?? ''}
-                    onChangeText={(value) =>
-                      setPrivateDetailsByRequest((current) => ({ ...current, [request.id]: value }))
-                    }
-                    placeholder="Exact meeting point or address"
-                    multiline
-                    maxLength={500}
-                    style={styles.textArea}
-                  />
-                  <Text style={styles.note}>Visible only to this buyer after confirmation.</Text>
-                  <ActionButton
-                    label="Confirm private pickup details"
-                    busy={Boolean(busyAction)}
-                    onPress={() => void respond(request.id, 'confirm')}
-                  />
-                </>
-              ) : null}
-              {request.status === 'confirmed' ? (
-                <ActionButton
-                  label="Mark pickup completed"
-                  busy={Boolean(busyAction)}
-                  onPress={() => void respond(request.id, 'complete')}
-                />
-              ) : null}
-              {['proposed', 'accepted', 'confirmed'].includes(request.status) ? (
-                <ActionButton
-                  label="Cancel pickup"
-                  busy={Boolean(busyAction)}
-                  onPress={() => void respond(request.id, 'cancel')}
-                  secondary
-                />
-              ) : null}
-              <WebSafeLink
-                href={{ pathname: '/messages', params: { requestId: request.id, listingTitle: listing.title } }}
-                asChild
-              >
-                <Pressable accessibilityRole="button" style={styles.secondaryButton}>
-                  <Text style={styles.secondaryButtonText}>Open messages</Text>
-                </Pressable>
-              </WebSafeLink>
-            </View>
-          ))}
+                ) : null}
+                <WebSafeLink
+                  href={{ pathname: '/messages', params: { requestId: request.id, listingTitle: listing.title } }}
+                  asChild
+                >
+                  <Pressable accessibilityRole="button" style={styles.secondaryButton}>
+                    <Text style={styles.secondaryButtonText}>Open messages</Text>
+                  </Pressable>
+                </WebSafeLink>
+              </View>
+            ))}
+          </MediaAvatarCollection>
         </View>
       ) : myRequest ? (
         <View style={styles.panel}>

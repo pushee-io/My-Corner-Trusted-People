@@ -2,27 +2,34 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { restoreSessionProfile } from '@/lib/auth';
+import { restoreSessionProfile, SessionReauthenticationRequired } from '@/lib/auth';
 import { tokens } from '@/theme/tokens';
 
 export default function WelcomeScreen() {
   const { fontScale, width } = useWindowDimensions();
   const [restoringSession, setRestoringSession] = useState(true);
+  const [restoreError, setRestoreError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const stackLockup = fontScale >= 1.6 || width < 340;
 
   useEffect(() => {
     let active = true;
+    setRestoringSession(true);
+    setRestoreError(false);
 
     async function restoreSession() {
+      let navigating = false;
       try {
         const profile = await restoreSessionProfile();
         if (!active || !profile) return;
 
+        navigating = true;
         router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
-      } catch {
-        // Keep the welcome and sign-in flow available when restoration fails.
+      } catch (error) {
+        navigating = false;
+        if (active) setRestoreError(!(error instanceof SessionReauthenticationRequired));
       } finally {
-        if (active) setRestoringSession(false);
+        if (active && !navigating) setRestoringSession(false);
       }
     }
 
@@ -31,7 +38,7 @@ export default function WelcomeScreen() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [attempt]);
 
   if (restoringSession) {
     return (
@@ -40,6 +47,24 @@ export default function WelcomeScreen() {
           <ActivityIndicator color={tokens.color.primary} />
           <Text style={styles.body}>Restoring your session...</Text>
         </View>
+      </Screen>
+    );
+  }
+
+  if (restoreError) {
+    return (
+      <Screen title="My Corner" showBottomNavigation={false}>
+        <Text accessibilityRole="alert" style={styles.body}>
+          We could not finish opening your account. Check your connection and try again.
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Retry opening My Corner"
+          onPress={() => setAttempt((value) => value + 1)}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Try again</Text>
+        </Pressable>
       </Screen>
     );
   }

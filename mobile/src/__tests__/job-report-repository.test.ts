@@ -22,7 +22,10 @@ const request = {
 describe('Job report submission', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    client.rpc.mockResolvedValue({ data: { report_id: 'qa-report', status: 'open' }, error: null });
+    client.rpc.mockImplementation(async (name: string) => ({
+      data: name === 'content_public_names' ? [] : { report_id: 'qa-report', status: 'open' },
+      error: null,
+    }));
     client.from.mockImplementation((table: string) => {
       const result = { data: table === 'job_requests' ? request : [], error: null };
       const chain: Record<string, unknown> = {};

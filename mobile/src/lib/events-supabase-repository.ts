@@ -1,3 +1,4 @@
+import { contentPublicNames, contentPublicNameAfterWrite } from '@/lib/content-public-names';
 import { getCurrentProfile } from '@/lib/auth';
 import {
   fromEventRow,
@@ -26,14 +27,34 @@ import type {
 } from '@/types/events-runtime';
 
 const eventColumns =
-  'id, neighborhood_id, cluster_id, organizer_profile_id, organizer_display_name, title, description, cover_image_path, starts_at, ends_at, timezone, location_type, venue_name, area_label, public_meetup_point, visibility, status, moderation_status, capacity, attendee_count, comments_enabled, created_at, updated_at';
-const rsvpColumns = 'id, event_id, profile_id, attendee_display_name, status, created_at, updated_at';
-const commentColumns = 'id, event_id, author_profile_id, author_display_name, body, moderation_status, created_at';
+  'id, neighborhood_id, cluster_id, organizer_profile_id, title, description, cover_image_path, starts_at, ends_at, timezone, location_type, venue_name, area_label, public_meetup_point, visibility, status, moderation_status, capacity, attendee_count, comments_enabled, created_at, updated_at';
+const rsvpColumns = 'id, event_id, profile_id, status, created_at, updated_at';
+const commentColumns = 'id, event_id, author_profile_id, body, moderation_status, created_at';
 
+async function withEventNames(rows: EventRow[]): Promise<EventRow[]> {
+  const names = await contentPublicNames(
+    'event',
+    rows.map((row) => row.id),
+  );
+  return rows.map((row) => ({ ...row, organizer_display_name: names.get(row.organizer_profile_id) ?? 'Neighbor' }));
+}
+async function withEventNameAfterWrite(row: EventRow): Promise<EventRow> {
+  return {
+    ...row,
+    organizer_display_name: await contentPublicNameAfterWrite('event', row.id, row.organizer_profile_id),
+  };
+}
+async function withRsvpNames(rows: EventRsvpRow[]): Promise<EventRsvpRow[]> {
+  const names = await contentPublicNames(
+    'event_rsvp',
+    rows.map((row) => row.id),
+  );
+  return rows.map((row) => ({ ...row, attendee_display_name: names.get(row.profile_id) ?? 'Neighbor' }));
+}
 async function readEvent(eventId: string): Promise<Event> {
   const { data, error } = await supabase.from('events').select(eventColumns).eq('id', eventId).single();
   if (error) throw error;
-  return fromEventRow(data as EventRow);
+  return fromEventRow((await withEventNames([data as EventRow]))[0]);
 }
 
 type EventsContextRow = {
@@ -193,15 +214,22 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
       const privateAccess = (privateResult.data as { precise_address?: string; virtual_link?: string }[] | null)?.[0];
       const rsvpStatus = rsvpResult.data?.status === 'going' ? ('going' as const) : undefined;
 
+      const commentRows = (commentsResult.data ?? []) as EventCommentRow[];
+      const names = await contentPublicNames(
+        'event_comment',
+        commentRows.map((row) => row.id),
+      );
       return {
-        ...fromEventRuntimeRow(data as EventRow, {
+        ...fromEventRuntimeRow((await withEventNames([data as EventRow]))[0], {
           currentUserRsvpStatus: rsvpStatus,
           currentUserInterestStatus: interestResult.data?.status,
           preciseLocation: privateAccess?.precise_address,
           virtualLink: privateAccess?.virtual_link,
           currentUserOrganizerRole: organizerResult.data?.role,
         }),
-        comments: ((commentsResult.data ?? []) as EventCommentRow[]).map(mapComment),
+        comments: commentRows.map((row) =>
+          mapComment({ ...row, author_display_name: names.get(row.author_profile_id) ?? 'Neighbor' }),
+        ),
       };
     });
   }
@@ -239,7 +267,7 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
 
           if (error) throw error;
 
-          pendingModeration = ((data ?? []) as EventRow[]).map((row) => fromEventRuntimeRow(row));
+          pendingModeration = (await withEventNames((data ?? []) as EventRow[])).map((row) => fromEventRuntimeRow(row));
         }
 
         return [
@@ -258,7 +286,7 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
           .select(eventColumns)
           .single();
         if (error) throw error;
-        return fromEventRuntimeRow(data as EventRow);
+        return fromEventRuntimeRow(await withEventNameAfterWrite(data as EventRow));
       });
     },
     async updateEvent(eventId, draft) {
@@ -355,10 +383,13 @@ export function createSupabaseEventsRuntimeRepository(): EventsRuntimeRepository
         const { data, error } = await supabase
           .from('event_comments')
           .insert({ event_id: eventId, body: body.trim() })
-          .select('id,event_id,author_profile_id,author_display_name,body,moderation_status,created_at')
+          .select('id,event_id,author_profile_id,body,moderation_status,created_at')
           .single();
         if (error) throw error;
-        return mapComment(data as EventCommentRow);
+        return mapComment({
+          ...data,
+          author_display_name: await contentPublicNameAfterWrite('event_comment', data.id, data.author_profile_id),
+        } as EventCommentRow);
       });
     },
     async report(eventId, reason) {
@@ -450,7 +481,7 @@ async function readCurrentRsvp(eventId: string): Promise<EventRsvp> {
     .eq('profile_id', profile.id)
     .single();
   if (error) throw error;
-  return fromEventRsvpRow(data as EventRsvpRow);
+  return fromEventRsvpRow((await withRsvpNames([data as EventRsvpRow]))[0]);
 }
 
 export function createSupabaseEventsRepository(): EventsRepository {
@@ -471,19 +502,19 @@ export function createSupabaseEventsRepository(): EventsRepository {
 
       const { data, error } = await request;
       if (error) throw error;
-      return ((data ?? []) as EventRow[]).map((row) => fromEventRow(row));
+      return (await withEventNames((data ?? []) as EventRow[])).map((row) => fromEventRow(row));
     },
 
     async getEvent(eventId: string) {
       const { data, error } = await supabase.from('events').select(eventColumns).eq('id', eventId).maybeSingle();
       if (error) throw error;
-      return data ? fromEventRow(data as EventRow) : null;
+      return data ? fromEventRow((await withEventNames([data as EventRow]))[0]) : null;
     },
 
     async createEvent(draft: EventDraft) {
       const { data, error } = await supabase.from('events').insert(toEventInsert(draft)).select(eventColumns).single();
       if (error) throw error;
-      return fromEventRow(data as EventRow);
+      return fromEventRow(await withEventNameAfterWrite(data as EventRow));
     },
 
     async updateEvent(eventId: string, draft: EventUpdateDraft) {
@@ -494,7 +525,7 @@ export function createSupabaseEventsRepository(): EventsRepository {
         .select(eventColumns)
         .single();
       if (error) throw error;
-      return fromEventRow(data as EventRow);
+      return fromEventRow(await withEventNameAfterWrite(data as EventRow));
     },
 
     async cancelEvent(eventId: string) {
@@ -524,7 +555,7 @@ export function createSupabaseEventsRepository(): EventsRepository {
         .eq('status', 'going')
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return ((data ?? []) as EventRsvpRow[]).map(fromEventRsvpRow);
+      return (await withRsvpNames((data ?? []) as EventRsvpRow[])).map(fromEventRsvpRow);
     },
 
     async listOrganizerEvents(organizerProfileId: string) {
@@ -537,7 +568,7 @@ export function createSupabaseEventsRepository(): EventsRepository {
       if (eventIds.length === 0) return [];
       const { data, error } = await supabase.from('events').select(eventColumns).in('id', eventIds).order('starts_at');
       if (error) throw error;
-      return ((data ?? []) as EventRow[]).map((row) => fromEventRow(row));
+      return (await withEventNames((data ?? []) as EventRow[])).map((row) => fromEventRow(row));
     },
   };
 }

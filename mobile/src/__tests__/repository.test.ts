@@ -69,6 +69,7 @@ function createQuery(result: QueryResult = { data: [], error: null }): QueryMock
 
 function useTableQueries(queriesByTable: Record<string, QueryMock[]>) {
   mockedSupabase.rpc.mockImplementation((name: string) => {
+    if (name === 'content_public_names') return Promise.resolve({ data: [], error: null });
     expect(name).toBe('neighborhood_provider_catalog');
     queriesByTable.provider_services?.shift();
     return queriesByTable.provider_profiles?.shift();

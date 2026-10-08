@@ -1,3 +1,4 @@
+import { contentPublicNames } from '@/lib/content-public-names';
 import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { getCurrentProfile, getCurrentProviderProfileId } from '@/lib/auth';
 import { submitJobReport } from '@/lib/job-report-repository';
@@ -157,6 +158,7 @@ async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> 
   if (eventsError) throw eventsError;
   if (responsesError) throw responsesError;
 
+  const names = await contentPublicNames('service_request', requestIds);
   return rows.map((row) => {
     const statusTimeline = ((events ?? []) as (StatusEventRow & { job_request_id: string })[])
       .filter((event) => event.job_request_id === row.id)
@@ -172,7 +174,7 @@ async function loadRequestDetails(rows: JobRequestRow[]): Promise<JobRequest[]> 
     )?.message;
 
     return {
-      requesterName: 'Signed-in requester',
+      requesterName: names.get(row.requester_id) ?? 'Neighbor',
       requesterProfileId: row.requester_id,
       providerId: row.provider_id,
       categoryId: row.category_id,

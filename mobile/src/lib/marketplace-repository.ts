@@ -1,3 +1,4 @@
+import { contentPublicNames, contentPublicNameAfterWrite } from '@/lib/content-public-names';
 import { insertOwnedOnce } from '@/lib/insert-owned-once';
 import { File } from 'expo-file-system';
 
@@ -130,16 +131,6 @@ function mapPickupRequest(
   };
 }
 
-async function profileNames(profileIds: string[]) {
-  const uniqueIds = [...new Set(profileIds)];
-  if (uniqueIds.length === 0) return new Map<string, string>();
-
-  const { data, error } = await supabase.from('profiles').select('id, display_name').in('id', uniqueIds);
-  if (error) throw error;
-
-  return new Map((data ?? []).map((row) => [row.id, row.display_name]));
-}
-
 async function signedListingImages(listingIds: string[]) {
   if (listingIds.length === 0) return new Map<string, string[]>();
 
@@ -171,7 +162,10 @@ async function signedListingImages(listingIds: string[]) {
 
 async function hydrateListings(rows: ListingRow[]) {
   const [names, imageUrls] = await Promise.all([
-    profileNames(rows.map((row) => row.seller_id)),
+    contentPublicNames(
+      'marketplace_listing',
+      rows.map((row) => row.id),
+    ),
     signedListingImages(rows.map((row) => row.id)),
   ]);
   return rows.map((row) => mapListing(row, names.get(row.seller_id), imageUrls.get(row.id)));
@@ -188,7 +182,10 @@ async function privatePickupDetails(requestIds: string[]) {
 
 async function hydratePickupRequests(rows: PickupRequestRow[]) {
   const [names, privateDetails] = await Promise.all([
-    profileNames(rows.map((row) => row.requester_id)),
+    contentPublicNames(
+      'marketplace_pickup',
+      rows.map((row) => row.id),
+    ),
     privatePickupDetails(rows.map((row) => row.id)),
   ]);
   return rows.map((row) => mapPickupRequest(row, names.get(row.requester_id), privateDetails.get(row.id)));
@@ -385,7 +382,10 @@ export async function createMarketplacePickupRequest(
     .select(pickupColumns)
     .single();
   if (error) throw error;
-  return mapPickupRequest(data as PickupRequestRow, profile.displayName);
+  return mapPickupRequest(
+    data as PickupRequestRow,
+    await contentPublicNameAfterWrite('marketplace_pickup', data.id, profile.id),
+  );
 }
 
 export async function listMarketplacePickupRequestsForListing(listingId: string) {
@@ -437,7 +437,10 @@ export async function listMarketplaceMessages(requestId: string): Promise<Market
     .limit(200);
   if (error) throw error;
   const rows = (data ?? []) as MessageRow[];
-  const names = await profileNames(rows.map((row) => row.sender_profile_id));
+  const names = await contentPublicNames(
+    'marketplace_message',
+    rows.map((row) => row.id),
+  );
   return rows.map((row) => ({
     id: row.id,
     conversationId: row.conversation_id,
@@ -467,7 +470,7 @@ export async function sendMarketplaceMessage(requestId: string, body: string) {
     id: row.id,
     conversationId: row.conversation_id,
     senderProfileId: row.sender_profile_id,
-    senderName: profile.displayName,
+    senderName: await contentPublicNameAfterWrite('marketplace_message', row.id, profile.id),
     body: row.body,
     createdAt: row.created_at,
     isOwn: true,

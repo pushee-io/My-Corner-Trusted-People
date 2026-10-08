@@ -10,6 +10,7 @@ jest.mock('@/lib/supabase', () => ({
   assertSupabaseConfigured: jest.fn(),
   supabase: {
     from: jest.fn(),
+    rpc: jest.fn(async () => ({ data: [], error: null })),
   },
 }));
 
