@@ -347,3 +347,9 @@ it('invalidates an in-flight startup when Supabase terminates the session', asyn
   complete({ data: { session: null }, error: null });
   await rejected;
 });
+
+it('bounds network detection and offers retry rather than treating a stalled probe as logout', async () => {
+  mockedNetInfoFetch.mockReturnValueOnce(new Promise(() => undefined));
+  mockedReadCachedSessionProfile.mockResolvedValue(null);
+  await expect(restoreSessionProfile(1)).rejects.toThrow('Please retry');
+});

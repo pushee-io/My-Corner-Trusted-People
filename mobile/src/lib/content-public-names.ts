@@ -40,7 +40,7 @@ export async function contentPublicNameAfterWrite(kind: ContentKind, id: string,
   try {
     name = (await contentPublicNames(kind, [id])).get(profileId) ?? name;
   } catch {
-    /* Reload retries the name read. */
+    name = 'Public name unavailable'; // Reload retries the name read.
   }
   assertMediaSession(revision);
   return name;

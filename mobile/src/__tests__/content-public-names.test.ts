@@ -71,5 +71,7 @@ it('rejects name responses after an account switch', async () => {
 it('propagates read errors and does not turn successful content writes into duplicate retries', async () => {
   rpc.mockResolvedValue({ data: null, error: { message: 'unavailable' } } as never);
   await expect(contentPublicNames('event', ['event'])).rejects.toEqual({ message: 'unavailable' });
-  await expect(contentPublicNameAfterWrite('group_comment', 'comment', 'author')).resolves.toBe('Neighbor');
+  await expect(contentPublicNameAfterWrite('group_comment', 'comment', 'author')).resolves.toBe(
+    'Public name unavailable',
+  );
 });

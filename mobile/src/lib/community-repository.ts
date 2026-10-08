@@ -142,7 +142,7 @@ async function createdAuthorName(postIds: string[], commentIds: string[], author
   try {
     name = (await authorNames(postIds, commentIds)).get(authorId) ?? name;
   } catch {
-    /* retry on next Feed load */
+    name = 'Public name unavailable'; // Retry on next Feed load.
   }
   assertMediaSession(session);
   return name;

@@ -19,7 +19,15 @@ insert into public.marketplace_listings(id,neighborhood_id,seller_id,title,descr
  ('97000000-0000-4000-8000-000000000011','97000000-0000-4000-8000-000000000090','97000000-0000-4000-8000-000000000002','Fixture item','Fictional item','General area','clean'),
  ('97000000-0000-4000-8000-000000000012','97000000-0000-4000-8000-000000000090','97000000-0000-4000-8000-000000000003','No public name','Fictional item','General area','clean');
 insert into public.marketplace_pickup_requests(id,listing_id,requester_id,message,status,general_area,proposed_start,proposed_end) values
- ('97000000-0000-4000-8000-000000000021','97000000-0000-4000-8000-000000000011','97000000-0000-4000-8000-000000000001','Fictional interest','proposed','General area',now()+interval '1 day',now()+interval '2 days');
+ ('97000000-0000-4000-8000-000000000021','97000000-0000-4000-8000-000000000011','97000000-0000-4000-8000-000000000001','Fictional interest','proposed','General area',now()+interval '1 day',now()+interval '25 hours');
+set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000001';
+insert into public.marketplace_messages(id,conversation_id,sender_profile_id,body)
+ select '97000000-0000-4000-8000-000000000051',id,'97000000-0000-4000-8000-000000000001','Fictional CI message'
+ from public.marketplace_conversations where pickup_request_id='97000000-0000-4000-8000-000000000021';
+insert into public.provider_profiles(id,profile_id,business_name,headline,general_area,availability) values
+ ('97000000-0000-4000-8000-000000000060','97000000-0000-4000-8000-000000000002','Fixture provider','Fictional provider','General area','Available');
+insert into public.job_requests(id,requester_id,provider_id,title,description,original_user_text,urgency,preferred_date,preferred_time,contact_preference,general_area_label,status) values
+ ('97000000-0000-4000-8000-000000000061','97000000-0000-4000-8000-000000000001','97000000-0000-4000-8000-000000000060','Fixture request','Fictional job','Fictional job','soon',current_date,'Afternoon','app_update','General area','Submitted');
 insert into public.social_groups(id,name,description,neighborhood_id,created_by_profile_id,moderation_status) values
  ('97000000-0000-4000-8000-000000000030','Private group fixture','Fictional group','97000000-0000-4000-8000-000000000090','97000000-0000-4000-8000-000000000002','clean');
 insert into public.social_group_memberships(group_id,profile_id,status,role) values
@@ -54,10 +62,14 @@ select pg_temp.check_name(not exists(select 1 from public.profiles where id='970
 set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000002';
 select pg_temp.check_name(public.content_public_names('marketplace_pickup',array['97000000-0000-4000-8000-000000000021'::uuid])->0->>'name'='Approved Buyer','Seller sees buyer public name');
 select pg_temp.check_name(public.content_public_names('event_rsvp',array['97000000-0000-4000-8000-000000000043'::uuid])->0->>'name'='Approved Seller','Own RSVP canonical name');
+select pg_temp.check_name(public.content_public_names('marketplace_message',array['97000000-0000-4000-8000-000000000051'::uuid])->0->>'name'='Approved Buyer','Conversation participant name');
+select pg_temp.check_name(public.content_public_names('service_request',array['97000000-0000-4000-8000-000000000061'::uuid])->0->>'name'='Approved Buyer','Assigned provider sees requester public name');
 select public.own_public_name('Updated Seller');
 set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000001';
 select pg_temp.check_name(public.content_public_names('marketplace_listing',array['97000000-0000-4000-8000-000000000011'::uuid])->0->>'name'='Updated Seller','Explicit edit reflected across surfaces');
 set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000003';
+select pg_temp.check_name(public.content_public_names('marketplace_message',array['97000000-0000-4000-8000-000000000051'::uuid])='[]','Nonparticipant message identity denied');
+select pg_temp.check_name(public.content_public_names('service_request',array['97000000-0000-4000-8000-000000000061'::uuid])='[]','Unassigned job identity denied');
 select pg_temp.check_name(public.content_public_names('marketplace_listing',array['97000000-0000-4000-8000-000000000011'::uuid])='[]','Unverified viewer rejected');
 select pg_temp.check_name(public.content_public_names('marketplace_pickup',array['97000000-0000-4000-8000-000000000021'::uuid])='[]','Nonparticipant buyer name rejected');
 reset role;
@@ -78,4 +90,14 @@ reset role;
 select pg_temp.check_name(not has_function_privilege('anon','public.content_public_names(text,uuid[])','execute'),'Anonymous lookup denied');
 select pg_temp.check_name(not has_function_privilege('authenticated','private.neighbor_name(uuid)','execute'),'No arbitrary profile directory');
 select pg_temp.check_name(not (select prosecdef from pg_proc where oid='public.content_public_names(text,uuid[])'::regprocedure),'Public wrapper stays invoker');
+set local role authenticated;set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000001';
+do $$begin
+ begin perform public.content_public_names('profiles','{}');raise exception 'Invalid kind accepted';exception when invalid_parameter_value then null;end;
+ begin perform public.content_public_names('event',array_fill('97000000-0000-4000-8000-000000000041'::uuid,array[101]));raise exception 'Unbounded lookup accepted';exception when invalid_parameter_value then null;end;
+end $$;
+reset role;
+insert into public.blocks(blocker_id,blocked_id) values ('97000000-0000-4000-8000-000000000001','97000000-0000-4000-8000-000000000002');
+set local role authenticated;set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000002';
+select pg_temp.check_name(public.content_public_names('service_request',array['97000000-0000-4000-8000-000000000061'::uuid])='[]','Blocked peer identity denied');
+reset role;
 rollback;

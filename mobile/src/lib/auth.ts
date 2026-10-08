@@ -195,12 +195,16 @@ export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs)
   const context: { authUserId?: string; revision: number } = { revision: sessionRevision };
   assertCurrentSession(context.revision);
 
-  const offlineProfile = await cachedProfileIfDeviceOffline();
-  assertCurrentSession(context.revision);
-  if (offlineProfile !== undefined) return offlineProfile;
-
   try {
-    const profile = await withTimeout(restoreSessionProfileWithoutTimeout(context), timeoutMs);
+    const profile = await withTimeout(
+      (async () => {
+        const offlineProfile = await cachedProfileIfDeviceOffline();
+        assertCurrentSession(context.revision);
+        if (offlineProfile !== undefined) return offlineProfile;
+        return restoreSessionProfileWithoutTimeout(context);
+      })(),
+      timeoutMs,
+    );
     assertCurrentSession(context.revision);
     return profile;
   } catch (caught) {
