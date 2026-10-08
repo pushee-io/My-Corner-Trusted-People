@@ -24,6 +24,7 @@ export type CurrentProviderProfile = {
 
 const passwordRecoveryRedirect = 'mycorner://reset-password';
 let sessionRevision = 0;
+let endedSessionRevision: number | undefined;
 let pendingSessionChanges = 0;
 let sessionChangeQueue: Promise<void> = Promise.resolve();
 
@@ -32,7 +33,11 @@ function isCurrentSession(revision: number): boolean {
 }
 
 function assertCurrentSession(revision: number): void {
-  if (!isCurrentSession(revision)) throw new Error('Your session changed. Please try again.');
+  if (!isCurrentSession(revision)) {
+    if (pendingSessionChanges === 0 && endedSessionRevision === sessionRevision)
+      throw new SessionReauthenticationRequired();
+    throw new Error('Your session changed. Please try again.');
+  }
 }
 
 function changeSession(operation: () => Promise<void>): Promise<void> {
@@ -152,6 +157,37 @@ export async function signOutFromDevice(): Promise<void> {
   });
 }
 
+export class SessionReauthenticationRequired extends Error {
+  constructor() {
+    super('Your session is no longer valid. Please sign in again.');
+  }
+}
+
+function requiresReauthentication(error: unknown): boolean {
+  const candidate = error as { code?: string; status?: number } | null;
+  return (
+    candidate?.status === 401 ||
+    candidate?.status === 403 ||
+    [
+      'refresh_token_not_found',
+      'refresh_token_already_used',
+      'session_not_found',
+      'user_not_found',
+      'user_banned',
+      'bad_jwt',
+    ].includes(candidate?.code ?? '')
+  );
+}
+
+// Supabase may end a session outside an explicit button action (revocation or
+// failed refresh). Invalidate the routing cache and in-flight reads as well.
+export function forgetEndedSession(): Promise<void> {
+  sessionRevision += 1;
+  endedSessionRevision = sessionRevision;
+  invalidateMediaSession();
+  return clearCachedSessionProfile();
+}
+
 const sessionRestoreTimeoutMs = 8_000;
 
 export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs): Promise<CurrentProfile | null> {
@@ -169,6 +205,10 @@ export async function restoreSessionProfile(timeoutMs = sessionRestoreTimeoutMs)
     return profile;
   } catch (caught) {
     assertCurrentSession(context.revision);
+    if (caught instanceof SessionReauthenticationRequired) {
+      await clearCachedSessionProfile();
+      throw caught;
+    }
     const profile = await cachedProfileForOfflineRestore(caught, context.authUserId);
     assertCurrentSession(context.revision);
     return profile;
@@ -181,7 +221,10 @@ async function restoreSessionProfileWithoutTimeout(context: {
 }): Promise<CurrentProfile | null> {
   const { data, error } = await supabase.auth.getSession();
   assertCurrentSession(context.revision);
-  if (error) throw error;
+  if (error) {
+    if (requiresReauthentication(error)) throw new SessionReauthenticationRequired();
+    throw error;
+  }
   if (!data.session) {
     const offlineProfile = await cachedProfileIfDeviceOffline();
     assertCurrentSession(context.revision);
@@ -195,20 +238,20 @@ async function restoreSessionProfileWithoutTimeout(context: {
   return getCurrentProfile();
 }
 
-async function cachedProfileIfDeviceOffline(): Promise<CurrentProfile | null | undefined> {
+async function cachedProfileIfDeviceOffline(): Promise<CurrentProfile | undefined> {
+  let offline: boolean;
   try {
-    const networkState = await NetInfo.fetch();
-    if (!isNetworkOffline(networkState)) return undefined;
-
-    return readCachedSessionProfile();
+    offline = isNetworkOffline(await NetInfo.fetch());
   } catch {
-    // Unknown reachability falls through to Supabase's normal session restoration.
-    return undefined;
+    return undefined; // Unknown reachability: try Supabase normally.
   }
+  if (!offline) return undefined;
+  const cached = await readCachedSessionProfile();
+  return cached ?? undefined;
 }
 
 async function cachedProfileForOfflineRestore(caught: unknown, authUserId?: string): Promise<CurrentProfile> {
-  if (!isOfflineRestoreError(caught)) throw caught;
+  if (caught instanceof SessionReauthenticationRequired || !isOfflineRestoreError(caught)) throw caught;
 
   const cachedProfile = await readCachedSessionProfile();
   if (!cachedProfile || (authUserId && cachedProfile.authUserId !== authUserId)) throw caught;
@@ -224,7 +267,7 @@ function isOfflineRestoreError(caught: unknown): boolean {
 async function withTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<never>((_, reject) => {
-    timeout = setTimeout(() => reject(new Error('Session restoration timed out. Continue to sign in.')), timeoutMs);
+    timeout = setTimeout(() => reject(new Error('Session restoration timed out. Please retry.')), timeoutMs);
   });
 
   try {
@@ -240,9 +283,12 @@ export async function getCurrentProfile(): Promise<CurrentProfile> {
   assertCurrentSession(revision);
   const { data: userData, error: userError } = await supabase.auth.getUser();
   assertCurrentSession(revision);
-  if (userError) throw userError;
+  if (userError) {
+    if (requiresReauthentication(userError)) throw new SessionReauthenticationRequired();
+    throw userError;
+  }
   if (!userData.user) {
-    throw new Error('Sign in before using live data.');
+    throw new SessionReauthenticationRequired();
   }
 
   const { data, error } = await supabase

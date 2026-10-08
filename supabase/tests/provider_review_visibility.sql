@@ -13,6 +13,8 @@ insert into public.profiles(id,auth_user_id,display_name,role) values
  ('97000000-0000-4000-8000-000000000002','97000000-0000-4000-8000-000000000002','Provider','provider'),
  ('97000000-0000-4000-8000-000000000003','97000000-0000-4000-8000-000000000003','Outsider','requester'),
  ('97000000-0000-4000-8000-000000000004','97000000-0000-4000-8000-000000000004','Moderator','moderator');
+insert into private.public_profile_names(profile_id,display_name) values
+ ('97000000-0000-4000-8000-000000000001','Ama K.');
 insert into public.provider_profiles(id,profile_id,business_name,headline,general_area,availability) values
  ('97000000-0000-4000-8000-000000000010','97000000-0000-4000-8000-000000000002','QA Plumbing','Fixture','QA area','Available');
 insert into public.job_requests(id,requester_id,provider_id,title,description,original_user_text,urgency,preferred_date,preferred_time,contact_preference,general_area_label,status)

@@ -152,3 +152,22 @@ it('does not overlap slow background loads and supports manual retry', async () 
   });
   expect(state.data).toEqual(['manual']);
 });
+it('keeps visible data during token rotation and still clears it when authorization refresh fails', async () => {
+  await mount();
+  const pending = deferred();
+  load.mockReturnValue(pending.promise);
+  await act(async () => {
+    mockAuthListener('TOKEN_REFRESHED');
+    jest.advanceTimersByTime(0);
+  });
+  expect(state.data).toEqual(['old']);
+  await act(async () => pending.resolve(['refreshed']));
+  expect(state.data).toEqual(['refreshed']);
+  load.mockRejectedValue(new Error('access revoked'));
+  await act(async () => {
+    mockAuthListener('TOKEN_REFRESHED');
+    jest.advanceTimersByTime(0);
+  });
+  expect(state.data).toBeUndefined();
+  expect(state.error).toBeDefined();
+});

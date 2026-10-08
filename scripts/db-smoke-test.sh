@@ -32,6 +32,7 @@ legacy_tests=(
   supabase/tests/community_notifications.sql
   supabase/tests/private_neighbor_messaging.sql
   supabase/tests/canonical_public_profile_name.sql
+  supabase/tests/authorized_content_public_names.sql
   supabase/tests/feed_public_author_names.sql
   supabase/tests/verified_job_reviews.sql
   supabase/tests/self_registration.sql

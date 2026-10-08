@@ -7,7 +7,7 @@ import ReviewRequest from '../../app/hire/request/review';
 import { createNeighborhoodFeedPost } from '@/lib/community-repository';
 import { createJobRequest } from '@/lib/repository';
 import { useMediaComposer } from '@/components/media/MediaComposer';
-import { RequestMediaProvider } from '@/components/media/RequestMediaProvider';
+import { RequestMediaProvider, useRequestMedia } from '@/components/media/RequestMediaProvider';
 
 jest.mock('react-native', () => ({
   View: 'View',
@@ -98,12 +98,22 @@ it('Feed retains typed text after attachment failure and finishes the same post 
   expect(renderer.root.findAllByType(TextInput)[0].props.value).toBe('');
   expect(clear).toHaveBeenCalledTimes(1);
 });
+function AcceptedReview() {
+  const { acceptTrust } = useRequestMedia();
+  return createElement(
+    'View',
+    null,
+    createElement(Pressable, { onPress: acceptTrust }, createElement(Text, null, 'Accept trust')),
+    createElement(ReviewRequest),
+  );
+}
 it('Hire navigates only after private attachments finish and retries the same request', async () => {
   jest.mocked(createJobRequest).mockResolvedValue({ id: 'saved-request', categoryId: 'plumbing' } as never);
   attach.mockRejectedValueOnce(new Error('attach response lost'));
   await act(async () => {
-    renderer = create(createElement(RequestMediaProvider, { scope: 'provider' }, createElement(ReviewRequest)));
+    renderer = create(createElement(RequestMediaProvider, { scope: 'provider' }, createElement(AcceptedReview)));
   });
+  await act(async () => button('Accept trust').props.onPress());
   await act(async () => button('Submit request').props.onPress());
   expect(router.replace).not.toHaveBeenCalled();
   expect(clear).not.toHaveBeenCalled();

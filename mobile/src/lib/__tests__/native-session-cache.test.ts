@@ -102,7 +102,10 @@ describe('native profile cache and startup contract', () => {
     mockFetchNetwork.mockResolvedValue({ isConnected: true, isInternetReachable: true });
     mockGetSession.mockResolvedValue({ data: { session: { user: { id: provider.authUserId } } }, error: null });
     mockGetUser.mockResolvedValue({ data: { user: { id: provider.authUserId } }, error: null });
-    mockSignOut.mockResolvedValue({ error: null });
+    mockSignOut.mockImplementation(async () => {
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+      return { error: null };
+    });
     mockSignIn.mockResolvedValue({ error: null });
     mockSetSession.mockResolvedValue({ error: null });
     mockSingle.mockResolvedValue({
@@ -179,7 +182,8 @@ describe('native profile cache and startup contract', () => {
     await auth.restoreSessionProfile();
     goOffline();
     mockNativeRead.mockRejectedValueOnce(new Error('Device storage temporarily unavailable'));
-    await expect(auth.restoreSessionProfile()).resolves.toBeNull();
+    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error: new Error('Network request failed') });
+    await expect(auth.restoreSessionProfile()).resolves.toEqual(provider);
     expect(mockDisk.size).toBe(1);
     expect(mockNativeDelete).not.toHaveBeenCalled();
     await expect(auth.restoreSessionProfile()).resolves.toEqual(provider);
@@ -277,7 +281,7 @@ describe('native profile cache and startup contract', () => {
     mockSingle.mockResolvedValue({ data: null, error: new Error('Network request failed') });
     await expect(auth.signInWithEmailPassword('qa@example.com', 'test-password')).rejects.toThrow('Network');
     goOffline();
-    await expect(auth.restoreSessionProfile()).resolves.toBeNull();
+    await expect(auth.restoreSessionProfile()).rejects.toThrow('Network');
   });
 
   it('blocks profile reads during a session change and serializes a following sign-in', async () => {
@@ -366,10 +370,11 @@ describe('native profile cache and startup contract', () => {
   });
 
   it('does not restore a profile on a fresh offline installation', async () => {
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
     goOffline();
     const auth = await import('../auth');
     await expect(auth.restoreSessionProfile()).resolves.toBeNull();
-    expect(mockGetSession).not.toHaveBeenCalled();
+    expect(mockGetSession).toHaveBeenCalledTimes(1);
     expect(mockNativeWrite).not.toHaveBeenCalled();
   });
 });

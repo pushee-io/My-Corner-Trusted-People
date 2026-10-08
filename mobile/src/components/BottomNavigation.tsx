@@ -2,7 +2,7 @@ import { router, type Href, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { getCurrentCapabilities } from '@/lib/capabilities';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 import { isEventsClientEnabled } from '@/lib/events-feature';
 import { NavigationArtwork } from './NavigationArtwork';
@@ -35,29 +35,31 @@ function isSelected(pathname: string, item: BottomNavigationItem) {
 export function BottomNavigation() {
   const pathname = usePathname();
   const capabilities = useProtectedResource(getCurrentCapabilities);
-  const items = bottomNavigationItems.filter(
-    (item) => !['Community', 'Market'].includes(item.label) || capabilities.data?.community,
-  );
+  // Keep tab positions stable while account capabilities are loading.
+  const items = bottomNavigationItems;
 
   return (
     <View accessibilityRole="tablist" style={styles.container}>
       {items.map((item) => {
         const selected = isSelected(pathname, item);
+        const disabled = ['Community', 'Market'].includes(item.label) && !capabilities.data?.community;
 
         return (
           <Pressable
             accessibilityLabel={item.label}
             accessibilityRole="tab"
-            accessibilityState={{ selected }}
+            accessibilityState={{ selected, disabled }}
+            disabled={disabled}
             key={String(item.href)}
-            onPress={() =>
-              router.push(
+            onPress={() => {
+              const destination =
                 item.label === 'Home' && capabilities.data?.provider && !capabilities.data.community
                   ? '/provider/requests'
-                  : item.href,
-              )
-            }
-            style={[styles.item, selected ? styles.selectedItem : null]}
+                  : item.href;
+              Keyboard.dismiss();
+              if (pathname !== destination) router.navigate(destination);
+            }}
+            style={[styles.item, selected ? styles.selectedItem : null, disabled ? { opacity: 0.45 } : null]}
           >
             {item.icon === 'hire' || item.icon === 'neighborhood' ? (
               <NavigationArtwork

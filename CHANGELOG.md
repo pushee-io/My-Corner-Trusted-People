@@ -1,5 +1,14 @@
 ## 2026-09-29 UTC — recommendation relevance repair; 80% warning observed
 
+## 2026-10-08 — Session/navigation/public identity/request UX prepared for review
+
+Live-main base: `4c9cea912f734bc2dcd0b1b5d3ae718f927ffbf6` (#169). Startup now separates retryable loading failure from logout; bottom navigation avoids duplicate pushes and layout shifts; Marketplace, Groups, Events, Hire requester and review displays reuse canonical approved names; Create Request gains explicit Review and Accept confirmation with flow/submission guards.
+
+Local validation: 580 mobile tests/103 suites, 77 server tests, typecheck and formatting passed; lint 0 errors/15 baseline warnings. New migration `20261008203711_authorized_content_public_names.sql` remains unapplied. Preview dependency inspection was read-only. Device hard-close, ten-cycle visual and two-account Preview acceptance remain OPEN. No merge, deployment, production operation, paid APK or real communication was performed.
+
+Full root-cause report, identity audit, file manifest, risks and acceptance matrix: [SESSION_UX_IDENTITY_CHECKPOINT.md](docs/SESSION_UX_IDENTITY_CHECKPOINT.md). CI/build follow-up will be recorded there. This is not a completed device acceptance checkpoint.
+
+
 Founder IMG_0333–0336 shows “What is the best place for coffee?” returning traffic/Banku/generic praise records containing “best”. Root cause: recommendation scaffolding survived keyword extraction and any-word matching treated that adjective as sufficient evidence. #167 fixed ordering/duplicate excerpts but did not fix this topic-admission defect.
 
 Source repair removes recommendation/question scaffolding before SQL retrieval and its per-family cap (arbitrary topics, no coffee-specific record rule). Literal multiword topics require all terms; supported concept expansions and explicit OR remain alternatives. Topicless recommendation requests clarify rather than browse arbitrary records. Search and Ask share the same plan/filter; no unrelated fallback cards are substituted when there is no topic evidence. Authorized Feed/comments, Groups, Events, provider/reviews, Marketplace and Agency retrieval remain enabled. This remains bounded lexical/concept retrieval, not proof of complete semantic recall for every possible phrasing.
