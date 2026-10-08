@@ -1,5 +1,19 @@
 # Session, navigation, public identity and request UX checkpoint — 2026-10-08
 
+## Approved Preview release — 2026-10-08
+
+This section supersedes the pre-release status below.
+
+- Founder approved Preview-only migration, then explicitly approved merging #171 and one new Preview APK.
+- #171 merged at `4ad0f8fb51bd1ab53818bb845989f6d6d28db759`.
+- Reviewed migration `20261008203711_authorized_content_public_names.sql` applied unchanged to Preview `opeojxwkwwnnncnsuaag`; MCP migration history version `20261008215446`, name `authorized_content_public_names`. All three deployed function body hashes match source.
+- Preview SQL acceptance PASSED: authorized_content_public_names, provider_review_visibility, verified_job_reviews. Transactions rolled back; fixture profiles, listings, jobs, notifications and outbox rows verified absent. Preview cluster fixture omitted CI-only city column; no schema or assertion changed. No new security advisor findings versus pre-deployment baseline.
+- Fresh recovery verification: 581 mobile tests / 103 suites, 77 server tests and typecheck passed. Current-head PR CI passed.
+- One-build workflow started: [37850622617](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37850622617), source `61e1cf2e7bda8e8dc882127d21f04d269c1dae8a`. Mobile and Supabase source are identical to merged main. Only build workflow configuration differs. Completed APK50/APK51 are recognized; active/unexpected-build guards remain enforced. Do not submit a replacement after interruption; inspect this workflow and its receipt first.
+- Build completion and artifact verification: pending.
+- NOT YET TESTED: authenticated two-account app names/avatars, Android hard-close/sign-out, ten visual navigation cycles and native acknowledgement. SQL role tests are not signed-in app/device acceptance.
+- No Production or Edge Function deployment.
+
 ## Final automated verification — 2026-10-08
 
 Implementation commit: `b462041b34ee65da5c4b23a3d1c2aea78bf3e759` on [draft PR #171](https://github.com/pushee-io/My-Corner-Trusted-People/pull/171). This receipt is documentation only; application and migration source match that verified commit.
