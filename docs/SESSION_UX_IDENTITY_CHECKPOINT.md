@@ -1,6 +1,18 @@
 # Session, navigation, public identity and request UX checkpoint — 2026-10-08
 
-Status: implementation and automated verification in progress; **not device-accepted or released**.
+## Final automated verification — 2026-10-08
+
+Implementation commit: `b462041b34ee65da5c4b23a3d1c2aea78bf3e759` on [draft PR #171](https://github.com/pushee-io/My-Corner-Trusted-People/pull/171). This receipt is documentation only; application and migration source match that verified commit.
+
+- [Mobile CI 37843689524](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37843689524): **passed**, including Preview contract, Expo compatibility, formatting, lint, typecheck, 581 tests/103 suites and web bundle export.
+- [Database CI 37843689591](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37843689591): **passed**, clean local Supabase reset plus all SQL/RLS suites. New content-reference checks, existing legal-name-leakage assertion and explicit review-name update regression pass. No privacy assertion or pickup-window constraint was relaxed.
+- Local server tests: **77 passed**. Final Android Hermes bundle export of this implementation: **passed**, bundle `entry-18041aba31f6c863d093c8723f4f31b2.hbc`. This was not an EAS/APK build.
+- Merge, Preview application of `20261008203711_authorized_content_public_names.sql`, authenticated two-account acceptance, native hard-close and ten full navigation cycles: **pending**. No deployment, identity backfill, production change, paid build or real communication.
+
+The implementation is ready for review. **The user-behavior checkpoint is not complete** until Preview and Android acceptance pass. The next release approval is merge #171 and apply only its named migration to Preview `opeojxwkwwnnncnsuaag`; APK approval comes after Preview acceptance.
+
+
+Status: implementation and automated verification passed; **not device-accepted or released**.
 
 ## Source of truth and investigation
 
@@ -33,14 +45,14 @@ Supabase React Native guidance and changelog checked; installed SDK remains 2.75
 ## Risks and release ordering
 
 - The new private definer is necessary to read approved names without broadening base-profile RLS. Its public wrapper is invoker; arbitrary neighbor_name execution remains revoked. New tests cover visible/hidden content, private Groups, uninvited Events, buyer participants, absent public consent, public edits and anonymous access. Base table policies, Job Safety and messaging permissions are unchanged.
-- Additional batched name reads may fail independently. Normal reads surface errors; post-write reads use a safe fallback so successful writes are not repeated. No legal/self value is a fallback.
+- Additional batched name reads may fail independently. Normal reads surface errors; post-write reads use a safe fallback so successful writes are not repeated. No new direct self/private-field fallback is introduced.
 - Deploy the reviewed migration before distributing the new mobile source. Existing APK51 continues its old client projections; the reviewed server review-name change is backward compatible.
 - Migration `20261008203711_authorized_content_public_names.sql` is committed for review **but not applied**. Preview read-only inspection confirmed dependency helpers exist on `opeojxwkwwnnncnsuaag`. No live test accounts, memberships, quotas or data were changed.
 - Founder merge and Preview migration approval remain required under the existing release process. No Edge Function change is needed. A future APK needs separate approval after Preview acceptance; no paid build started.
 
 ## Validation and acceptance matrix
 
-Local mobile: **581 tests / 103 suites passed**. Server: **77 passed**. TypeScript passed. Lint: **0 errors / 15 baseline warnings**. Mobile formatting and diff checks passed. Android Hermes bundle export passed (`expo export --platform android`); this is a local bundle check, not an APK or device test. Draft PR [#171](https://github.com/pushee-io/My-Corner-Trusted-People/pull/171). Mobile CI passed on `1adc1fdae62e6d81ec1b0550d5d195358d9c2bd9` (run 37843044279); final follow-up CI remains pending. First Database CI stopped on the fixture's 24-hour pickup window. The fixture now uses one hour, preserving the eight-hour constraint, with additional service-request/message/block/bounds checks. No production or Preview application data was involved. The second Database run passed the new authorized-content fixtures but caught a genuine review privacy regression in the unconditional resolver integration. The review projection now preserves its stronger historical consent boundary; the existing Legal name leaked assertion remains unchanged, and a separate test confirms explicit public-name edits refresh review names. Final Database CI remains pending.
+Local mobile: **581 tests / 103 suites passed**. Server: **77 passed**. TypeScript passed. Lint: **0 errors / 15 baseline warnings**. Mobile formatting and diff checks passed. Android Hermes bundle export passed (`expo export --platform android`); this is a local bundle check, not an APK or device test. Draft PR [#171](https://github.com/pushee-io/My-Corner-Trusted-People/pull/171). Final Mobile and Database CI passed on `b462041b34ee65da5c4b23a3d1c2aea78bf3e759` (receipt above). First Database CI stopped on the fixture's 24-hour pickup window. The fixture now uses one hour, preserving the eight-hour constraint, with additional service-request/message/block/bounds checks. No production or Preview application data was involved. The second Database run passed the new authorized-content fixtures but caught a genuine review privacy regression in the unconditional resolver integration. The review projection now preserves its stronger historical consent boundary; the existing Legal name leaked assertion remains unchanged, and a separate test confirms explicit public-name edits refresh review names. The final Database CI passed with that correction.
 
 Read-only Preview security advisors were inspected before any deployment. Existing notices include PostGIS `public.spatial_ref_sys` without RLS, three legacy functions with mutable search paths, private tables intentionally denying direct access and existing definer-function advisories. These predate this unapplied migration; this is not a clean-advisors claim. The new functions have fixed empty search paths, explicit active-account/content authorization and revoked anonymous execution. [RLS advisory](https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public), [search-path advisory](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable).
 
@@ -49,8 +61,8 @@ Read-only Preview security advisors were inspected before any deployment. Existi
 | Hydration waits; transient profile/backend error offers retry; absent/revoked session opens login | Automated pass. |
 | SecureStore routing-cache restart, explicit sign-out, stale reads/account changes | Automated pass using native bridge simulation; actual phone restart/hard-close not observed. |
 | Ten navigation cycles/current-tab no-op/stable tab positions/token refresh | Component tests pass; no claim of frame-rate, smoothness or real-device ten-cycle acceptance. |
-| Seller/buyer canonical names, fallback, batch limits and account-switch responses | Client tests pass; SQL fixtures pending Database CI at initial checkpoint. |
-| Groups/Events/private audience boundaries | SQL fixtures added; pending Database CI at initial checkpoint. |
+| Seller/buyer canonical names, fallback, batch limits and account-switch responses | Client tests and Database CI authorization fixtures passed. |
+| Groups/Events/private audience boundaries | Database CI passed, including removed membership and uninvited Event denials. |
 | Acknowledgement, cancel/direct Review bypass, scope/account reset, retained acceptance | Real flow component tests pass. |
 | Android emulator and physical phone manual tests A–F, ten full cycles, two-account Marketplace | **Not run: no adb, connected emulator/device or signed-in Preview test sessions available here.** |
 | Preview migration + cross-surface edit/interest acceptance | **Not run: migration awaits review/approval; no real communications sent.** |

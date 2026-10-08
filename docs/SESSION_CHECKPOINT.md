@@ -6,7 +6,7 @@ Live-main base: `4c9cea912f734bc2dcd0b1b5d3ae718f927ffbf6` (#169). Startup now s
 
 Local validation: 581 mobile tests/103 suites, 77 server tests, typecheck and formatting passed; lint 0 errors/15 baseline warnings. New migration `20261008203711_authorized_content_public_names.sql` remains unapplied. Preview dependency inspection was read-only. Device hard-close, ten-cycle visual and two-account Preview acceptance remain OPEN. No merge, deployment, production operation, paid APK or real communication was performed.
 
-Draft PR: https://github.com/pushee-io/My-Corner-Trusted-People/pull/171. Full root-cause report, identity audit, file manifest, risks and acceptance matrix: [SESSION_UX_IDENTITY_CHECKPOINT.md](SESSION_UX_IDENTITY_CHECKPOINT.md). CI/build follow-up will be recorded there. This is not a completed device acceptance checkpoint.
+Draft PR: https://github.com/pushee-io/My-Corner-Trusted-People/pull/171. Full root-cause report, identity audit, file manifest, risks and acceptance matrix: [SESSION_UX_IDENTITY_CHECKPOINT.md](SESSION_UX_IDENTITY_CHECKPOINT.md). Mobile CI 37843689524 and Database CI 37843689591 passed on implementation commit `b462041b34ee65da5c4b23a3d1c2aea78bf3e759`; final local Android bundle export passed. The linked report contains the verification receipt. This is not a completed device acceptance checkpoint.
 
 
 Founder IMG_0333–0336 shows “What is the best place for coffee?” returning traffic/Banku/generic praise records containing “best”. Root cause: recommendation scaffolding survived keyword extraction and any-word matching treated that adjective as sufficient evidence. #167 fixed ordering/duplicate excerpts but did not fix this topic-admission defect.
