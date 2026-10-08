@@ -10,7 +10,9 @@ This section supersedes the pre-release status below.
 - Preview SQL acceptance PASSED: authorized_content_public_names, provider_review_visibility, verified_job_reviews. Transactions rolled back; fixture profiles, listings, jobs, notifications and outbox rows verified absent. Preview cluster fixture omitted CI-only city column; no schema or assertion changed. No new security advisor findings versus pre-deployment baseline.
 - Fresh recovery verification: 581 mobile tests / 103 suites, 77 server tests and typecheck passed. Current-head PR CI passed.
 - One-build workflow started: [37850622617](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37850622617), source `61e1cf2e7bda8e8dc882127d21f04d269c1dae8a`. Mobile and Supabase source are identical to merged main. Only build workflow configuration differs. Completed APK50/APK51 are recognized; active/unexpected-build guards remain enforced. Do not submit a replacement after interruption; inspect this workflow and its receipt first.
-- Build completion and artifact verification: pending.
+- Build completed and artifact verification PASSED at 2026-10-08 22:12 UTC. APK versionCode 52, EAS `2646d53a-c144-40f2-9b2b-ff5db9e78644`. Workflow 37850622617 succeeded. Receipt artifact 11582120040; verified APK/provenance artifact 11581674695. Approval consumed; no additional build is authorized.
+- [Download APK52](https://expo.dev/artifacts/eas/tVFNr5aS1p8xFWTGey-4KV9GaR4ZoSKQFmzwiwF-w8I.apk). SHA-256 `ecbe5dc61231053f3f6ce004c18676f65bd440a2fb2fac11737497ff4bed687d`.
+- Workflow verified exact source, Android package `com.mycorner.trustedpeople`, Preview-only Supabase URL, ZIP integrity, navigation font, existing product markers and new Review and Accept / session Retry / content_public_names markers. Main Mobile CI 37850459228 and Database CI 37850459150 passed; build-source Mobile CI 37850622442 passed.
 - NOT YET TESTED: authenticated two-account app names/avatars, Android hard-close/sign-out, ten visual navigation cycles and native acknowledgement. SQL role tests are not signed-in app/device acceptance.
 - No Production or Edge Function deployment.
 
