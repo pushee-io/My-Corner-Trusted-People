@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { mediaLimits, validateMediaDrafts, type MediaDraft, type MediaParent } from '@/lib/media-contract';
 import { pickMedia } from '@/lib/media-picker';
+import { beginMediaPickerActivity } from '@/lib/media-picker-activity';
 import { releaseLocalMedia } from '@/lib/media-local-files';
 import { attachMedia, mediaEnabled, removeMedia, uploadMediaDraft } from '@/lib/media-repository';
 import { assertMediaSession, mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session';
@@ -73,6 +74,7 @@ export function useMediaComposer(parent: MediaParent, scope: string | null = '')
     setBusy(true);
     setError(undefined);
     let selected: MediaDraft | null = null;
+    const finishPicker = beginMediaPickerActivity();
     try {
       const draft = await pickMedia(parent, source, kind);
       selected = draft;
@@ -92,6 +94,7 @@ export function useMediaComposer(parent: MediaParent, scope: string | null = '')
       if (selected) void releaseLocalMedia([selected.id]);
       if (isCurrent()) setError(caught instanceof Error ? caught.message : 'Could not select media.');
     } finally {
+      finishPicker();
       finish();
     }
   }

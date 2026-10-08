@@ -20,7 +20,7 @@ export function ParentMediaEditor({
   title: string;
   name?: string;
 }) {
-  const media = useMediaComposer(parent);
+  const media = useMediaComposer(parent, parentId);
   const mounted = useRef(false);
   const identity = `${parent}:${parentId}:${mediaSessionRevision()}`;
   const currentIdentity = useRef(identity);

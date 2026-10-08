@@ -1,8 +1,10 @@
+import { PublicIdentity } from '@/components/PublicIdentity';
+import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { MediaGallery } from '@/components/media/MediaGallery';
-import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
+import { MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -49,42 +51,34 @@ function pickupTimeLabel(request: MarketplacePickupRequest) {
 
 export default function MarketplaceListingScreen() {
   const { listingId } = useLocalSearchParams<{ listingId: string }>();
-  const [listing, setListing] = useState<MarketplaceListing>();
-  const [viewerId, setViewerId] = useState<string>();
-  const [requests, setRequests] = useState<MarketplacePickupRequest[]>([]);
   const [message, setMessage] = useState('Hi, I am interested in this item.');
   const [pickupDate, setPickupDate] = useState(initialPickupDate);
   const [pickupTime, setPickupTime] = useState('10:00');
   const [privateDetailsByRequest, setPrivateDetailsByRequest] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(true);
   const [busyAction, setBusyAction] = useState<string>();
 
   const load = useCallback(async () => {
-    if (!listingId) return;
-    setError(undefined);
-    try {
-      const [item, viewer, pickupRequests] = await Promise.all([
-        getMarketplaceListing(listingId),
-        getMarketplaceViewer(),
-        listMarketplacePickupRequestsForListing(listingId),
-      ]);
-      setListing(item);
-      setViewerId(viewer.id);
-      setRequests(pickupRequests);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not load listing.');
-    } finally {
-      setIsLoading(false);
-    }
+    if (!listingId) throw new Error('Listing unavailable.');
+    const [listing, viewer, requests] = await Promise.all([
+      getMarketplaceListing(listingId),
+      getMarketplaceViewer(),
+      listMarketplacePickupRequestsForListing(listingId),
+    ]);
+    return { listing, viewerId: viewer.id, requests, refreshedAt: Date.now() };
   }, [listingId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void load();
-    }, [load]),
-  );
+  const resource = useProtectedResource(load, 15000, { preserveDuringMediaPicker: true });
+  const { listing, viewerId, requests = [], refreshedAt } = resource.data ?? {};
+  const hasData = Boolean(resource.data);
+  useEffect(() => {
+    if (!hasData) {
+      setPrivateDetailsByRequest({});
+      setMessage('Hi, I am interested in this item.');
+      setNotice(undefined);
+      setError(undefined);
+    }
+  }, [hasData, listingId]);
 
   const isSeller = Boolean(listing && viewerId === listing.sellerId);
   const myRequest = useMemo(() => requests.find((request) => request.requesterId === viewerId), [requests, viewerId]);
@@ -103,7 +97,7 @@ export default function MarketplaceListingScreen() {
         proposedEnd: window.end,
       });
       setNotice('Pickup proposed. The seller can accept, decline, or confirm private details.');
-      await load();
+      await resource.refresh(true);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not send pickup request.');
     } finally {
@@ -127,7 +121,7 @@ export default function MarketplaceListingScreen() {
           ? 'Pickup confirmed. Precise details are now visible only to buyer and seller.'
           : `Pickup ${{ accept: 'accepted', decline: 'declined', cancel: 'cancelled', complete: 'completed' }[action]}.`,
       );
-      await load();
+      await resource.refresh(true);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not update pickup.');
     } finally {
@@ -135,7 +129,7 @@ export default function MarketplaceListingScreen() {
     }
   }
 
-  if (isLoading) {
+  if (resource.loading) {
     return (
       <Screen title="Marketplace listing">
         <LoadingState title="Loading listing" />
@@ -146,14 +140,17 @@ export default function MarketplaceListingScreen() {
   if (!listing) {
     return (
       <Screen title="Marketplace listing">
-        <EmptyState title="Listing unavailable" body={error ?? 'This listing may have been removed or hidden.'} />
+        <EmptyState
+          title="Listing unavailable"
+          body={resource.error ?? error ?? 'This listing may have been removed or hidden.'}
+        />
       </Screen>
     );
   }
 
   return (
     <Screen title={listing.title} showBottomNavigation={false}>
-      <MediaAvatar profileId={listing.sellerId} name={listing.sellerName} />
+      <PublicIdentity profileId={listing.sellerId} name={listing.sellerName} refreshKey={refreshedAt} />
       {isSeller ? (
         <ParentMediaEditor key={listing.id} parent="marketplace_listing" parentId={listing.id} title="Listing video" />
       ) : (
@@ -180,7 +177,6 @@ export default function MarketplaceListingScreen() {
       <View style={styles.panel}>
         <Text style={styles.price}>{priceLabel(listing)}</Text>
         <Text style={styles.body}>{listing.description}</Text>
-        <Text style={styles.note}>Seller: {listing.sellerName}</Text>
         <Text style={styles.note}>Availability: {listing.availability}</Text>
         <Text style={styles.note}>General pickup area: {listing.pickupArea}</Text>
         <Text style={styles.privacyNote}>Exact pickup instructions are not part of this public listing.</Text>
@@ -196,14 +192,19 @@ export default function MarketplaceListingScreen() {
       {isSeller ? (
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.title}>
-            Pickup requests
+            Interested neighbors
           </Text>
+          <ActionButton
+            label="Refresh interested neighbors"
+            busy={Boolean(busyAction)}
+            onPress={() => void resource.refresh(true)}
+            secondary
+          />
           {requests.length === 0 ? <Text style={styles.note}>No pickup proposals yet.</Text> : null}
-          <MediaAvatarCollection profileIds={requests.map((request) => request.requesterId)}>
+          <MediaAvatarCollection profileIds={requests.map((request) => request.requesterId)} refreshKey={refreshedAt}>
             {requests.map((request) => (
               <View key={request.id} style={styles.panel}>
-                <MediaAvatar profileId={request.requesterId} name={request.requesterName} />
-                <Text style={styles.title}>{request.requesterName}</Text>
+                <PublicIdentity profileId={request.requesterId} name={request.requesterName} />
                 <Text style={styles.body}>{request.message}</Text>
                 <Text style={styles.note}>{pickupTimeLabel(request)}</Text>
                 <Text style={styles.note}>General area: {request.generalArea}</Text>

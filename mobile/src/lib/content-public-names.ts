@@ -26,7 +26,8 @@ export async function contentPublicNames(kind: ContentKind, ids: string[]) {
     assertMediaSession(revision);
     if (error) throw error;
     for (const row of (data ?? []) as { id: string; name: string }[]) {
-      if (typeof row.id === 'string' && typeof row.name === 'string') names.set(row.id, row.name.trim() || 'Neighbor');
+      if (typeof row.id === 'string' && typeof row.name === 'string' && row.name.trim())
+        names.set(row.id, row.name.trim());
     }
   }
   return names;
@@ -36,7 +37,7 @@ export async function contentPublicNames(kind: ContentKind, ids: string[]) {
 // duplicate submissions, nor use the self-profile name as a fallback.
 export async function contentPublicNameAfterWrite(kind: ContentKind, id: string, profileId: string) {
   const revision = mediaSessionRevision();
-  let name = 'Neighbor';
+  let name = 'Public name unavailable';
   try {
     name = (await contentPublicNames(kind, [id])).get(profileId) ?? name;
   } catch {

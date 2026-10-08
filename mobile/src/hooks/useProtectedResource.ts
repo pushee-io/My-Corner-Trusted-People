@@ -4,8 +4,13 @@ import { AppState } from 'react-native';
 import { createProtectedResource, type ResourceState } from '@/lib/protected-resource';
 import { supabase } from '@/lib/supabase';
 import { subscribeMediaSession } from '@/lib/media-session';
+import { isMediaPickerActive } from '@/lib/media-picker-activity';
 
-export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalMs = 0) {
+export function useProtectedResource<T>(
+  load: () => Promise<T>,
+  refreshIntervalMs = 0,
+  { preserveDuringMediaPicker = false }: { preserveDuringMediaPicker?: boolean } = {},
+) {
   const [state, setState] = useState<ResourceState<T> & { owner?: typeof load }>({ loading: true });
   const resource = useRef<ReturnType<typeof createProtectedResource<T>> | null>(null);
 
@@ -15,6 +20,7 @@ export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalM
       resource.current = current;
       void current.refresh();
       let signedOut = false;
+      let returningFromPicker = false;
       const unsubscribeSession = subscribeMediaSession(() => {
         signedOut = true;
         current.clear();
@@ -41,6 +47,19 @@ export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalM
         if (event !== 'SIGNED_OUT') authRefresh = setTimeout(() => void current.refresh(), 0);
       });
       const appState = AppState.addEventListener('change', (next) => {
+        if (!signedOut && preserveDuringMediaPicker) {
+          if (next !== 'active' && isMediaPickerActive()) {
+            returningFromPicker = true;
+            return;
+          }
+          if (next === 'active' && returningFromPicker) {
+            returningFromPicker = false;
+            // Recheck access without destroying the pending picker/editor.
+            void current.refresh(true);
+            return;
+          }
+        }
+        returningFromPicker = false;
         current.clear();
         if (next === 'active' && !signedOut) void current.refresh();
       });
@@ -54,7 +73,7 @@ export function useProtectedResource<T>(load: () => Promise<T>, refreshIntervalM
         current.dispose();
         resource.current = null;
       };
-    }, [load, refreshIntervalMs]),
+    }, [load, refreshIntervalMs, preserveDuringMediaPicker]),
   );
 
   const refresh = useCallback((background = false) => resource.current?.refresh(background), []);

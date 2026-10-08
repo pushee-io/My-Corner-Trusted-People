@@ -3,6 +3,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { listMedia } from '@/lib/media-repository';
 import { useParentMedia } from '@/components/media/MediaGallery';
+import { PublicIdentity } from '@/components/PublicIdentity';
 jest.mock('react-native', () => ({
   Image: 'Image',
   View: 'View',
@@ -50,4 +51,45 @@ it('batches distinct peer avatars once and keeps each public name/photo matched'
     accessibilityLabel: 'Kwame Owusu profile photo',
   });
   await act(async () => view!.unmount());
+});
+
+it('keeps visible names with photo/fallback and refreshes a replaced buyer photo for unchanged IDs', async () => {
+  const seller = '98000000-0000-4000-8000-000000000001';
+  const buyer = '98000000-0000-4000-8000-000000000002';
+  jest
+    .mocked(listMedia)
+    .mockClear()
+    .mockResolvedValue([{ parent_id: seller, url: 'https://example.test/seller.jpg' }] as Awaited<
+      ReturnType<typeof listMedia>
+    >);
+  const render = (refreshKey: number) =>
+    createElement(
+      MediaAvatarCollection,
+      { profileIds: [seller, buyer], refreshKey } as Parameters<typeof MediaAvatarCollection>[0],
+      createElement(PublicIdentity, { profileId: seller, name: 'Approved seller' }),
+      createElement(PublicIdentity, { profileId: buyer, name: 'Approved buyer' }),
+    );
+  let view!: ReactTestRenderer;
+  await act(async () => {
+    view = create(render(1));
+  });
+  expect(view.root.findAllByType('Text' as never).map((node) => node.children.join(''))).toEqual([
+    'Approved seller',
+    'AB',
+    'Approved buyer',
+  ]);
+  expect(view.root.findByType('Image' as never).props.accessibilityLabel).toBe('Approved seller profile photo');
+  jest.mocked(listMedia).mockResolvedValue([
+    { parent_id: seller, url: 'https://example.test/seller.jpg' },
+    { parent_id: buyer, url: 'https://example.test/new-buyer.jpg' },
+  ] as Awaited<ReturnType<typeof listMedia>>);
+  await act(async () => view.update(render(2)));
+  expect(listMedia).toHaveBeenCalledTimes(2);
+  expect(
+    view.root.findAllByType('Image' as never).map((node) => [node.props.accessibilityLabel, node.props.source.uri]),
+  ).toEqual([
+    ['Approved seller profile photo', 'https://example.test/seller.jpg'],
+    ['Approved buyer profile photo', 'https://example.test/new-buyer.jpg'],
+  ]);
+  await act(async () => view.unmount());
 });

@@ -52,7 +52,13 @@ it('hydrates buyer identities on authorized pickup requests with a legitimate Ne
   rpc.mockImplementation(
     async (name) =>
       ({
-        data: name === 'content_public_names' ? [{ id: 'buyer', name: 'Canonical buyer' }] : [],
+        data:
+          name === 'content_public_names'
+            ? [
+                { id: 'buyer', name: 'Canonical buyer' },
+                { id: 'unnamed', name: 'Neighbor' },
+              ]
+            : [],
         error: null,
       }) as never,
   );
@@ -74,4 +80,17 @@ it('propagates read errors and does not turn successful content writes into dupl
   await expect(contentPublicNameAfterWrite('group_comment', 'comment', 'author')).resolves.toBe(
     'Public name unavailable',
   );
+});
+
+it('does not disguise an absent identity response as an unnamed neighbor', async () => {
+  jest
+    .mocked(supabase.from)
+    .mockImplementation(
+      (table) => query(table === 'marketplace_listings' ? [{ id: 'listing', seller_id: 'seller' }] : []) as never,
+    );
+  rpc.mockResolvedValue({ data: [], error: null });
+  expect(await listMarketplaceListings('hood')).toEqual([
+    expect.objectContaining({ sellerName: 'Public name unavailable' }),
+  ]);
+  expect(await contentPublicNameAfterWrite('marketplace_pickup', 'pickup', 'buyer')).toBe('Public name unavailable');
 });
