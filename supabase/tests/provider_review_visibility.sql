@@ -47,6 +47,10 @@ select pg_temp.assert_true(second_page->'reviews'->0->>'title'='First public rev
 select pg_temp.assert_true(second_page->'nextCursor'='null'::jsonb,'Last page cursor incorrect') from review_pages;
 select pg_temp.assert_true(first_page::text not like '%PRIVATE%' and second_page::text not like '%PRIVATE%' and second_page::text not like '%SECRET%' and second_page::text not like '%97000000-0000-4000-8000-000000000001%' and second_page::text not like '%97000000-0000-4000-8000-000000000020%','Private identity/job leaked') from review_pages;
 select pg_temp.assert_true(second_page->'reviews'->0->>'author'='Ama K.','Approved public author missing') from review_pages;
+set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000001';
+select public.own_public_name('Current Approved Reviewer');
+set local request.jwt.claim.sub='97000000-0000-4000-8000-000000000003';
+select pg_temp.assert_true(public.review_api('provider','97000000-0000-4000-8000-000000000010')->'reviews'->0->>'author'='Current Approved Reviewer','Review uses stale public author snapshot');
 select pg_temp.assert_true((public.review_api('provider','97000000-0000-4000-8000-000000000011')->>'count')::int=0,'Other provider review leaked');
 select pg_temp.assert_true(jsonb_array_length(public.review_api('provider','97000000-0000-4000-8000-000000000010','{"limit":0}')->'reviews')=0,'Summary unnecessarily loads history');
 reset role;

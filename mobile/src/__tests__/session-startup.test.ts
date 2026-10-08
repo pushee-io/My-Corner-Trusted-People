@@ -45,6 +45,7 @@ it('holds the hydration screen until the persisted session resolves, then opens 
   expect(texts()).not.toContain('Enter My Corner');
   await act(async () => resolve({ role: 'requester' }));
   expect(router.replace).toHaveBeenCalledWith('/neighborhood');
+  expect(texts()).not.toContain('Enter My Corner');
 });
 it('shows Retry rather than sign-in on profile/backend failure and restores on retry', async () => {
   jest

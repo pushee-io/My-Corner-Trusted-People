@@ -86,7 +86,14 @@ begin
   'completedJobs',(select count(*) from public.job_requests j join public.job_safety_sessions s on s.job_request_id=j.id where j.provider_id=target and j.status='Completed' and s.state='completed' and s.requester_completed_at is not null and s.provider_completed_at is not null),
   'canRespond',owner_id=actor,
   'reviews',coalesce((select jsonb_agg(jsonb_build_object(
-   'id',r.id,'rating',r.rating,'title',r.title,'body',r.body,'author',private.neighbor_name(r.reviewer_id),
+   'id',r.id,'rating',r.rating,'title',r.title,'body',r.body,'author',case
+     -- Reviews historically never exposed an unqualified profiles.display_name.
+     -- Apply current canonical names when public consent exists; otherwise keep
+     -- the already-approved review projection, including intentional anonymity.
+     when exists(select 1 from private.public_profile_names n where n.profile_id=r.reviewer_id)
+       or exists(select 1 from public.private_identity_profiles n where n.profile_id=r.reviewer_id)
+     then private.neighbor_name(r.reviewer_id)
+     else coalesce(nullif(r.public_author,''),'Neighbor') end,
    'createdAt',r.created_at,'updatedAt',r.updated_at,'recommends',r.recommends,
    'response',case when r.response_status='clean' then r.provider_response end,
    'respondedAt',case when r.response_status='clean' then r.responded_at end,

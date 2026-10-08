@@ -18,15 +18,18 @@ export default function WelcomeScreen() {
     setRestoreError(false);
 
     async function restoreSession() {
+      let navigating = false;
       try {
         const profile = await restoreSessionProfile();
         if (!active || !profile) return;
 
+        navigating = true;
         router.replace(profile.role === 'provider' ? '/provider/requests' : '/neighborhood');
       } catch (error) {
+        navigating = false;
         if (active) setRestoreError(!(error instanceof SessionReauthenticationRequired));
       } finally {
-        if (active) setRestoringSession(false);
+        if (active && !navigating) setRestoringSession(false);
       }
     }
 
