@@ -21,13 +21,20 @@ Both continuation and submission have UI disabled states and functional guards. 
 - Focused Hire/media/validation suites: **22 tests passed**.
 - Typecheck and formatting: passed.
 - Lint: zero errors; 15 existing warnings outside the changed files.
-- Android Expo export and GitHub Mobile CI results are recorded in the PR.
+- Android Expo/Hermes export: passed.
+- [GitHub Mobile CI run 37869071732](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37869071732): all checks passed on application commit `79a4070c85d96381d5ae7e10b6e50387c12ac5d2`, including formatting, lint, typecheck, 587 tests, screenshot capture and web export. The following evidence-only commit changes documentation and PNGs.
 - Eight acknowledgement integration cases in `hire-media-flow.test.ts` cover visible text/checkbox, unchecked default, no confirmation Alert, disabled-handler invocation, checked continuation, normal Review/Back/submit, unchecking, injected route flags, provider/account resets, old callbacks, synchronous stale-submit rejection, async upload revocation and attachment retry. Existing media/AI request-flow tests remain passing.
 - `media-product-screens.test.ts` uses the reversible acceptance API and retains normal submission/attachment retry coverage.
 
 ## Visual evidence
 
 `mobile/scripts/capture-trust-acknowledgement.cjs` renders the actual component and tokens through React Native Web, with no copied CSS or replacement design. CI captures checked and unchecked PNGs and uploads the HTML/PNG artifact `trust-acknowledgement-component-states`. These are component screenshots, **not emulator evidence or a full native Create Request screenshot**.
+
+Inspected both screenshots: the entire statement is readable, the thin border and checkbox are visible, and the checked state uses the existing green primary color with a white tick.
+
+![Unchecked acknowledgement](evidence/request-trust-checkbox/acknowledgement-unchecked.png)
+
+![Checked acknowledgement](evidence/request-trust-checkbox/acknowledgement-checked.png)
 
 Native Android layout, TalkBack and emulator/phone acceptance are still pending because this environment has no Android emulator/connected device. The user's current PR #173 test app does not include this independent correction. No merge, APK build, backend migration/deployment or Production change is performed here.
 
@@ -43,3 +50,5 @@ Native Android layout, TalkBack and emulator/phone acceptance are still pending 
 - `mobile/scripts/capture-trust-acknowledgement.cjs`
 - `.github/workflows/mobile-ci.yml`
 - `docs/REQUEST_TRUST_CHECKBOX_CHECKPOINT.md`
+- `docs/evidence/request-trust-checkbox/acknowledgement-unchecked.png`
+- `docs/evidence/request-trust-checkbox/acknowledgement-checked.png`
