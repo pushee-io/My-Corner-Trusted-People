@@ -105,7 +105,6 @@ export default function ProviderProfileScreen() {
 
   return (
     <Screen title={provider.name}>
-      <VerifiedReviews key={provider.id} providerId={provider.id} />
       <Text style={styles.headline}>{provider.headline}</Text>
 
       <Text style={styles.body}>
@@ -126,14 +125,6 @@ export default function ProviderProfileScreen() {
         <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Service coverage</Text>
-
-        <Text style={styles.body}>General area: {provider.areaLabel}</Text>
-
-        <Text style={styles.note}>General area only — your exact address stays private until later steps.</Text>
-      </View>
-
       {canStartRequest && selectedCategoryId ? (
         <WebSafeLink
           href={{
@@ -151,6 +142,16 @@ export default function ProviderProfileScreen() {
           <Text style={styles.note}>This provider does not currently have an available service category.</Text>
         </View>
       )}
+
+      <VerifiedReviews key={provider.id} providerId={provider.id} />
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Service coverage</Text>
+
+        <Text style={styles.body}>General area: {provider.areaLabel}</Text>
+
+        <Text style={styles.note}>General area only — your exact address stays private until later steps.</Text>
+      </View>
     </Screen>
   );
 }
