@@ -27,4 +27,19 @@ Use the same APK on both devices. Keep the app data; do not uninstall to work ar
 4. Verify unrelated neighbors cannot view the private interested-neighbor list.
 5. Check TalkBack reads the full acknowledgement with checkbox role/state and the whole row is an easy touch target.
 
-Build ID, artifact, exact source and combined validation results will be recorded after the workflow completes. No Production changes are authorized or performed.
+## Verified build result
+
+- EAS build: `63a99013-52d6-4d35-9034-c3869cca6209` — finished.
+- Android version code: **53**.
+- Source commit: `4c1aa82ebe1f789c73f8548dc393fc38e92c84b9`.
+- [Download APK53](https://expo.dev/artifacts/eas/9mIJ8zhd3h_wfObpaiI8A_GbhRQ9e4RFvChuKGbdODc.apk).
+- [EAS details](https://expo.dev/accounts/mycorner/projects/my-corner/builds/63a99013-52d6-4d35-9034-c3869cca6209).
+- [Build and artifact verification passed](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37871680033).
+- [Mobile CI passed](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37871703735): 600 tests / 105 suites, formatting, lint, typecheck, Expo compatibility, screenshot capture and web export.
+- [Database CI passed](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/37871703723).
+- APK SHA-256: `64188c84aca69df08996e2a374ff1c36ea1f47be5e76067b6d82ee760ac0a007`.
+- The verification job passed all package/source/backend, product-marker and old-acknowledgement-UI absence checks.
+- This follow-up evidence-only commit does not change the application bundled into APK53.
+
+Device installation and acceptance remain pending. No Production changes were performed. PR #173, #174 and combined build PR #175 remain unmerged.
+
