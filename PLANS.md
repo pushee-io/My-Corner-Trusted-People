@@ -1,3 +1,13 @@
+## 2026-09-29 UTC — #169 merged and Preview topic repair deployed
+
+Founder explicitly approved #169 merge and Preview-only ask-my-corner deployment retaining JWT verification. Merge/main: `4c9cea912f734bc2dcd0b1b5d3ae718f927ffbf6`; tested head `32a48f625341ef44e70b143e26a8e53a4c673373`. All Mobile, server/Deno and Database CI passed; 77 server and 564 mobile tests passed.
+
+Preview target `opeojxwkwwnnncnsuaag` was v19 before deployment. This session issued one deployment, returning v20. Immediate read-back observed **v21 ACTIVE, verify_jwt true**, updated **2026-09-29T02:38:30.877Z**, all eight files byte-identical to the approved merged bundle. The intervening version advance was not submitted by this session; no duplicate deployment was attempted. Read-back bundle hash: `deffcb4ce1ca1f55315500b96dc6dbe42b60406ce68c8d010a5d53dcc6d650df`.
+
+Anonymous live POST returned **401**. Five scoped recommendation tests passed again (fixture-based, including all-six-family matrix, false coffee matches, no results, multiword topics and explicit OR). Signed-in live acceptance remains pending: founder should retry “What is the best place for coffee?” on APK51. Relevant coffee evidence or honest no-matching-information is expected, never traffic/Banku results based solely on “best”. No authenticated session was fabricated; local tests are not live authenticated acceptance.
+
+No migration, production, secret, identity, quota change or paid build. Ask uses the server repair on APK51 without a new APK. Basic Search ranking/topic extraction runs in the client and requires a later separately approved build. Preserve the recorded 80% warning/reset-display pass and traffic retest pass; exact live quota rollover remains unobserved. Separate checkpoint PRs #166/#168 remain unmerged.
+
 ## 2026-09-29 UTC — recommendation relevance repair; 80% warning observed
 
 ## 2026-10-08 — Session/navigation/public identity/request UX prepared for review
