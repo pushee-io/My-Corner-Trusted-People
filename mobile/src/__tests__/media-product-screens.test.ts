@@ -99,11 +99,15 @@ it('Feed retains typed text after attachment failure and finishes the same post 
   expect(clear).toHaveBeenCalledTimes(1);
 });
 function AcceptedReview() {
-  const { acceptTrust } = useRequestMedia();
+  const { setAcknowledgementAccepted } = useRequestMedia();
   return createElement(
     'View',
     null,
-    createElement(Pressable, { onPress: acceptTrust }, createElement(Text, null, 'Accept trust')),
+    createElement(
+      Pressable,
+      { onPress: () => setAcknowledgementAccepted(true) },
+      createElement(Text, null, 'Accept trust'),
+    ),
     createElement(ReviewRequest),
   );
 }

@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { TrustAcknowledgement } from '@/components/TrustAcknowledgement';
 import { MediaComposer } from '@/components/media/MediaComposer';
 import { useRequestMedia } from '@/components/media/RequestMediaProvider';
 import { OfflineBanner } from '@/components/StateBlocks';
@@ -70,7 +71,8 @@ export default function NewRequestScreen() {
   const [preferredTime, setPreferredTime] = useState('Afternoon');
   const [urgency, setUrgency] = useState<RequestUrgency>('soon');
   const [contactPreference, setContactPreference] = useState<ContactPreference>('app_update');
-  const { media, submission, trustAccepted: consentAccepted, acceptTrust } = useRequestMedia();
+  const { media, submission, acknowledgementAccepted, setAcknowledgementAccepted, assertAcknowledgementAccepted } =
+    useRequestMedia();
   const photoCount = media.drafts.filter((item) => item.kind === 'image').length;
   const editingDisabled = submission.busy || submission.locked;
   const [error, setError] = useState('');
@@ -130,10 +132,17 @@ export default function NewRequestScreen() {
 
   function reviewRequest() {
     if (submission.busy || media.busy) return;
-    const validation = validateRequestDraft(draft, consentAccepted);
+    const validation = validateRequestDraft(draft, acknowledgementAccepted);
 
     if (!validation.valid) {
       setError(Object.values(validation.errors)[0] ?? 'Please complete the request.');
+      return;
+    }
+
+    try {
+      assertAcknowledgementAccepted();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Select the trust acknowledgement checkbox.');
       return;
     }
 
@@ -297,39 +306,21 @@ export default function NewRequestScreen() {
         <Text style={styles.help}>Continue to Review to finish this same request and its attachments.</Text>
       ) : null}
 
-      <View style={styles.notice}>
-        <Text style={styles.noticeText}>
-          I understand My Corner shows trust evidence but does not guarantee provider conduct.
-        </Text>
-        {consentAccepted ? (
-          <Text accessibilityLiveRegion="polite" style={styles.noticeText}>
-            Acknowledgement accepted
-          </Text>
-        ) : null}
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Review and Accept"
-        accessibilityState={{ disabled: editingDisabled || consentAccepted }}
-        disabled={editingDisabled || consentAccepted}
-        style={[styles.button, editingDisabled || consentAccepted ? { opacity: 0.55 } : null]}
-        onPress={() =>
-          Alert.alert(
-            'Review trust acknowledgement',
-            'I understand My Corner shows trust evidence but does not guarantee provider conduct.',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Accept', onPress: acceptTrust },
-            ],
-          )
-        }
-      >
-        <Text style={styles.buttonText}>{consentAccepted ? 'Accepted' : 'Review and Accept'}</Text>
-      </Pressable>
+      <TrustAcknowledgement
+        checked={acknowledgementAccepted}
+        onChange={setAcknowledgementAccepted}
+        disabled={submission.busy}
+      />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable disabled={submission.busy || media.busy} onPress={reviewRequest} style={styles.button}>
+      <Pressable
+        accessibilityRole="button"
+        disabled={submission.busy || media.busy || !acknowledgementAccepted}
+        accessibilityState={{ disabled: submission.busy || media.busy || !acknowledgementAccepted }}
+        onPress={reviewRequest}
+        style={[styles.button, (submission.busy || media.busy || !acknowledgementAccepted) && { opacity: 0.55 }]}
+      >
         <Text style={styles.buttonText}>Review request</Text>
       </Pressable>
     </Screen>
@@ -367,14 +358,6 @@ const styles = StyleSheet.create({
   chipSelected: { backgroundColor: '#FFF4D6', borderColor: tokens.color.primary },
   chipText: { color: tokens.color.textPrimary, fontWeight: '700' },
   help: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
-  notice: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    backgroundColor: '#FFF4D6',
-    padding: tokens.spacing.md,
-    borderRadius: tokens.radius.md,
-  },
-  noticeText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
   button: {
     minHeight: tokens.touch.min,
     justifyContent: 'center',

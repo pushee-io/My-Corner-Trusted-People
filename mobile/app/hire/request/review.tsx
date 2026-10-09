@@ -16,7 +16,7 @@ export default function RequestReviewScreen() {
   const params = useLocalSearchParams<Record<string, string>>();
   const [provider, setProvider] = useState<Provider>();
   const [error, setError] = useState<string>();
-  const { media, submission, trustAccepted, assertTrustAccepted } = useRequestMedia();
+  const { media, submission, acknowledgementAccepted, assertAcknowledgementAccepted } = useRequestMedia();
   const isSubmitting = submission.busy || media.busy;
 
   useEffect(() => {
@@ -29,19 +29,20 @@ export default function RequestReviewScreen() {
   }, [params.providerId]);
 
   async function submit() {
-    if (!trustAccepted) {
-      setError('Return to Create request to review and accept the trust acknowledgement.');
+    if (!acknowledgementAccepted) {
+      setError('Return to Create request and select the trust acknowledgement checkbox.');
       return;
     }
     setError(undefined);
 
     try {
+      assertAcknowledgementAccepted();
       const request = await submission.submit(async (id) => {
         const moderation = featureFlags.ai_content_moderation
           ? await moderateText(params.description ?? '')
           : { status: 'not_run' as const };
 
-        assertTrustAccepted();
+        assertAcknowledgementAccepted();
         const request = await createJobRequest(
           {
             requesterName: params.requesterName ?? 'Akosua Mensah',
@@ -83,16 +84,16 @@ export default function RequestReviewScreen() {
         title="Review before sending"
         body="The provider sees your general area, not your exact home address."
       />
-      {!trustAccepted ? (
+      {!acknowledgementAccepted ? (
         <View>
-          <Text style={styles.notice}>Review and accept the trust acknowledgement before submitting.</Text>
+          <Text style={styles.notice}>
+            Select the trust acknowledgement checkbox on Create request before submitting.
+          </Text>
           <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.button}>
             <Text style={styles.buttonText}>Back to Create request</Text>
           </Pressable>
         </View>
-      ) : (
-        <Text style={styles.notice}>Trust acknowledgement accepted</Text>
-      )}
+      ) : null}
       {error ? <EmptyState title="Request notice" body={error} /> : null}
 
       <View style={styles.panel}>
@@ -124,10 +125,10 @@ export default function RequestReviewScreen() {
       ) : null}
       <Pressable
         accessibilityRole="button"
-        disabled={isSubmitting || !trustAccepted}
-        accessibilityState={{ disabled: isSubmitting || !trustAccepted }}
+        disabled={isSubmitting || !acknowledgementAccepted}
+        accessibilityState={{ disabled: isSubmitting || !acknowledgementAccepted }}
         onPress={submit}
-        style={[styles.button, isSubmitting || !trustAccepted ? { opacity: 0.55 } : null]}
+        style={[styles.button, isSubmitting || !acknowledgementAccepted ? { opacity: 0.55 } : null]}
       >
         <Text style={styles.buttonText}>{isSubmitting ? 'Submitting...' : 'Submit request'}</Text>
       </Pressable>
