@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { router } from 'expo-router';
+import { WebSafeLink } from '@/components/WebSafeLink';
 import Providers from '../../app/hire/providers';
 import ProviderProfile from '../../app/hire/provider/[providerId]';
 import { VerifiedReviews, ProviderReputationSummary } from '@/components/VerifiedReviews';
@@ -10,13 +11,15 @@ const mockProvider = {
   id: 'provider',
   name: 'QA PipeCare',
   categoryIds: ['plumbing'],
-  trustSignals: [],
+  trustSignals: [{ id: 'phone', label: 'Phone', value: 'Verified' }],
   neighborhood: 'QA',
   areaLabel: 'General area',
   headline: 'Plumbing',
 };
 let mockData: Reputation;
+let mockParams: { providerId?: string | string[]; categoryId?: string | string[] };
 jest.mock('react-native', () => ({
+  Platform: { OS: 'android' },
   Text: 'Text',
   View: 'View',
   TextInput: 'TextInput',
@@ -25,10 +28,14 @@ jest.mock('react-native', () => ({
 }));
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
-  useLocalSearchParams: () => ({ providerId: 'provider', categoryId: 'plumbing' }),
+  useLocalSearchParams: () => mockParams,
+  Link: ({ children, href }: { children: React.ReactElement<{ onPress?: () => void }>; href: unknown }) => {
+    const React = jest.requireActual<typeof import('react')>('react');
+    const { router } = jest.requireMock('expo-router');
+    return React.cloneElement(children, { onPress: () => router.push(href) });
+  },
 }));
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
-jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: 'WebSafeLink' }));
 jest.mock('@/components/media/MediaAvatar', () => ({ MediaAvatar: () => null }));
 jest.mock('@/components/StateBlocks', () => ({
   EmptyState: 'EmptyState',
@@ -84,6 +91,8 @@ async function press(label: string) {
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   jest.clearAllMocks();
+  mockParams = { providerId: 'provider', categoryId: 'plumbing' };
+  mockProvider.categoryIds = ['plumbing'];
   mockData = {
     average: 4,
     count: 1,
@@ -125,7 +134,7 @@ it('renders the review, badge, recommendation and matching response on the actua
     expect(output()).toContain(value);
   expect(output()).not.toContain('1 verified reviews');
   expect(renderer.root.findByProps({ accessibilityLabel: '4 out of 5 stars' })).toBeDefined();
-  const link = renderer.root.findByType('WebSafeLink' as never);
+  const link = renderer.root.findByType(WebSafeLink);
   expect(link.props.href).toEqual({
     pathname: '/hire/request/new',
     params: { providerId: 'provider', categoryId: 'plumbing' },
@@ -162,4 +171,52 @@ it('renders a negative recommendation and no unrelated response', async () => {
   await render(createElement(VerifiedReviews, { providerId: 'provider' }));
   expect(output()).toContain('No');
   expect(output()).not.toContain('Provider response');
+});
+
+it('places the single primary request action after identity/trust and before reputation and coverage', async () => {
+  await render(createElement(ProviderProfile));
+  const texts = renderer.root.findAllByType('Text' as never).map((node) => node.children.join(''));
+  expect(texts.filter((text) => text === 'Start request')).toHaveLength(1);
+  const order = [
+    'Plumbing',
+    'QA · General area',
+    'Trust signals',
+    'Phone: Verified',
+    'Start request',
+    'Provider reputation',
+    'Reviews',
+    'Service coverage',
+  ];
+  for (let index = 1; index < order.length; index++) {
+    expect(texts).toContain(order[index - 1]);
+    expect(texts.indexOf(order[index])).toBeGreaterThan(texts.indexOf(order[index - 1]));
+  }
+  const firstAction = renderer.root.findAllByType('Pressable' as never)[0];
+  expect(firstAction.findByType('Text' as never).children.join('')).toBe('Start request');
+  expect(renderer.root.findAllByType(VerifiedReviews)).toHaveLength(1);
+  expect(renderer.root.findByType(VerifiedReviews).props.providerId).toBe('provider');
+});
+it.each([
+  [{ providerId: 'provider', categoryId: 'electrical' }, 'electrical'],
+  [{ providerId: ['provider'], categoryId: ['plumbing', 'electrical'] }, 'plumbing'],
+  [{ providerId: 'provider' }, 'plumbing'],
+])('keeps the selected provider and category when starting a request (%j)', async (params, categoryId) => {
+  mockParams = params;
+  await render(createElement(ProviderProfile));
+  await press('Start request');
+  expect(router.push).toHaveBeenCalledTimes(1);
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/hire/request/new',
+    params: { providerId: 'provider', categoryId },
+  });
+});
+it('keeps the existing unavailable-category gate while still showing reputation', async () => {
+  mockParams = { providerId: 'provider' };
+  mockProvider.categoryIds = [];
+  await render(createElement(ProviderProfile));
+  expect(output()).not.toContain('Start request');
+  expect(output()).toContain('This provider does not currently have an available service category.');
+  expect(output()).toContain('Provider reputation');
+  expect(output()).toContain(review.title);
+  expect(router.push).not.toHaveBeenCalled();
 });
