@@ -11,6 +11,7 @@ import { attachMedia, mediaEnabled, uploadMediaDraft } from '@/lib/media-reposit
 import { releaseLocalMedia } from '@/lib/media-local-files';
 import { createJobRequest } from '@/lib/repository';
 import { invalidateMediaSession } from '@/lib/media-session';
+import { trustAcknowledgementText } from '@/components/TrustAcknowledgement';
 import type { MediaDraft } from '@/lib/media-contract';
 
 jest.mock('react-native', () => ({
@@ -114,7 +115,13 @@ async function press(label: string) {
 function previews(root: ReactTestInstance = screen()) {
   return root.findAllByType(Image).map((node) => node.props.source.uri);
 }
-async function fillForm() {
+function checkbox(root = screen()) {
+  return root.findAllByType(Pressable).find((node) => node.props.accessibilityRole === 'checkbox')!;
+}
+async function toggleAcknowledgement(root = screen()) {
+  await act(async () => checkbox(root).props.onPress());
+}
+async function fillForm(accept = true) {
   await act(async () => {
     screen()
       .findAllByType(TextInput)
@@ -125,13 +132,7 @@ async function fillForm() {
       .find((node) => node.props.accessibilityLabel === 'Job description')!
       .props.onChangeText('Fictional leak under the sink');
   });
-  await press('Review and Accept');
-  await act(async () =>
-    jest
-      .mocked(Alert.alert)
-      .mock.calls.at(-1)![2]!
-      .find((button) => button.text === 'Accept')!.onPress!(),
-  );
+  if (accept) await toggleAcknowledgement();
 }
 async function chooseBoth() {
   await press('Add media');
@@ -353,26 +354,134 @@ test('AI results from a previous account are discarded', async () => {
   expect(button('Use suggested title and description')).toBeUndefined();
 });
 
-it('requires explicit confirmation and rejects direct Review without acknowledgement', async () => {
+it('shows one bordered checkbox, initially unchecked, with full text and no confirmation UI', async () => {
   await navigate(newPath);
-  await press('Review and Accept');
+  const control = checkbox();
+  expect(control.props.accessibilityLabel).toBe(trustAcknowledgementText);
+  expect(control.props.accessibilityState).toEqual({ checked: false, disabled: false });
+  expect(
+    screen()
+      .findAllByType(Text)
+      .filter((node) => node.children.join('') === trustAcknowledgementText),
+  ).toHaveLength(1);
+  expect(control.props.style[0]).toMatchObject({ borderWidth: 1, minHeight: 48, padding: 12 });
+  expect(button('Review and Accept')).toBeUndefined();
   expect(button('Accepted')).toBeUndefined();
-  // Cancelling the confirmation does not accept it; a deep link cannot bypass it.
+  await toggleAcknowledgement();
+  expect(checkbox().props.accessibilityState.checked).toBe(true);
+  expect(
+    screen()
+      .findAllByType(Text)
+      .some((node) => node.children.join('') === '✓'),
+  ).toBe(true);
+  expect(Alert.alert).not.toHaveBeenCalled();
+});
+it('blocks unchecked continuation even if its disabled handler is called directly', async () => {
+  await navigate(newPath);
+  await fillForm(false);
+  expect(button('Review request').props.disabled).toBe(true);
+  await act(async () => button('Review request').props.onPress());
+  expect(router.push).not.toHaveBeenCalled();
+  await toggleAcknowledgement();
+  await review();
+  expect(button('Submit request').props.disabled).toBe(false);
+});
+it('rejects direct Review and acceptance flags injected in route parameters', async () => {
+  await navigate(reviewPath, { ...params, acknowledgementAccepted: 'true', trustAccepted: 'true' });
+  expect(button('Submit request').props.disabled).toBe(true);
+  await act(async () => button('Submit request').props.onPress());
+  expect(createJobRequest).not.toHaveBeenCalled();
+  expect(uploadMediaDraft).not.toHaveBeenCalled();
+});
+it('preserves acceptance through Review and Back; unchecking blocks both actions again', async () => {
+  await navigate(newPath);
+  await fillForm();
+  await review();
+  expect(button('Submit request').props.disabled).toBe(false);
+  await navigate(newPath);
+  expect(checkbox().props.accessibilityState.checked).toBe(true);
+  await toggleAcknowledgement();
+  expect(checkbox().props.accessibilityState.checked).toBe(false);
+  expect(button('Review request').props.disabled).toBe(true);
   await navigate(reviewPath);
   expect(button('Submit request').props.disabled).toBe(true);
   await act(async () => button('Submit request').props.onPress());
   expect(createJobRequest).not.toHaveBeenCalled();
+  await navigate(newPath);
+  await toggleAcknowledgement();
+  await review();
+  await press('Submit request');
+  expect(createJobRequest).toHaveBeenCalledTimes(1);
+  expect(router.replace).toHaveBeenCalledWith({
+    pathname: '/hire/request/status',
+    params: { requestId: 'saved-request' },
+  });
 });
-it('keeps acceptance in the flow and clears it on a provider or account change', async () => {
+it('clears on provider/account changes and ignores acceptance callbacks from a previous visit', async () => {
+  await navigate(newPath);
+  const staleCheck = checkbox().props.onPress;
+  await fillForm();
+  await navigate(newPath, { providerId: 'provider-b' });
+  expect(checkbox().props.accessibilityState.checked).toBe(false);
+  await navigate(newPath, { providerId: 'provider-a' });
+  await act(async () => staleCheck());
+  expect(checkbox().props.accessibilityState.checked).toBe(false);
+  await fillForm();
+  await act(async () => invalidateMediaSession());
+  expect(checkbox().props.accessibilityState.checked).toBe(false);
+});
+it('rejects a captured submit handler immediately after unchecking before React rerenders', async () => {
   await navigate(newPath);
   await fillForm();
   await review();
-  expect(button('Submit request').props.disabled).not.toBe(true);
+  const staleSubmit = button('Submit request').props.onPress;
+  const uncheck = checkbox(renderer!.root.findByType(NewRequest)).props.onPress;
+  await act(async () => {
+    uncheck();
+    await staleSubmit();
+  });
+  expect(createJobRequest).not.toHaveBeenCalled();
+  expect(uploadMediaDraft).not.toHaveBeenCalled();
+  expect(attachMedia).not.toHaveBeenCalled();
+});
+it('checks acceptance after asynchronous media upload before creating the request', async () => {
   await navigate(newPath);
-  expect(button('Accepted')).toBeDefined();
-  await navigate(newPath, { providerId: 'provider-b' });
-  expect(button('Review and Accept')).toBeDefined();
   await fillForm();
-  await act(async () => invalidateMediaSession());
-  expect(button('Review and Accept')).toBeDefined();
+  await chooseBoth();
+  await review();
+  const uncheck = checkbox(renderer!.root.findByType(NewRequest)).props.onPress;
+  const upload = deferred<string>();
+  jest.mocked(uploadMediaDraft).mockReturnValueOnce(upload.promise);
+  let pending!: Promise<void>;
+  await act(async () => {
+    pending = button('Submit request').props.onPress();
+  });
+  await act(async () => uncheck());
+  await act(async () => {
+    upload.resolve(photo.id);
+    await pending;
+  });
+  expect(createJobRequest).not.toHaveBeenCalled();
+  expect(router.replace).not.toHaveBeenCalled();
+});
+it('requires acknowledgement again for retrying an already created request attachment', async () => {
+  await navigate(newPath);
+  await fillForm();
+  await chooseBoth();
+  await review();
+  jest.mocked(attachMedia).mockRejectedValueOnce(new Error('Connection interrupted'));
+  await press('Submit request');
+  const staleRetry = button('Submit request').props.onPress;
+  await navigate(newPath);
+  expect(checkbox().props.disabled).toBe(false);
+  await act(async () => {
+    checkbox().props.onPress();
+    await staleRetry();
+  });
+  expect(attachMedia).toHaveBeenCalledTimes(1);
+  await toggleAcknowledgement();
+  await review();
+  await press('Submit request');
+  expect(attachMedia).toHaveBeenCalledTimes(2);
+  expect(createJobRequest).toHaveBeenCalledTimes(1);
 });

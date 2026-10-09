@@ -4,6 +4,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useMemo,
   useSyncExternalStore,
   type PropsWithChildren,
 } from 'react';
@@ -13,9 +14,9 @@ import { mediaSessionRevision, subscribeMediaSession } from '@/lib/media-session
 import type { JobRequest } from '@/types/contracts';
 
 type RequestMedia = {
-  trustAccepted: boolean;
-  assertTrustAccepted: () => void;
-  acceptTrust: () => void;
+  acknowledgementAccepted: boolean;
+  assertAcknowledgementAccepted: () => void;
+  setAcknowledgementAccepted: (accepted: boolean) => void;
   media: MediaComposerController;
   submission: ReturnType<typeof useMediaSubmission<JobRequest>>;
 };
@@ -26,28 +27,35 @@ const RequestMediaContext = createContext<RequestMedia | undefined>(undefined);
 // persistent storage, and late picker/upload results cannot enter another form.
 export function RequestMediaProvider({ children, scope }: PropsWithChildren<{ scope: string | null }>) {
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
-  const key = JSON.stringify([scope, revision]);
-  const [acceptance, setAcceptance] = useState<string>();
+  const key = useMemo(() => ({ scope, revision }), [scope, revision]);
+  const [acceptance, setAcceptance] = useState<typeof key>();
   useEffect(() => setAcceptance(undefined), [key]);
-  const trustAccepted = scope !== null && acceptance === key;
+  const acknowledgementAccepted = scope !== null && acceptance === key;
   const current = useRef({ key, acceptance });
   current.current = { key, acceptance };
-  const assertTrustAccepted = () => {
+  const assertAcknowledgementAccepted = () => {
     if (
       scope === null ||
       mediaSessionRevision() !== revision ||
       current.current.key !== key ||
       current.current.acceptance !== key
     )
-      throw new Error('Review and accept the trust acknowledgement before submitting.');
+      throw new Error('Select the trust acknowledgement checkbox before submitting.');
   };
-  const acceptTrust = () => {
-    if (scope !== null) setAcceptance(key);
+  const setAcknowledgementAccepted = (accepted: boolean) => {
+    if (scope === null || mediaSessionRevision() !== revision || current.current.key !== key) return;
+    const next = accepted === true ? key : undefined;
+    // Revoke immediately: an already-captured submit handler must not see the
+    // previous acceptance while React batches the checkbox state update.
+    current.current.acceptance = next;
+    setAcceptance(next);
   };
   const media = useMediaComposer('service_request', scope);
   const submission = useMediaSubmission<JobRequest>(media, JSON.stringify(scope));
   return (
-    <RequestMediaContext.Provider value={{ media, submission, trustAccepted, acceptTrust, assertTrustAccepted }}>
+    <RequestMediaContext.Provider
+      value={{ media, submission, acknowledgementAccepted, setAcknowledgementAccepted, assertAcknowledgementAccepted }}
+    >
       {children}
     </RequestMediaContext.Provider>
   );
