@@ -37,6 +37,8 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - name: Capture actual native components
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         with:
           api-level: 35
           arch: x86_64
