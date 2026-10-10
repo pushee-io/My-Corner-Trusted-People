@@ -35,6 +35,7 @@ ready = False
 for attempt in range(40):
     try:
         current = nodes()
+        print('Startup', attempt, [(n.get('text'), n.get('content-desc')) for n in current if n.get('text') or n.get('content-desc')], flush=True)
         # A cold CI emulator can show a launcher ANR over the running fixture.
         # Dismiss only this known system dialog, never an app crash dialog.
         if any(n.get('text') == "Pixel Launcher isn't responding" for n in current):
@@ -42,7 +43,10 @@ for attempt in range(40):
             continue
         if any('This is the developer menu' in n.get('text', '') for n in current):
             tap('Continue')
-            adb('shell', 'input', 'keyevent', '4')
+            continue
+        if any(n.get('text') == 'Enter URL manually' for n in current):
+            adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+            time.sleep(3)
             continue
         if any(n.get('content-desc') == 'QA after' for n in current):
             ready = True
