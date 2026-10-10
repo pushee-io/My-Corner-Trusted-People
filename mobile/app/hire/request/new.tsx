@@ -278,6 +278,8 @@ export default function NewRequestScreen() {
           <Pressable
             key={option.value}
             disabled={editingDisabled}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: urgency === option.value, disabled: editingDisabled }}
             onPress={() => setUrgency(option.value)}
             style={[styles.chip, urgency === option.value ? styles.chipSelected : null]}
           >
@@ -292,6 +294,8 @@ export default function NewRequestScreen() {
           <Pressable
             key={option.value}
             disabled={editingDisabled}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: contactPreference === option.value, disabled: editingDisabled }}
             onPress={() => setContactPreference(option.value)}
             style={[styles.chip, contactPreference === option.value ? styles.chipSelected : null]}
           >
@@ -312,7 +316,7 @@ export default function NewRequestScreen() {
         disabled={submission.busy}
       />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
 
       <Pressable
         accessibilityRole="button"

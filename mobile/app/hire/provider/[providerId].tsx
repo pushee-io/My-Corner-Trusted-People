@@ -111,6 +111,26 @@ export default function ProviderProfileScreen() {
         {provider.neighborhood} · {provider.areaLabel}
       </Text>
 
+      {canStartRequest && selectedCategoryId ? (
+        <WebSafeLink
+          href={{
+            pathname: '/hire/request/new',
+            params: { providerId: provider.id, categoryId: selectedCategoryId },
+          }}
+          asChild
+        >
+          <Pressable accessibilityRole="button" style={styles.button}>
+            <Text style={styles.buttonText}>Start request</Text>
+          </Pressable>
+        </WebSafeLink>
+      ) : (
+        <View style={styles.unavailableBox}>
+          <Text style={styles.note}>This provider does not currently have an available service category.</Text>
+        </View>
+      )}
+
+      <VerifiedReviews key={provider.id} providerId={provider.id} />
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Trust signals</Text>
 
@@ -125,25 +145,7 @@ export default function ProviderProfileScreen() {
         <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
       </View>
 
-      {canStartRequest && selectedCategoryId ? (
-        <WebSafeLink
-          href={{
-            pathname: '/hire/request/new',
-            params: { providerId: provider.id, categoryId: selectedCategoryId },
-          }}
-          asChild
-        >
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Start request</Text>
-          </Pressable>
-        </WebSafeLink>
-      ) : (
-        <View style={styles.unavailableBox}>
-          <Text style={styles.note}>This provider does not currently have an available service category.</Text>
-        </View>
-      )}
 
-      <VerifiedReviews key={provider.id} providerId={provider.id} />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Service coverage</Text>
@@ -193,6 +195,8 @@ const styles = StyleSheet.create({
     color: tokens.color.textSecondary,
   },
   button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
     backgroundColor: tokens.color.primary,
     padding: tokens.spacing.lg,
     borderRadius: tokens.radius.md,
