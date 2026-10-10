@@ -95,10 +95,13 @@ describe('preview device repairs', () => {
 
   it('exposes shared retry actions as labeled 48 dp buttons', () => {
     const source = readFileSync('src/components/StateBlocks.tsx', 'utf8');
-    const retryButtonStyle = source.slice(source.indexOf('button: {'), source.indexOf('buttonText:'));
+    const action = readFileSync('src/components/ActionPill.tsx', 'utf8');
 
-    expect(source).toContain('<Pressable accessibilityRole="button" onPress={onRetry} style={styles.button}>');
-    expect(retryButtonStyle).toContain('minHeight: tokens.touch.min');
+    expect(source).toContain('<ActionPill label="Try again" onPress={onRetry} primary />');
+    expect(action).toContain('accessibilityRole="button"');
+    expect(action).toContain('accessibilityLabel={accessibilityLabel}');
+    expect(action).toContain('minHeight: tokens.touch.min');
+    // Runtime callback/name/target assertions also live in ui-foundations.test.ts.
   });
 
   it('keeps the provider inbox synchronized and manually refreshable', () => {

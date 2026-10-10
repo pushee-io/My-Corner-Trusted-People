@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { tokens } from '@/theme/tokens';
+import { typography } from '@/theme/typography';
 
-/** Shared compact action, using the Create Request AI control's color and spacing tokens. */
+/** Shared compact action. Primary actions retain brand green; secondary actions are neutral. */
 export function ActionPill({
   label,
   accessibilityLabel = label,
@@ -36,23 +37,29 @@ export function ActionPill({
         paddingHorizontal: tokens.spacing.lg,
         paddingVertical: tokens.spacing.sm,
         borderRadius: tokens.radius.pill,
-        borderWidth: 2,
-        borderColor: focused ? tokens.color.focusRing : primary ? tokens.color.primary : tokens.color.border,
-        backgroundColor: primary
-          ? pressed
-            ? tokens.color.primaryPressed
-            : tokens.color.primary
-          : pressed
-            ? tokens.color.border
-            : tokens.color.surface,
-        opacity: disabled ? 0.5 : 1,
+        borderWidth: 1,
+        borderColor: disabled
+          ? tokens.color.borderSubtle
+          : focused
+            ? tokens.color.focusRing
+            : primary
+              ? tokens.color.primary
+              : tokens.color.controlBorder,
+        backgroundColor: disabled
+          ? tokens.color.disabledSurface
+          : primary
+            ? pressed
+              ? tokens.color.primaryPressed
+              : tokens.color.primary
+            : pressed
+              ? tokens.color.surfacePressed
+              : tokens.color.surface,
       })}
     >
       <Text
         style={{
-          color: primary ? '#FFFFFF' : tokens.color.primary,
-          fontSize: tokens.type.body,
-          fontWeight: '700',
+          ...typography.button,
+          color: disabled ? tokens.color.disabledText : primary ? tokens.color.onPrimary : tokens.color.textPrimary,
           textAlign: 'center',
           flexShrink: 1,
         }}

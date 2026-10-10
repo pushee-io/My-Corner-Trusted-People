@@ -16,6 +16,18 @@ export const tokens = {
     information: '#52606D',
     disabled: '#9FB3C8',
     focusRing: '#102A43',
+    // Semantic roles for opt-in migrations. Preserve existing brand artwork.
+    surfaceMuted: '#F4F3EF',
+    surfacePressed: '#E9EDE9',
+    borderSubtle: '#DEE3DF',
+    controlBorder: '#7A867E',
+    disabledSurface: '#E7EBE8',
+    disabledText: '#58615B',
+    successSurface: '#F1F6F2',
+    warningSurface: '#FFF5DE',
+    onPrimary: '#FFFFFF',
+    ink: '#171D1A',
+    gold: '#B78B32',
   },
   spacing: {
     xs: 4,
@@ -30,6 +42,9 @@ export const tokens = {
     md: 8,
     lg: 8,
     pill: 999,
+    control: 12,
+    card: 16,
+    spacious: 24,
   },
   type: {
     display: 32,
@@ -43,6 +58,22 @@ export const tokens = {
   },
   touch: {
     min: 48,
+  },
+  layout: {
+    screenGutter: 16,
+    cardInset: 16,
+    sectionGap: 24,
+    controlGap: 8,
+  },
+  typography: {
+    page: { fontSize: 26, lineHeight: 34, fontWeight: '700' },
+    section: { fontSize: 20, lineHeight: 28, fontWeight: '700' },
+    card: { fontSize: 18, lineHeight: 26, fontWeight: '600' },
+    body: { fontSize: 16, lineHeight: 24, fontWeight: '400' },
+    metadata: { fontSize: 14, lineHeight: 20, fontWeight: '400' },
+    caption: { fontSize: 12, lineHeight: 18, fontWeight: '400' },
+    label: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
+    button: { fontSize: 16, lineHeight: 24, fontWeight: '600' },
   },
 } as const;
 
