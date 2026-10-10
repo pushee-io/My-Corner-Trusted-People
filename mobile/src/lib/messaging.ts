@@ -28,6 +28,7 @@ export type CommunicationPreferences = {
   notifyReviews: boolean;
 };
 export type Notice = {
+  priority?: 'high' | 'critical' | 'emergency';
   id: string;
   title: string;
   body: string;

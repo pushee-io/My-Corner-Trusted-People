@@ -2,7 +2,7 @@ import { IconButton } from '@/components/IconButton';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback, type ReactNode } from 'react';
 import { BackHandler, Keyboard, StyleSheet, Text, View } from 'react-native';
-import { MessagesAccess } from '@/components/MessagesAccess';
+import { CommunicationActions } from '@/components/CommunicationActions';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
 import { typography } from '@/theme/typography';
@@ -51,7 +51,7 @@ export function AppHeader({
               <View style={styles.brand}>
                 <MyCornerLogo />
               </View>
-              {showActions ? <MessagesAccess /> : null}
+              {showActions ? <CommunicationActions /> : null}
             </View>
           ))
         : null}
@@ -70,6 +70,7 @@ export function AppHeader({
               {title}
             </Text>
           ) : null}
+          {showActions ? <CommunicationActions /> : null}
         </View>
       ) : null}
     </View>

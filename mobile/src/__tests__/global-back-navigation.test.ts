@@ -1,3 +1,7 @@
+jest.mock('@/components/CommunicationProvider', () => ({
+  CommunicationProvider: ({ children }: { children: unknown }) => children,
+  CommunicationOverlay: () => null,
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { BackHandler, Keyboard } from 'react-native';
@@ -42,7 +46,7 @@ jest.mock('expo-router', () => ({
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Ionicons' }));
 jest.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 jest.mock('@/components/BottomNavigation', () => ({ BottomNavigation: 'BottomNavigation' }));
-jest.mock('@/components/MessagesAccess', () => ({ MessagesAccess: 'MessagesAccess' }));
+jest.mock('@/components/CommunicationActions', () => ({ CommunicationActions: 'CommunicationActions' }));
 jest.mock('@/components/brand/MyCornerLogo', () => ({ MyCornerLogo: 'MyCornerLogo' }));
 jest.mock('@/components/CollapsibleComments', () => ({
   CommentsProvider: ({ children }: { children: unknown }) => children,
@@ -141,7 +145,7 @@ it.each([360, 1280])('keeps the header outside scrolling content at width %s', a
   expect(
     renderer.root.findByType('ScrollView' as never).findAllByProps({ accessibilityLabel: 'Go back' }),
   ).toHaveLength(0);
-  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(1);
   expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(0);
 });
 it('removes the hardware handler on unmount', async () => {
@@ -169,7 +173,7 @@ it('Ask Android Back dismisses keyboard before navigating', async () => {
 it('keeps one branded Home header with messages access and no duplicate page title', async () => {
   await render();
   expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(1);
-  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(1);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(0);
   expect(renderer.root.findAllByType('AskMyCornerAccess' as never)).toHaveLength(0);
   expect(renderer.root.findAllByProps({ accessibilityRole: 'header' })).toHaveLength(0);
 });
@@ -190,12 +194,12 @@ it.each([
   '/profile/postcard-challenge',
   '/profile/manual-biometric',
   '/provider/request/respond',
-])('keeps Back but hides global actions/tabs during focused form %s', async (path) => {
+])('keeps Back and communication access but hides tabs during focused form %s', async (path) => {
   mockHistory = ['/home', path];
   await render();
   expect(back()).toHaveLength(1);
   expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(0);
-  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(0);
   await act(async () => back()[0].props.onPress());
   expect(router.back).toHaveBeenCalledTimes(1);
 });
@@ -236,7 +240,7 @@ it('Home custom header preserves tabs and dismisses the inline input keyboard be
   });
   expect(renderer.root.findAllByType('HomeHeader' as never)).toHaveLength(1);
   expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(0);
-  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(0);
   expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(1);
   await act(async () => {
     mockHardwareBack!();

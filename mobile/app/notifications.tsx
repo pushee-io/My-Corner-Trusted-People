@@ -1,5 +1,5 @@
 import { ActionRow } from '@/components/ActionRow';
-import { isEventsClientEnabled } from '@/lib/events-feature';
+import { noticeHref } from '@/lib/communication-notices';
 import { router } from 'expo-router';
 import { Text } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -12,24 +12,7 @@ export default function Notifications() {
     await notificationApi('read', notice.id);
     void resource.refresh(true);
     if (!notice.targetId) return;
-    if (notice.targetKind === 'message_received')
-      router.push({ pathname: '/messages', params: { conversationId: notice.targetId } });
-    else if (notice.targetKind?.startsWith('review_'))
-      router.push({ pathname: '/hire/provider/[providerId]', params: { providerId: notice.targetId } });
-    else if (notice.targetKind?.startsWith('hire_') || notice.targetKind?.startsWith('job_safety_'))
-      router.push(
-        notice.isRequester
-          ? { pathname: '/hire/request/status', params: { requestId: notice.targetId } }
-          : { pathname: '/provider/request/[requestId]', params: { requestId: notice.targetId } },
-      );
-    else if (notice.targetKind?.startsWith('event_') && isEventsClientEnabled())
-      router.push({ pathname: '/events/[eventId]', params: { eventId: notice.targetId } });
-    else if (notice.targetKind?.startsWith('group_')) router.push('/groups');
-    else if (notice.targetKind?.startsWith('marketplace_')) router.push('/marketplace');
-    else if (notice.targetKind?.startsWith('agency_') || notice.targetKind?.startsWith('broadcast_'))
-      router.push('/agency-broadcasts');
-    else if (notice.targetKind?.startsWith('comment_') || notice.targetKind?.startsWith('reply_'))
-      router.push('/community');
+    router.push(noticeHref(notice));
   }
   return (
     <Screen title="Notifications" onRefresh={() => void resource.refresh()} refreshing={resource.loading}>

@@ -16,19 +16,17 @@ import {
   HomeSectionState,
 } from '@/components/HomeDashboard';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
-import { useMessagingResource, usePrivateSessionKey } from '@/hooks/useMessagingResource';
+import { usePrivateSessionKey } from '@/hooks/useMessagingResource';
 import { getCurrentCapabilities } from '@/lib/capabilities';
 import { partitionRequests, requestUpdatedAt } from '@/lib/active-requests';
 import { categories } from '@/lib/mock-data';
 import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { loadAskContext } from '@/lib/neighborhood-assistant';
-import { loadUnread } from '@/lib/messaging';
 import {
   loadHomeBroadcast,
   loadHomeFeed,
   loadHomeMarketplace,
-  loadHomeNotificationCount,
   previewImage,
 } from '@/lib/home-dashboard';
 import { tokens } from '@/theme/tokens';
@@ -98,8 +96,6 @@ export default function HomeScreen() {
   const capabilities = useProtectedResource(getCurrentCapabilities);
   const neighborhood = useProtectedResource(loadVerifiedNeighborhood);
   const context = useProtectedResource(loadAskContext);
-  const unread = useMessagingResource(loadUnread);
-  const notifications = useMessagingResource(loadHomeNotificationCount);
   const [activeExpanded, setActiveExpanded] = useState(false);
   const [pastExpanded, setPastExpanded] = useState(false);
   const [moderationExpanded, setModerationExpanded] = useState(false);
@@ -139,14 +135,12 @@ export default function HomeScreen() {
   return (
     <Screen
       title="My Corner home"
-      homeHeader={<HomeHeader location={location} unread={unread.data?.unread} notifications={notifications.data} />}
+      homeHeader={<HomeHeader location={location} />}
       onRefresh={() => {
         void resource.refresh();
         void capabilities.refresh();
         void neighborhood.refresh();
         void context.refresh();
-        void unread.refresh();
-        void notifications.refresh();
         setRefreshKey((value) => value + 1);
       }}
       refreshing={resource.loading}
