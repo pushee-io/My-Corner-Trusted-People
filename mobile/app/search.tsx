@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { IconButton } from '@/components/IconButton';
 import { useLocalSearchParams } from 'expo-router';
@@ -17,6 +18,7 @@ export default function SearchScreen() {
   const input = useRef<TextInput>(null);
   const [query, setQuery] = useState(typeof params.query === 'string' ? params.query.slice(0, 600) : '');
   const [debounced, setDebounced] = useState('');
+  const [category, setCategory] = useState('All');
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(query.trim()), 300);
     return () => clearTimeout(timer);
@@ -27,11 +29,18 @@ export default function SearchScreen() {
     Keyboard.dismiss();
     setDebounced(query.trim());
   }
+  const labels = ['All', ...new Set((resource.data ?? []).map((result) => result.sourceLabel))];
+  const visible = (resource.data ?? []).filter((result) => category === 'All' || result.sourceLabel === category);
+  useEffect(() => setCategory('All'), [debounced]);
   const searching = query.trim().length >= 2;
   const waiting = query.trim() !== debounced || resource.loading;
   return (
     <Screen title="Search">
-      <Text style={styles.body}>Find local help, neighborhood posts, groups, events and marketplace listings.</Text>
+      <View style={styles.intro}>
+        <Text style={styles.eyebrow}>YOUR NEIGHBORHOOD, WITHIN REACH</Text>
+        <Text accessibilityRole="header" style={styles.headline}>What are you looking for?</Text>
+        <Text style={styles.subtitle}>Local help, useful finds and community answers.</Text>
+      </View>
       <View style={styles.composer}>
         <TextInput
           ref={input}
@@ -39,11 +48,13 @@ export default function SearchScreen() {
           maxLength={600}
           value={query}
           onChangeText={setQuery}
+          placeholderTextColor={tokens.color.textSecondary}
           placeholder="Search My Corner"
           accessibilityLabel="Search My Corner"
           style={styles.input}
           returnKeyType="search"
         />
+        {query ? <IconButton icon="close" label="Clear search" onPress={() => { setQuery(''); setDebounced(''); input.current?.focus(); }} /> : null}
         <IconButton icon="search-outline" label="Search" onPress={submit} />
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -56,7 +67,26 @@ export default function SearchScreen() {
         />
       </View>
       {!searching ? (
-        <EmptyState title="What are you looking for?" body="Enter at least two characters to search." />
+        <View style={styles.section}>
+          <Text style={styles.subtitle}>Search by name or keyword, or explore a corner below.</Text>
+          <View style={styles.discovery}>
+            {([
+              ['Local services', 'construct-outline', '/hire/categories'],
+              ['Neighborhood feed', 'people-outline', '/community'],
+              ['Marketplace', 'storefront-outline', '/marketplace'],
+              ['Groups', 'chatbubbles-outline', '/groups'],
+              ['Agency updates', 'megaphone-outline', '/agency-broadcasts'],
+            ] as const).map(([label, icon, href]) => (
+              <WebSafeLink key={href} href={href} asChild>
+                <Pressable accessibilityRole="button" style={({ pressed }) => [styles.discoveryCard, pressed && styles.pressed]}>
+                  <Ionicons name={icon} size={24} color={tokens.color.primary} accessible={false} />
+                  <Text style={styles.discoveryLabel}>{label}</Text>
+                  <Ionicons name="arrow-forward" size={18} color={tokens.color.textSecondary} accessible={false} />
+                </Pressable>
+              </WebSafeLink>
+            ))}
+          </View>
+        </View>
       ) : waiting ? (
         <LoadingState title="Searching" />
       ) : resource.error ? (
@@ -83,16 +113,24 @@ export default function SearchScreen() {
               Some categories are temporarily unavailable: {resource.data.unavailableSources.join(', ')}.
             </Text>
           ) : null}
-          {[...new Set(resource.data.map((r) => r.sourceLabel))].map((label) => (
+          <Text accessibilityLiveRegion="polite" style={styles.subtitle}>{visible.length} results</Text>
+          <View accessibilityRole="tablist" style={styles.filters}>
+            {labels.map((label) => (
+              <Pressable key={label} accessibilityRole="tab" accessibilityState={{ selected: label === category }}
+                onPress={() => { Keyboard.dismiss(); setCategory(label); }} style={[styles.filter, label === category && styles.activeFilter]}>
+                <Text style={[styles.filterText, label === category && styles.activeFilterText]}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {[...new Set(visible.map((r) => r.sourceLabel))].map((label) => (
             <View key={label} style={styles.section}>
               <Text accessibilityRole="header" style={styles.title}>
                 {label}
               </Text>
-              {resource
-                .data!.filter((r) => r.sourceLabel === label)
+              {visible.filter((r) => r.sourceLabel === label)
                 .map((result) => (
                   <WebSafeLink key={result.id} href={result.href as Href} asChild>
-                    <Pressable accessibilityRole="button" style={styles.card}>
+                    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
                       {result.thumbnailUrl ? (
                         <Image
                           source={{ uri: result.thumbnailUrl }}
@@ -102,10 +140,10 @@ export default function SearchScreen() {
                       ) : result.mediaParent && result.mediaParentId ? (
                         <MediaThumbnail parent={result.mediaParent} parentId={result.mediaParentId} />
                       ) : null}
-                      <Text style={styles.body}>{result.sourceLabel}</Text>
+                      <Text style={styles.eyebrow}>{result.sourceLabel}</Text>
                       <Text style={styles.title}>{result.title}</Text>
-                      <Text style={styles.body}>{result.subtitle}</Text>
-                      <Text style={styles.body}>{result.body.slice(0, 240)}</Text>
+                      <Text style={styles.subtitle}>{result.subtitle}</Text>
+                      <Text numberOfLines={3} style={styles.body}>{result.body.slice(0, 240)}</Text>
                     </Pressable>
                   </WebSafeLink>
                 ))}
@@ -118,6 +156,19 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
+  intro: { gap: 6, paddingVertical: 8 },
+  eyebrow: { color: tokens.color.primary, fontSize: 12, lineHeight: 18, letterSpacing: 0.8, fontWeight: '800' },
+  headline: { color: tokens.color.ink, fontSize: 28, lineHeight: 34, fontWeight: '800' },
+  subtitle: { color: tokens.color.textSecondary, fontSize: 14, lineHeight: 21 },
+  discovery: { gap: 10 },
+  discoveryCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: tokens.color.successSurface, borderRadius: 16, padding: 16, minHeight: 64 },
+  discoveryLabel: { flex: 1, color: tokens.color.textPrimary, fontSize: 16, lineHeight: 22, fontWeight: '700' },
+  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  filter: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 16, borderRadius: 24, backgroundColor: tokens.color.surfaceMuted },
+  activeFilter: { backgroundColor: tokens.color.primary },
+  filterText: { color: tokens.color.textPrimary, fontSize: 14, fontWeight: '600' },
+  activeFilterText: { color: tokens.color.onPrimary },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
   body: {
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
@@ -126,7 +177,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
@@ -135,8 +186,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border,
-    borderRadius: tokens.radius.control,
+    borderColor: tokens.color.primary,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
   },
   input: {

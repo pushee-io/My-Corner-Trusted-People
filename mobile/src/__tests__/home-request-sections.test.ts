@@ -1,3 +1,4 @@
+jest.mock('@/components/AICharacterPresentation', () => ({ AICharacterPresentation: 'AnimatedCharacter' }));
 jest.mock('@/hooks/useAICharacter', () => ({
   useAICharacter: () => ({
     character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
@@ -13,6 +14,7 @@ let mockRequests: JobRequest[] = [];
 let mockCapabilities = { community: true, provider: false, moderator: false, neighborhoodId: 'area' };
 let mockNeighborhood: { name: string; city: string } | null = { name: 'Osu', city: 'Accra' };
 jest.mock('react-native', () => ({
+  useWindowDimensions: () => ({ fontScale: 1 }),
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',

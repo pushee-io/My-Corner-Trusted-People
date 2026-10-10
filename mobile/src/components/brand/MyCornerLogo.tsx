@@ -1,19 +1,19 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 
-export function MyCornerLogo() {
+export function MyCornerLogo({ home = false }: { home?: boolean }) {
   const { fontScale } = useWindowDimensions();
 
   return (
     <View style={[styles.lockup, fontScale >= 1.6 ? styles.lockupStacked : null]}>
-      <View style={styles.mark}>
+      <View style={[styles.mark, home && styles.homeMark]}>
         <View style={styles.cornerVertical} />
         <View style={styles.cornerHorizontal} />
         <View style={styles.personLeft} />
         <View style={styles.personRight} />
       </View>
       <View style={styles.textLockup}>
-        <Text style={styles.name}>My Corner</Text>
+        <Text style={[styles.name, home && styles.homeName]}>My Corner</Text>
         <Text style={styles.descriptor}>Trusted People</Text>
       </View>
     </View>
@@ -23,6 +23,8 @@ export function MyCornerLogo() {
 const styles = StyleSheet.create({
   lockup: { alignItems: 'center', flexDirection: 'row', gap: tokens.spacing.sm },
   lockupStacked: { alignItems: 'flex-start', flexDirection: 'column' },
+  homeMark: { width: 42, height: 42 },
+  homeName: { color: tokens.color.primary, fontSize: 24, lineHeight: 30 },
   textLockup: { flexShrink: 1, minWidth: 0 },
   mark: {
     width: 42,

@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { AccessibilityInfo, Animated, AppState, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AICharacterPresentation, type AIMotionState } from '@/components/AICharacterPresentation';
 import { aiCharacters, type AICharacter, type AICharacterId } from '@/lib/ai-characters';
 import { AICharacterPortrait } from '@/components/AICharacterPortrait';
 import { tokens } from '@/theme/tokens';
 
-export type AIMotionState = 'idle' | 'thinking' | 'answer' | 'attention';
+export type { AIMotionState } from '@/components/AICharacterPresentation';
 const messages: Record<AIMotionState, string> = {
   idle: 'How can I help?',
   thinking: 'Checking your neighborhood…',
@@ -21,14 +20,7 @@ export function AICharacterExperience({
   selectCharacter: (id: AICharacterId) => void;
   state: AIMotionState;
 }) {
-  const progress = useRef(new Animated.Value(0)).current;
-  const [reduceMotion, setReduceMotion] = useState(true);
-  const [active, setActive] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setActive(AppState.currentState === 'active');
-      const subscription = AppState.addEventListener('change', (next) => setActive(next === 'active'));
-      return () => {
+  return () => {
         setActive(false);
         subscription.remove();
       };
@@ -76,26 +68,7 @@ export function AICharacterExperience({
           </Text>
           <Text style={styles.hint}>Answers grounded in your neighborhood.</Text>
         </View>
-        <Animated.View
-          style={{
-            transform: [
-              {
-                translateY: progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, state === 'answer' ? -6 : -3],
-                }),
-              },
-              { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.015] }) },
-            ],
-          }}
-        >
-          <Image
-            source={character.full}
-            resizeMode="contain"
-            style={styles.character}
-            accessibilityLabel={character.label}
-          />
-        </Animated.View>
+        <AICharacterPresentation character={character} state={state} size={112} />
       </View>
       <Text style={styles.selectorLabel}>Choose your My Corner AI character</Text>
       <View accessibilityRole="radiogroup" style={styles.selector}>
@@ -135,7 +108,6 @@ const styles = StyleSheet.create({
   title: { color: tokens.color.onPrimary, fontSize: 17, lineHeight: 23, fontWeight: '700' },
   message: { color: tokens.color.onPrimary, fontSize: 15, lineHeight: 21 },
   hint: { color: '#DCECE3', fontSize: 12, lineHeight: 18 },
-  character: { width: 118, height: 174 },
   selectorLabel: { color: tokens.color.textSecondary, ...tokens.typography.caption },
   selector: { flexDirection: 'row', justifyContent: 'space-between', gap: 2 },
   option: { minHeight: 80, minWidth: 58, alignItems: 'center', borderRadius: 12, paddingVertical: 4, gap: 2 },

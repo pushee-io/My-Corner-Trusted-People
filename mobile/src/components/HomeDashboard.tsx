@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type PropsWithChildren } from 'react';
 import { Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { AICharacterPortrait } from '@/components/AICharacterPortrait';
+import { AICharacterPresentation } from '@/components/AICharacterPresentation';
+import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
+import { CommunicationActions } from '@/components/CommunicationActions';
 import { useAICharacter } from '@/hooks/useAICharacter';
 import { IconButton } from '@/components/IconButton';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -23,27 +25,13 @@ export function HomeHeader({
   return (
     <View style={styles.header}>
       <View style={styles.brand}>
-        <Text accessibilityRole="header" style={styles.brandName}>
-          My Corner
-        </Text>
-        <Text style={styles.metadata}>{location}</Text>
+        <View style={styles.location}>
+          <Ionicons name="location-sharp" size={14} color={tokens.color.primary} accessible={false} />
+          <Text style={styles.metadata}>{location}</Text>
+        </View>
+        <MyCornerLogo home />
       </View>
-      <View style={styles.actions}>
-        <IconButton
-          icon="chatbubble-outline"
-          label={unread === undefined ? 'Messages' : `Messages, ${unread} unread`}
-          count={unread}
-          onPress={() => router.push('/messages')}
-        />
-        <IconButton
-          icon="notifications-outline"
-          label={
-            notifications === undefined ? 'Notifications' : `Notifications, ${notifications} unread recent updates`
-          }
-          count={notifications}
-          onPress={() => router.push('/notifications')}
-        />
-      </View>
+      <CommunicationActions unread={unread} notifications={notifications} />
     </View>
   );
 }
@@ -87,7 +75,7 @@ export function HomeAICard({
         }}
         style={styles.aiHeading}
       >
-        <AICharacterPortrait character={character} />
+        <AICharacterPresentation character={character} />
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>
             Ask My Corner AI
@@ -295,7 +283,7 @@ export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
   brand: { flexGrow: 1, flexShrink: 1, minWidth: 150 },
-  brandName: { color: tokens.color.primary, fontSize: 23, lineHeight: 29, fontWeight: '800' },
+  location: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
   metadata: { color: tokens.color.textSecondary, fontSize: 13, lineHeight: 19 },
   caption: { color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
@@ -334,11 +322,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     flex: 1,
-    color: tokens.color.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
-    letterSpacing: 0.8,
-    fontWeight: '700',
+    color: tokens.color.ink,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.7,
+    fontWeight: '800',
   },
   card: {
     backgroundColor: tokens.color.surface,
