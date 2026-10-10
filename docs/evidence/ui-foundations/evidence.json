@@ -1,0 +1,39 @@
+{
+  "baseline": "5071729d51dd00e6fe438c3d34b8a3be2f2f40fc",
+  "head": "bcec91abfb0252ff44731f223d574d3c6449cd79",
+  "renderer": "React Native Web server rendering + headless Chrome",
+  "nativeEmulator": false,
+  "liveData": false,
+  "widths": [
+    320,
+    390,
+    840
+  ],
+  "applicationHead": "82578c312f23bfadac1019d9ae0eabdf2976b3f8",
+  "main": "20611de2e9f92e5e82ac5991fab1fff9f0f1e93d",
+  "ciRun": 38010332884,
+  "ciJob": 114088608019,
+  "artifact": 11653053288,
+  "tests": {
+    "passed": 617,
+    "suites": 106
+  },
+  "typecheck": "passed",
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 15
+  },
+  "webExport": "passed",
+  "androidExport": "passed",
+  "visualReview": "All six component captures reviewed; no fixture clipping observed.",
+  "nativeQA": "not performed",
+  "phaseComplete": false,
+  "sha256": {
+    "foundations-after-320.png": "4286131bfbae1c17da7cae9cedbe8c85a8ab116ba0f408bed2b25e97a94388d4",
+    "foundations-after-390.png": "6f48838ae81f7d9c4354d1100848b315f4dfd76e25bbc1762bff2c9696880c24",
+    "foundations-after-840.png": "38a406834cbe8c5469c8c13c8510bf3bc3ae7a97b1d9f7ba73ad630572569d17",
+    "foundations-before-320.png": "9dc213915f4fa3cd1386a75b869a7114a2c7e207d337700bfdb5273b511e2c69",
+    "foundations-before-390.png": "dfe49497e242a28e49e974e6ec42f56a690efe78d3b073671799be053abd27c3",
+    "foundations-before-840.png": "7e77a3175aba307b5d6d71bd2e9a9aeead231d17ffe8a541d0a6e1dc22941811"
+  }
+}

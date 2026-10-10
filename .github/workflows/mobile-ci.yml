@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -69,3 +71,16 @@ jobs:
 
       - name: Verify web bundle
         run: npx expo export --platform web --output-dir dist-ci
+
+      - name: Capture shared UI foundations before and after
+        run: node scripts/capture-ui-foundations.cjs "$RUNNER_TEMP/ui-foundations"
+
+      - name: Upload shared UI foundations evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-foundations-component-states
+          path: ${{ runner.temp }}/ui-foundations
+          if-no-files-found: error
+
+      - name: Verify Android bundle
+        run: npx expo export --platform android --output-dir dist-android-ci
