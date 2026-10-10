@@ -1,5 +1,8 @@
 jest.mock('@/hooks/useAICharacter', () => ({
-  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
 }));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
@@ -130,14 +133,21 @@ it('opens exact listing and broadcast destinations with real prices and agency i
 });
 
 it('opens the dedicated AI experience without sending a blank question', async () => {
-  await act(async () => { view = create(createElement(HomeAICard, { available: true, loading: false })); });
+  await act(async () => {
+    view = create(createElement(HomeAICard, { available: true, loading: false }));
+  });
   await act(async () => button('Open Ask My Corner AI').props.onPress());
   expect(router.push).toHaveBeenCalledWith('/ask');
 });
 it('blocks rapid duplicate Home send taps before React rerenders', async () => {
-  await act(async () => { view = create(createElement(HomeAICard, { available: true, loading: false })); });
+  await act(async () => {
+    view = create(createElement(HomeAICard, { available: true, loading: false }));
+  });
   await act(async () => view.root.findByType('TextInput' as never).props.onChangeText('Who can help me?'));
   const send = button('Send neighborhood question').props.onPress;
-  await act(async () => { send(); send(); });
+  await act(async () => {
+    send();
+    send();
+  });
   expect(router.push).toHaveBeenCalledTimes(1);
 });

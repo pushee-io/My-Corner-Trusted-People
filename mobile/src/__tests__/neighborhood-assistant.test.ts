@@ -1,7 +1,10 @@
 jest.mock('@/components/AICharacterExperience', () => ({ AICharacterExperience: 'CharacterExperience' }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('@/hooks/useAICharacter', () => ({
-  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
 }));
 import { createElement, type ComponentType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
@@ -106,7 +109,11 @@ async function render(component: ComponentType = AskScreen) {
 async function press(label: string) {
   const b = renderer.root
     .findAllByType('Pressable' as never)
-    .find((n) => n.props.accessibilityLabel === label || n.findAllByType('Text' as never).some((t) => t.children.join('') === label));
+    .find(
+      (n) =>
+        n.props.accessibilityLabel === label ||
+        n.findAllByType('Text' as never).some((t) => t.children.join('') === label),
+    );
   expect(b).toBeDefined();
   await act(async () => {
     b!.props.onPress();

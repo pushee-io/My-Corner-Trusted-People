@@ -1,7 +1,10 @@
 jest.mock('@/components/AICharacterExperience', () => ({ AICharacterExperience: 'CharacterExperience' }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('@/hooks/useAICharacter', () => ({
-  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
 }));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
@@ -78,7 +81,9 @@ it('preserves the existing explicit confirmation for questions passed from Searc
 it('accepts native route params arriving after the initial render, without a second Send tap', async () => {
   mockParams = {};
   mockContext = { id: 'authorized-area', name: 'Osu' };
-  await act(async () => { view = create(createElement(Ask)); });
+  await act(async () => {
+    view = create(createElement(Ask));
+  });
   expect(askNeighborhood).not.toHaveBeenCalled();
   mockParams = { question: 'A late arriving question', fromHome: '1', submission: 'native-1' };
   await act(async () => view.update(createElement(Ask)));
@@ -89,6 +94,8 @@ it('accepts native route params arriving after the initial render, without a sec
 it('never submits a blank Home handoff', async () => {
   mockParams = { question: ' ', fromHome: '1' };
   mockContext = { id: 'authorized-area', name: 'Osu' };
-  await act(async () => { view = create(createElement(Ask)); });
+  await act(async () => {
+    view = create(createElement(Ask));
+  });
   expect(askNeighborhood).not.toHaveBeenCalled();
 });

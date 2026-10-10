@@ -12,7 +12,9 @@ let writes = Promise.resolve();
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => {
   listeners.add(listener);
-  return () => { listeners.delete(listener); };
+  return () => {
+    listeners.delete(listener);
+  };
 };
 const snapshot = () => selected;
 export async function loadAICharacterPreference() {
@@ -20,9 +22,12 @@ export async function loadAICharacterPreference() {
     const current = revision;
     hydrated = (async () => {
       try {
-        const value = Platform.OS === 'web'
-          ? (typeof window !== 'undefined' ? window.localStorage.getItem(key) : null)
-          : await SecureStore.getItemAsync(key);
+        const value =
+          Platform.OS === 'web'
+            ? typeof window !== 'undefined'
+              ? window.localStorage.getItem(key)
+              : null
+            : await SecureStore.getItemAsync(key);
         if (current === revision) {
           selected = findAICharacter(value).id;
           listeners.forEach((listener) => listener());
@@ -53,6 +58,8 @@ export function selectAICharacter(id: AICharacterId) {
 }
 export function useAICharacter() {
   const id = useSyncExternalStore(subscribe, snapshot, () => defaultAICharacter.id);
-  useEffect(() => { void loadAICharacterPreference(); }, []);
+  useEffect(() => {
+    void loadAICharacterPreference();
+  }, []);
   return { character: findAICharacter(id), selectCharacter: selectAICharacter };
 }

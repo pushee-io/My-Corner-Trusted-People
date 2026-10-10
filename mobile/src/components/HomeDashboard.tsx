@@ -59,20 +59,34 @@ export function HomeAICard({
 }) {
   const { character } = useAICharacter();
   const navigating = useRef(false);
-  useFocusEffect(useCallback(() => { navigating.current = false; }, []));
+  useFocusEffect(
+    useCallback(() => {
+      navigating.current = false;
+    }, []),
+  );
   const [question, setQuestion] = useState('');
   const enabled = available && question.trim().length >= 3;
   function send() {
     if (!enabled || navigating.current) return;
     navigating.current = true;
     Keyboard.dismiss();
-    router.push({ pathname: '/ask', params: { question: question.trim().slice(0, 600), fromHome: '1', submission: String(Date.now()) } });
+    router.push({
+      pathname: '/ask',
+      params: { question: question.trim().slice(0, 600), fromHome: '1', submission: String(Date.now()) },
+    });
     setQuestion('');
   }
   return (
     <View style={styles.aiCard}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Open Ask My Corner AI"
-        onPress={() => { Keyboard.dismiss(); router.push('/ask'); }} style={styles.aiHeading}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Open Ask My Corner AI"
+        onPress={() => {
+          Keyboard.dismiss();
+          router.push('/ask');
+        }}
+        style={styles.aiHeading}
+      >
         <AICharacterPortrait character={character} />
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>

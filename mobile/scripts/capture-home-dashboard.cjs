@@ -132,7 +132,12 @@ for (const scenario of [
         return { useNetInfo: () => ({ isConnected: true, isInternetReachable: true }) };
       if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View };
       if (name === 'expo-router')
-        return { usePathname: () => scenario.ask ? '/ask' : '/home', useLocalSearchParams: () => ({}), useFocusEffect: () => {}, router: { push: () => {}, navigate: () => {} } };
+        return {
+          usePathname: () => (scenario.ask ? '/ask' : '/home'),
+          useLocalSearchParams: () => ({}),
+          useFocusEffect: () => {},
+          router: { push: () => {}, navigate: () => {} },
+        };
       if (name === '@expo/vector-icons')
         return {
           Ionicons: ({ name: icon, size, color }) =>
@@ -171,12 +176,13 @@ for (const scenario of [
               h(Native.Text, { style: { color: '#0e6b50' } }, publicName[0]),
             ),
         };
-      if (name.endsWith('useAICharacter')) return {
-        useAICharacter: () => ({
-          character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
-          selectCharacter: () => {},
-        }),
-      };
+      if (name.endsWith('useAICharacter'))
+        return {
+          useAICharacter: () => ({
+            character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+            selectCharacter: () => {},
+          }),
+        };
       if (name.endsWith('useProtectedResource')) return { useProtectedResource: resource };
       if (name.endsWith('useMessagingResource'))
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
@@ -203,11 +209,16 @@ for (const scenario of [
     return module.exports;
   }
   const Home = scenario.motion
-    ? () => h(Native.View, { style: { padding: 16, backgroundColor: '#FAFBF9' } },
-      h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
-        character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
-        selectCharacter: () => {}, state: scenario.motion,
-      }))
+    ? () =>
+        h(
+          Native.View,
+          { style: { padding: 16, backgroundColor: '#FAFBF9' } },
+          h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
+            character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+            selectCharacter: () => {},
+            state: scenario.motion,
+          }),
+        )
     : loadSource(scenario.ask ? 'app/ask.tsx' : 'app/home.tsx').default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);

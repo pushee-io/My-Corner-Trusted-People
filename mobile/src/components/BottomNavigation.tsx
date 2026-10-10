@@ -45,7 +45,11 @@ export function BottomNavigation() {
       {items.map((item) => {
         const selected = isSelected(pathname, item);
         const disabled = ['Community', 'Market'].includes(item.label) && !capabilities.data?.community;
-        const iconColor = selected ? tokens.color.primary : disabled ? tokens.color.disabledText : tokens.color.textSecondary;
+        const iconColor = selected
+          ? tokens.color.primary
+          : disabled
+            ? tokens.color.disabledText
+            : tokens.color.textSecondary;
 
         return (
           <Pressable
@@ -80,12 +84,7 @@ export function BottomNavigation() {
                 style={styles.artwork}
               />
             ) : (
-              <Ionicons
-                name={item.icon}
-                size={24}
-                color={iconColor}
-                accessible={false}
-              />
+              <Ionicons name={item.icon} size={24} color={iconColor} accessible={false} />
             )}
           </Pressable>
         );

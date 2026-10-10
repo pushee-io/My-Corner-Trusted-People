@@ -12,7 +12,11 @@ const messages: Record<AIMotionState, string> = {
   answer: 'Here is what I found.',
   attention: 'Let’s try another way.',
 };
-export function AICharacterExperience({ character, selectCharacter, state }: {
+export function AICharacterExperience({
+  character,
+  selectCharacter,
+  state,
+}: {
   character: AICharacter;
   selectCharacter: (id: AICharacterId) => void;
   state: AIMotionState;
@@ -20,18 +24,28 @@ export function AICharacterExperience({ character, selectCharacter, state }: {
   const progress = useRef(new Animated.Value(0)).current;
   const [reduceMotion, setReduceMotion] = useState(true);
   const [active, setActive] = useState(false);
-  useFocusEffect(useCallback(() => {
-    setActive(AppState.currentState === 'active');
-    const subscription = AppState.addEventListener('change', (next) => setActive(next === 'active'));
-    return () => { setActive(false); subscription.remove(); };
-  }, []));
+  useFocusEffect(
+    useCallback(() => {
+      setActive(AppState.currentState === 'active');
+      const subscription = AppState.addEventListener('change', (next) => setActive(next === 'active'));
+      return () => {
+        setActive(false);
+        subscription.remove();
+      };
+    }, []),
+  );
   useEffect(() => {
     let disposed = false;
-    void AccessibilityInfo.isReduceMotionEnabled().then((value) => {
-      if (!disposed) setReduceMotion(value);
-    }).catch(() => {});
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => {
+        if (!disposed) setReduceMotion(value);
+      })
+      .catch(() => {});
     const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => { disposed = true; subscription.remove(); };
+    return () => {
+      disposed = true;
+      subscription.remove();
+    };
   }, []);
   useEffect(() => {
     progress.stopAnimation();
@@ -44,31 +58,56 @@ export function AICharacterExperience({ character, selectCharacter, state }: {
     ]);
     const animation = state === 'answer' ? sequence : Animated.loop(sequence);
     animation.start();
-    return () => { animation.stop(); progress.stopAnimation(); progress.setValue(0); };
+    return () => {
+      animation.stop();
+      progress.stopAnimation();
+      progress.setValue(0);
+    };
   }, [active, progress, reduceMotion, state, character.id]);
   return (
     <View style={styles.container}>
       <View style={[styles.stage, state === 'attention' && styles.attention]}>
         <View style={styles.introduction}>
-          <Text accessibilityRole="header" style={styles.title}>Your neighborhood concierge</Text>
-          <Text accessibilityLiveRegion="polite" style={styles.message}>{messages[state]}</Text>
+          <Text accessibilityRole="header" style={styles.title}>
+            Your neighborhood concierge
+          </Text>
+          <Text accessibilityLiveRegion="polite" style={styles.message}>
+            {messages[state]}
+          </Text>
           <Text style={styles.hint}>Answers grounded in your neighborhood.</Text>
         </View>
-        <Animated.View style={{ transform: [
-          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, state === 'answer' ? -6 : -3] }) },
-          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.015] }) },
-        ] }}>
-          <Image source={character.full} resizeMode="contain" style={styles.character}
-            accessibilityLabel={character.label} />
+        <Animated.View
+          style={{
+            transform: [
+              {
+                translateY: progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, state === 'answer' ? -6 : -3],
+                }),
+              },
+              { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.015] }) },
+            ],
+          }}
+        >
+          <Image
+            source={character.full}
+            resizeMode="contain"
+            style={styles.character}
+            accessibilityLabel={character.label}
+          />
         </Animated.View>
       </View>
       <Text style={styles.selectorLabel}>Choose your My Corner AI character</Text>
       <View accessibilityRole="radiogroup" style={styles.selector}>
         {aiCharacters.map((option) => (
-          <Pressable key={option.id} accessibilityRole="radio"
-            accessibilityLabel={option.label} accessibilityState={{ checked: option.id === character.id }}
+          <Pressable
+            key={option.id}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ checked: option.id === character.id }}
             onPress={() => selectCharacter(option.id)}
-            style={({ pressed }) => [styles.option, pressed && styles.pressed]}>
+            style={({ pressed }) => [styles.option, pressed && styles.pressed]}
+          >
             <AICharacterPortrait character={option} size={58} selected={option.id === character.id} />
             <Text style={[styles.choice, option.id === character.id && styles.chosen]}>
               {option.id === character.id ? 'Selected' : 'Choose'}
@@ -81,7 +120,16 @@ export function AICharacterExperience({ character, selectCharacter, state }: {
 }
 const styles = StyleSheet.create({
   container: { gap: 8 },
-  stage: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#144C43', borderRadius: 16, padding: 12, borderWidth: 2, borderColor: '#144C43', gap: 4 },
+  stage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#144C43',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 2,
+    borderColor: '#144C43',
+    gap: 4,
+  },
   attention: { borderColor: tokens.color.gold },
   introduction: { flex: 1, minWidth: 0, gap: 8 },
   title: { color: tokens.color.onPrimary, fontSize: 17, lineHeight: 23, fontWeight: '700' },

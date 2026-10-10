@@ -10,7 +10,11 @@ jest.mock('react', () => ({
   useSyncExternalStore: (_subscribe: unknown, snapshot: () => unknown) => snapshot(),
 }));
 const load = () => jest.requireActual<typeof import('@/hooks/useAICharacter')>('@/hooks/useAICharacter');
-beforeEach(() => { jest.resetModules(); mockRead.mockReset(); mockWrite.mockReset().mockResolvedValue(undefined); });
+beforeEach(() => {
+  jest.resetModules();
+  mockRead.mockReset();
+  mockWrite.mockReset().mockResolvedValue(undefined);
+});
 it('restores a valid device preference without storing any conversation or user data', async () => {
   mockRead.mockResolvedValue('woman-purple');
   const preference = load();
@@ -22,7 +26,11 @@ it('restores a valid device preference without storing any conversation or user 
 });
 it('does not let delayed storage hydration overwrite a newer selection', async () => {
   let resolve!: (value: string) => void;
-  mockRead.mockReturnValue(new Promise<string>((done) => { resolve = done; }));
+  mockRead.mockReturnValue(
+    new Promise<string>((done) => {
+      resolve = done;
+    }),
+  );
   const preference = load();
   const pending = preference.loadAICharacterPreference();
   preference.selectAICharacter('young-man');

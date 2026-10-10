@@ -1,5 +1,8 @@
 jest.mock('@/hooks/useAICharacter', () => ({
-  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
 }));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
