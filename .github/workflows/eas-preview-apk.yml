@@ -40,14 +40,14 @@ permissions:
 
 concurrency:
   group: eas-preview-apk
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-verify-preview:
     name: Build and verify Android preview APK
     if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Verify existing Home Preview APK57')
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: mobile
@@ -67,6 +67,9 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Require Expo authentication
         env:
@@ -122,36 +125,11 @@ jobs:
         run: |
           build_json="${RUNNER_TEMP}/eas-build.json"
 
-          for attempt in $(seq 1 120); do
-            if npx --yes eas-cli@22.6.0 build:view "$BUILD_ID" --json > "$build_json" 2>"${RUNNER_TEMP}/eas-view.log"; then
-              status="$(jq -r '.status // empty' "$build_json")"
-              echo "EAS build status: ${status:-unknown}"
-
-              case "$status" in
-                FINISHED)
-                  artifact_url="$(jq -r '.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty' "$build_json")"
-                  if [ -z "$artifact_url" ]; then
-                    echo "::error::Finished EAS build has no APK artifact URL."
-                    exit 1
-                  fi
-                  echo "artifact_url=${artifact_url}" >> "$GITHUB_OUTPUT"
-                  exit 0
-                  ;;
-                ERRORED|CANCELED)
-                  jq '{id, status, error, gitCommitHash, artifacts}' "$build_json"
-                  echo "::error::EAS build ended with status ${status}."
-                  exit 1
-                  ;;
-              esac
-            else
-              cat "${RUNNER_TEMP}/eas-view.log"
-            fi
-
-            sleep 30
-          done
-
-          echo "::error::Timed out waiting for final EAS build completion."
-          exit 1
+          timeout 90s npx --yes eas-cli@22.6.0 build:view "$BUILD_ID" --json > "$build_json"
+          test "$(jq -r '.status' "$build_json")" = 'FINISHED'
+          artifact_url="$(jq -r '.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty' "$build_json")"
+          test -n "$artifact_url"
+          echo "artifact_url=${artifact_url}" >> "$GITHUB_OUTPUT"
 
       - name: Download completed APK
         id: artifact
