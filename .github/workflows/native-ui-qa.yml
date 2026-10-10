@@ -27,6 +27,9 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
       - name: Install and prepare test-only native entry
         working-directory: mobile
+        env:
+          MC_QA_BASELINE: 758e0f0f6f192d053b6079665894103da21e91c0
+          MC_QA_PHASE: B
         run: |
           npm ci
           node scripts/prepare-native-ui-qa.cjs

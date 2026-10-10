@@ -43,7 +43,8 @@ describe('Day 20F bottom navigation foundation', () => {
   it('mounts the bottom navigation from the shared Screen shell by default', () => {
     expect(screenSource).toContain("import { BottomNavigation } from '@/components/BottomNavigation'");
     expect(screenSource).toContain('showBottomNavigation = true');
-    expect(screenSource).toContain('showBottomNavigation ? <BottomNavigation /> : null');
+    expect(screenSource).toContain('showBottomNavigation && !isFocusedForm(pathname)');
+    expect(screenSource).toContain('showTabs ? <BottomNavigation /> : null');
   });
 
   it('keeps welcome and sign-in outside the tab shell', () => {

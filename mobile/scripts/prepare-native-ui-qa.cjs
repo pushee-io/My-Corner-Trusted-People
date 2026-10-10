@@ -166,6 +166,7 @@ write(
   path.join(out, 'evidence.json'),
   JSON.stringify(
     {
+      phase: process.env.MC_QA_PHASE || 'A',
       baseline,
       head,
       renderer: 'Android emulator / Expo Go / real native shared components',

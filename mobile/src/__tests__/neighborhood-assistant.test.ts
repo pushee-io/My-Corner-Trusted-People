@@ -13,6 +13,7 @@ import {
   safeAskHref,
   type AskAnswer,
 } from '@/lib/neighborhood-assistant';
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 let mockContext: unknown;
 let mockPath = '/events';
 let mockParams: { question?: string } = {};
@@ -309,15 +310,16 @@ it('pill supports 48dp touch, wrapping, pressed and focus states', async () => {
   await press('Ask My Corner AI');
   expect(router.push).toHaveBeenCalledWith('/ask');
 });
-it.each([0, 3])('Messages preserves unread count %s and navigation', async (unread) => {
+it.each([0, 3, 145])('Messages preserves unread count %s and navigation', async (unread) => {
   mockUnread = unread;
   await render(MessagesAccess);
   const target = pill(`Messages, ${unread} unread`);
   expect(target.props.accessibilityRole).toBe('button');
   expect(target.props.style({ pressed: false }).minHeight).toBe(48);
-  await press(unread ? `Messages (${unread})` : 'Messages');
+  if (unread > 99) expect(output()).toContain('99+');
+  await act(async () => target.props.onPress());
   expect(router.push).toHaveBeenCalledWith('/messages');
-  await press('Notifications');
+  await act(async () => pill('Notifications').props.onPress());
   expect(router.push).toHaveBeenLastCalledWith('/notifications');
 });
 it('clarification choices submit the chosen intent without exposing implementation details', async () => {

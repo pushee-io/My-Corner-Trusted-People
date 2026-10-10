@@ -5,6 +5,8 @@ import { RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { tokens } from '@/theme/tokens';
+import { usePathname } from 'expo-router';
+import { isFocusedForm } from '@/lib/navigation-layout';
 
 export function Screen({
   title,
@@ -21,13 +23,15 @@ export function Screen({
   refreshing?: boolean;
 }>) {
   const { width } = useWindowDimensions();
+  const pathname = usePathname();
+  const showTabs = showBottomNavigation && !isFocusedForm(pathname);
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
   return (
     <CommentsProvider>
       <SafeAreaView style={styles.safe}>
         <View style={[styles.header, contentWidth ? { maxWidth: contentWidth } : null]}>
-          <AppHeader title={title} showTitle={showTitle} showActions={showBottomNavigation} />
+          <AppHeader title={title} showTitle={showTitle} showActions={showTabs} />
         </View>
         <ScrollView
           refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
@@ -41,7 +45,7 @@ export function Screen({
         >
           <View style={styles.body}>{children}</View>
         </ScrollView>
-        {showBottomNavigation ? <BottomNavigation /> : null}
+        {showTabs ? <BottomNavigation /> : null}
       </SafeAreaView>
     </CommentsProvider>
   );

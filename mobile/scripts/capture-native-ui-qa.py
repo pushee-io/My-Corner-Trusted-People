@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 
 out = Path(os.environ['MC_QA_OUTPUT'])
 out.mkdir(parents=True, exist_ok=True)
+metadata = json.loads(Path('.native-ui-qa/evidence.json').read_text())
 
 
 def adb(*args):
@@ -34,6 +35,15 @@ ready = False
 for attempt in range(40):
     try:
         current = nodes()
+        # A cold CI emulator can show a launcher ANR over the running fixture.
+        # Dismiss only this known system dialog, never an app crash dialog.
+        if any(n.get('text') == "Pixel Launcher isn't responding" for n in current):
+            tap('Close app')
+            continue
+        if any('This is the developer menu' in n.get('text', '') for n in current):
+            tap('Continue')
+            adb('shell', 'input', 'keyevent', '4')
+            continue
         if any(n.get('content-desc') == 'QA after' for n in current):
             ready = True
             break
@@ -59,7 +69,15 @@ for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), (
             tap('QA ' + scenario)
             name = f'{revision}-{scenario}-{layout}'
             (out / (name + '.png')).write_bytes(adb('exec-out', 'screencap', '-p'))
-            nodes()
+            current = nodes()
+            if metadata.get('phase') == 'B' and revision == 'after':
+                labels = [n.get('content-desc') for n in current]
+                if scenario in ['provider', 'request']:
+                    assert 'Go back' in labels
+                    assert 'Messages, 4 unread' not in labels
+                    assert 'Notifications' not in labels
+                if scenario == 'request':
+                    assert 'Home' not in labels  # No bottom tabs on focused form.
             (out / (name + '.xml')).write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))
 
 # Native press check on real shared retry and checkbox; no backend submission.
@@ -74,7 +92,17 @@ assert any(n.get('content-desc') == 'Review request' and n.get('enabled') == 'tr
 (out / 'after-request-checked.png').write_bytes(adb('exec-out', 'screencap', '-p'))
 tap('I understand My Corner shows trust evidence but does not guarantee provider conduct')
 assert any(n.get('content-desc') == 'Review request' and n.get('enabled') == 'false' for n in nodes())
-metadata = json.loads(Path('.native-ui-qa/evidence.json').read_text())
+if metadata.get('phase') == 'B':
+    adb('shell', 'wm', 'size', '720x1600')
+    adb('shell', 'wm', 'density', '320')
+    time.sleep(3)
+    tap('QA request')
+    tap('QA job title')
+    adb('shell', 'input', 'text', 'Kitchen%ssink%sleak')
+    time.sleep(2)
+    (out / 'after-request-keyboard-phone.png').write_bytes(adb('exec-out', 'screencap', '-p'))
+    adb('shell', 'input', 'keyevent', '4')
+    metadata.update(compactDeepHeaders='passed', focusedFormTabs='passed')
 metadata.update(nativeRetry='passed', nativeCheckboxToggle='passed', apiLevel=adb('shell', 'getprop', 'ro.build.version.sdk').decode().strip(), deviceModel=adb('shell', 'getprop', 'ro.product.model').decode().strip())
 (out / 'evidence.json').write_text(json.dumps(metadata, indent=2))
-print('Captured 19 native component screenshots and passed retry/checkbox smoke checks.')
+print(f'Captured {len(list(out.glob("*.png")))} native component screenshots and passed retry/checkbox smoke checks.')
