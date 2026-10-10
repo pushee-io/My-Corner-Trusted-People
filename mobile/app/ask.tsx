@@ -49,8 +49,10 @@ export default function AskScreen() {
   const { character, selectCharacter } = useAICharacter();
   const homeQuestion = useRef<string | undefined>(undefined);
   const observedHomeHandoff = useRef<string | undefined>(undefined);
-  const handoff = params.fromHome === '1' && typeof params.question === 'string'
-    ? `${params.submission ?? ''}:${params.question}` : undefined;
+  const handoff =
+    params.fromHome === '1' && typeof params.question === 'string'
+      ? `${params.submission ?? ''}:${params.question}`
+      : undefined;
   // Route params can arrive after the first native render. Observe each handoff
   // once, instead of capturing only the initial render's often-empty params.
   useEffect(() => {
@@ -183,8 +185,11 @@ export default function AskScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen title="Ask My Corner AI">
-        <AICharacterExperience character={character} selectCharacter={selectCharacter}
-          state={busy ? 'thinking' : error ? 'attention' : answer ? 'answer' : 'idle'} />
+        <AICharacterExperience
+          character={character}
+          selectCharacter={selectCharacter}
+          state={busy ? 'thinking' : error ? 'attention' : answer ? 'answer' : 'idle'}
+        />
         {context.data ? (
           <Text style={styles.meta}>{context.data.name} · Neighborhood context</Text>
         ) : (
@@ -222,9 +227,12 @@ export default function AskScreen() {
             editable={!busy}
             style={styles.input}
           />
-          <IconButton icon="arrow-up" label={busy ? 'Checking neighborhood sources…' : 'Send question'}
+          <IconButton
+            icon="arrow-up"
+            label={busy ? 'Checking neighborhood sources…' : 'Send question'}
             disabled={!neighborhood || busy || question.trim().length < 3}
-            onPress={() => void ask()} />
+            onPress={() => void ask()}
+          />
         </View>
         {busy ? (
           <Text accessibilityLiveRegion="polite" style={styles.meta}>
@@ -244,9 +252,16 @@ export default function AskScreen() {
         </Pressable>
         {error ? (
           <View style={styles.card}>
-            <Text accessibilityRole="alert" style={styles.body}>{error}</Text>
-            {history.at(-1) ? <ActionPill label="Retry question" disabled={!neighborhood || busy}
-              onPress={() => void ask(history.at(-1)!)} /> : null}
+            <Text accessibilityRole="alert" style={styles.body}>
+              {error}
+            </Text>
+            {history.at(-1) ? (
+              <ActionPill
+                label="Retry question"
+                disabled={!neighborhood || busy}
+                onPress={() => void ask(history.at(-1)!)}
+              />
+            ) : null}
           </View>
         ) : null}
         {answer ? (
@@ -347,9 +362,13 @@ const styles = StyleSheet.create({
   meta: { color: tokens.color.textPrimary, fontSize: 13, lineHeight: 20 },
   title: { color: tokens.color.textPrimary, fontSize: 19, fontWeight: '700' },
   composer: {
-    flexDirection: 'row', alignItems: 'flex-end', borderWidth: 1,
-    borderColor: tokens.color.controlBorder, borderRadius: 12,
-    backgroundColor: tokens.color.surface, paddingRight: 4,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderWidth: 1,
+    borderColor: tokens.color.controlBorder,
+    borderRadius: 12,
+    backgroundColor: tokens.color.surface,
+    paddingRight: 4,
   },
   input: {
     flex: 1,

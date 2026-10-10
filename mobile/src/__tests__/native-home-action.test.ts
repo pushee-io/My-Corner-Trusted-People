@@ -1,4 +1,6 @@
+/* eslint-disable react/no-children-prop -- Typed React.createElement test fixtures. */
 import { createElement } from 'react';
+import { Pressable } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { router } from 'expo-router';
 import { HomeHireAction } from '@/components/HomeDashboard';
@@ -30,12 +32,10 @@ it('keeps the native Hire CTA green and readable, pressed and routed once', asyn
   expect(router.push).toHaveBeenCalledWith('/hire/categories');
 });
 it('retains the native Link for static styles and ignores disabled dynamic-style actions', async () => {
-  const child = createElement('Pressable' as never, { style: { padding: 12 } });
-  await act(async () => { view = create(createElement(WebSafeLink, { asChild: true, href: '/home', children: child })); });
+  await act(async () => { view = create(createElement(WebSafeLink, { asChild: true, href: '/home', children: createElement(Pressable, { style: { padding: 12 } }) })); });
   expect(view.root.findAllByType('NativeLink' as never)).toHaveLength(1);
   await act(async () => view.update(createElement(WebSafeLink, {
-    asChild: true, href: '/home',
-    children: createElement('Pressable' as never, { disabled: true, style: () => ({ padding: 12 }) }),
+    asChild: true, href: '/home', children: createElement(Pressable, { disabled: true, style: () => ({ padding: 12 }) }),
   })));
   await act(async () => view.root.findByType('Pressable' as never).props.onPress({}));
   expect(router.push).not.toHaveBeenCalled();

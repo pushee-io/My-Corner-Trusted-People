@@ -106,7 +106,7 @@ it.each([
   await act(async () => { view = create(createElement(BottomNavigation)); });
   expect(tabs().filter((node) => node.props.accessibilityState.selected)).toHaveLength(1);
   for (const node of tabs()) {
-    const icon = node.findAll((child) => child.type === 'Icon' || child.type === 'Artwork')[0];
+    const icon = node.findAll((child) => child.type === ('Icon' as never) || child.type === ('Artwork' as never))[0];
     expect(icon.props.color === '#0E6B50').toBe(node.props.accessibilityLabel === label);
   }
 });
