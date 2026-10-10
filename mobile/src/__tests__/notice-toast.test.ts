@@ -22,7 +22,9 @@ jest.mock('react-native', () => ({
     View: 'AnimatedView',
     Value: class {
       setValue() {}
-      stopAnimation() { mockStop(); }
+      stopAnimation() {
+        mockStop();
+      }
     },
     timing: jest.fn(() => ({
       start: (done?: (result: { finished: boolean }) => void) => done?.({ finished: true }),
@@ -30,6 +32,7 @@ jest.mock('react-native', () => ({
     })),
   },
 }));
+jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 24 }) }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 let view: ReactTestRenderer | undefined;
 const notice = {
@@ -61,13 +64,17 @@ afterEach(async () => {
 it('overlays the top without exporting message bodies and opens only on explicit tap', async () => {
   await render();
   const overlay = view!.root.findByProps({ pointerEvents: 'box-none' });
-  expect(overlay.props.style).toMatchObject({ position: 'absolute', top: 4, zIndex: 1000 });
+  expect(overlay.props.style[0]).toMatchObject({ position: 'absolute', zIndex: 1000 });
+  expect(overlay.props.style[1]).toMatchObject({ top: 28 });
   expect(JSON.stringify(view!.toJSON())).not.toContain(notice.body);
   expect(open).not.toHaveBeenCalled();
   const button = view!.root.findByProps({ accessibilityLabel: 'Open update: Safety update' });
   await act(async () => button.props.onPress());
   expect(open).toHaveBeenCalledTimes(1);
-  expect(Animated.timing).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ toValue: 0, duration: 220, useNativeDriver: true }));
+  expect(Animated.timing).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({ toValue: 0, duration: 220, useNativeDriver: true }),
+  );
 });
 it('supports swipe dismissal once and smooth upward exit', async () => {
   await render();
@@ -77,7 +84,10 @@ it('supports swipe dismissal once and smooth upward exit', async () => {
     pan.onPanResponderRelease!({} as never, { dy: -60, vy: -1 } as never);
   });
   expect(dismiss).toHaveBeenCalledTimes(1);
-  expect(Animated.timing).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ toValue: -180, duration: 170 }));
+  expect(Animated.timing).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({ toValue: -180, duration: 170 }),
+  );
 });
 it('respects reduced motion and leaves screen-reader notices until explicit dismissal', async () => {
   mockReduceMotion = true;
@@ -86,17 +96,33 @@ it('respects reduced motion and leaves screen-reader notices until explicit dism
   await act(async () => jest.advanceTimersByTime(30000));
   expect(dismiss).not.toHaveBeenCalled();
   expect(Animated.timing).not.toHaveBeenCalled();
-  const button = view!.root.findAllByType('Pressable' as never).find((item) => item.props.accessibilityLabel === 'Dismiss update')!;
+  const button = view!.root
+    .findAllByType('Pressable' as never)
+    .find((item) => item.props.accessibilityLabel === 'Dismiss update')!;
   await act(async () => button.props.onPress());
   expect(dismiss).toHaveBeenCalledTimes(1);
 });
-it('auto-dismisses after eight seconds and clears the timer on unmount', async () => {
+it('auto-dismisses after eight seconds', async () => {
   await render();
   await act(async () => jest.advanceTimersByTime(7999));
   expect(dismiss).not.toHaveBeenCalled();
   await act(async () => jest.advanceTimersByTime(1));
   expect(dismiss).toHaveBeenCalledTimes(1);
   await act(async () => view!.unmount());
-  expect(jest.getTimerCount()).toBe(0);
   expect(mockStop).toHaveBeenCalled();
+});
+
+it('cancels pending dismissal when the overlay unmounts', async () => {
+  const schedule = jest.spyOn(globalThis, 'setTimeout');
+  const clear = jest.spyOn(globalThis, 'clearTimeout');
+  await render();
+  const index = schedule.mock.calls.map((call) => call[1]).lastIndexOf(8000);
+  expect(index).toBeGreaterThanOrEqual(0);
+  const timer = schedule.mock.results[index].value;
+  await act(async () => view!.unmount());
+  expect(clear).toHaveBeenCalledWith(timer);
+  await act(async () => jest.advanceTimersByTime(9000));
+  expect(dismiss).not.toHaveBeenCalled();
+  schedule.mockRestore();
+  clear.mockRestore();
 });

@@ -151,6 +151,17 @@ for (const scenario of [
       refresh: () => {},
     };
   }
+  function scaledTextStyle(style) {
+    if (!scenario.scale) return style;
+    const resolved = Native.StyleSheet.flatten(style) ?? {};
+    return [
+      style,
+      {
+        fontSize: (resolved.fontSize ?? 14) * scenario.scale,
+        lineHeight: (resolved.lineHeight ?? (resolved.fontSize ?? 14) * 1.4) * scenario.scale,
+      },
+    ];
+  }
   function loadSource(relative) {
     if (cache.has(relative)) return cache.get(relative);
     const source = fs.readFileSync(path.join(root, relative), 'utf8');
@@ -174,23 +185,12 @@ for (const scenario of [
             height: scenario.height,
             fontScale: scenario.scale ?? 1,
           }),
-          Text: ({ style, ...props }) => {
-            const resolved = Native.StyleSheet.flatten(style) ?? {};
-            return h(Native.Text, {
-              ...props,
-              style: [
-                style,
-                scenario.scale ? {
-                  fontSize: (resolved.fontSize ?? 14) * scenario.scale,
-                  lineHeight: (resolved.lineHeight ?? (resolved.fontSize ?? 14) * 1.4) * scenario.scale,
-                } : null,
-              ],
-            });
-          },
+          Text: (props) => h(Native.Text, { ...props, style: scaledTextStyle(props.style) }),
+          TextInput: (props) => h(Native.TextInput, { ...props, style: scaledTextStyle(props.style) }),
         };
       if (name === '@react-native-community/netinfo')
         return { useNetInfo: () => ({ isConnected: true, isInternetReachable: true }) };
-      if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View };
+      if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View, useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) };
       if (name === 'expo-router')
         return {
           usePathname: () => scenario.route ?? (scenario.ask ? '/ask' : '/home'),
@@ -296,7 +296,12 @@ for (const scenario of [
     );
     const body =
       scenario.component === 'trust'
-        ? h(loadSource('src/components/TrustSignals.tsx').TrustSignals, { signals })
+        ? h(
+            Native.View,
+            { style: { gap: 12 } },
+            h(loadSource('src/components/TrustSignals.tsx').VerifiedProviderBadge, { phoneVerified: true }),
+            h(loadSource('src/components/TrustSignals.tsx').TrustSignals, { signals }),
+          )
         : scenario.component === 'feed'
           ? h(
               Native.View,

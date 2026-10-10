@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { IconButton } from '@/components/IconButton';
 import type { Notice } from '@/lib/messaging';
@@ -8,8 +9,9 @@ import { tokens } from '@/theme/tokens';
 type ToastProps = { notice: Notice; onOpen: () => void; onDismiss: () => void };
 
 export function NoticeToastOverlay(props: ToastProps) {
+  const { top } = useSafeAreaInsets();
   return (
-    <View pointerEvents="box-none" style={styles.overlay}>
+    <View pointerEvents="box-none" style={[styles.overlay, { top: top + 4 }]}>
       <NoticeToast key={props.notice.id} {...props} />
     </View>
   );
