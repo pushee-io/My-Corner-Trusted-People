@@ -14,6 +14,8 @@ import {
   HomeHeader,
   HomeMarketplaceShowcase,
   HomeBroadcastPreview,
+  HomeGroupsPreview,
+  HomeEventsPreview,
 } from '@/components/HomeDashboard';
 jest.mock('react-native', () => ({
   useWindowDimensions: () => ({ fontScale: 1 }),
@@ -164,4 +166,46 @@ it('shows the brand, location pin and full-art animated character presentation',
     view.update(createElement(HomeAICard, { available: true, loading: false }));
   });
   expect(view.root.findByType('AnimatedCharacter' as never).props.character.full).toBeDefined();
+});
+
+it('shows group content and event dates with exact detail destinations', async () => {
+  await act(async () => {
+    view = create(
+      createElement(HomeGroupsPreview, {
+        groups: [
+          { id: 'group', name: 'Garden neighbors', description: 'Grow together', memberCount: 0, isMember: false },
+        ] as never,
+      }),
+    );
+  });
+  expect(view.root.findByType('Link' as never).props.href).toEqual({
+    pathname: '/groups/[groupId]',
+    params: { groupId: 'group' },
+  });
+  expect(JSON.stringify(view.toJSON())).toContain('Garden neighbors');
+  expect(JSON.stringify(view.toJSON())).toContain('Grow together');
+  expect(JSON.stringify(view.toJSON())).not.toContain('You’re a member');
+  await act(async () =>
+    view.update(
+      createElement(HomeEventsPreview, {
+        events: [
+          {
+            id: 'event',
+            title: 'Garden meetup',
+            startsAt: '2099-01-01T08:00:00Z',
+            timezone: 'Africa/Accra',
+            areaLabel: 'Osu',
+            isGoing: true,
+          },
+        ],
+      }),
+    ),
+  );
+  expect(view.root.findByType('Link' as never).props.href).toEqual({
+    pathname: '/events/[eventId]',
+    params: { eventId: 'event' },
+  });
+  expect(JSON.stringify(view.toJSON())).toContain('Garden meetup');
+  expect(JSON.stringify(view.toJSON())).toContain('Osu');
+  expect(JSON.stringify(view.toJSON())).toContain('You’re going');
 });

@@ -1,5 +1,6 @@
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { reputationSignals } from '@/lib/reputation-signals';
 import { VerifiedProviderBadge, TrustSignals } from '@/components/TrustSignals';
 jest.mock('react-native', () => ({ View: 'View', Text: 'Text', StyleSheet: { create: (s: unknown) => s } }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
@@ -36,4 +37,16 @@ it('retains exact trust evidence values, including an unavailable response metri
   expect(output).toContain('Not enough data');
   expect(output).toContain('Completed jobs: 0');
   expect(output).not.toContain('100%');
+});
+
+it('uses only supplied reputation evidence, preserving zero values and unknowns', () => {
+  expect(reputationSignals(undefined)).toEqual([]);
+  expect(reputationSignals({ average: 0, verifiedCount: 0, completedJobs: 0, recommendationPercent: null })).toEqual([
+    { id: 'reviews', label: 'Verified reviews', value: 'No verified reviews yet.' },
+    { id: 'jobs', label: 'Confirmed My Corner jobs', value: '0' },
+  ]);
+  const evidence = reputationSignals({ average: 4.5, verifiedCount: 2, recommendationPercent: 0 });
+  expect(evidence).toContainEqual({ id: 'reviews', label: 'Verified reviews', value: '4.5 / 5 · 2 verified reviews' });
+  expect(evidence).toContainEqual({ id: 'recommend', label: 'Would recommend', value: '0%' });
+  expect(JSON.stringify(evidence)).not.toMatch(/Phone verified|Confirmed My Corner jobs|100%/);
 });

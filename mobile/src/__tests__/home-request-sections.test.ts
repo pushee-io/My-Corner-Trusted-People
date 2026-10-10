@@ -42,6 +42,8 @@ jest.mock('@/lib/home-dashboard', () => ({
   loadHomeFeed: jest.fn(),
   loadHomeMarketplace: jest.fn(),
   loadHomeBroadcast: jest.fn(),
+  loadHomeGroups: jest.fn(),
+  loadHomeEvents: jest.fn(),
   loadHomeNotificationCount: jest.fn(),
   previewImage: jest.fn(),
 }));
@@ -148,6 +150,8 @@ it('uses the specified dashboard order and removes directory sections', async ()
     'Hire Trusted Local Help',
     'LATEST FEED UPDATES',
     'MARKETPLACE SHOWCASE',
+    'GROUPS',
+    'EVENTS',
     'AGENCY BROADCAST',
     'My Requests',
   ];
@@ -163,6 +167,8 @@ it('preserves provider and moderation access and removes previews when capabilit
   expect(routes()).toContain('/hire/categories');
   expect(routes()).not.toContain('/community');
   expect(routes()).not.toContain('/marketplace');
+  expect(routes()).not.toContain('/groups');
+  expect(routes()).not.toContain('/events');
   mockCapabilities = { community: true, provider: false, moderator: true, neighborhoodId: 'area' };
   await act(async () => view.update(createElement(HomeScreen)));
   expect(routes()).toContain('/community');
@@ -173,4 +179,6 @@ it('preserves provider and moderation access and removes previews when capabilit
   await act(async () => view.update(createElement(HomeScreen)));
   expect(routes()).not.toContain('/community/moderation');
   expect(routes()).not.toContain('/marketplace');
+  expect(routes()).not.toContain('/groups');
+  expect(routes()).not.toContain('/events');
 });

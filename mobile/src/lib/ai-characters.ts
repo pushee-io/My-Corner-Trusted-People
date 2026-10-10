@@ -1,25 +1,29 @@
 export const aiCharacters = [
   {
     id: 'woman-kente',
-    label: 'Woman in kente',
+    displayName: 'Ebony',
+    label: 'Ebony, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-woman-kente.png'),
     portrait: require('../../assets/my-corner-ai/characters/portraits/character-woman-kente-portrait.png'),
   },
   {
     id: 'older-man',
-    label: 'Older man in kente',
+    displayName: 'Mr. Owusu',
+    label: 'Mr. Owusu, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-older-man.png'),
     portrait: require('../../assets/my-corner-ai/characters/portraits/character-older-man-portrait.png'),
   },
   {
     id: 'young-man',
-    label: 'Young man in gold',
+    displayName: 'Ekow',
+    label: 'Ekow, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-young-man.png'),
     portrait: require('../../assets/my-corner-ai/characters/portraits/character-young-man-portrait.png'),
   },
   {
     id: 'woman-purple',
-    label: 'Woman in purple',
+    displayName: 'Mama G.',
+    label: 'Mama G., My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-woman-purple.png'),
     portrait: require('../../assets/my-corner-ai/characters/portraits/character-woman-purple-portrait.png'),
   },

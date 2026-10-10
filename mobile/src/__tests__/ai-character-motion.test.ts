@@ -69,6 +69,16 @@ it('exposes four accessible choices and matches the selected portrait to the ful
   });
   const choices = view.root.findAllByType('Pressable' as never);
   expect(choices).toHaveLength(4);
+  expect(aiCharacters.map(({ id, displayName }) => [id, displayName])).toEqual([
+    ['woman-kente', 'Ebony'],
+    ['older-man', 'Mr. Owusu'],
+    ['young-man', 'Ekow'],
+    ['woman-purple', 'Mama G.'],
+  ]);
+  for (const character of aiCharacters) {
+    expect(JSON.stringify(view.toJSON())).toContain(character.displayName);
+    expect(choices.some((choice) => choice.props.accessibilityLabel === character.label)).toBe(true);
+  }
   expect(choices.filter((choice) => choice.props.accessibilityState.checked)).toHaveLength(1);
   expect(choices[2].props.accessibilityState.checked).toBe(true);
   expect(choices.every((choice) => choice.props.accessibilityRole === 'radio')).toBe(true);

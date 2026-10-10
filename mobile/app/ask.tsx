@@ -13,6 +13,8 @@ import {
   View,
 } from 'react-native';
 import { IconButton } from '@/components/IconButton';
+import { TrustSignals } from '@/components/TrustSignals';
+import { reputationSignals } from '@/lib/reputation-signals';
 import { AICharacterExperience } from '@/components/AICharacterExperience';
 import { useAICharacter } from '@/hooks/useAICharacter';
 import { ActionPill } from '@/components/ActionPill';
@@ -27,7 +29,6 @@ import {
   askUnavailable,
   askErrorMessage,
   loadAskContext,
-  reviewCountLabel,
   safeAskHref,
   type AskAnswer,
   type AskSource,
@@ -289,16 +290,7 @@ export default function AskScreen() {
                 <Text style={styles.body}>
                   “{answer.excerpts.find((e) => e.index === index)?.quote ?? source.text.slice(0, 500)}”
                 </Text>
-                {source.reputation ? (
-                  <Text style={styles.body}>
-                    {source.reputation.count
-                      ? `${source.reputation.average.toFixed(1)} / 5 · ${reviewCountLabel(source.reputation.verifiedCount)}`
-                      : 'No verified reviews yet.'}
-                  </Text>
-                ) : null}
-                {source.reputation?.completedJobs !== undefined ? (
-                  <Text style={styles.meta}>{source.reputation.completedJobs} confirmed completed My Corner jobs</Text>
-                ) : null}
+                {source.reputation ? <TrustSignals signals={reputationSignals(source.reputation)} /> : null}
                 {source.availability ? (
                   <Text style={styles.meta}>Provider-stated availability: {source.availability}</Text>
                 ) : null}

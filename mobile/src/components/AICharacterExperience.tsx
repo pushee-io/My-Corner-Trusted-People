@@ -46,9 +46,7 @@ export function AICharacterExperience({
             style={({ pressed }) => [styles.option, pressed && styles.pressed]}
           >
             <AICharacterPortrait character={option} size={58} selected={option.id === character.id} />
-            <Text style={[styles.choice, option.id === character.id && styles.chosen]}>
-              {option.id === character.id ? 'Selected' : 'Choose'}
-            </Text>
+            <Text style={[styles.choice, option.id === character.id && styles.chosen]}>{option.displayName}</Text>
           </Pressable>
         ))}
       </View>
@@ -74,8 +72,8 @@ const styles = StyleSheet.create({
   hint: { color: '#DCECE3', fontSize: 12, lineHeight: 18 },
   selectorLabel: { color: tokens.color.textSecondary, ...tokens.typography.caption },
   selector: { flexDirection: 'row', justifyContent: 'space-between', gap: 2 },
-  option: { minHeight: 80, minWidth: 58, alignItems: 'center', borderRadius: 12, paddingVertical: 4, gap: 2 },
+  option: { flex: 1, minHeight: 80, minWidth: 58, alignItems: 'center', borderRadius: 12, paddingVertical: 4, gap: 2 },
   pressed: { backgroundColor: tokens.color.surfacePressed },
-  choice: { color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18 },
+  choice: { color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18, textAlign: 'center', flexShrink: 1 },
   chosen: { color: tokens.color.primary, fontWeight: '700' },
 });

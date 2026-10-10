@@ -12,6 +12,8 @@ import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { tokens } from '@/theme/tokens';
 import type { MarketplaceListing, NeighborhoodFeedPost } from '@/types/contracts';
 import type { AgencyBroadcast } from '@/types/day3';
+import type { HomeGroup, HomeEvent } from '@/lib/home-dashboard';
+import { formatEventDate } from '@/lib/events-format';
 
 export function HomeHeader({
   location,
@@ -253,6 +255,71 @@ export function HomeMarketplaceShowcase({ listings }: { listings: MarketplaceLis
   );
 }
 
+export function HomeGroupsPreview({ groups }: { groups: HomeGroup[] }) {
+  return (
+    <View style={styles.previewList}>
+      {groups.map((group) => (
+        <WebSafeLink key={group.id} href={{ pathname: '/groups/[groupId]', params: { groupId: group.id } }} asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open group: ${group.name}`}
+            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+          >
+            {group.image ? (
+              <Thumbnail uri={group.image} label={group.name} style={styles.thumbnail} />
+            ) : (
+              <View style={styles.previewIcon}>
+                <Ionicons name="people-outline" size={26} color={tokens.color.primary} accessible={false} />
+              </View>
+            )}
+            <View style={[styles.flex, styles.previewCopy]}>
+              <Text numberOfLines={2} style={styles.previewTitle}>
+                {group.name}
+              </Text>
+              <Text numberOfLines={2} style={styles.metadata}>
+                {group.description}
+              </Text>
+              <Text style={styles.link}>
+                {group.memberCount} members{group.isMember ? ' · You’re a member' : ''}
+              </Text>
+            </View>
+          </Pressable>
+        </WebSafeLink>
+      ))}
+    </View>
+  );
+}
+
+export function HomeEventsPreview({ events }: { events: HomeEvent[] }) {
+  return (
+    <View style={styles.previewList}>
+      {events.map((event) => (
+        <WebSafeLink key={event.id} href={{ pathname: '/events/[eventId]', params: { eventId: event.id } }} asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open event: ${event.title}`}
+            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+          >
+            <View style={[styles.previewIcon, styles.eventIcon]}>
+              <Ionicons name="calendar-outline" size={26} color={tokens.color.primary} accessible={false} />
+            </View>
+            <View style={[styles.flex, styles.previewCopy]}>
+              <Text style={styles.link}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+              <Text numberOfLines={2} style={styles.previewTitle}>
+                {event.title}
+              </Text>
+              <Text numberOfLines={2} style={styles.metadata}>
+                {event.areaLabel}
+              </Text>
+              {event.isGoing ? <Text style={styles.link}>You’re going</Text> : null}
+            </View>
+          </Pressable>
+        </WebSafeLink>
+      ))}
+    </View>
+  );
+}
+
 export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast }) {
   return (
     <WebSafeLink href={{ pathname: '/agency-broadcasts', params: { broadcastId: broadcast.id } }} asChild>
@@ -357,6 +424,20 @@ const styles = StyleSheet.create({
   listingText: { padding: 8, gap: 4 },
   price: { color: tokens.color.primary, fontSize: 13, lineHeight: 19, fontWeight: '700' },
   broadcast: { backgroundColor: '#F6F8F5' },
+  previewList: { gap: 8 },
+  previewRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  previewCopy: { gap: 4 },
+  previewTitle: { color: tokens.color.textPrimary, fontSize: 15, lineHeight: 21, fontWeight: '700' },
+  previewIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#EAF4EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventIcon: { backgroundColor: '#F5F0E5' },
+  previewPressed: { backgroundColor: tokens.color.surfacePressed },
   megaphone: {
     width: 40,
     height: 40,

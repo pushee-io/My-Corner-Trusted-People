@@ -9,6 +9,8 @@ import {
   HomeAICard,
   HomeBroadcastPreview,
   HomeFeedPreview,
+  HomeGroupsPreview,
+  HomeEventsPreview,
   HomeHeader,
   HomeHireAction,
   HomeMarketplaceShowcase,
@@ -23,13 +25,22 @@ import { categories } from '@/lib/mock-data';
 import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { loadAskContext } from '@/lib/neighborhood-assistant';
-import { loadHomeBroadcast, loadHomeFeed, loadHomeMarketplace, previewImage } from '@/lib/home-dashboard';
+import {
+  loadHomeBroadcast,
+  loadHomeFeed,
+  loadHomeMarketplace,
+  loadHomeGroups,
+  loadHomeEvents,
+  previewImage,
+} from '@/lib/home-dashboard';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 function HomeContentPreviews() {
   const feed = useProtectedResource(loadHomeFeed);
   const market = useProtectedResource(loadHomeMarketplace);
+  const groups = useProtectedResource(loadHomeGroups);
+  const events = useProtectedResource(loadHomeEvents);
   const broadcast = useProtectedResource(loadHomeBroadcast);
   return (
     <>
@@ -54,6 +65,34 @@ function HomeContentPreviews() {
             error={market.error}
             empty="No listings yet. Discover something local or offer something you no longer need."
             onRetry={() => void market.refresh()}
+          />
+        )}
+      </HomeSection>
+      <HomeSection title="GROUPS" href="/groups">
+        {groups.data?.length ? (
+          <HomeGroupsPreview groups={groups.data} />
+        ) : (
+          <HomeSectionState
+            loading={groups.loading}
+            error={groups.error}
+            empty="Find your people, close to home. Neighborhood groups will appear here when available."
+            onRetry={() => void groups.refresh()}
+          />
+        )}
+      </HomeSection>
+      <HomeSection title="EVENTS" href="/events">
+        {events.data?.events.length ? (
+          <HomeEventsPreview events={events.data.events} />
+        ) : (
+          <HomeSectionState
+            loading={events.loading}
+            error={events.error}
+            empty={
+              events.data?.enabled === false
+                ? 'Local plans are on the way. Events is not available yet.'
+                : 'No upcoming events yet. Your neighborhood’s next get-together will appear here.'
+            }
+            onRetry={() => void events.refresh()}
           />
         )}
       </HomeSection>

@@ -44,6 +44,9 @@ const listings = ['Garden bench', 'Side table', 'Reading chair'].map((title, i) 
 }));
 for (const scenario of [
   { name: 'phone', width: 390, height: 844 },
+  { name: 'home-full', width: 390, height: 1900 },
+  { name: 'home-empty-full', width: 390, height: 1500, empty: true },
+  { name: 'events-disabled', width: 390, height: 1900, eventsDisabled: true },
   { name: 'compact', width: 320, height: 760 },
   { name: 'tablet', width: 840, height: 1100 },
   { name: 'large-text', width: 390, height: 1100, scale: 1.6 },
@@ -134,6 +137,50 @@ for (const scenario of [
     else if (load === 'loadHomeNotificationCount') data = 2;
     else if (load === 'loadHomeFeed') data = scenario.empty ? {} : { post };
     else if (load === 'loadHomeMarketplace') data = scenario.empty ? [] : listings;
+    else if (load === 'loadHomeGroups')
+      data = scenario.empty
+        ? []
+        : [
+            {
+              id: 'fixture-group-garden',
+              name: 'Garden neighbors',
+              description: 'Growing greener streets, together.',
+              memberCount: 24,
+              isMember: true,
+            },
+            {
+              id: 'fixture-group-readers',
+              name: 'Weekend readers',
+              description: 'Good books and neighborhood conversation.',
+              memberCount: 18,
+              isMember: false,
+            },
+          ];
+    else if (load === 'loadHomeEvents')
+      data = {
+        enabled: !scenario.eventsDisabled,
+        events:
+          scenario.empty || scenario.eventsDisabled
+            ? []
+            : [
+                {
+                  id: 'fixture-event',
+                  title: 'Community garden morning',
+                  startsAt: '2026-10-17T08:00:00Z',
+                  timezone: 'Africa/Accra',
+                  areaLabel: 'East Legon · Accra',
+                  isGoing: true,
+                },
+                {
+                  id: 'fixture-event-readers',
+                  title: 'Saturday book exchange',
+                  startsAt: '2026-10-24T10:00:00Z',
+                  timezone: 'Africa/Accra',
+                  areaLabel: 'East Legon · Accra',
+                  isGoing: false,
+                },
+              ],
+      };
     else if (load === 'loadHomeBroadcast')
       data = scenario.empty
         ? undefined
@@ -153,7 +200,9 @@ for (const scenario of [
         })),
         providers: {},
       };
-    const failed = scenario.error && ['loadHomeFeed', 'loadHomeMarketplace', 'loadHomeBroadcast'].includes(load);
+    const failed =
+      scenario.error &&
+      ['loadHomeFeed', 'loadHomeMarketplace', 'loadHomeGroups', 'loadHomeEvents', 'loadHomeBroadcast'].includes(load);
     return {
       data: failed ? undefined : data,
       error: failed ? 'Fixture offline state' : undefined,
@@ -279,6 +328,8 @@ for (const scenario of [
           '@/lib/ai-characters',
           '@/lib/communication-notices',
           '@/lib/feed-share',
+          '@/lib/events-format',
+          '@/lib/reputation-signals',
         ].includes(name)
       )
         return new Proxy({}, { get: (_target, key) => (key === 'previewImage' ? () => undefined : key) });
@@ -437,6 +488,9 @@ fs.writeFileSync(
         'focused-form',
         'critical-toast',
         'phone',
+        'home-full',
+        'home-empty-full',
+        'events-disabled',
         'compact',
         'tablet',
         'large-text',

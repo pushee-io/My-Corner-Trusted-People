@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { IconButton } from '@/components/IconButton';
+import { TrustSignals } from '@/components/TrustSignals';
 import { useLocalSearchParams } from 'expo-router';
 import type { Href } from 'expo-router';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -88,6 +89,7 @@ export default function SearchScreen() {
                 ['Neighborhood feed', 'people-outline', '/community'],
                 ['Marketplace', 'storefront-outline', '/marketplace'],
                 ['Groups', 'chatbubbles-outline', '/groups'],
+                ['Events', 'calendar-outline', '/events'],
                 ['Agency updates', 'megaphone-outline', '/agency-broadcasts'],
               ] as const
             ).map(([label, icon, href]) => (
@@ -174,6 +176,7 @@ export default function SearchScreen() {
                       <Text style={styles.eyebrow}>{result.sourceLabel}</Text>
                       <Text style={styles.title}>{result.title}</Text>
                       <Text style={styles.subtitle}>{result.subtitle}</Text>
+                      {result.trustSignals?.length ? <TrustSignals signals={result.trustSignals} /> : null}
                       <Text numberOfLines={3} style={styles.body}>
                         {result.body.slice(0, 240)}
                       </Text>

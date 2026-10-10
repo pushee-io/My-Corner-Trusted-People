@@ -20,7 +20,7 @@ jest.mock('@/components/AskMyCornerAccess', () => ({
     jest.requireActual('react').createElement('AskPill', { onPress: beforeOpen }),
 }));
 jest.mock('@/components/media/MediaThumbnail', () => ({ MediaThumbnail: () => null }));
-jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: ({ children }: { children: unknown }) => children }));
+jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: 'Link' }));
 jest.mock('@/components/StateBlocks', () => ({
   EmptyState: 'EmptyState',
   ErrorState: 'ErrorState',
@@ -51,4 +51,20 @@ it('shows both Search choices for a one-word query and dismisses keyboard on Sea
   await act(async () => renderer.root.findByType('AskPill' as never).props.onPress());
   expect(Keyboard.dismiss).toHaveBeenCalledTimes(3);
   expect(blur).toHaveBeenCalledTimes(3);
+});
+
+it('keeps discovery design and routes Events between Groups and Agency updates', () => {
+  const links = renderer.root.findAllByType('Link' as never);
+  expect(links.map((link) => link.props.href)).toEqual([
+    '/hire/categories',
+    '/community',
+    '/marketplace',
+    '/groups',
+    '/events',
+    '/agency-broadcasts',
+  ]);
+  const text = JSON.stringify(renderer.toJSON());
+  expect(text).toContain('YOUR NEIGHBORHOOD, WITHIN REACH');
+  expect(text).toContain('What are you looking for?');
+  expect(links[4].findAllByType('Icon' as never)[0].props.name).toBe('calendar-outline');
 });
