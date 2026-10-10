@@ -19,9 +19,30 @@
   "navigationFontVerified": true,
   "marketplaceCreationLabelsVerified": true,
   "acknowledgementLabelsVerified": true,
-  "nativeAcceptance": "pending physical-device verification",
+  "nativeAcceptance": "Founder-reported APK55 verification passed for the three requested checklist items",
   "approvedBuildCount": 1,
   "pullRequest": 179,
   "productionModified": false,
-  "merged": false
+  "merged": false,
+  "physicalDeviceVerification": {
+    "reportedAt": "2026-10-09T23:09:03-04:00",
+    "reportedBy": "founder",
+    "evidenceType": "user confirmation in conversation; not independently observed by assistant",
+    "checks": [
+      {
+        "item": "Marketplace: tabs visible while browsing, hidden during creation; Back preserves the draft.",
+        "status": "VERIFIED"
+      },
+      {
+        "item": "Provider Profile: Start Request appears before Reputation.",
+        "status": "VERIFIED"
+      },
+      {
+        "item": "Request flow: provider context, checkbox, Back, and keyboard scrolling work correctly.",
+        "status": "VERIFIED"
+      }
+    ],
+    "scope": "Only the checks explicitly reported above are accepted; this is not blanket acceptance of all modernization or accessibility gates.",
+    "mergeApproved": false
+  }
 }
