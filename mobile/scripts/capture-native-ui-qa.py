@@ -40,8 +40,9 @@ def wait_ready(expected_width=None, expected_font=None):
         try:
             current = nodes()
             print('Startup', attempt, [(n.get('text'), n.get('content-desc')) for n in current if n.get('text') or n.get('content-desc')], flush=True)
-            if any('launcher' in n.get('package', '') for n in current) and relaunches < 2 and adb('shell', 'pm', 'path', 'host.exp.exponent').strip():
+            if expected_width is not None and any('launcher' in n.get('package', '') for n in current) and relaunches < 2 and adb('shell', 'pm', 'path', 'host.exp.exponent').strip():
                 relaunches += 1
+                adb('reverse', 'tcp:8081', 'tcp:8081')
                 adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
                 time.sleep(3)
                 continue
@@ -59,6 +60,7 @@ def wait_ready(expected_width=None, expected_font=None):
                 time.sleep(2)
                 continue
             if any(n.get('text') == 'Enter URL manually' for n in current):
+                adb('reverse', 'tcp:8081', 'tcp:8081')
                 adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
                 time.sleep(3)
                 continue
@@ -80,6 +82,7 @@ def wait_ready(expected_width=None, expected_font=None):
         (out / 'runtime.log').write_bytes(adb('logcat', '-d', '-t', '500', 'AndroidRuntime:E', 'ReactNativeJS:E', '*:S'))
         raise RuntimeError('Native fixture did not become ready; see startup screenshot and Metro log')
 
+adb('reverse', 'tcp:8081', 'tcp:8081')
 wait_ready()
 
 for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), ('large-text', '720x1600', '320', '1.6'), ('tablet', '1280x2000', '240', '1.0')]:
@@ -90,6 +93,7 @@ for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), (
     # Expo Go must restart to apply Android density/font configuration to RN.
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
     time.sleep(1)
+    adb('reverse', 'tcp:8081', 'tcp:8081')
     adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
     time.sleep(3)
     wait_ready(int(size.split('x')[0]) * 160 / int(density), float(font_scale))
@@ -127,6 +131,7 @@ if metadata.get('phase') == 'B':
     adb('shell', 'wm', 'density', '320')
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
     time.sleep(1)
+    adb('reverse', 'tcp:8081', 'tcp:8081')
     adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
     time.sleep(3)
     wait_ready(360, 1.0)
