@@ -21,7 +21,9 @@ export function HomeHeader({
   return (
     <View style={styles.header}>
       <View style={styles.brand}>
-        <Text accessibilityRole="header" style={styles.brandName}>My Corner</Text>
+        <Text accessibilityRole="header" style={styles.brandName}>
+          My Corner
+        </Text>
         <Text style={styles.metadata}>{location}</Text>
       </View>
       <View style={styles.actions}>
@@ -33,7 +35,9 @@ export function HomeHeader({
         />
         <IconButton
           icon="notifications-outline"
-          label={notifications === undefined ? 'Notifications' : `Notifications, ${notifications} unread recent updates`}
+          label={
+            notifications === undefined ? 'Notifications' : `Notifications, ${notifications} unread recent updates`
+          }
           count={notifications}
           onPress={() => router.push('/notifications')}
         />
@@ -42,7 +46,11 @@ export function HomeHeader({
   );
 }
 
-export function HomeAICard({ neighborhood, available, loading }: {
+export function HomeAICard({
+  neighborhood,
+  available,
+  loading,
+}: {
   neighborhood?: string;
   available: boolean;
   loading: boolean;
@@ -67,7 +75,9 @@ export function HomeAICard({ neighborhood, available, loading }: {
           />
         </View>
         <View style={styles.flex}>
-          <Text accessibilityRole="header" style={styles.aiTitle}>Ask My Corner AI</Text>
+          <Text accessibilityRole="header" style={styles.aiTitle}>
+            Ask My Corner AI
+          </Text>
           <Text style={styles.aiGreeting}>
             {loading
               ? 'Checking your neighborhood…'
@@ -115,8 +125,14 @@ export function HomeSection({ title, href, children }: PropsWithChildren<{ title
   return (
     <View style={styles.section}>
       <WebSafeLink href={href} asChild>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${title.toLowerCase()}`} style={styles.sectionHeading}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>{title}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Open ${title.toLowerCase()}`}
+          style={styles.sectionHeading}
+        >
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            {title}
+          </Text>
           <Ionicons name="chevron-forward" size={18} color={tokens.color.textSecondary} accessible={false} />
         </Pressable>
       </WebSafeLink>
@@ -125,7 +141,12 @@ export function HomeSection({ title, href, children }: PropsWithChildren<{ title
   );
 }
 
-export function HomeSectionState({ loading, error, empty, onRetry }: {
+export function HomeSectionState({
+  loading,
+  error,
+  empty,
+  onRetry,
+}: {
   loading?: boolean;
   error?: string;
   empty: string;
@@ -148,7 +169,13 @@ export function HomeSectionState({ loading, error, empty, onRetry }: {
 function Thumbnail({ uri, label, style }: { uri?: string; label: string; style: typeof styles.thumbnail }) {
   const [failed, setFailed] = useState<string>();
   return uri && uri !== failed ? (
-    <Image source={{ uri }} accessibilityLabel={label} style={style} resizeMode="cover" onError={() => setFailed(uri)} />
+    <Image
+      source={{ uri }}
+      accessibilityLabel={label}
+      style={style}
+      resizeMode="cover"
+      onError={() => setFailed(uri)}
+    />
   ) : (
     <View style={[style, styles.imageFallback]} accessibilityLabel="No photo available">
       <Ionicons name="image-outline" size={24} color={tokens.color.textSecondary} accessible={false} />
@@ -163,17 +190,26 @@ export function HomeFeedPreview({ post, image }: { post: NeighborhoodFeedPost; i
         <View style={styles.authorRow}>
           <MediaAvatar profileId={post.authorId} name={post.authorName} size={34} />
           <View style={styles.flex}>
-            <Text numberOfLines={1} style={styles.author}>{post.authorName}</Text>
+            <Text numberOfLines={1} style={styles.author}>
+              {post.authorName}
+            </Text>
             <Text style={styles.caption}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
           </View>
         </View>
         <View style={styles.feedBody}>
-          <Text numberOfLines={3} ellipsizeMode="tail" style={[styles.body, styles.flex]}>{post.body}</Text>
+          <Text numberOfLines={3} ellipsizeMode="tail" style={[styles.body, styles.flex]}>
+            {post.body}
+          </Text>
           {image ? <Thumbnail uri={image} label="Post preview" style={styles.thumbnail} /> : null}
         </View>
         <View style={styles.engagement}>
           <View style={styles.actions}>
-            <Ionicons name={post.likedByMe ? 'heart' : 'heart-outline'} size={17} color={tokens.color.primary} accessible={false} />
+            <Ionicons
+              name={post.likedByMe ? 'heart' : 'heart-outline'}
+              size={17}
+              color={tokens.color.primary}
+              accessible={false}
+            />
             <Text style={styles.caption}>{post.likeCount} likes</Text>
             <Ionicons name="chatbubble-outline" size={16} color={tokens.color.textSecondary} accessible={false} />
             <Text style={styles.caption}>{post.comments.length} comments</Text>
@@ -189,11 +225,21 @@ export function HomeMarketplaceShowcase({ listings }: { listings: MarketplaceLis
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.marketRow}>
       {listings.map((listing) => (
-        <WebSafeLink key={listing.id} href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }} asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Open listing: ${listing.title}`} style={styles.listing}>
+        <WebSafeLink
+          key={listing.id}
+          href={{ pathname: '/marketplace/listing/[listingId]', params: { listingId: listing.id } }}
+          asChild
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open listing: ${listing.title}`}
+            style={styles.listing}
+          >
             <Thumbnail uri={listing.imageUrl} label={listing.title} style={styles.listingImage} />
             <View style={styles.listingText}>
-              <Text numberOfLines={2} style={styles.author}>{listing.title}</Text>
+              <Text numberOfLines={2} style={styles.author}>
+                {listing.title}
+              </Text>
               <Text style={styles.price}>
                 {typeof listing.priceGhs === 'number' ? `GHS ${listing.priceGhs.toFixed(2)}` : 'Free or negotiable'}
               </Text>
@@ -208,17 +254,25 @@ export function HomeMarketplaceShowcase({ listings }: { listings: MarketplaceLis
 export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast }) {
   return (
     <WebSafeLink href={{ pathname: '/agency-broadcasts', params: { broadcastId: broadcast.id } }} asChild>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Open broadcast: ${broadcast.title}`} style={[styles.card, styles.broadcast]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Open broadcast: ${broadcast.title}`}
+        style={[styles.card, styles.broadcast]}
+      >
         <View style={styles.authorRow}>
           <View style={styles.megaphone}>
             <Ionicons name="megaphone-outline" size={24} color={tokens.color.primary} accessible={false} />
           </View>
           <View style={styles.flex}>
             <Text style={styles.caption}>{broadcast.agencyName}</Text>
-            <Text numberOfLines={2} style={styles.author}>{broadcast.title}</Text>
+            <Text numberOfLines={2} style={styles.author}>
+              {broadcast.title}
+            </Text>
           </View>
         </View>
-        <Text numberOfLines={2} style={styles.body}>{broadcast.body}</Text>
+        <Text numberOfLines={2} style={styles.body}>
+          {broadcast.body}
+        </Text>
       </Pressable>
     </WebSafeLink>
   );
@@ -238,15 +292,50 @@ const styles = StyleSheet.create({
   characterPortrait: { width: 82, height: 112, position: 'absolute', top: 0, left: -14 },
   aiTitle: { color: '#FFFFFF', fontSize: 18, lineHeight: 24, fontWeight: '700' },
   aiGreeting: { color: '#FFFFFF', fontSize: 14, lineHeight: 20 },
-  aiInputRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, paddingLeft: 12 },
+  aiInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingLeft: 12,
+  },
   aiInput: { flex: 1, minWidth: 0, minHeight: 48, color: tokens.color.textPrimary, fontSize: 14, paddingVertical: 10 },
-  hire: { minHeight: 50, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, borderRadius: 12, backgroundColor: tokens.color.primary },
+  hire: {
+    minHeight: 50,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 12,
+    backgroundColor: tokens.color.primary,
+  },
   hirePressed: { backgroundColor: tokens.color.primaryPressed },
   hireText: { flexShrink: 1, color: tokens.color.onPrimary, fontSize: 16, lineHeight: 22, fontWeight: '700' },
   section: { gap: 4 },
-  sectionHeading: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  sectionTitle: { flex: 1, color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18, letterSpacing: 0.8, fontWeight: '700' },
-  card: { backgroundColor: tokens.color.surface, borderWidth: 1, borderColor: tokens.color.borderSubtle, borderRadius: 14, padding: 12, gap: 8 },
+  sectionHeading: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  sectionTitle: {
+    flex: 1,
+    color: tokens.color.textSecondary,
+    fontSize: 12,
+    lineHeight: 18,
+    letterSpacing: 0.8,
+    fontWeight: '700',
+  },
+  card: {
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSubtle,
+    borderRadius: 14,
+    padding: 12,
+    gap: 8,
+  },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   author: { color: tokens.color.textPrimary, fontSize: 14, lineHeight: 20, fontWeight: '600' },
   body: { color: tokens.color.textPrimary, fontSize: 14, lineHeight: 20 },
@@ -256,11 +345,25 @@ const styles = StyleSheet.create({
   engagement: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 },
   link: { color: tokens.color.primary, fontSize: 14, lineHeight: 20, fontWeight: '600' },
   marketRow: { gap: 10, paddingBottom: 2 },
-  listing: { width: 138, borderWidth: 1, borderColor: tokens.color.borderSubtle, borderRadius: 12, backgroundColor: tokens.color.surface, overflow: 'hidden' },
+  listing: {
+    width: 138,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSubtle,
+    borderRadius: 12,
+    backgroundColor: tokens.color.surface,
+    overflow: 'hidden',
+  },
   listingImage: { width: 136, height: 88, borderRadius: 0 },
   listingText: { padding: 8, gap: 4 },
   price: { color: tokens.color.primary, fontSize: 13, lineHeight: 19, fontWeight: '700' },
   broadcast: { backgroundColor: '#F6F8F5' },
-  megaphone: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#EBF0E9', alignItems: 'center', justifyContent: 'center' },
+  megaphone: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#EBF0E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   retry: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 8 },
 });

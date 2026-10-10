@@ -24,7 +24,13 @@ import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { loadAskContext } from '@/lib/neighborhood-assistant';
 import { loadUnread } from '@/lib/messaging';
-import { loadHomeBroadcast, loadHomeFeed, loadHomeMarketplace, loadHomeNotificationCount, previewImage } from '@/lib/home-dashboard';
+import {
+  loadHomeBroadcast,
+  loadHomeFeed,
+  loadHomeMarketplace,
+  loadHomeNotificationCount,
+  previewImage,
+} from '@/lib/home-dashboard';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
@@ -38,21 +44,36 @@ function HomeContentPreviews() {
         {feed.data?.post ? (
           <HomeFeedPreview post={feed.data.post} image={previewImage(feed.data.media)} />
         ) : (
-          <HomeSectionState loading={feed.loading} error={feed.error} empty="Your neighborhood's next conversation starts with you." onRetry={() => void feed.refresh()} />
+          <HomeSectionState
+            loading={feed.loading}
+            error={feed.error}
+            empty="Your neighborhood's next conversation starts with you."
+            onRetry={() => void feed.refresh()}
+          />
         )}
       </HomeSection>
       <HomeSection title="MARKETPLACE SHOWCASE" href="/marketplace">
         {market.data?.length ? (
           <HomeMarketplaceShowcase listings={market.data} />
         ) : (
-          <HomeSectionState loading={market.loading} error={market.error} empty="No listings yet. Discover something local or offer something you no longer need." onRetry={() => void market.refresh()} />
+          <HomeSectionState
+            loading={market.loading}
+            error={market.error}
+            empty="No listings yet. Discover something local or offer something you no longer need."
+            onRetry={() => void market.refresh()}
+          />
         )}
       </HomeSection>
       <HomeSection title="AGENCY BROADCAST" href="/agency-broadcasts">
         {broadcast.data ? (
           <HomeBroadcastPreview broadcast={broadcast.data} />
         ) : (
-          <HomeSectionState loading={broadcast.loading} error={broadcast.error} empty="No current agency announcements." onRetry={() => void broadcast.refresh()} />
+          <HomeSectionState
+            loading={broadcast.loading}
+            error={broadcast.error}
+            empty="No current agency announcements."
+            onRetry={() => void broadcast.refresh()}
+          />
         )}
       </HomeSection>
     </>
@@ -115,7 +136,6 @@ export default function HomeScreen() {
     );
   }
 
-
   return (
     <Screen
       title="My Corner home"
@@ -131,7 +151,12 @@ export default function HomeScreen() {
       }}
       refreshing={resource.loading}
     >
-      <HomeAICard key={`${session}:${context.data?.id ?? ''}`} neighborhood={context.data?.name} available={Boolean(context.data)} loading={context.loading} />
+      <HomeAICard
+        key={`${session}:${context.data?.id ?? ''}`}
+        neighborhood={context.data?.name}
+        available={Boolean(context.data)}
+        loading={context.loading}
+      />
       <HomeHireAction />
       {capabilities.data?.community ? (
         <HomeContentPreviews key={`${session}:${capabilities.data.neighborhoodId}:${refreshKey}`} />
@@ -143,9 +168,13 @@ export default function HomeScreen() {
 
       <View style={styles.requests}>
         <View style={styles.requestHeading}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>My Requests</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            My Requests
+          </Text>
           <WebSafeLink href="/activity" asChild>
-            <Pressable accessibilityRole="button" style={styles.textAction}><Text style={styles.link}>My Activity</Text></Pressable>
+            <Pressable accessibilityRole="button" style={styles.textAction}>
+              <Text style={styles.link}>My Activity</Text>
+            </Pressable>
           </WebSafeLink>
         </View>
         {resource.error ? (
@@ -155,36 +184,94 @@ export default function HomeScreen() {
         ) : (
           <>
             <View style={styles.statusRow}>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Active Requests (${active.length})`} accessibilityState={{ expanded: activeExpanded }} onPress={() => setActiveExpanded((value) => !value)} style={styles.statusButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Active Requests (${active.length})`}
+                accessibilityState={{ expanded: activeExpanded }}
+                onPress={() => setActiveExpanded((value) => !value)}
+                style={styles.statusButton}
+              >
                 <Text style={styles.link}>Active {active.length}</Text>
-                <Ionicons name={activeExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={tokens.color.primary} accessible={false} />
+                <Ionicons
+                  name={activeExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={tokens.color.primary}
+                  accessible={false}
+                />
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Past Requests (${past.length})`} accessibilityState={{ expanded: pastExpanded }} onPress={() => setPastExpanded((value) => !value)} style={styles.statusButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Past Requests (${past.length})`}
+                accessibilityState={{ expanded: pastExpanded }}
+                onPress={() => setPastExpanded((value) => !value)}
+                style={styles.statusButton}
+              >
                 <Text style={styles.link}>Past {past.length}</Text>
-                <Ionicons name={pastExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={tokens.color.primary} accessible={false} />
+                <Ionicons
+                  name={pastExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={tokens.color.primary}
+                  accessible={false}
+                />
               </Pressable>
             </View>
-            {activeExpanded ? active.length ? active.map(requestCard) : <EmptyState title="No active requests" body="Choose Hire Trusted Local Help to get started." /> : null}
-            {pastExpanded ? past.length ? past.map(requestCard) : <Text style={styles.body}>No past requests yet.</Text> : null}
+            {activeExpanded ? (
+              active.length ? (
+                active.map(requestCard)
+              ) : (
+                <EmptyState title="No active requests" body="Choose Hire Trusted Local Help to get started." />
+              )
+            ) : null}
+            {pastExpanded ? (
+              past.length ? (
+                past.map(requestCard)
+              ) : (
+                <Text style={styles.body}>No past requests yet.</Text>
+              )
+            ) : null}
           </>
         )}
         {capabilities.data?.provider ? (
           <WebSafeLink href="/provider/requests" asChild>
-            <Pressable accessibilityRole="button" style={styles.textAction}><Text style={styles.link}>Provider inbox</Text></Pressable>
+            <Pressable accessibilityRole="button" style={styles.textAction}>
+              <Text style={styles.link}>Provider inbox</Text>
+            </Pressable>
           </WebSafeLink>
         ) : null}
       </View>
       {capabilities.data?.moderator ? (
         <View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Moderation tools" accessibilityState={{ expanded: moderationExpanded }} onPress={() => setModerationExpanded((value) => !value)} style={styles.textAction}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Moderation tools"
+            accessibilityState={{ expanded: moderationExpanded }}
+            onPress={() => setModerationExpanded((value) => !value)}
+            style={styles.textAction}
+          >
             <Text style={styles.link}>Moderation tools</Text>
           </Pressable>
           {moderationExpanded ? (
             <View style={styles.utilityLinks}>
-              <WebSafeLink href="/marketplace/moderation"><Text style={styles.utility}>Marketplace reports</Text></WebSafeLink>
-              <WebSafeLink href="/community/moderation"><Text style={styles.utility}>Moderation queue</Text></WebSafeLink>
-              <WebSafeLink href="/reviews/moderation"><Text style={styles.utility}>Review moderation</Text></WebSafeLink>
-              <WebSafeLink href="/message-moderation"><Text style={styles.utility}>Message reports</Text></WebSafeLink>
+              <WebSafeLink href="/marketplace/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Marketplace reports</Text>
+                </Pressable>
+              </WebSafeLink>
+              <WebSafeLink href="/community/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Moderation queue</Text>
+                </Pressable>
+              </WebSafeLink>
+              <WebSafeLink href="/reviews/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Review moderation</Text>
+                </Pressable>
+              </WebSafeLink>
+              <WebSafeLink href="/message-moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Message reports</Text>
+                </Pressable>
+              </WebSafeLink>
             </View>
           ) : null}
         </View>
@@ -198,13 +285,38 @@ const styles = StyleSheet.create({
   title: { color: tokens.color.textPrimary, ...tokens.typography.card },
   sectionTitle: { color: tokens.color.textPrimary, fontSize: 16, lineHeight: 22, fontWeight: '600' },
   requests: { gap: 8, borderTopWidth: 1, borderTopColor: tokens.color.borderSubtle, paddingTop: 8 },
-  requestHeading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  requestHeading: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  statusButton: { minHeight: 48, flexGrow: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 12, backgroundColor: tokens.color.surface, borderColor: tokens.color.borderSubtle, borderWidth: 1, borderRadius: 12 },
+  statusButton: {
+    minHeight: 48,
+    flexGrow: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    paddingHorizontal: 12,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.borderSubtle,
+    borderWidth: 1,
+    borderRadius: 12,
+  },
   link: { color: tokens.color.primary, fontSize: 14, lineHeight: 20, fontWeight: '600' },
   textAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 },
   utilityLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  utility: { color: tokens.color.primary, padding: 12, minHeight: 48 },
   pressed: { backgroundColor: tokens.color.surfacePressed },
-  panel: { minHeight: tokens.touch.min, backgroundColor: tokens.color.surface, borderColor: tokens.color.border, borderWidth: 1, borderRadius: tokens.radius.card, padding: tokens.spacing.lg, gap: tokens.spacing.sm },
+  panel: {
+    minHeight: tokens.touch.min,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: tokens.radius.card,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
+  },
 });

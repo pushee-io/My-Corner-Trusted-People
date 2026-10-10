@@ -45,14 +45,16 @@ export function AppHeader({
   );
   return (
     <View style={styles.header}>
-      {root ? homeHeader ?? (
-        <View style={styles.homeRow}>
-          <View style={styles.brand}>
-            <MyCornerLogo />
-          </View>
-          {showActions ? <MessagesAccess /> : null}
-        </View>
-      ) : null}
+      {root
+        ? (homeHeader ?? (
+            <View style={styles.homeRow}>
+              <View style={styles.brand}>
+                <MyCornerLogo />
+              </View>
+              {showActions ? <MessagesAccess /> : null}
+            </View>
+          ))
+        : null}
       {!root ? (
         <View style={styles.titleRow}>
           <IconButton

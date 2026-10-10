@@ -238,7 +238,9 @@ it('Home custom header preserves tabs and dismisses the inline input keyboard be
   expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(0);
   expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
   expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(1);
-  await act(async () => { mockHardwareBack!(); });
+  await act(async () => {
+    mockHardwareBack!();
+  });
   expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
   expect(BackHandler.exitApp).not.toHaveBeenCalled();
   jest.mocked(Keyboard.isVisible).mockReturnValue(false);
