@@ -22,8 +22,13 @@ export default function ProvidersScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'accepting' | 'verified'>('all');
   const visible = providers.filter((provider) => {
-    const matches = [provider.name, provider.headline, provider.areaLabel].join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
-    return matches && (filter === 'all' || (filter === 'accepting' ? provider.isAcceptingRequests : provider.phoneVerified));
+    const matches = [provider.name, provider.headline, provider.areaLabel]
+      .join(' ')
+      .toLocaleLowerCase()
+      .includes(query.trim().toLocaleLowerCase());
+    return (
+      matches && (filter === 'all' || (filter === 'accepting' ? provider.isAcceptingRequests : provider.phoneVerified))
+    );
   });
   const loadProviders = resource.refresh;
 
@@ -54,17 +59,22 @@ export default function ProvidersScreen() {
         {query ? <IconButton icon="close" label="Clear provider search" onPress={() => setQuery('')} /> : null}
       </View>
       <View style={styles.chips}>
-        {([
-          ['all', 'All providers'],
-          ['accepting', 'Accepting requests'],
-          ['verified', 'Phone verified'],
-        ] as const).map(([value, label]) => (
+        {(
+          [
+            ['all', 'All providers'],
+            ['accepting', 'Accepting requests'],
+            ['verified', 'Phone verified'],
+          ] as const
+        ).map(([value, label]) => (
           <Pressable
             key={value}
             accessibilityRole="button"
             accessibilityLabel={label}
             accessibilityState={{ selected: filter === value }}
-            onPress={() => { Keyboard.dismiss(); setFilter(value); }}
+            onPress={() => {
+              Keyboard.dismiss();
+              setFilter(value);
+            }}
             style={[styles.chip, filter === value && styles.activeChip]}
           >
             <Text style={[styles.chipText, filter === value && styles.activeChipText]}>{label}</Text>

@@ -23,6 +23,7 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'android' },
   Text: 'Text',
   View: 'View',
+  Keyboard: { dismiss: jest.fn() },
   TextInput: 'TextInput',
   Pressable: 'Pressable',
   StyleSheet: { create: (s: unknown) => s },

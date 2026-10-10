@@ -83,7 +83,7 @@ for (const scenario of [
       return {
         data: load.toString().includes('loadDay2BProvidersByCategory')
           ? { items: [loadSource('src/lib/mock-data.ts').providers[0]] }
-          : { count: 0, completedJobs: 0, reviews: [] },
+          : { count: 0, completedJobs: 46, reviews: [] },
         loading: false,
         refresh: () => {},
       };

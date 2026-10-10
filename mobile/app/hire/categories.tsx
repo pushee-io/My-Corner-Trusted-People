@@ -37,7 +37,12 @@ export default function CategoriesScreen() {
             accessibilityRole="button"
           >
             <View style={styles.icon}>
-              <Ionicons name={categoryIcons[category.id] ?? 'construct-outline'} size={24} color={tokens.color.primary} accessible={false} />
+              <Ionicons
+                name={categoryIcons[category.id] ?? 'construct-outline'}
+                size={24}
+                color={tokens.color.primary}
+                accessible={false}
+              />
             </View>
             <View style={styles.copy}>
               <Text style={styles.name}>{category.name}</Text>
