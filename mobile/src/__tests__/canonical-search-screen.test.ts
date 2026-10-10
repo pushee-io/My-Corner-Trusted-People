@@ -3,6 +3,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import SearchScreen from '../../app/search';
 import { Keyboard } from 'react-native';
 const blur = jest.fn();
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('react-native', () => ({
   View: 'View',
   Text: 'Text',

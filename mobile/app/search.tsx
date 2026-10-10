@@ -1,5 +1,5 @@
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
-import { ActionPill } from '@/components/ActionPill';
+import { IconButton } from '@/components/IconButton';
 import { useLocalSearchParams } from 'expo-router';
 import type { Href } from 'expo-router';
 import { WebSafeLink } from '@/components/WebSafeLink';
@@ -32,6 +32,7 @@ export default function SearchScreen() {
   return (
     <Screen title="Search">
       <Text style={styles.body}>Find local help, neighborhood posts, groups, events and marketplace listings.</Text>
+      <View style={styles.composer}>
       <TextInput
         ref={input}
         onSubmitEditing={submit}
@@ -43,8 +44,9 @@ export default function SearchScreen() {
         style={styles.input}
         returnKeyType="search"
       />
+        <IconButton icon="search-outline" label="Search" onPress={submit} />
+      </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-        <ActionPill label="Search" onPress={submit} />
         <AskMyCornerAccess
           question={query.trim()}
           beforeOpen={() => {
@@ -129,11 +131,12 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },
+  composer: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border, borderRadius: tokens.radius.control, borderWidth: 1,
+  },
   input: {
-    backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
-    borderWidth: 1,
+    flex: 1, minWidth: 0,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
     minHeight: tokens.touch.min,
