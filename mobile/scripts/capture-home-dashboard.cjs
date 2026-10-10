@@ -57,6 +57,8 @@ for (const scenario of [
   { name: 'ask-phone', width: 390, height: 844, ask: true },
   { name: 'ask-compact', width: 320, height: 900, ask: true },
   { name: 'ask-large-text', width: 390, height: 1200, scale: 1.6, ask: true },
+  { name: 'hire-categories', width: 390, height: 844, page: 'app/hire/categories.tsx', route: '/hire/categories' },
+  { name: 'hire-providers', width: 390, height: 1000, page: 'app/hire/providers.tsx', route: '/hire/providers' },
   { name: 'trust-phone', width: 390, height: 760, component: 'trust', route: '/hire/provider/fixture' },
   { name: 'feed-actions', width: 390, height: 760, component: 'feed', route: '/community' },
   { name: 'focused-form', width: 390, height: 760, component: 'form', route: '/hire/request/new' },
@@ -74,6 +76,14 @@ for (const scenario of [
           unread: 3,
           notices: [{ id: 'fixture-unread', title: 'New update', createdAt: '2026-10-10T08:00:00Z' }],
         },
+        loading: false,
+        refresh: () => {},
+      };
+    if (scenario.page === 'app/hire/providers.tsx' && typeof load === 'function')
+      return {
+        data: load.toString().includes('loadDay2BProvidersByCategory')
+          ? { items: [loadSource('src/lib/mock-data.ts').providers[0]] }
+          : { count: 0, completedJobs: 0, reviews: [] },
         loading: false,
         refresh: () => {},
       };
@@ -190,7 +200,8 @@ for (const scenario of [
         };
       if (name === '@react-native-community/netinfo')
         return { useNetInfo: () => ({ isConnected: true, isInternetReachable: true }) };
-      if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View, useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) };
+      if (name === 'react-native-safe-area-context')
+        return { SafeAreaView: Native.View, useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) };
       if (name === 'expo-router')
         return {
           usePathname: () => scenario.route ?? (scenario.ask ? '/ask' : '/home'),
@@ -419,6 +430,8 @@ fs.writeFileSync(
       native: false,
       authenticatedData: false,
       scenarios: [
+        'hire-categories',
+        'hire-providers',
         'trust-phone',
         'feed-actions',
         'focused-form',

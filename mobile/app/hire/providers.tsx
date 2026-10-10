@@ -1,9 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
+import { IconButton } from '@/components/IconButton';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ProviderCard } from '@/components/ProviderCard';
-import { EmptyState, ErrorState, OfflineBanner } from '@/components/StateBlocks';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
 import { Screen } from '@/components/Screen';
 import { categories } from '@/lib/mock-data';
 import { loadDay2BProvidersByCategory } from '@/lib/day2b-read-repository';
@@ -17,7 +19,12 @@ export default function ProvidersScreen() {
   const providers = resource.data?.items ?? [];
   const error = resource.error;
   const isLoading = resource.loading;
-  const isShowingSaved = false;
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'accepting' | 'verified'>('all');
+  const visible = providers.filter((provider) => {
+    const matches = [provider.name, provider.headline, provider.areaLabel].join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
+    return matches && (filter === 'all' || (filter === 'accepting' ? provider.isAcceptingRequests : provider.phoneVerified));
+  });
   const loadProviders = resource.refresh;
 
   function openProvider(providerId: string) {
@@ -29,41 +36,51 @@ export default function ProvidersScreen() {
 
   return (
     <Screen title={category ? category.name : 'Providers'}>
-      {isShowingSaved ? (
-        <OfflineBanner
-          message="Showing saved providers. Reconnect and try again for updates."
-          onRetry={() => void loadProviders()}
-        />
-      ) : null}
       <Text style={styles.note}>
         Providers across service areas. Check each provider’s listed coverage before starting a request.
       </Text>
 
-      <TextInput
-        editable={false}
-        placeholder="Search providers"
-        style={styles.search}
-        accessibilityLabel="Search providers"
-      />
-
+      <View style={styles.search}>
+        <Ionicons name="search-outline" size={22} color={tokens.color.primary} accessible={false} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={Keyboard.dismiss}
+          returnKeyType="search"
+          placeholder="Search name or service area"
+          style={styles.input}
+          accessibilityLabel="Search providers"
+        />
+        {query ? <IconButton icon="close" label="Clear provider search" onPress={() => setQuery('')} /> : null}
+      </View>
       <View style={styles.chips}>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>Top response rate</Text>
-        </View>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>Accepting requests</Text>
-        </View>
+        {([
+          ['all', 'All providers'],
+          ['accepting', 'Accepting requests'],
+          ['verified', 'Phone verified'],
+        ] as const).map(([value, label]) => (
+          <Pressable
+            key={value}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ selected: filter === value }}
+            onPress={() => { Keyboard.dismiss(); setFilter(value); }}
+            style={[styles.chip, filter === value && styles.activeChip]}
+          >
+            <Text style={[styles.chipText, filter === value && styles.activeChipText]}>{label}</Text>
+          </Pressable>
+        ))}
       </View>
 
       {error ? (
         <ErrorState title="Could not load providers" body={error} onRetry={() => void loadProviders()} />
       ) : isLoading ? (
-        <EmptyState title="Loading providers" body="Checking live Supabase listings for this category." />
-      ) : providers.length === 0 ? (
-        <EmptyState title="No providers available" body="Try a different category or neighborhood in this prototype." />
+        <LoadingState title="Finding local help" />
+      ) : visible.length === 0 ? (
+        <EmptyState title="No matching providers" body="Try another name, filter or service category." />
       ) : (
         <View style={styles.list}>
-          {providers.map((provider) => (
+          {visible.map((provider) => (
             <ProviderCard key={provider.id} provider={provider} onPress={() => openProvider(provider.id)} />
           ))}
         </View>
@@ -73,18 +90,26 @@ export default function ProvidersScreen() {
 }
 
 const styles = StyleSheet.create({
+  input: { flex: 1, minWidth: 0, minHeight: 48, color: tokens.color.textPrimary, fontSize: 16 },
+  activeChip: { backgroundColor: tokens.color.primary },
+  activeChipText: { color: tokens.color.onPrimary },
   search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderWidth: 1,
-    borderRadius: tokens.radius.md,
-    padding: tokens.spacing.lg,
+    borderRadius: tokens.radius.card,
+    paddingHorizontal: tokens.spacing.md,
   },
   chips: { flexDirection: 'row', gap: tokens.spacing.sm, flexWrap: 'wrap' },
   chip: {
-    backgroundColor: '#FFF4D6',
+    backgroundColor: tokens.color.successSurface,
+    minHeight: 48,
+    justifyContent: 'center',
     paddingHorizontal: tokens.spacing.md,
-    paddingVertical: tokens.spacing.xs,
+    paddingVertical: tokens.spacing.sm,
     borderRadius: tokens.radius.pill,
   },
   chipText: { color: tokens.color.textPrimary, fontSize: tokens.type.support },
