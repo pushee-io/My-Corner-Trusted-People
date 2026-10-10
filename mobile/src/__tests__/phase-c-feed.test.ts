@@ -23,8 +23,10 @@ const mockPost = {
   likeCount: 2,
   likedByMe: false,
   isReported: false,
+  moderationStatus: 'clean',
 };
 jest.mock('react-native', () => ({
+  Share: { share: jest.fn(async () => ({})) },
   View: 'View',
   Text: 'Text',
   TextInput: 'TextInput',
@@ -105,7 +107,7 @@ afterEach(async () => {
 it('opens a compact composer and preserves text and selected media across close and resume', async () => {
   await render();
   expect(view.root.findAllByType('TextInput' as never)).toHaveLength(0);
-  await press('Share a local update');
+  await press('What’s happening, neighbor?');
   await act(async () => field('Neighborhood feed post').props.onChangeText('Unsent local update'));
   mockMedia.drafts = [{ id: 'selected-photo' }];
   await press('Close composer');
@@ -118,7 +120,7 @@ it('opens a compact composer and preserves text and selected media across close 
 
 it('returns to browsing after success and retains the composer after a failed submission', async () => {
   await render();
-  await press('Share a local update');
+  await press('What’s happening, neighbor?');
   await act(async () => field('Neighborhood feed post').props.onChangeText('New local update'));
   jest.mocked(createNeighborhoodFeedPost).mockRejectedValueOnce(new Error('Try again'));
   await press('Post to feed');
@@ -128,7 +130,7 @@ it('returns to browsing after success and retains the composer after a failed su
   await press('Post to feed');
   expect(createNeighborhoodFeedPost).toHaveBeenLastCalledWith('authorized-area', 'New local update', 'stable-post-id');
   expect(mockClear).toHaveBeenCalledTimes(1);
-  expect(buttons('Share a local update')).toHaveLength(1);
+  expect(buttons('What’s happening, neighbor?')).toHaveLength(1);
   expect(view.root.findAllByType('Gallery' as never).map((node) => node.props.parentId)).toContain('new-post');
 });
 
@@ -143,10 +145,12 @@ it('keeps public identity, media parent, reactions and reporting tied to the sel
   await press('Like post, 2 likes');
   expect(toggleNeighborhoodFeedLike).toHaveBeenCalledWith(mockPost);
   expect(buttons('Unlike post, 3 likes')[0].props.accessibilityState.selected).toBe(true);
-  await press('Report');
+  expect(buttons('Report post')).toHaveLength(0);
+  await press('Post options');
+  await press('Report post');
   expect(reportNeighborhoodFeedPost).toHaveBeenCalledWith('post-one');
-  expect(buttons('Reported')[0].props.disabled).toBe(true);
-  expect(JSON.stringify(view.toJSON())).not.toContain('Share post');
+  expect(buttons('Post reported')[0].props.disabled).toBe(true);
+  expect(buttons('Share post link')).toHaveLength(1);
 });
 
 it('retains failed reply text, clears a successful reply, and updates the open comment count', async () => {

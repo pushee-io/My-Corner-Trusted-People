@@ -1,3 +1,4 @@
+import { TrustSignals, VerifiedProviderBadge } from '@/components/TrustSignals';
 import { ProviderReputationSummary } from '@/components/VerifiedReviews';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -16,6 +17,7 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
         <MediaAvatar profileId={provider.profileId} name={provider.name} size={52} />
         <View style={styles.headerText}>
           <Text style={styles.name}>{provider.name}</Text>
+          <VerifiedProviderBadge phoneVerified={provider.phoneVerified} />
           <Text style={styles.headline}>{provider.headline}</Text>
           <Text style={styles.meta}>
             {provider.serviceLabel} · {provider.areaLabel}
@@ -23,15 +25,7 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
         </View>
       </View>
       <ProviderReputationSummary providerId={provider.id} />
-      <View style={styles.signalRow}>
-        {provider.trustSignals.map((signal) => (
-          <View key={signal.id} style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {signal.label}: {signal.value}
-            </Text>
-          </View>
-        ))}
-      </View>
+      <TrustSignals signals={provider.trustSignals} />
       <Text style={styles.availability}>{provider.availability}</Text>
       <Text style={styles.disclaimer}>My Corner shows trust evidence but does not guarantee provider performance.</Text>
     </Pressable>
@@ -42,7 +36,7 @@ const styles = StyleSheet.create({
   card: {
     minHeight: 48,
     backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     padding: tokens.spacing.lg,
     gap: tokens.spacing.sm,
     borderWidth: 1,

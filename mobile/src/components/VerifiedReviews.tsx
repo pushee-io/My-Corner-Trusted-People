@@ -1,3 +1,4 @@
+import { TrustSignals } from '@/components/TrustSignals';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { router } from 'expo-router';
 import { Text, TextInput, View } from 'react-native';
@@ -165,10 +166,10 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
               ? `${data.average.toFixed(1)} out of 5 · ${verifiedReviewCount(data.count)}`
               : 'No verified reviews yet.'}
           </Text>
-          <Text style={styles.note}>{data.completedJobs} completed My Corner jobs</Text>
-          {data.recommendationPercent !== null ? (
-            <Text style={styles.note}>{data.recommendationPercent}% would recommend</Text>
-          ) : null}
+          <TrustSignals signals={[
+            { id: 'completed', label: 'Completed My Corner jobs', value: String(data.completedJobs) },
+            ...(data.recommendationPercent !== null ? [{ id: 'recommend', label: 'Would recommend', value: `${data.recommendationPercent}%` }] : []),
+          ]} />
           <Text accessibilityRole="header" style={styles.title}>
             Reviews
           </Text>
