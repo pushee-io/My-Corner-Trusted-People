@@ -173,7 +173,7 @@ it('Ask Android Back dismisses keyboard before navigating', async () => {
 it('keeps one branded Home header with messages access and no duplicate page title', async () => {
   await render();
   expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(1);
-  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(1);
   expect(renderer.root.findAllByType('AskMyCornerAccess' as never)).toHaveLength(0);
   expect(renderer.root.findAllByProps({ accessibilityRole: 'header' })).toHaveLength(0);
 });
@@ -199,7 +199,7 @@ it.each([
   await render();
   expect(back()).toHaveLength(1);
   expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(0);
-  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('CommunicationActions' as never)).toHaveLength(1);
   await act(async () => back()[0].props.onPress());
   expect(router.back).toHaveBeenCalledTimes(1);
 });

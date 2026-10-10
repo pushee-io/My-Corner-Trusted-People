@@ -2,7 +2,7 @@ import type { Href } from 'expo-router';
 import type { Notice } from '@/lib/messaging';
 import { isEventsClientEnabled } from '@/lib/events-feature';
 
-export function noticeHref(notice: Notice): Href {
+export function noticeHref(notice: Notice): Href | undefined {
   if (!notice.targetId) return '/notifications';
   if (notice.targetKind === 'message_received')
     return { pathname: '/messages', params: { conversationId: notice.targetId } };
@@ -12,8 +12,8 @@ export function noticeHref(notice: Notice): Href {
     return notice.isRequester
       ? { pathname: '/hire/request/status', params: { requestId: notice.targetId } }
       : { pathname: '/provider/request/[requestId]', params: { requestId: notice.targetId } };
-  if (notice.targetKind?.startsWith('event_') && isEventsClientEnabled())
-    return { pathname: '/events/[eventId]', params: { eventId: notice.targetId } };
+  if (notice.targetKind?.startsWith('event_'))
+    return isEventsClientEnabled() ? { pathname: '/events/[eventId]', params: { eventId: notice.targetId } } : undefined;
   if (notice.targetKind?.startsWith('group_')) return '/groups';
   if (notice.targetKind?.startsWith('marketplace_')) return '/marketplace';
   if (notice.targetKind?.startsWith('agency_') || notice.targetKind?.startsWith('broadcast_'))

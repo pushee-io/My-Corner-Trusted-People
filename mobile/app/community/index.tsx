@@ -211,7 +211,10 @@ export default function CommunityFeedScreen() {
   }
 
   return (
-    <Screen title={neighborhood ? `${neighborhood.name} feed` : 'Neighborhood feed'} showBottomNavigation={!composerExpanded}>
+    <Screen
+      title={neighborhood ? `${neighborhood.name} feed` : 'Neighborhood feed'}
+      showBottomNavigation={!composerExpanded}
+    >
       <OfflineBanner />
       <View style={styles.topRow}>
         <View style={[styles.statusPill, styles[`${realtimeStatus}Status`]]}>
@@ -329,7 +332,11 @@ export default function CommunityFeedScreen() {
                         {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
                       </Text>
                     </Pressable>
-                    <FeedPostActions post={post} reporting={busyId === `report-${post.id}`} onReport={() => void reportPost(post.id)} />
+                    <FeedPostActions
+                      post={post}
+                      reporting={busyId === `report-${post.id}`}
+                      onReport={() => void reportPost(post.id)}
+                    />
                   </View>
 
                   <CollapsibleComments

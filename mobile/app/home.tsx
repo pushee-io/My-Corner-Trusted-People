@@ -23,12 +23,7 @@ import { categories } from '@/lib/mock-data';
 import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
 import { loadAskContext } from '@/lib/neighborhood-assistant';
-import {
-  loadHomeBroadcast,
-  loadHomeFeed,
-  loadHomeMarketplace,
-  previewImage,
-} from '@/lib/home-dashboard';
+import { loadHomeBroadcast, loadHomeFeed, loadHomeMarketplace, previewImage } from '@/lib/home-dashboard';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 

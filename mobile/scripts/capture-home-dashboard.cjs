@@ -69,7 +69,14 @@ for (const scenario of [
   function resource(load) {
     let data;
     if (typeof load === 'function' && load.name === 'loadCommunicationSnapshot')
-      return { data: { unread: 3, notices: [{ id: 'fixture-unread', title: 'New update', createdAt: '2026-10-10T08:00:00Z' }] }, loading: false, refresh: () => {} };
+      return {
+        data: {
+          unread: 3,
+          notices: [{ id: 'fixture-unread', title: 'New update', createdAt: '2026-10-10T08:00:00Z' }],
+        },
+        loading: false,
+        refresh: () => {},
+      };
     if (load === 'loadInbox')
       return {
         data: {
@@ -251,7 +258,14 @@ for (const scenario of [
       if (name === '@/lib/events-feature') return { isEventsClientEnabled: () => false };
       if (
         name.startsWith('@/lib/') &&
-        !['@/lib/active-requests', '@/lib/navigation-layout', '@/lib/mock-data', '@/lib/ai-characters', '@/lib/communication-notices', '@/lib/feed-share'].includes(name)
+        ![
+          '@/lib/active-requests',
+          '@/lib/navigation-layout',
+          '@/lib/mock-data',
+          '@/lib/ai-characters',
+          '@/lib/communication-notices',
+          '@/lib/feed-share',
+        ].includes(name)
       )
         return new Proxy({}, { get: (_target, key) => (key === 'previewImage' ? () => undefined : key) });
       if (name.startsWith('@/') || name.startsWith('.')) {
@@ -272,42 +286,81 @@ for (const scenario of [
       { id: 'response', label: 'Response rate', value: '92%' },
       { id: 'recommend', label: 'Would recommend', value: '100%' },
     ];
-    const action = h(Native.Pressable, { style: { backgroundColor: '#0E6B50', padding: 16, borderRadius: 12 } },
-      h(Native.Text, { style: { color: 'white', fontWeight: '700', textAlign: 'center' } }, 'Review request'));
-    const body = scenario.component === 'trust'
-      ? h(loadSource('src/components/TrustSignals.tsx').TrustSignals, { signals })
-      : scenario.component === 'feed'
-        ? h(Native.View, { style: { gap: 16 } },
-            h(Native.Text, { style: { fontSize: 18, fontWeight: '700' } }, 'What’s happening, neighbor?'),
-            h(Native.View, { style: { padding: 16, backgroundColor: 'white', borderRadius: 16, gap: 12 } },
-              h(Native.Text, { style: { fontWeight: '700' } }, post.authorName),
-              h(Native.Text, null, post.body),
-              h(loadSource('src/components/FeedPostActions.tsx').FeedPostActions, {
-                post: { ...post, moderationStatus: 'clean' }, reporting: false, onReport: () => {},
-              })))
-        : scenario.component === 'form'
-          ? h(Native.View, { style: { gap: 12 } }, h(Native.Text, null, 'Job title'),
-              h(Native.TextInput, { placeholder: 'What do you need help with?', style: { borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 } }),
-              h(Native.Text, null, 'Describe your request'),
-              h(Native.TextInput, { multiline: true, style: { height: 150, borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 } }))
-          : h(loadSource('src/components/NoticeToast.tsx').NoticeToast, {
-              notice: { id: 'fixture-critical', title: 'Emergency neighborhood update', priority: 'emergency' },
-              onOpen: () => {}, onDismiss: () => {},
-            });
-    return h(Screen, { title: scenario.component === 'form' ? 'Create request' : scenario.component === 'feed' ? 'Neighborhood feed' : scenario.component === 'trust' ? 'Provider trust' : 'Notifications', footer: scenario.component === 'form' ? action : undefined }, body);
+    const action = h(
+      Native.Pressable,
+      { style: { backgroundColor: '#0E6B50', padding: 16, borderRadius: 12 } },
+      h(Native.Text, { style: { color: 'white', fontWeight: '700', textAlign: 'center' } }, 'Review request'),
+    );
+    const body =
+      scenario.component === 'trust'
+        ? h(loadSource('src/components/TrustSignals.tsx').TrustSignals, { signals })
+        : scenario.component === 'feed'
+          ? h(
+              Native.View,
+              { style: { gap: 16 } },
+              h(Native.Text, { style: { fontSize: 18, fontWeight: '700' } }, 'What’s happening, neighbor?'),
+              h(
+                Native.View,
+                { style: { padding: 16, backgroundColor: 'white', borderRadius: 16, gap: 12 } },
+                h(Native.Text, { style: { fontWeight: '700' } }, post.authorName),
+                h(Native.Text, null, post.body),
+                h(loadSource('src/components/FeedPostActions.tsx').FeedPostActions, {
+                  post: { ...post, moderationStatus: 'clean' },
+                  reporting: false,
+                  onReport: () => {},
+                }),
+              ),
+            )
+          : scenario.component === 'form'
+            ? h(
+                Native.View,
+                { style: { gap: 12 } },
+                h(Native.Text, null, 'Job title'),
+                h(Native.TextInput, {
+                  placeholder: 'What do you need help with?',
+                  style: { borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 },
+                }),
+                h(Native.Text, null, 'Describe your request'),
+                h(Native.TextInput, {
+                  multiline: true,
+                  style: { height: 150, borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 },
+                }),
+              )
+            : h(loadSource('src/components/NoticeToast.tsx').NoticeToast, {
+                notice: { id: 'fixture-critical', title: 'Emergency neighborhood update', priority: 'emergency' },
+                onOpen: () => {},
+                onDismiss: () => {},
+              });
+    return h(
+      Screen,
+      {
+        title:
+          scenario.component === 'form'
+            ? 'Create request'
+            : scenario.component === 'feed'
+              ? 'Neighborhood feed'
+              : scenario.component === 'trust'
+                ? 'Provider trust'
+                : 'Notifications',
+        footer: scenario.component === 'form' ? action : undefined,
+      },
+      body,
+    );
   };
-  const Home = scenario.component ? Preview : scenario.motion
-    ? () =>
-        h(
-          Native.View,
-          { style: { padding: 16, backgroundColor: '#FAFBF9' } },
-          h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
-            character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
-            selectCharacter: () => {},
-            state: scenario.motion,
-          }),
-        )
-    : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
+  const Home = scenario.component
+    ? Preview
+    : scenario.motion
+      ? () =>
+          h(
+            Native.View,
+            { style: { padding: 16, backgroundColor: '#FAFBF9' } },
+            h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
+              character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+              selectCharacter: () => {},
+              state: scenario.motion,
+            }),
+          )
+      : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
   const markup = renderToStaticMarkup(element);

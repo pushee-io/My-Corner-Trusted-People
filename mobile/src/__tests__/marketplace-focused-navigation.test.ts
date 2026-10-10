@@ -1,3 +1,7 @@
+jest.mock('@/components/CommunicationProvider', () => ({
+  CommunicationProvider: ({ children }: { children: unknown }) => children,
+  CommunicationOverlay: () => null,
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { Keyboard } from 'react-native';

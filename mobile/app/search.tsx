@@ -38,7 +38,9 @@ export default function SearchScreen() {
     <Screen title="Search">
       <View style={styles.intro}>
         <Text style={styles.eyebrow}>YOUR NEIGHBORHOOD, WITHIN REACH</Text>
-        <Text accessibilityRole="header" style={styles.headline}>What are you looking for?</Text>
+        <Text accessibilityRole="header" style={styles.headline}>
+          What are you looking for?
+        </Text>
         <Text style={styles.subtitle}>Local help, useful finds and community answers.</Text>
       </View>
       <View style={styles.composer}>
@@ -54,7 +56,17 @@ export default function SearchScreen() {
           style={styles.input}
           returnKeyType="search"
         />
-        {query ? <IconButton icon="close" label="Clear search" onPress={() => { setQuery(''); setDebounced(''); input.current?.focus(); }} /> : null}
+        {query ? (
+          <IconButton
+            icon="close"
+            label="Clear search"
+            onPress={() => {
+              setQuery('');
+              setDebounced('');
+              input.current?.focus();
+            }}
+          />
+        ) : null}
         <IconButton icon="search-outline" label="Search" onPress={submit} />
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -70,15 +82,20 @@ export default function SearchScreen() {
         <View style={styles.section}>
           <Text style={styles.subtitle}>Search by name or keyword, or explore a corner below.</Text>
           <View style={styles.discovery}>
-            {([
-              ['Local services', 'construct-outline', '/hire/categories'],
-              ['Neighborhood feed', 'people-outline', '/community'],
-              ['Marketplace', 'storefront-outline', '/marketplace'],
-              ['Groups', 'chatbubbles-outline', '/groups'],
-              ['Agency updates', 'megaphone-outline', '/agency-broadcasts'],
-            ] as const).map(([label, icon, href]) => (
+            {(
+              [
+                ['Local services', 'construct-outline', '/hire/categories'],
+                ['Neighborhood feed', 'people-outline', '/community'],
+                ['Marketplace', 'storefront-outline', '/marketplace'],
+                ['Groups', 'chatbubbles-outline', '/groups'],
+                ['Agency updates', 'megaphone-outline', '/agency-broadcasts'],
+              ] as const
+            ).map(([label, icon, href]) => (
               <WebSafeLink key={href} href={href} asChild>
-                <Pressable accessibilityRole="button" style={({ pressed }) => [styles.discoveryCard, pressed && styles.pressed]}>
+                <Pressable
+                  accessibilityRole="button"
+                  style={({ pressed }) => [styles.discoveryCard, pressed && styles.pressed]}
+                >
                   <Ionicons name={icon} size={24} color={tokens.color.primary} accessible={false} />
                   <Text style={styles.discoveryLabel}>{label}</Text>
                   <Ionicons name="arrow-forward" size={18} color={tokens.color.textSecondary} accessible={false} />
@@ -113,11 +130,21 @@ export default function SearchScreen() {
               Some categories are temporarily unavailable: {resource.data.unavailableSources.join(', ')}.
             </Text>
           ) : null}
-          <Text accessibilityLiveRegion="polite" style={styles.subtitle}>{visible.length} results</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.subtitle}>
+            {visible.length} results
+          </Text>
           <View accessibilityRole="tablist" style={styles.filters}>
             {labels.map((label) => (
-              <Pressable key={label} accessibilityRole="tab" accessibilityState={{ selected: label === category }}
-                onPress={() => { Keyboard.dismiss(); setCategory(label); }} style={[styles.filter, label === category && styles.activeFilter]}>
+              <Pressable
+                key={label}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: label === category }}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setCategory(label);
+                }}
+                style={[styles.filter, label === category && styles.activeFilter]}
+              >
                 <Text style={[styles.filterText, label === category && styles.activeFilterText]}>{label}</Text>
               </Pressable>
             ))}
@@ -127,10 +154,14 @@ export default function SearchScreen() {
               <Text accessibilityRole="header" style={styles.title}>
                 {label}
               </Text>
-              {visible.filter((r) => r.sourceLabel === label)
+              {visible
+                .filter((r) => r.sourceLabel === label)
                 .map((result) => (
                   <WebSafeLink key={result.id} href={result.href as Href} asChild>
-                    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+                    <Pressable
+                      accessibilityRole="button"
+                      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+                    >
                       {result.thumbnailUrl ? (
                         <Image
                           source={{ uri: result.thumbnailUrl }}
@@ -143,7 +174,9 @@ export default function SearchScreen() {
                       <Text style={styles.eyebrow}>{result.sourceLabel}</Text>
                       <Text style={styles.title}>{result.title}</Text>
                       <Text style={styles.subtitle}>{result.subtitle}</Text>
-                      <Text numberOfLines={3} style={styles.body}>{result.body.slice(0, 240)}</Text>
+                      <Text numberOfLines={3} style={styles.body}>
+                        {result.body.slice(0, 240)}
+                      </Text>
                     </Pressable>
                   </WebSafeLink>
                 ))}
@@ -161,10 +194,24 @@ const styles = StyleSheet.create({
   headline: { color: tokens.color.ink, fontSize: 28, lineHeight: 34, fontWeight: '800' },
   subtitle: { color: tokens.color.textSecondary, fontSize: 14, lineHeight: 21 },
   discovery: { gap: 10 },
-  discoveryCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: tokens.color.successSurface, borderRadius: 16, padding: 16, minHeight: 64 },
+  discoveryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: tokens.color.successSurface,
+    borderRadius: 16,
+    padding: 16,
+    minHeight: 64,
+  },
   discoveryLabel: { flex: 1, color: tokens.color.textPrimary, fontSize: 16, lineHeight: 22, fontWeight: '700' },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  filter: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 16, borderRadius: 24, backgroundColor: tokens.color.surfaceMuted },
+  filter: {
+    minHeight: 48,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    backgroundColor: tokens.color.surfaceMuted,
+  },
   activeFilter: { backgroundColor: tokens.color.primary },
   filterText: { color: tokens.color.textPrimary, fontSize: 14, fontWeight: '600' },
   activeFilterText: { color: tokens.color.onPrimary },

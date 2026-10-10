@@ -155,9 +155,13 @@ it('blocks rapid duplicate Home send taps before React rerenders', async () => {
 });
 
 it('shows the brand, location pin and full-art animated character presentation', async () => {
-  await act(async () => { view = create(createElement(HomeHeader, { location: 'Osu · Accra' })); });
+  await act(async () => {
+    view = create(createElement(HomeHeader, { location: 'Osu · Accra' }));
+  });
   expect(JSON.stringify(view.toJSON())).toContain('Trusted People');
   expect(view.root.findAllByType('Icon' as never).some((node) => node.props.name === 'location-sharp')).toBe(true);
-  await act(async () => { view.update(createElement(HomeAICard, { available: true, loading: false })); });
+  await act(async () => {
+    view.update(createElement(HomeAICard, { available: true, loading: false }));
+  });
   expect(view.root.findByType('AnimatedCharacter' as never).props.character.full).toBeDefined();
 });

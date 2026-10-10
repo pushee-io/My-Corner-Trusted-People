@@ -23,7 +23,43 @@ export function AICharacterPresentation({
     useCallback(() => {
       setActive(AppState.currentState === 'active');
       const subscription = AppState.addEventListener('change', (next) => setActive(next === 'active'));
-      return (
+      return () => {
+        setActive(false);
+        subscription.remove();
+      };
+    }, []),
+  );
+  useEffect(() => {
+    let disposed = false;
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => {
+        if (!disposed) setReduceMotion(value);
+      })
+      .catch(() => {});
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => {
+      disposed = true;
+      subscription.remove();
+    };
+  }, []);
+  useEffect(() => {
+    progress.stopAnimation();
+    progress.setValue(0);
+    if (reduceMotion || !active || state === 'attention') return;
+    const duration = state === 'thinking' ? 900 : state === 'answer' ? 250 : 1800;
+    const sequence = Animated.sequence([
+      Animated.timing(progress, { toValue: 1, duration, useNativeDriver: true }),
+      Animated.timing(progress, { toValue: 0, duration, useNativeDriver: true }),
+    ]);
+    const animation = state === 'answer' ? sequence : Animated.loop(sequence);
+    animation.start();
+    return () => {
+      animation.stop();
+      progress.stopAnimation();
+      progress.setValue(0);
+    };
+  }, [active, progress, reduceMotion, state, character.id]);
+  return (
     <View style={[styles.frame, { width: size, height: size }, state === 'attention' && styles.attention]}>
       <Animated.View
         style={{

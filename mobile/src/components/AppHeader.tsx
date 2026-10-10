@@ -30,7 +30,7 @@ export function AppHeader({
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        if ((root || pathname === '/ask' || onBack) && Keyboard.isVisible()) {
+        if (Keyboard.isVisible()) {
           Keyboard.dismiss();
           return true;
         }

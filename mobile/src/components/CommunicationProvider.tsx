@@ -38,7 +38,8 @@ export function CommunicationProvider({ children }: PropsWithChildren) {
     // Let the destination recheck access even if marking read encounters a network error.
     void notificationApi('read', notice.id).then(() => resource.refresh(true)).catch(() => {});
     dismiss();
-    router.push(noticeHref(notice));
+    const href = noticeHref(notice);
+    if (href) router.push(href);
   };
   return <Context.Provider value={{ unread: resource.data?.unread, notifications: resource.data?.notices.filter((item) => !item.readAt).length, notice, dismiss, open }}>{children}</Context.Provider>;
 }

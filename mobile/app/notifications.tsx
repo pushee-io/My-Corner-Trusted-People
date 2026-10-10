@@ -12,7 +12,8 @@ export default function Notifications() {
     await notificationApi('read', notice.id);
     void resource.refresh(true);
     if (!notice.targetId) return;
-    router.push(noticeHref(notice));
+    const href = noticeHref(notice);
+    if (href) router.push(href);
   }
   return (
     <Screen title="Notifications" onRefresh={() => void resource.refresh()} refreshing={resource.loading}>
