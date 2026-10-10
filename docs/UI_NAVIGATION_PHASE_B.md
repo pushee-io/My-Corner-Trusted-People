@@ -2,6 +2,22 @@
 
 Status: implementation and native component QA passed; draft for founder review. Full signed-in app and physical-device acceptance remain open. No merge, deployment or paid EAS build.
 
+## Marketplace focused-creation correction — 2026-10-10 UTC
+
+The follow-up review found that Marketplace's inline New listing form retained bottom tabs. This correction supersedes the earlier statement that no route file changed, and extends Phase B only to satisfy focused Marketplace creation; the broader Phase F redesign remains deferred.
+
+- Marketplace initially shows browsing with bottom tabs and one New listing action. Opening it shows only the existing listing form under a compact New listing header, with bottom tabs hidden.
+- Header Back returns to browsing without discarding in-memory text, photos or the media controller. Continue listing reopens that draft. Android hardware Back first dismisses an open keyboard, then returns to browsing; Back from browsing retains the existing router history/fallback behavior.
+- A successful post clears the completed draft and restores browsing with the posted listing and confirmation. Invalid/failed submissions retain the focused form and draft for retry. No repository, upload, authorization or submission protocol changed.
+- The shared Screen/AppHeader accepts an optional local Back callback. Other consumers retain the existing behavior. Only the Screen subtree remounts when switching between browse/create, resetting scroll position; the Marketplace draft/media/submission hooks remain mounted.
+- The native fixture workflow is now manual (`workflow_dispatch`) to avoid automatic emulator capture on routine corrections. No native run or APK was requested for this correction. The earlier PNGs remain evidence for their recorded source, not visual acceptance of this new Marketplace mode.
+
+Exact follow-up files: `mobile/app/marketplace.tsx`, `mobile/src/components/Screen.tsx`, `mobile/src/components/AppHeader.tsx`, new `mobile/src/__tests__/marketplace-focused-navigation.test.ts`, `.github/workflows/native-ui-qa.yml`, and this document.
+
+Local validation: 65 tests across 6 focused suites passed (Marketplace mode transitions, draft/controller retention, keyboard/hardware Back, successful post, validation/failure retry, existing navigation, Marketplace identities and photo retry); TypeScript and formatting passed; lint had 0 errors and 15 existing warnings. The latest PR head's Mobile CI is the authoritative full-suite/bundle result.
+
+Physical-device acceptance remains open. After Mobile CI passes, obtain founder approval for one Preview APK containing this correction and Phase B. Check normal text/display settings, Marketplace browse/create/Back/draft resume and posting, provider → request → review context, checkbox guards, hardware Back and keyboard scrolling. Do not merge or declare device acceptance from component tests.
+
 ## Source and scope
 
 - Main fetched at start: `20611de2e9f92e5e82ac5991fab1fff9f0f1e93d`.

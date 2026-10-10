@@ -15,12 +15,14 @@ export function Screen({
   showBottomNavigation = true,
   onRefresh,
   refreshing = false,
+  onBack,
 }: PropsWithChildren<{
   title: string;
   showTitle?: boolean;
   showBottomNavigation?: boolean;
   onRefresh?: () => void;
   refreshing?: boolean;
+  onBack?: () => void;
 }>) {
   const { width } = useWindowDimensions();
   const pathname = usePathname();
@@ -31,7 +33,7 @@ export function Screen({
     <CommentsProvider>
       <SafeAreaView style={styles.safe}>
         <View style={[styles.header, contentWidth ? { maxWidth: contentWidth } : null]}>
-          <AppHeader title={title} showTitle={showTitle} showActions={showTabs} />
+          <AppHeader title={title} showTitle={showTitle} showActions={showTabs} onBack={onBack} />
         </View>
         <ScrollView
           refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}

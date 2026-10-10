@@ -1,9 +1,9 @@
 name: Native UI component QA
 
+# Native fixtures are an explicit QA task; routine fixes use Mobile CI.
+# Do not automatically repeat emulator capture on every mobile commit.
 on:
-  push:
-    branches: [codex/compact-navigation-2026]
-    paths: ['mobile/**', '.github/workflows/native-ui-qa.yml']
+  workflow_dispatch:
 
 permissions:
   contents: read

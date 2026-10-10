@@ -16,27 +16,30 @@ export function AppHeader({
   title,
   showTitle = true,
   showActions = true,
+  onBack,
 }: {
   title: string;
   showTitle?: boolean;
   showActions?: boolean;
+  onBack?: () => void;
 }) {
   const pathname = usePathname();
   const root = pathname === '/home' || pathname === '/';
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        if (pathname === '/ask' && Keyboard.isVisible()) {
+        if ((pathname === '/ask' || onBack) && Keyboard.isVisible()) {
           Keyboard.dismiss();
           return true;
         }
         // Native Modals consume Back themselves. Home is the terminal app root.
-        if (root) BackHandler.exitApp();
+        if (onBack) onBack();
+        else if (root) BackHandler.exitApp();
         else navigateBack();
         return true;
       });
       return () => subscription.remove();
-    }, [root, pathname]),
+    }, [root, pathname, onBack]),
   );
   return (
     <View style={styles.header}>
@@ -53,8 +56,10 @@ export function AppHeader({
           <IconButton
             icon="arrow-back"
             label="Go back"
-            hint="Returns to the previous page, or Home if there is no history"
-            onPress={navigateBack}
+            hint={
+              onBack ? 'Returns to the previous view' : 'Returns to the previous page, or Home if there is no history'
+            }
+            onPress={onBack ?? navigateBack}
           />
           {showTitle ? (
             <Text accessibilityRole="header" style={styles.title}>
