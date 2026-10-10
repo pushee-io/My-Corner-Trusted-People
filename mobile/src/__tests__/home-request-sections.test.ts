@@ -4,6 +4,7 @@ import HomeScreen from '../../app/home';
 import type { JobRequest } from '@/types/contracts';
 
 let mockRequests: JobRequest[] = [];
+let mockCapabilities = { community: true, provider: false, moderator: false };
 let mockNeighborhood: { name: string; city: string } | null = { name: 'Osu', city: 'Accra' };
 jest.mock('react-native', () => ({
   View: 'View',
@@ -13,7 +14,7 @@ jest.mock('react-native', () => ({
 }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
-jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: ({ children }: { children: unknown }) => children }));
+jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: 'Link' }));
 jest.mock('@/components/AskMyCornerAccess', () => ({ AskMyCornerAccess: () => null }));
 jest.mock('@/components/StatusPill', () => ({ StatusPill: () => null }));
 jest.mock('@/components/StateBlocks', () => ({ EmptyState: 'EmptyState' }));
@@ -27,7 +28,9 @@ jest.mock('@/hooks/useProtectedResource', () => ({
     data:
       load === jest.requireMock('@/lib/verified-neighborhood').loadVerifiedNeighborhood
         ? mockNeighborhood
-        : { requests: mockRequests, providers: { a: 'Provider A', b: 'Provider B' } },
+        : load === jest.requireMock('@/lib/capabilities').getCurrentCapabilities
+          ? mockCapabilities
+          : { requests: mockRequests, providers: { a: 'Provider A', b: 'Provider B' } },
     loading: false,
     refresh: jest.fn(),
   }),
@@ -106,4 +109,39 @@ it('uses verified membership and clears the old neighborhood when context disapp
   mockNeighborhood = { name: 'East Legon', city: 'Accra' };
   await act(async () => view.update(createElement(HomeScreen)));
   expect(output()).toContain('East Legon · Accra');
+});
+
+it('puts active requests before secondary destinations and keeps their exact routes', async () => {
+  mockRequests = [request('selected', 'a', 'Submitted')];
+  await act(async () => {
+    view = create(createElement(HomeScreen));
+  });
+  const labels = view.root.findAllByType('Text' as never).map((node) => node.children.join(''));
+  expect(labels.indexOf('Active Requests (1)')).toBeLessThan(labels.indexOf('Explore your neighborhood'));
+  expect(view.root.findAllByType('Link' as never).map((node) => node.props.href)).toContainEqual({
+    pathname: '/hire/request/status',
+    params: { requestId: 'selected' },
+  });
+});
+
+it('shows only authorized destinations and removes moderation when capabilities disappear', async () => {
+  mockCapabilities = { community: false, provider: true, moderator: false };
+  await act(async () => {
+    view = create(createElement(HomeScreen));
+  });
+  const routes = () => view.root.findAllByType('Link' as never).map((node) => node.props.href);
+  expect(routes()).toContain('/provider/requests');
+  expect(routes()).toContain('/hire/categories');
+  expect(routes()).not.toContain('/community');
+  expect(routes()).not.toContain('/marketplace');
+  expect(routes()).not.toContain('/community/moderation');
+  mockCapabilities = { community: true, provider: false, moderator: true };
+  await act(async () => view.update(createElement(HomeScreen)));
+  expect(routes()).toContain('/community');
+  expect(routes()).toContain('/marketplace');
+  expect(routes()).toContain('/community/moderation');
+  expect(routes()).not.toContain('/events');
+  mockCapabilities = { community: true, provider: false, moderator: false };
+  await act(async () => view.update(createElement(HomeScreen)));
+  expect(routes()).not.toContain('/community/moderation');
 });

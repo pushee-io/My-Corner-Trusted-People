@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { HomeDestination } from '@/components/HomeDestination';
 import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
 import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -11,7 +12,6 @@ import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateBlocks';
 import { StatusPill } from '@/components/StatusPill';
-import { getCurrentProfile } from '@/lib/auth';
 import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
 import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
@@ -38,7 +38,7 @@ export default function HomeScreen() {
   const [activeExpanded, setActiveExpanded] = useState(true);
   const [pastExpanded, setPastExpanded] = useState(false);
   const [eventsAvailable, setEventsAvailable] = useState(false);
-  const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
+  const canModerateMarketplace = capabilities.data?.moderator === true;
 
   function requestCard(request: JobRequest) {
     return (
@@ -50,7 +50,7 @@ export default function HomeScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${request.title}, ${request.status}`}
-          style={styles.panel}
+          style={({ pressed }) => [styles.panel, pressed && styles.pressed]}
         >
           <StatusPill status={request.status} />
           <Text style={styles.title}>{request.title}</Text>
@@ -63,12 +63,6 @@ export default function HomeScreen() {
       </WebSafeLink>
     );
   }
-
-  useEffect(() => {
-    getCurrentProfile()
-      .then((profile) => setCanModerateMarketplace(profile.role === 'moderator' || profile.role === 'admin'))
-      .catch(() => setCanModerateMarketplace(false));
-  }, []);
 
   useEffect(() => {
     if (!isEventsClientEnabled()) return;
@@ -98,95 +92,14 @@ export default function HomeScreen() {
       </Text>
       <AskMyCornerAccess home />
 
-      {capabilities.data?.provider ? (
-        <WebSafeLink href="/provider/requests" asChild>
-          <Pressable accessibilityRole="button" style={styles.button}>
-            <Text style={styles.buttonText}>Provider inbox</Text>
-          </Pressable>
-        </WebSafeLink>
-      ) : null}
       <View style={styles.grid}>
-        <WebSafeLink href="/hire/categories" asChild>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Hire help</Text>
-          </Pressable>
-        </WebSafeLink>
-
+        <HomeDestination href="/hire/categories" label="Hire help" icon="construct-outline" primary />
+        {capabilities.data?.provider ? (
+          <HomeDestination href="/provider/requests" label="Provider inbox" icon="briefcase-outline" />
+        ) : null}
         {capabilities.data?.community ? (
-          <>
-            <WebSafeLink href="/community" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Neighborhood feed</Text>
-              </Pressable>
-            </WebSafeLink>
-
-            <WebSafeLink href="/groups" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Groups</Text>
-              </Pressable>
-            </WebSafeLink>
-
-            {eventsAvailable ? (
-              <WebSafeLink href={'/events' as Href} asChild>
-                <Pressable accessibilityRole="button" style={styles.secondary}>
-                  <Text style={styles.secondaryText}>Events</Text>
-                </Pressable>
-              </WebSafeLink>
-            ) : null}
-
-            <WebSafeLink href="/agency-broadcasts" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Agency broadcasts</Text>
-              </Pressable>
-            </WebSafeLink>
-
-            <WebSafeLink href="/marketplace" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Marketplace</Text>
-              </Pressable>
-            </WebSafeLink>
-          </>
+          <HomeDestination href="/community" label="Neighborhood feed" icon="people-outline" />
         ) : null}
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/marketplace/moderation" asChild>
-            <Pressable accessibilityRole="button" style={styles.secondary}>
-              <Text style={styles.secondaryText}>Marketplace reports</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/community/moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Moderation queue</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-
-        <WebSafeLink href="/activity" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>My Activity</Text>
-          </Pressable>
-        </WebSafeLink>
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/reviews/moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Review moderation</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/message-moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Message reports</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-        <WebSafeLink href="/settings" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Settings</Text>
-          </Pressable>
-        </WebSafeLink>
       </View>
 
       {error ? (
@@ -241,13 +154,52 @@ export default function HomeScreen() {
           ) : null}
         </>
       )}
+
+      {capabilities.data?.community ? (
+        <View style={styles.section}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            Explore your neighborhood
+          </Text>
+          <View style={styles.grid}>
+            <HomeDestination href="/marketplace" label="Marketplace" icon="storefront-outline" />
+            <HomeDestination href="/groups" label="Groups" icon="people-outline" />
+            {eventsAvailable ? (
+              <HomeDestination href={'/events' as Href} label="Events" icon="calendar-outline" />
+            ) : null}
+            <HomeDestination href="/agency-broadcasts" label="Agency broadcasts" icon="megaphone-outline" />
+          </View>
+        </View>
+      ) : null}
+
+      <View style={styles.section}>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>
+          Your corner
+        </Text>
+        <View style={styles.grid}>
+          <HomeDestination href="/activity" label="My Activity" icon="time-outline" />
+          <HomeDestination href="/settings" label="Settings" icon="settings-outline" />
+        </View>
+      </View>
+      {canModerateMarketplace ? (
+        <View style={styles.section}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            Moderation
+          </Text>
+          <View style={styles.grid}>
+            <HomeDestination href="/marketplace/moderation" label="Marketplace reports" icon="flag-outline" />
+            <HomeDestination href="/community/moderation" label="Moderation queue" icon="shield-outline" />
+            <HomeDestination href="/reviews/moderation" label="Review moderation" icon="star-outline" />
+            <HomeDestination href="/message-moderation" label="Message reports" icon="chatbubble-outline" />
+          </View>
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  body: { color: tokens.color.textSecondary, ...tokens.typography.metadata },
+  title: { color: tokens.color.textPrimary, ...tokens.typography.card },
   sectionToggle: {
     minHeight: tokens.touch.min,
     flexDirection: 'row',
@@ -256,33 +208,17 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
     paddingVertical: tokens.spacing.md,
   },
-  sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700', flexShrink: 1 },
-  grid: { gap: tokens.spacing.md },
+  sectionTitle: { color: tokens.color.textPrimary, ...tokens.typography.section, flexShrink: 1 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
+  section: { gap: tokens.spacing.md, marginTop: tokens.spacing.sm },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
   panel: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderWidth: 1,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     padding: tokens.spacing.lg,
     gap: tokens.spacing.sm,
   },
-  button: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    backgroundColor: tokens.color.primary,
-    padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
-  },
-  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondary: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    borderColor: tokens.color.primary,
-    borderWidth: 1,
-    padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
-    backgroundColor: tokens.color.surface,
-  },
-  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

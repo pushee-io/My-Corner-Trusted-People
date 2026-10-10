@@ -21,6 +21,7 @@ jest.mock('react-native', () => ({
   Pressable: 'Pressable',
   StyleSheet: { create: (styles: unknown) => styles },
 }));
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => '00000000-0000-4000-8000-000000000011' }));
 jest.mock('expo-router', () => ({
@@ -87,6 +88,7 @@ it('Feed retains typed text after attachment failure and finishes the same post 
   await act(async () => {
     renderer = create(createElement(Feed));
   });
+  await act(async () => button('Continue your post').props.onPress());
   await act(async () => renderer.root.findByType(TextInput).props.onChangeText('Original post'));
   await act(async () => button('Post to feed').props.onPress());
   expect(renderer.root.findByType(TextInput).props.value).toBe('Original post');
@@ -95,6 +97,8 @@ it('Feed retains typed text after attachment failure and finishes the same post 
   await act(async () => button('Post to feed').props.onPress());
   expect(createNeighborhoodFeedPost).toHaveBeenCalledTimes(1);
   expect(attach).toHaveBeenLastCalledWith('saved-post', ['photo']);
+  expect(renderer.root.findAllByType(TextInput)).toHaveLength(0);
+  await act(async () => button('Continue your post').props.onPress());
   expect(renderer.root.findAllByType(TextInput)[0].props.value).toBe('');
   expect(clear).toHaveBeenCalledTimes(1);
 });
