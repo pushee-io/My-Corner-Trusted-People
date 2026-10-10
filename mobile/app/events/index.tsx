@@ -92,7 +92,14 @@ function EventsContent() {
                 href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
                 asChild
               >
-                <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, width >= 600 ? styles.mediumCard : null, pressed ? styles.pressed : null]}>
+                <Pressable
+                  accessibilityRole="button"
+                  style={({ pressed }) => [
+                    styles.card,
+                    width >= 600 ? styles.mediumCard : null,
+                    pressed ? styles.pressed : null,
+                  ]}
+                >
                   <MediaThumbnail parent="event" parentId={event.id} />
                   <Text style={styles.title}>{event.title}</Text>
                   <Text style={styles.date}>{formatEventDate(event.startsAt, event.timezone)}</Text>
@@ -112,7 +119,14 @@ function EventsContent() {
             href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
             asChild
           >
-            <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, width >= 600 ? styles.mediumCard : null, pressed ? styles.pressed : null]}>
+            <Pressable
+              accessibilityRole="button"
+              style={({ pressed }) => [
+                styles.card,
+                width >= 600 ? styles.mediumCard : null,
+                pressed ? styles.pressed : null,
+              ]}
+            >
               <MediaThumbnail parent="event" parentId={event.id} />
               <Text style={styles.title}>{event.title}</Text>
               <Text style={styles.date}>{formatEventDate(event.startsAt, event.timezone)}</Text>

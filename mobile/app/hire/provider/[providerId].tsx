@@ -145,8 +145,6 @@ export default function ProviderProfileScreen() {
         <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
       </View>
 
-
-
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Service coverage</Text>
 

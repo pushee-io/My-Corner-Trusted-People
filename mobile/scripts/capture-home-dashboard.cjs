@@ -49,6 +49,11 @@ for (const scenario of [
   { name: 'large-text', width: 390, height: 1100, scale: 1.6 },
   { name: 'empty', width: 390, height: 844, empty: true },
   { name: 'error', width: 390, height: 844, error: true },
+  { name: 'search-phone', width: 390, height: 844, page: 'app/search.tsx', route: '/search' },
+  { name: 'messages-phone', width: 390, height: 844, page: 'app/messages.tsx', route: '/messages' },
+  { name: 'notifications-phone', width: 390, height: 844, page: 'app/notifications.tsx', route: '/notifications' },
+  { name: 'settings-phone', width: 390, height: 844, page: 'app/settings.tsx', route: '/settings' },
+  { name: 'settings-compact', width: 320, height: 900, page: 'app/settings.tsx', route: '/settings' },
   { name: 'ask-phone', width: 390, height: 844, ask: true },
   { name: 'ask-compact', width: 320, height: 900, ask: true },
   { name: 'ask-large-text', width: 390, height: 1200, scale: 1.6, ask: true },
@@ -59,6 +64,9 @@ for (const scenario of [
   const cache = new Map();
   function resource(load) {
     let data;
+    if (load === 'loadInbox') return { data: { conversations: ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'].map((name, i) => ({ id: 'fixture-thread-'+i, peerId: 'fixture-peer-'+i, name, preview: 'Thanks, see you at the agreed pickup time.', updatedAt: '2026-10-10T08:00:00Z', unread: i === 0 ? 2 : 0 })) }, loading: false, refresh: () => {} };
+    if (load === 'loadNotifications') return { data: [{ id: 'fixture-notice', title: 'New message', body: 'You have a new message from your pickup conversation.', targetKind: 'message_received', createdAt: '2026-10-10T08:00:00Z' }, { id: 'fixture-read', title: 'Request updated', body: 'Your request status has changed.', targetKind: 'hire_update', readAt: '2026-10-10T08:00:00Z', createdAt: '2026-10-09T08:00:00Z' }], loading: false, refresh: () => {} };
+    if (scenario.page === 'app/search.tsx' && typeof load === 'function') return { data: [], loading: false, refresh: () => {} };
     if (load === 'getCurrentCapabilities') data = { community: true, neighborhoodId: 'fixture-area' };
     else if (load === 'loadVerifiedNeighborhood') data = { name: 'East Legon', city: 'Accra' };
     else if (load === 'loadAskContext') data = { id: 'fixture-area', name: 'East Legon' };
@@ -133,7 +141,7 @@ for (const scenario of [
       if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View };
       if (name === 'expo-router')
         return {
-          usePathname: () => (scenario.ask ? '/ask' : '/home'),
+          usePathname: () => scenario.route ?? (scenario.ask ? '/ask' : '/home'),
           useLocalSearchParams: () => ({}),
           useFocusEffect: () => {},
           router: { push: () => {}, navigate: () => {} },
@@ -160,7 +168,8 @@ for (const scenario of [
       if (name.endsWith('CollapsibleComments')) return { CommentsProvider: ({ children }) => children };
       if (name.endsWith('MediaAvatar'))
         return {
-          MediaAvatar: ({ name: publicName, size }) =>
+          MediaAvatarCollection: ({ children }) => children,
+          MediaAvatar: ({ name: publicName, size = 44 }) =>
             h(
               Native.View,
               {
@@ -192,6 +201,9 @@ for (const scenario of [
             'data:image/png;base64,' +
             fs.readFileSync(path.resolve(root, path.dirname(relative), name)).toString('base64'),
         };
+      if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
+      if (name.includes('community-actions') && name.startsWith('@/lib/')) return new Proxy({}, { get: () => () => ({}) });
+      if (name === '@/lib/search-repository') return { searchRepository: { search: () => [] } };
       if (name === '@/lib/events-feature') return { isEventsClientEnabled: () => false };
       if (
         name.startsWith('@/lib/') &&
@@ -204,7 +216,7 @@ for (const scenario of [
       }
       return require(name);
     }
-    new Function('require', 'module', 'exports', result.code)(sourceRequire, module, module.exports);
+    new Function('require', 'module', 'exports', '__DEV__', result.code)(sourceRequire, module, module.exports, false);
     cache.set(relative, module.exports);
     return module.exports;
   }
@@ -219,7 +231,7 @@ for (const scenario of [
             state: scenario.motion,
           }),
         )
-    : loadSource(scenario.ask ? 'app/ask.tsx' : 'app/home.tsx').default;
+    : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
   const markup = renderToStaticMarkup(element);
@@ -257,10 +269,10 @@ fs.writeFileSync(
   path.join(output, 'evidence.json'),
   JSON.stringify(
     {
-      renderer: 'Actual Home components through React Native Web with test-only fixtures',
+      renderer: 'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
       native: false,
       authenticatedData: false,
-      scenarios: ['phone', 'compact', 'tablet', 'large-text', 'empty', 'error'],
+      scenarios: ['phone', 'compact', 'tablet', 'large-text', 'empty', 'error', 'ask-phone', 'ask-compact', 'ask-large-text', 'ai-thinking', 'ai-answer', 'ai-attention', 'search-phone', 'messages-phone', 'notifications-phone', 'settings-phone', 'settings-compact'],
     },
     null,
     2,

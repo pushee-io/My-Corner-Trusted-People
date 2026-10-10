@@ -31,9 +31,12 @@ function InboxScreen() {
       ) : null}
       <MediaAvatarCollection profileIds={resource.data?.conversations.map((item) => item.peerId) ?? []}>
         {resource.data?.conversations.map((item) => (
-          <ActionRow key={item.id} title={item.name}
+          <ActionRow
+            key={item.id}
+            title={item.name}
             leading={<MediaAvatar profileId={item.peerId} name={item.name} />}
-            detail={item.preview || 'Start the conversation'} detailLines={2}
+            detail={item.preview || 'Start the conversation'}
+            detailLines={2}
             meta={`${new Date(item.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${item.unread ? ` · ${item.unread} unread` : ''}`}
             unread={Boolean(item.unread)}
             label={`Open conversation with ${item.name}${item.unread ? `, ${item.unread} unread` : ''}. ${new Date(item.updatedAt).toLocaleString()}`}

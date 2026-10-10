@@ -106,18 +106,32 @@ export default function AgencyBroadcastsScreen() {
             .map((broadcast) => (
               <View key={broadcast.id} style={styles.card}>
                 <Text style={styles.eyebrow}>{broadcast.agencyName}</Text>
-                <Text accessibilityRole="header" style={styles.title}>{broadcast.title}</Text>
+                <Text accessibilityRole="header" style={styles.title}>
+                  {broadcast.title}
+                </Text>
                 <Text style={styles.meta}>{scopeLabel(broadcast)}</Text>
-                <Text style={styles.body}>{!broadcastId && !expanded[broadcast.id] && broadcast.body.length > 240 ? broadcast.body.slice(0, 240) + '…' : broadcast.body}</Text>
+                <Text style={styles.body}>
+                  {!broadcastId && !expanded[broadcast.id] && broadcast.body.length > 240
+                    ? broadcast.body.slice(0, 240) + '…'
+                    : broadcast.body}
+                </Text>
                 {!broadcastId && broadcast.body.length > 240 ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel={`${expanded[broadcast.id] ? 'Show less of' : 'Read more of'} ${broadcast.title}`} accessibilityState={{ expanded: Boolean(expanded[broadcast.id]) }} style={styles.more} onPress={() => setExpanded(current => ({ ...current, [broadcast.id]: !current[broadcast.id] }))}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${expanded[broadcast.id] ? 'Show less of' : 'Read more of'} ${broadcast.title}`}
+                    accessibilityState={{ expanded: Boolean(expanded[broadcast.id]) }}
+                    style={styles.more}
+                    onPress={() => setExpanded((current) => ({ ...current, [broadcast.id]: !current[broadcast.id] }))}
+                  >
                     <Text style={styles.moreText}>{expanded[broadcast.id] ? 'Less' : 'More'}</Text>
                   </Pressable>
                 ) : null}
-                <Text style={styles.meta}>
-                  {new Date(broadcast.publishedAt).toLocaleString('en-GH')}
-                </Text>
-                <Pressable accessibilityRole="button" onPress={() => reportBroadcast(broadcast.id)} style={styles.reportButton}>
+                <Text style={styles.meta}>{new Date(broadcast.publishedAt).toLocaleString('en-GH')}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => reportBroadcast(broadcast.id)}
+                  style={styles.reportButton}
+                >
                   <Text style={styles.reportButtonText}>Report broadcast</Text>
                 </Pressable>
               </View>
@@ -129,7 +143,12 @@ export default function AgencyBroadcastsScreen() {
 }
 
 const styles = StyleSheet.create({
-  more: { minHeight: tokens.touch.min, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: tokens.spacing.sm },
+  more: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: tokens.spacing.sm,
+  },
   moreText: { color: tokens.color.primary, fontWeight: '700' },
   body: {
     color: tokens.color.textPrimary,

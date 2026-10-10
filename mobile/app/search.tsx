@@ -33,17 +33,17 @@ export default function SearchScreen() {
     <Screen title="Search">
       <Text style={styles.body}>Find local help, neighborhood posts, groups, events and marketplace listings.</Text>
       <View style={styles.composer}>
-      <TextInput
-        ref={input}
-        onSubmitEditing={submit}
-        maxLength={600}
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Search My Corner"
-        accessibilityLabel="Search My Corner"
-        style={styles.input}
-        returnKeyType="search"
-      />
+        <TextInput
+          ref={input}
+          onSubmitEditing={submit}
+          maxLength={600}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search My Corner"
+          accessibilityLabel="Search My Corner"
+          style={styles.input}
+          returnKeyType="search"
+        />
         <IconButton icon="search-outline" label="Search" onPress={submit} />
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -132,11 +132,16 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
   },
   composer: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.border, borderRadius: tokens.radius.control, borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.control,
+    borderWidth: 1,
   },
   input: {
-    flex: 1, minWidth: 0,
+    flex: 1,
+    minWidth: 0,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
     minHeight: tokens.touch.min,

@@ -1,10 +1,11 @@
 jest.mock('@/components/AICharacterExperience', () => ({ AICharacterExperience: 'CharacterExperience' }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('@/hooks/useAICharacter', () => ({
-  useAICharacter: () => ({
-    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
-    selectCharacter: jest.fn(),
-  }),
+  useAICharacter: () => {
+    const React = jest.requireActual<typeof import('react')>('react');
+    const [id, selectCharacter] = React.useState('woman-kente');
+    return { character: jest.requireActual('@/lib/ai-characters').findAICharacter(id), selectCharacter };
+  },
 }));
 import { createElement, type ComponentType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
@@ -21,7 +22,7 @@ import {
   safeAskHref,
   type AskAnswer,
 } from '@/lib/neighborhood-assistant';
-jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
+
 let mockContext: unknown;
 let mockPath = '/events';
 let mockParams: { question?: string } = {};
@@ -384,4 +385,16 @@ it('shows the question-limit explanation and keeps Search available', async () =
   expect(output()).not.toContain('temporarily unavailable');
   await press('Search your neighborhood');
   expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/search' }));
+});
+
+it('changing the character preserves the answer and follow-up context without resubmission', async () => {
+  await render();
+  await ask();
+  await act(async () => renderer.root.findByType('CharacterExperience' as never).props.selectCharacter('older-man'));
+  expect(renderer.root.findByType('CharacterExperience' as never).props.character.id).toBe('older-man');
+  expect(output()).toContain('Fictional FenceCare');
+  expect(askNeighborhood).toHaveBeenCalledTimes(1);
+  await act(async () => renderer.root.findByProps({ accessibilityLabel: 'Neighborhood question' }).props.onChangeText('Which has reviews?'));
+  await press('Send question');
+  expect(askNeighborhood).toHaveBeenLastCalledWith('Which has reviews?', ['Who can repair a fence nearby?'], id);
 });

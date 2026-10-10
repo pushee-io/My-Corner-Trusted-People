@@ -48,7 +48,7 @@ jest.mock('@/components/CollapsibleComments', () => ({
 }));
 jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: 'Link' }));
 jest.mock('@/components/PublicIdentity', () => ({ PublicIdentity: 'PublicIdentity' }));
-jest.mock('@/components/StateBlocks', () => ({ EmptyState: 'EmptyState', LoadingState: 'LoadingState' }));
+jest.mock('@/components/StateBlocks', () => ({ EmptyState: 'EmptyState', ErrorState: 'ErrorState', LoadingState: 'LoadingState' }));
 jest.mock('@/components/media/MediaGallery', () => ({ MediaGallery: 'Gallery' }));
 jest.mock('@/components/media/MediaAvatar', () => ({
   MediaAvatarCollection: ({ children }: { children: unknown }) => children,

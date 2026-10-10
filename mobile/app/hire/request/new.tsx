@@ -316,7 +316,11 @@ export default function NewRequestScreen() {
         disabled={submission.busy}
       />
 
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
 
       <Pressable
         accessibilityRole="button"

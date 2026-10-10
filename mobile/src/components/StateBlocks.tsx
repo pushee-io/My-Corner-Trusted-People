@@ -33,7 +33,12 @@ export function LoadingState({ title = 'Loading' }: { title?: string }) {
   return (
     <Surface accessibilityRole="progressbar" accessibilityLabel={title} accessibilityState={{ busy: true }}>
       <View style={styles.loadingRow}>
-        <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.brandLoader}>
+        <View
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={styles.brandLoader}
+        >
           <View style={styles.goldRing} />
         </View>
         <Text style={styles.loadingTitle}>{title}</Text>
@@ -79,8 +84,22 @@ const styles = StyleSheet.create({
   loadingRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.md },
   loadingTitle: { ...typography.card, color: tokens.color.textPrimary, flex: 1 },
   // Static branded progress mark: no animation loop, including with Reduce Motion.
-  brandLoader: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#171C1A', alignItems: 'center', justifyContent: 'center' },
-  goldRing: { width: 24, height: 24, borderRadius: 12, borderWidth: 3, borderColor: tokens.color.gold, borderTopColor: '#171C1A' },
+  brandLoader: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#171C1A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goldRing: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: tokens.color.gold,
+    borderTopColor: '#171C1A',
+  },
   title: { ...typography.card, color: tokens.color.textPrimary },
   body: { ...typography.body, color: tokens.color.textSecondary },
   offlineText: { ...typography.metadata, color: tokens.color.textPrimary },

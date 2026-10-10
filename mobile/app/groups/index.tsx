@@ -162,7 +162,10 @@ export default function GroupsScreen() {
               {canRequestMembership(section.membershipStatus) ? (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityState={{ busy: requestingGroupId === section.group.id, disabled: Boolean(requestingGroupId) }}
+                  accessibilityState={{
+                    busy: requestingGroupId === section.group.id,
+                    disabled: Boolean(requestingGroupId),
+                  }}
                   disabled={Boolean(requestingGroupId)}
                   onPress={() => void requestJoin(section.group.id)}
                   style={[
