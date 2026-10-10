@@ -68,7 +68,9 @@ if (preview?.android?.buildType !== expected.androidBuildType) {
 }
 
 await Promise.all([
-  requireText('app/home.tsx', "'/events'"),
+  requireText('app/home.tsx', 'href="/activity"'),
+  requireText('app/activity.tsx', "'/events'"),
+  requireText('app/activity.tsx', 'isEventsClientEnabled()'),
   requireText('src/lib/events-feature.ts', 'EXPO_PUBLIC_FEATURE_EVENTS === enabledValue'),
   requireText('src/lib/events-supabase-repository.ts', "supabase.rpc('is_events_feature_enabled')"),
   requireText('src/lib/events-runtime-repository.ts', 'Events is not available yet.'),

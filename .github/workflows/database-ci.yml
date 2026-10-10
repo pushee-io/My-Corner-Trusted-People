@@ -4,11 +4,17 @@ on:
   push:
     paths:
       - 'supabase/**'
+      - 'mobile/src/lib/home-dashboard.ts'
+      - 'mobile/src/lib/community-repository.ts'
+      - 'mobile/src/lib/marketplace-repository.ts'
       - 'scripts/db-smoke-test.sh'
       - '.github/workflows/database-ci.yml'
   pull_request:
     paths:
       - 'supabase/**'
+      - 'mobile/src/lib/home-dashboard.ts'
+      - 'mobile/src/lib/community-repository.ts'
+      - 'mobile/src/lib/marketplace-repository.ts'
       - 'scripts/db-smoke-test.sh'
       - '.github/workflows/database-ci.yml'
   workflow_dispatch:

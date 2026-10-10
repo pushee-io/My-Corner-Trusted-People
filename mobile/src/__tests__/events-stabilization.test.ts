@@ -42,14 +42,19 @@ describe('Events stabilization gates', () => {
     }
   });
 
-  it('hides the Home shortcut until both client and runtime Events gates are enabled', () => {
-    const source = readFileSync('app/home.tsx', 'utf8');
-    expect(source).toContain('eventsAvailable ?');
-    expect(source).toContain('if (!isEventsClientEnabled()) return;');
-    expect(source).toContain('eventsRuntimeRepository');
-    expect(source).toContain('.isEnabled()');
-    expect(source).toContain('.then(setEventsAvailable)');
-    expect(source).toContain('.catch(() => setEventsAvailable(false))');
+  it('retains Events access through My Activity while requiring client and runtime gates', () => {
+    const home = readFileSync('app/home.tsx', 'utf8');
+    const activity = readFileSync('app/activity.tsx', 'utf8');
+    const gate = readFileSync('src/components/events/EventsFeatureGate.tsx', 'utf8');
+    expect(home).toContain('href="/activity"');
+    expect(activity).toContain('isEventsClientEnabled()');
+    expect(activity).toContain("router.push('/events')");
+    expect(gate).toContain('if (!isEventsClientEnabled())');
+    expect(gate).toContain('eventsRuntimeRepository');
+    expect(gate).toContain('.isEnabled()');
+    expect(gate).toContain("setState(enabled ? 'allowed' : 'disabled')");
+    expect(gate).toContain("setState('error')");
+    expect(gate).toContain("if (state === 'allowed') return");
   });
 
   it('runs both Events SQL smoke suites from database CI', () => {

@@ -41,8 +41,11 @@ const sourceAction = {
 const date = (value: string) =>
   new Date(value).toLocaleString('en-GH', { timeZone: 'Africa/Accra', dateStyle: 'medium', timeStyle: 'short' });
 export default function AskScreen() {
-  const params = useLocalSearchParams<{ question?: string }>();
+  const params = useLocalSearchParams<{ question?: string; fromHome?: string }>();
   const composer = useRef<TextInput>(null);
+  const homeQuestion = useRef(
+    params.fromHome === '1' && typeof params.question === 'string' ? params.question.slice(0, 600).trim() : undefined,
+  );
   const quota = useProtectedResource(loadAskQuota, 15000);
   const context = useProtectedResource(loadAskContext, 30000);
   const [question, setQuestion] = useState('');
@@ -55,9 +58,10 @@ export default function AskScreen() {
   const generation = useRef(0);
   const sending = useRef(false);
   const [searchSuggestion, setSearchSuggestion] = useState(
-    typeof params.question === 'string' ? params.question.slice(0, 600).trim() : '',
+    params.fromHome !== '1' && typeof params.question === 'string' ? params.question.slice(0, 600).trim() : '',
   );
   const clear = useCallback(() => {
+    homeQuestion.current = undefined;
     generation.current += 1;
     sending.current = false;
     setSearchSuggestion('');
@@ -134,6 +138,13 @@ export default function AskScreen() {
       }
     }
   }
+  // Home's send action hands off once to this existing quota-checked request path.
+  useEffect(() => {
+    if (!neighborhood || busy || !homeQuestion.current) return;
+    const pending = homeQuestion.current;
+    homeQuestion.current = undefined;
+    void ask(pending);
+  });
   async function open(source: AskSource, request = false) {
     if (!answer) return;
     const current = generation.current;

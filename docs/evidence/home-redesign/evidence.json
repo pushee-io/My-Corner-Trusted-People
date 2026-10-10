@@ -1,0 +1,50 @@
+{
+  "applicationCommit": "85f830d6b9cbd307d6749fa471ed7d1b06047935",
+  "applicationTree": "8e5eb0f7f00fa74e1d15b33e8fa3a1abf7d38b75",
+  "baselineMain": "e2edcbe2df8d1c7d2be351a3efe665a6abca33f7",
+  "sourceReferenceCommit": "86b5bbe5154fc98fb13fa967836428e49f8c4f52",
+  "renderer": "Actual Home components through React Native Web + headless Chrome",
+  "fixtureData": true,
+  "nativeAndroid": false,
+  "physicalDevice": false,
+  "founderApproved": false,
+  "mobileCI": 38027730135,
+  "databaseCI": 38027730120,
+  "tests": {
+    "suites": 112,
+    "passed": 678
+  },
+  "screenshots": [
+    {
+      "path": "docs/evidence/home-redesign/home-phone.png",
+      "gitBlob": "aa173607f2f0652ae30302f1d822f5106819ce5a",
+      "inspected": true
+    },
+    {
+      "path": "docs/evidence/home-redesign/home-compact.png",
+      "gitBlob": "dad07e5a4450866e6ec58296dd3f6266d7981d33",
+      "inspected": true
+    },
+    {
+      "path": "docs/evidence/home-redesign/home-tablet.png",
+      "gitBlob": "c91439563dfa155506b6b71c90cecd3361067b75",
+      "inspected": true
+    },
+    {
+      "path": "docs/evidence/home-redesign/home-large-text.png",
+      "gitBlob": "b69ba47a17f0d411376c73dc00a526ba9f779c0e",
+      "inspected": true
+    },
+    {
+      "path": "docs/evidence/home-redesign/home-empty.png",
+      "gitBlob": "86bf7cc4e98166783d12a2214a97644c153b267c",
+      "inspected": true
+    },
+    {
+      "path": "docs/evidence/home-redesign/home-error.png",
+      "gitBlob": "dae9782a7d0348617a103124b907f9c158fcf524",
+      "inspected": true
+    }
+  ],
+  "status": "READY FOR FOUNDER VISUAL REVIEW"
+}

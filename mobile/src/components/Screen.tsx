@@ -1,6 +1,6 @@
 import { CommentsProvider } from '@/components/CollapsibleComments';
 import { AppHeader } from '@/components/AppHeader';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, type ReactNode } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomNavigation } from '@/components/BottomNavigation';
@@ -16,6 +16,7 @@ export function Screen({
   onRefresh,
   refreshing = false,
   onBack,
+  homeHeader,
 }: PropsWithChildren<{
   title: string;
   showTitle?: boolean;
@@ -23,6 +24,7 @@ export function Screen({
   onRefresh?: () => void;
   refreshing?: boolean;
   onBack?: () => void;
+  homeHeader?: ReactNode;
 }>) {
   const { width } = useWindowDimensions();
   const pathname = usePathname();
@@ -33,7 +35,13 @@ export function Screen({
     <CommentsProvider>
       <SafeAreaView style={styles.safe}>
         <View style={[styles.header, contentWidth ? { maxWidth: contentWidth } : null]}>
-          <AppHeader title={title} showTitle={showTitle} showActions={showTabs} onBack={onBack} />
+          <AppHeader
+            title={title}
+            showTitle={showTitle}
+            showActions={showTabs}
+            onBack={onBack}
+            homeHeader={homeHeader}
+          />
         </View>
         <ScrollView
           refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}

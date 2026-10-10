@@ -1,24 +1,87 @@
 import { Ionicons } from '@expo/vector-icons';
-import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
-import { type Href } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Screen } from '@/components/Screen';
+import { WebSafeLink } from '@/components/WebSafeLink';
+import { StatusPill } from '@/components/StatusPill';
+import { EmptyState } from '@/components/StateBlocks';
+import {
+  HomeAICard,
+  HomeBroadcastPreview,
+  HomeFeedPreview,
+  HomeHeader,
+  HomeHireAction,
+  HomeMarketplaceShowcase,
+  HomeSection,
+  HomeSectionState,
+} from '@/components/HomeDashboard';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
+import { useMessagingResource, usePrivateSessionKey } from '@/hooks/useMessagingResource';
 import { getCurrentCapabilities } from '@/lib/capabilities';
 import { partitionRequests, requestUpdatedAt } from '@/lib/active-requests';
 import { categories } from '@/lib/mock-data';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { WebSafeLink } from '@/components/WebSafeLink';
-import { Screen } from '@/components/Screen';
-import { EmptyState } from '@/components/StateBlocks';
-import { StatusPill } from '@/components/StatusPill';
-import { getCurrentProfile } from '@/lib/auth';
 import { loadVerifiedNeighborhood } from '@/lib/verified-neighborhood';
-import { eventsRuntimeRepository, isEventsClientEnabled } from '@/lib/events-runtime-repository';
 import { getProvider, listRequesterRequests } from '@/lib/repository';
+import { loadAskContext } from '@/lib/neighborhood-assistant';
+import { loadUnread } from '@/lib/messaging';
+import {
+  loadHomeBroadcast,
+  loadHomeFeed,
+  loadHomeMarketplace,
+  loadHomeNotificationCount,
+  previewImage,
+} from '@/lib/home-dashboard';
 import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
+function HomeContentPreviews() {
+  const feed = useProtectedResource(loadHomeFeed);
+  const market = useProtectedResource(loadHomeMarketplace);
+  const broadcast = useProtectedResource(loadHomeBroadcast);
+  return (
+    <>
+      <HomeSection title="LATEST FEED UPDATES" href="/community">
+        {feed.data?.post ? (
+          <HomeFeedPreview post={feed.data.post} image={previewImage(feed.data.media)} />
+        ) : (
+          <HomeSectionState
+            loading={feed.loading}
+            error={feed.error}
+            empty="Your neighborhood's next conversation starts with you."
+            onRetry={() => void feed.refresh()}
+          />
+        )}
+      </HomeSection>
+      <HomeSection title="MARKETPLACE SHOWCASE" href="/marketplace">
+        {market.data?.length ? (
+          <HomeMarketplaceShowcase listings={market.data} />
+        ) : (
+          <HomeSectionState
+            loading={market.loading}
+            error={market.error}
+            empty="No listings yet. Discover something local or offer something you no longer need."
+            onRetry={() => void market.refresh()}
+          />
+        )}
+      </HomeSection>
+      <HomeSection title="AGENCY BROADCAST" href="/agency-broadcasts">
+        {broadcast.data ? (
+          <HomeBroadcastPreview broadcast={broadcast.data} />
+        ) : (
+          <HomeSectionState
+            loading={broadcast.loading}
+            error={broadcast.error}
+            empty="No current agency announcements."
+            onRetry={() => void broadcast.refresh()}
+          />
+        )}
+      </HomeSection>
+    </>
+  );
+}
+
 export default function HomeScreen() {
+  const session = usePrivateSessionKey();
   const resource = useProtectedResource(
     useCallback(async () => {
       const requests = await listRequesterRequests();
@@ -31,14 +94,23 @@ export default function HomeScreen() {
     }, []),
     10_000,
   );
-  const { error, loading: isLoading } = resource;
   const { active, past } = partitionRequests(resource.data?.requests ?? []);
   const capabilities = useProtectedResource(getCurrentCapabilities);
   const neighborhood = useProtectedResource(loadVerifiedNeighborhood);
-  const [activeExpanded, setActiveExpanded] = useState(true);
+  const context = useProtectedResource(loadAskContext);
+  const unread = useMessagingResource(loadUnread);
+  const notifications = useMessagingResource(loadHomeNotificationCount);
+  const [activeExpanded, setActiveExpanded] = useState(false);
   const [pastExpanded, setPastExpanded] = useState(false);
-  const [eventsAvailable, setEventsAvailable] = useState(false);
-  const [canModerateMarketplace, setCanModerateMarketplace] = useState(false);
+  const [moderationExpanded, setModerationExpanded] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const location = neighborhood.data
+    ? `${neighborhood.data.name} · ${neighborhood.data.city}`
+    : neighborhood.loading
+      ? 'Loading neighborhood…'
+      : neighborhood.error
+        ? 'Neighborhood unavailable'
+        : 'Verify your neighborhood';
 
   function requestCard(request: JobRequest) {
     return (
@@ -50,7 +122,7 @@ export default function HomeScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${request.title}, ${request.status}`}
-          style={styles.panel}
+          style={({ pressed }) => [styles.panel, pressed && styles.pressed]}
         >
           <StatusPill status={request.status} />
           <Text style={styles.title}>{request.title}</Text>
@@ -64,225 +136,187 @@ export default function HomeScreen() {
     );
   }
 
-  useEffect(() => {
-    getCurrentProfile()
-      .then((profile) => setCanModerateMarketplace(profile.role === 'moderator' || profile.role === 'admin'))
-      .catch(() => setCanModerateMarketplace(false));
-  }, []);
-
-  useEffect(() => {
-    if (!isEventsClientEnabled()) return;
-    eventsRuntimeRepository
-      .isEnabled()
-      .then(setEventsAvailable)
-      .catch(() => setEventsAvailable(false));
-  }, []);
-
   return (
     <Screen
       title="My Corner home"
+      homeHeader={<HomeHeader location={location} unread={unread.data?.unread} notifications={notifications.data} />}
       onRefresh={() => {
         void resource.refresh();
+        void capabilities.refresh();
         void neighborhood.refresh();
+        void context.refresh();
+        void unread.refresh();
+        void notifications.refresh();
+        setRefreshKey((value) => value + 1);
       }}
-      refreshing={isLoading}
+      refreshing={resource.loading}
     >
-      <Text style={styles.body}>
-        {neighborhood.data
-          ? `${neighborhood.data.name} · ${neighborhood.data.city}`
-          : neighborhood.loading
-            ? 'Loading neighborhood…'
-            : neighborhood.error
-              ? 'Neighborhood unavailable'
-              : 'Verify your neighborhood'}
-      </Text>
-      <AskMyCornerAccess home />
+      <HomeAICard
+        key={`${session}:${context.data?.id ?? ''}`}
+        neighborhood={context.data?.name}
+        available={Boolean(context.data)}
+        loading={context.loading}
+      />
+      <HomeHireAction />
+      {capabilities.data?.community ? (
+        <HomeContentPreviews key={`${session}:${capabilities.data.neighborhoodId}:${refreshKey}`} />
+      ) : (
+        <Text style={styles.body}>
+          {capabilities.loading ? 'Checking neighborhood access…' : 'Verify your neighborhood to see local updates.'}
+        </Text>
+      )}
 
-      {capabilities.data?.provider ? (
-        <WebSafeLink href="/provider/requests" asChild>
-          <Pressable accessibilityRole="button" style={styles.button}>
-            <Text style={styles.buttonText}>Provider inbox</Text>
-          </Pressable>
-        </WebSafeLink>
-      ) : null}
-      <View style={styles.grid}>
-        <WebSafeLink href="/hire/categories" asChild>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Hire help</Text>
-          </Pressable>
-        </WebSafeLink>
-
-        {capabilities.data?.community ? (
+      <View style={styles.requests}>
+        <View style={styles.requestHeading}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
+            My Requests
+          </Text>
+          <WebSafeLink href="/activity" asChild>
+            <Pressable accessibilityRole="button" style={styles.textAction}>
+              <Text style={styles.link}>My Activity</Text>
+            </Pressable>
+          </WebSafeLink>
+        </View>
+        {resource.error ? (
+          <HomeSectionState error={resource.error} empty="" onRetry={() => void resource.refresh()} />
+        ) : resource.loading ? (
+          <Text style={styles.body}>Loading your requests…</Text>
+        ) : (
           <>
-            <WebSafeLink href="/community" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Neighborhood feed</Text>
+            <View style={styles.statusRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Active Requests (${active.length})`}
+                accessibilityState={{ expanded: activeExpanded }}
+                onPress={() => setActiveExpanded((value) => !value)}
+                style={styles.statusButton}
+              >
+                <Text style={styles.link}>Active {active.length}</Text>
+                <Ionicons
+                  name={activeExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={tokens.color.primary}
+                  accessible={false}
+                />
               </Pressable>
-            </WebSafeLink>
-
-            <WebSafeLink href="/groups" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Groups</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Past Requests (${past.length})`}
+                accessibilityState={{ expanded: pastExpanded }}
+                onPress={() => setPastExpanded((value) => !value)}
+                style={styles.statusButton}
+              >
+                <Text style={styles.link}>Past {past.length}</Text>
+                <Ionicons
+                  name={pastExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={tokens.color.primary}
+                  accessible={false}
+                />
               </Pressable>
-            </WebSafeLink>
-
-            {eventsAvailable ? (
-              <WebSafeLink href={'/events' as Href} asChild>
-                <Pressable accessibilityRole="button" style={styles.secondary}>
-                  <Text style={styles.secondaryText}>Events</Text>
+            </View>
+            {activeExpanded ? (
+              active.length ? (
+                active.map(requestCard)
+              ) : (
+                <EmptyState title="No active requests" body="Choose Hire Trusted Local Help to get started." />
+              )
+            ) : null}
+            {pastExpanded ? (
+              past.length ? (
+                past.map(requestCard)
+              ) : (
+                <Text style={styles.body}>No past requests yet.</Text>
+              )
+            ) : null}
+          </>
+        )}
+        {capabilities.data?.provider ? (
+          <WebSafeLink href="/provider/requests" asChild>
+            <Pressable accessibilityRole="button" style={styles.textAction}>
+              <Text style={styles.link}>Provider inbox</Text>
+            </Pressable>
+          </WebSafeLink>
+        ) : null}
+      </View>
+      {capabilities.data?.moderator ? (
+        <View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Moderation tools"
+            accessibilityState={{ expanded: moderationExpanded }}
+            onPress={() => setModerationExpanded((value) => !value)}
+            style={styles.textAction}
+          >
+            <Text style={styles.link}>Moderation tools</Text>
+          </Pressable>
+          {moderationExpanded ? (
+            <View style={styles.utilityLinks}>
+              <WebSafeLink href="/marketplace/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Marketplace reports</Text>
                 </Pressable>
               </WebSafeLink>
-            ) : null}
-
-            <WebSafeLink href="/agency-broadcasts" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Agency broadcasts</Text>
-              </Pressable>
-            </WebSafeLink>
-
-            <WebSafeLink href="/marketplace" asChild>
-              <Pressable style={styles.secondary}>
-                <Text style={styles.secondaryText}>Marketplace</Text>
-              </Pressable>
-            </WebSafeLink>
-          </>
-        ) : null}
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/marketplace/moderation" asChild>
-            <Pressable accessibilityRole="button" style={styles.secondary}>
-              <Text style={styles.secondaryText}>Marketplace reports</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/community/moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Moderation queue</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-
-        <WebSafeLink href="/activity" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>My Activity</Text>
-          </Pressable>
-        </WebSafeLink>
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/reviews/moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Review moderation</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-        {canModerateMarketplace ? (
-          <WebSafeLink href="/message-moderation" asChild>
-            <Pressable style={styles.secondary}>
-              <Text style={styles.secondaryText}>Message reports</Text>
-            </Pressable>
-          </WebSafeLink>
-        ) : null}
-        <WebSafeLink href="/settings" asChild>
-          <Pressable style={styles.secondary}>
-            <Text style={styles.secondaryText}>Settings</Text>
-          </Pressable>
-        </WebSafeLink>
-      </View>
-
-      {error ? (
-        <EmptyState title="Could not load requests" body={error} />
-      ) : isLoading ? (
-        <Text style={styles.body}>Loading your requests…</Text>
-      ) : (
-        <>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Active Requests (${active.length})`}
-            accessibilityState={{ expanded: activeExpanded }}
-            onPress={() => setActiveExpanded((expanded) => !expanded)}
-            style={styles.sectionToggle}
-          >
-            <Text style={styles.sectionTitle}>Active Requests ({active.length})</Text>
-            <Ionicons
-              name={activeExpanded ? 'chevron-up' : 'chevron-down'}
-              size={22}
-              color={tokens.color.textPrimary}
-              accessible={false}
-            />
-          </Pressable>
-          {activeExpanded ? (
-            active.length ? (
-              active.map(requestCard)
-            ) : (
-              <EmptyState title="No active requests" body="Choose Hire help to get started." />
-            )
+              <WebSafeLink href="/community/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Moderation queue</Text>
+                </Pressable>
+              </WebSafeLink>
+              <WebSafeLink href="/reviews/moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Review moderation</Text>
+                </Pressable>
+              </WebSafeLink>
+              <WebSafeLink href="/message-moderation" asChild>
+                <Pressable accessibilityRole="button" style={styles.textAction}>
+                  <Text style={styles.link}>Message reports</Text>
+                </Pressable>
+              </WebSafeLink>
+            </View>
           ) : null}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Past Requests (${past.length})`}
-            accessibilityState={{ expanded: pastExpanded }}
-            onPress={() => setPastExpanded((expanded) => !expanded)}
-            style={styles.sectionToggle}
-          >
-            <Text style={styles.sectionTitle}>Past Requests ({past.length})</Text>
-            <Ionicons
-              name={pastExpanded ? 'chevron-up' : 'chevron-down'}
-              size={22}
-              color={tokens.color.textPrimary}
-              accessible={false}
-            />
-          </Pressable>
-          {pastExpanded ? (
-            past.length ? (
-              past.map(requestCard)
-            ) : (
-              <Text style={styles.body}>No past requests yet.</Text>
-            )
-          ) : null}
-        </>
-      )}
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { color: tokens.color.textPrimary, fontSize: tokens.type.body },
-  title: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
-  sectionToggle: {
-    minHeight: tokens.touch.min,
+  body: { color: tokens.color.textSecondary, ...tokens.typography.metadata },
+  title: { color: tokens.color.textPrimary, ...tokens.typography.card },
+  sectionTitle: { color: tokens.color.textPrimary, fontSize: 16, lineHeight: 22, fontWeight: '600' },
+  requests: { gap: 8, borderTopWidth: 1, borderTopColor: tokens.color.borderSubtle, paddingTop: 8 },
+  requestHeading: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  statusButton: {
+    minHeight: 48,
+    flexGrow: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: tokens.spacing.md,
-    paddingVertical: tokens.spacing.md,
+    gap: 8,
+    paddingHorizontal: 12,
+    backgroundColor: tokens.color.surface,
+    borderColor: tokens.color.borderSubtle,
+    borderWidth: 1,
+    borderRadius: 12,
   },
-  sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700', flexShrink: 1 },
-  grid: { gap: tokens.spacing.md },
+  link: { color: tokens.color.primary, fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  textAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 },
+  utilityLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
   panel: {
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderWidth: 1,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     padding: tokens.spacing.lg,
     gap: tokens.spacing.sm,
   },
-  button: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    backgroundColor: tokens.color.primary,
-    padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
-  },
-  buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
-  secondary: {
-    minHeight: tokens.touch.min,
-    justifyContent: 'center',
-    borderColor: tokens.color.primary,
-    borderWidth: 1,
-    padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
-    backgroundColor: tokens.color.surface,
-  },
-  secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
 });

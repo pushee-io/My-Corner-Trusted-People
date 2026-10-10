@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { subscribeMediaSession } from '@/lib/media-session';
+import { ActionPill } from '@/components/ActionPill';
 import { tokens } from '@/theme/tokens';
 
 export function dismissCommentKeyboard() {
@@ -63,6 +64,7 @@ export function CollapsibleComments({
   const controller = useContext(CommentsContext);
   const [localOpen, setLocalOpen] = useState(false);
   const focused = useRef(false);
+  const [controlFocused, setControlFocused] = useState(false);
   useEffect(() => {
     const sub = Keyboard.addListener?.('keyboardDidHide', () => {
       focused.current = false;
@@ -86,7 +88,15 @@ export function CollapsibleComments({
         accessibilityRole="button"
         accessibilityLabel={`${count} comments, ${expanded ? 'expanded' : 'collapsed'}`}
         accessibilityState={{ expanded }}
-        style={styles.control}
+        onFocus={() => setControlFocused(true)}
+        onBlur={() => setControlFocused(false)}
+        style={({ pressed }) => [
+          styles.control,
+          {
+            borderColor: controlFocused ? tokens.color.focusRing : 'transparent',
+            backgroundColor: pressed ? tokens.color.surfacePressed : 'transparent',
+          },
+        ]}
         onPress={() => {
           if (controller) controller.open(id);
           else setLocalOpen(true);
@@ -114,20 +124,13 @@ export function CollapsibleComments({
           />
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.panel}>
             <View accessibilityViewIsModal style={styles.thread}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Hide comments"
-                accessibilityState={{ expanded: true, disabled: busy }}
-                disabled={busy}
-                style={styles.control}
-                onPress={() => close()}
-              >
-                <Text style={styles.controlText}>Hide comments</Text>
-              </Pressable>
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+              <View style={styles.header}>
                 <Text accessibilityRole="header" style={styles.heading}>
                   Comments ({count})
                 </Text>
+                <ActionPill label="Hide comments" disabled={busy} onPress={() => close()} />
+              </View>
+              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
                 {error ? (
                   <Text accessibilityRole="alert" style={styles.error}>
                     {error}
@@ -152,12 +155,35 @@ export function CollapsibleComments({
   );
 }
 const styles = StyleSheet.create({
-  control: { minHeight: 48, paddingHorizontal: 12, justifyContent: 'center', alignSelf: 'flex-start' },
-  controlText: { color: tokens.color.primary, fontSize: 16, fontWeight: '700' },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 20 },
+  control: {
+    minHeight: tokens.touch.min,
+    paddingHorizontal: tokens.spacing.md,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: tokens.radius.control,
+    borderWidth: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: tokens.spacing.sm,
+    paddingBottom: tokens.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.color.borderSubtle,
+  },
+  controlText: { color: tokens.color.textSecondary, ...tokens.typography.button },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: tokens.spacing.lg },
   panel: { width: '100%', maxWidth: 760, maxHeight: '85%', alignSelf: 'center', flexShrink: 1 },
-  thread: { flexShrink: 1, backgroundColor: tokens.color.surface, borderRadius: 16, padding: 12 },
-  content: { gap: 12, paddingBottom: 20 },
-  heading: { fontSize: 20, fontWeight: '700', color: tokens.color.textPrimary },
-  error: { color: tokens.color.textPrimary },
+  thread: {
+    flexShrink: 1,
+    backgroundColor: tokens.color.surface,
+    borderRadius: tokens.radius.spacious,
+    padding: tokens.spacing.lg,
+    gap: tokens.spacing.md,
+  },
+  content: { gap: tokens.spacing.md, paddingBottom: tokens.spacing.xl },
+  heading: { ...tokens.typography.section, color: tokens.color.textPrimary, flexShrink: 1 },
+  error: { color: tokens.color.textPrimary, ...tokens.typography.body },
 });
