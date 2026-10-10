@@ -1,6 +1,6 @@
 # Phase C — Home, feed, and comments
 
-Status: implementation checkpoint; automated validation pending. Native and signed-in Preview visual acceptance remain open. No new APK, merge, or deployment authorized by this implementation task.
+Status: implementation and automated validation passed; draft for founder review. Native and signed-in Preview visual acceptance remain open. No new APK, merge, or deployment authorized by this implementation task.
 
 ## Baseline
 
@@ -53,7 +53,7 @@ No global tokens, package versions, native build settings or navigation routes a
 
 ## Acceptance and evidence
 
-- Automated gates: pending CI on this implementation. Full Jest, TypeScript, lint, formatting, Expo/Preview contract, Android and web exports required.
+- Automated gates: **passed** on application commit `b75367e8e85a376cab20522f5aa38177d85da239`. [Mobile CI 38020462637](https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/38020462637), job `114120120399`: **663 tests / 109 suites**, TypeScript, formatting, ESLint (0 errors, 15 existing warnings), Expo Doctor, Preview contract, web export and Android export passed. Supabase Preview was skipped, not failed. This evidence-only follow-up does not change application code.
 - Regression focus: request counts/toggles/routes, capability changes, text/media draft close/resume, partial upload retry, post identity, reactions/reports, comment failure/success, empty/error state and long text expansion.
 - Local terminal: execution did not respond to a bounded basic command/recovery attempt; validation uses GitHub Actions. No local test result is claimed.
 - Phase C screenshots actually verified: none yet. Existing A/B screenshots are not Phase C evidence.
@@ -71,4 +71,4 @@ No global tokens, package versions, native build settings or navigation routes a
 5. Shared comments on other existing screens: title/control wrapping and scroll remain usable.
 6. Normal Android text/display settings first; then large text and tablet checks, with no settings changes made merely for screenshots.
 
-Ready for founder code review after CI passes. Phase C visual/device acceptance remains open until actual evidence. Request founder approval for exactly one new Preview APK only after the automated gates pass; no automatic paid build.
+Ready for founder code review and an approved Preview APK for physical-device testing; CI passed. Phase C visual/device acceptance remains open until actual evidence. Exactly one new Preview APK requires founder approval; no build has been started. Draft PR: [#180](https://github.com/pushee-io/My-Corner-Trusted-People/pull/180).
