@@ -7,6 +7,8 @@ node_modules/
 
 # Generated build output
 mobile/dist/
+mobile/.native-ui-qa/
+mobile/scripts/__pycache__/
 
 # macOS
 .DS_Store

@@ -66,3 +66,33 @@ it('does not navigate to the current destination and reuses native navigate acro
   expect(router.navigate).toHaveBeenCalledTimes(40);
   expect(Keyboard.dismiss).toHaveBeenCalled();
 });
+
+it('retains provider-only Home destination and restricted community tabs', async () => {
+  mockPath = '/hire/categories';
+  mockCapabilities = { data: { provider: true, community: false } };
+  await act(async () => {
+    view = create(createElement(BottomNavigation));
+  });
+  expect(tab('Community').props.disabled).toBe(true);
+  expect(tab('Market').props.disabled).toBe(true);
+  await act(async () => tab('Home').props.onPress());
+  expect(router.navigate).toHaveBeenCalledWith('/provider/requests');
+});
+
+it('preserves selected semantics, touch size, press and focus feedback', async () => {
+  mockCapabilities = { data: { community: true } };
+  mockPath = '/hire/provider/qa';
+  await act(async () => {
+    view = create(createElement(BottomNavigation));
+  });
+  expect(tab('Hire').props.accessibilityState).toEqual({ selected: true, disabled: false });
+  const normal = Object.assign({}, ...tab('Hire').props.style({ pressed: false }).filter(Boolean));
+  const pressed = Object.assign({}, ...tab('Hire').props.style({ pressed: true }).filter(Boolean));
+  expect(normal.minHeight).toBeGreaterThanOrEqual(48);
+  expect(normal.minWidth).toBeGreaterThanOrEqual(48);
+  expect(pressed.backgroundColor).not.toBe(normal.backgroundColor);
+  await act(async () => tab('Hire').props.onFocus());
+  const focused = Object.assign({}, ...tab('Hire').props.style({ pressed: false }).filter(Boolean));
+  expect(focused.borderColor).not.toBe(normal.borderColor);
+  expect(focused.borderWidth).toBe(normal.borderWidth);
+});

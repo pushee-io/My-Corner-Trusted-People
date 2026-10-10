@@ -6,6 +6,7 @@ import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { tokens } from '@/theme/tokens';
 import { isEventsClientEnabled } from '@/lib/events-feature';
 import { NavigationArtwork } from './NavigationArtwork';
+import { useState } from 'react';
 
 type BottomNavigationItem = {
   label: string;
@@ -34,6 +35,7 @@ function isSelected(pathname: string, item: BottomNavigationItem) {
 
 export function BottomNavigation() {
   const pathname = usePathname();
+  const [focusedTab, setFocusedTab] = useState<string>();
   const capabilities = useProtectedResource(getCurrentCapabilities);
   // Keep tab positions stable while account capabilities are loading.
   const items = bottomNavigationItems;
@@ -51,6 +53,8 @@ export function BottomNavigation() {
             accessibilityState={{ selected, disabled }}
             disabled={disabled}
             key={String(item.href)}
+            onFocus={() => setFocusedTab(item.label)}
+            onBlur={() => setFocusedTab(undefined)}
             onPress={() => {
               const destination =
                 item.label === 'Home' && capabilities.data?.provider && !capabilities.data.community
@@ -59,13 +63,20 @@ export function BottomNavigation() {
               Keyboard.dismiss();
               if (pathname !== destination) router.navigate(destination);
             }}
-            style={[styles.item, selected ? styles.selectedItem : null, disabled ? { opacity: 0.45 } : null]}
+            style={({ pressed }) => [
+              styles.item,
+              selected ? styles.selectedItem : null,
+              pressed && !disabled ? styles.pressed : null,
+              focusedTab === item.label ? styles.focused : null,
+            ]}
           >
             {item.icon === 'hire' || item.icon === 'neighborhood' ? (
               <NavigationArtwork
                 name={item.icon}
                 size={24}
-                color={selected ? '#FFFFFF' : tokens.color.textSecondary}
+                color={
+                  disabled ? tokens.color.disabledText : selected ? tokens.color.primary : tokens.color.textSecondary
+                }
                 accessible={false}
                 style={styles.artwork}
               />
@@ -73,7 +84,9 @@ export function BottomNavigation() {
               <Ionicons
                 name={item.icon}
                 size={24}
-                color={selected ? '#FFFFFF' : tokens.color.textSecondary}
+                color={
+                  disabled ? tokens.color.disabledText : selected ? tokens.color.primary : tokens.color.textSecondary
+                }
                 accessible={false}
               />
             )}
@@ -94,33 +107,32 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: tokens.spacing.sm,
     paddingVertical: tokens.spacing.sm,
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
   },
   item: {
     alignItems: 'center',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.control,
+    borderWidth: 1,
+    borderColor: 'transparent',
     flex: 1,
     justifyContent: 'center',
     minHeight: tokens.touch.min,
+    minWidth: tokens.touch.min,
     paddingHorizontal: tokens.spacing.xs,
     paddingVertical: tokens.spacing.sm,
   },
   selectedItem: {
-    backgroundColor: tokens.color.primary,
+    backgroundColor: tokens.color.successSurface,
   },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
+  focused: { borderColor: tokens.color.focusRing },
   artwork: {
     width: 24,
     height: 24,
     lineHeight: 24,
     includeFontPadding: false,
     textAlign: 'center',
-  },
-  label: {
-    color: tokens.color.textSecondary,
-    fontSize: tokens.type.minimum,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  selectedLabel: {
-    color: '#FFFFFF',
   },
 });

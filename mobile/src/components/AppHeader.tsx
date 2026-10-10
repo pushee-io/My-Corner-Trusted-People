@@ -1,11 +1,11 @@
-import { AskMyCornerAccess } from '@/components/AskMyCornerAccess';
-import { Ionicons } from '@expo/vector-icons';
+import { IconButton } from '@/components/IconButton';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback } from 'react';
-import { BackHandler, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { MessagesAccess } from '@/components/MessagesAccess';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
+import { typography } from '@/theme/typography';
 
 export function navigateBack() {
   if (router.canGoBack()) router.back();
@@ -16,50 +16,51 @@ export function AppHeader({
   title,
   showTitle = true,
   showActions = true,
+  onBack,
 }: {
   title: string;
   showTitle?: boolean;
   showActions?: boolean;
+  onBack?: () => void;
 }) {
   const pathname = usePathname();
   const root = pathname === '/home' || pathname === '/';
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        if (pathname === '/ask' && Keyboard.isVisible()) {
+        if ((pathname === '/ask' || onBack) && Keyboard.isVisible()) {
           Keyboard.dismiss();
           return true;
         }
         // Native Modals consume Back themselves. Home is the terminal app root.
-        if (root) BackHandler.exitApp();
+        if (onBack) onBack();
+        else if (root) BackHandler.exitApp();
         else navigateBack();
         return true;
       });
       return () => subscription.remove();
-    }, [root, pathname]),
+    }, [root, pathname, onBack]),
   );
   return (
     <View style={styles.header}>
-      <MyCornerLogo />
-      {showActions ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-          <MessagesAccess />
-          {pathname !== '/home' && pathname !== '/' ? <AskMyCornerAccess /> : null}
+      {root ? (
+        <View style={styles.homeRow}>
+          <View style={styles.brand}>
+            <MyCornerLogo />
+          </View>
+          {showActions ? <MessagesAccess /> : null}
         </View>
       ) : null}
-      {!root || showTitle ? (
+      {!root ? (
         <View style={styles.titleRow}>
-          {!root ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-              accessibilityHint="Returns to the previous page, or Home if there is no history"
-              onPress={navigateBack}
-              style={styles.back}
-            >
-              <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} accessible={false} />
-            </Pressable>
-          ) : null}
+          <IconButton
+            icon="arrow-back"
+            label="Go back"
+            hint={
+              onBack ? 'Returns to the previous view' : 'Returns to the previous page, or Home if there is no history'
+            }
+            onPress={onBack ?? navigateBack}
+          />
           {showTitle ? (
             <Text accessibilityRole="header" style={styles.title}>
               {title}
@@ -79,6 +80,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.sm },
-  back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
-  title: { flex: 1, flexShrink: 1, fontSize: 28, fontWeight: '700', color: tokens.color.textPrimary },
+  homeRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.sm },
+  brand: { flex: 1, minWidth: 0 },
+  title: { flex: 1, flexShrink: 1, ...typography.section, color: tokens.color.textPrimary },
 });

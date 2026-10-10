@@ -87,7 +87,7 @@ it.each([
   await render();
   expect(back()).toHaveLength(1);
   expect(back()[0].props.accessibilityRole).toBe('button');
-  expect(back()[0].props.style).toMatchObject({ width: 48, height: 48 });
+  expect(back()[0].props.style({ pressed: false })).toMatchObject({ minWidth: 48, minHeight: 48 });
 });
 it('pops the real nested history until Home, then hides the arrow', async () => {
   mockHistory = [
@@ -141,7 +141,8 @@ it.each([360, 1280])('keeps the header outside scrolling content at width %s', a
   expect(
     renderer.root.findByType('ScrollView' as never).findAllByProps({ accessibilityLabel: 'Go back' }),
   ).toHaveLength(0);
-  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(1);
+  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(0);
 });
 it('removes the hardware handler on unmount', async () => {
   await render();
@@ -163,4 +164,66 @@ it('Ask Android Back dismisses keyboard before navigating', async () => {
     mockHardwareBack!();
   });
   expect(router.back).toHaveBeenCalledTimes(1);
+});
+
+it('keeps one branded Home header with messages access and no duplicate page title', async () => {
+  await render();
+  expect(renderer.root.findAllByType('MyCornerLogo' as never)).toHaveLength(1);
+  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(1);
+  expect(renderer.root.findAllByType('AskMyCornerAccess' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByProps({ accessibilityRole: 'header' })).toHaveLength(0);
+});
+
+it.each([
+  '/hire/request/new',
+  '/hire/request/review',
+  '/reviews/write',
+  '/groups/new',
+  '/events/new',
+  '/events/event-id/edit',
+  '/profile/public-name',
+  '/profile/phone-verification',
+  '/profile/legal-name',
+  '/profile/address',
+  '/profile/map-confirmation',
+  '/profile/location-consistency',
+  '/profile/postcard-challenge',
+  '/profile/manual-biometric',
+  '/provider/request/respond',
+])('keeps Back but hides global actions/tabs during focused form %s', async (path) => {
+  mockHistory = ['/home', path];
+  await render();
+  expect(back()).toHaveLength(1);
+  expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(0);
+  expect(renderer.root.findAllByType('MessagesAccess' as never)).toHaveLength(0);
+  await act(async () => back()[0].props.onPress());
+  expect(router.back).toHaveBeenCalledTimes(1);
+});
+
+it.each([
+  '/home',
+  '/hire/provider/qa',
+  '/hire/request/status',
+  '/hire/request/safety-session',
+  '/profile',
+  '/profile/verification',
+  '/groups/group',
+  '/events/event',
+  '/search',
+])('retains bottom navigation on browse/detail route %s', async (path) => {
+  mockHistory = ['/home', path];
+  await render();
+  expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(1);
+});
+
+it('respects explicit bottom-navigation opt out and keeps wrapping titles scalable', async () => {
+  mockHistory = ['/home', '/messages'];
+  await act(async () => {
+    renderer = create(createElement(Screen, { title: 'A long public title', showBottomNavigation: false }));
+  });
+  expect(renderer.root.findAllByType('BottomNavigation' as never)).toHaveLength(0);
+  const title = renderer.root.findByProps({ accessibilityRole: 'header' });
+  expect(title.props.allowFontScaling).not.toBe(false);
+  expect(title.props.numberOfLines).toBeUndefined();
+  expect(back()).toHaveLength(1);
 });
