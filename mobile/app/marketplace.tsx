@@ -12,7 +12,7 @@ import { Image, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'r
 
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { Screen } from '@/components/Screen';
-import { EmptyState, LoadingState } from '@/components/StateBlocks';
+import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
 import {
   createMarketplaceListing,
   getMarketplaceNeighborhood,
@@ -237,7 +237,8 @@ export default function MarketplaceScreen() {
         </>
       ) : null}
 
-      {error ? <EmptyState title="Marketplace notice" body={error} /> : null}
+      {error ? <ErrorState title="Marketplace notice" body={error} onRetry={!creating ? () => void load() : undefined} /> : null}
+      {!creating && !error && listings.length === 0 ? <EmptyState title="No listings yet" body="Offer an item to your neighborhood using New listing." /> : null}
       {message ? (
         <Text accessibilityRole="alert" style={styles.success}>
           {message}
@@ -334,13 +335,13 @@ export default function MarketplaceScreen() {
             {listings.map((listing) => (
               <View key={listing.id} style={styles.card}>
                 {listing.imageUrl ? (
-                  <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
+                  <Image accessibilityLabel={`${listing.title} photo`} source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
                 ) : null}
                 <MediaGallery parent="marketplace_listing" parentId={listing.id} refreshKey={mediaRefresh} />
-                <PublicIdentity profileId={listing.sellerId} name={listing.sellerName} />
-                <Text style={styles.title}>{listing.title}</Text>
-                <Text style={styles.body}>{listing.description}</Text>
+                <Text accessibilityRole="header" numberOfLines={2} style={styles.title}>{listing.title}</Text>
                 <Text style={styles.price}>{priceLabel(listing)}</Text>
+                <PublicIdentity profileId={listing.sellerId} name={listing.sellerName} />
+                <Text numberOfLines={3} style={styles.body}>{listing.description}</Text>
                 <Text style={styles.note}>{listing.availability}</Text>
                 <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
                 <WebSafeLink
@@ -350,8 +351,8 @@ export default function MarketplaceScreen() {
                   }}
                   asChild
                 >
-                  <Pressable accessibilityRole="button" style={styles.button}>
-                    <Text style={styles.buttonText}>View listing</Text>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`View listing: ${listing.title}`} style={styles.secondaryButton}>
+                    <Text style={styles.secondaryButtonText}>View listing</Text>
                   </Pressable>
                 </WebSafeLink>
               </View>
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
     minWidth: 132,
     overflow: 'hidden',
   },
-  price: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
+  price: { color: tokens.color.primary, fontSize: tokens.type.card, fontWeight: '700' },
   privacyNote: {
     backgroundColor: '#FFF4D6',
     borderRadius: tokens.radius.md,
