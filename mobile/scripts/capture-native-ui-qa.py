@@ -35,10 +35,16 @@ def tap(label):
 
 def wait_ready(expected_width=None, expected_font=None):
     ready = False
+    relaunches = 0
     for attempt in range(40):
         try:
             current = nodes()
             print('Startup', attempt, [(n.get('text'), n.get('content-desc')) for n in current if n.get('text') or n.get('content-desc')], flush=True)
+            if any('launcher' in n.get('package', '') for n in current) and relaunches < 2 and adb('shell', 'pm', 'path', 'host.exp.exponent').strip():
+                relaunches += 1
+                adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+                time.sleep(3)
+                continue
             # A cold CI emulator can show a launcher ANR over the running fixture.
             # Dismiss only this known system dialog, never an app crash dialog.
             if any(n.get('text') == "Pixel Launcher isn't responding" for n in current):
@@ -71,6 +77,7 @@ def wait_ready(expected_width=None, expected_font=None):
     if not ready:
         (out / 'startup.png').write_bytes(adb('exec-out', 'screencap', '-p'))
         (out / 'startup.xml').write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))
+        (out / 'runtime.log').write_bytes(adb('logcat', '-d', '-t', '500', 'AndroidRuntime:E', 'ReactNativeJS:E', '*:S'))
         raise RuntimeError('Native fixture did not become ready; see startup screenshot and Metro log')
 
 wait_ready()
@@ -79,9 +86,11 @@ for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), (
     adb('shell', 'wm', 'size', size)
     adb('shell', 'wm', 'density', density)
     adb('shell', 'settings', 'put', 'system', 'font_scale', font_scale)
+    time.sleep(3)  # Let Android finish applying the system configuration.
     # Expo Go must restart to apply Android density/font configuration to RN.
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
-    adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+    time.sleep(1)
+    adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
     time.sleep(3)
     wait_ready(int(size.split('x')[0]) * 160 / int(density), float(font_scale))
     for revision in ['before', 'after']:
@@ -117,11 +126,13 @@ if metadata.get('phase') == 'B':
     adb('shell', 'wm', 'size', '720x1600')
     adb('shell', 'wm', 'density', '320')
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
-    adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+    time.sleep(1)
+    adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
     time.sleep(3)
     wait_ready(360, 1.0)
     tap('QA after')
     tap('QA request')
+    adb('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
     tap('QA job title')
     adb('shell', 'input', 'text', 'Kitchen%ssink%sleak')
     time.sleep(2)
