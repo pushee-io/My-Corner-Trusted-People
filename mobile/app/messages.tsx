@@ -1,3 +1,4 @@
+import { ActionRow } from '@/components/ActionRow';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
@@ -30,19 +31,14 @@ function InboxScreen() {
       ) : null}
       <MediaAvatarCollection profileIds={resource.data?.conversations.map((item) => item.peerId) ?? []}>
         {resource.data?.conversations.map((item) => (
-          <View key={item.id} style={styles.panel}>
-            <MediaAvatar profileId={item.peerId} name={item.name} />
-            <Text style={styles.title}>
-              {item.name}
-              {item.unread ? ` · ${item.unread} unread` : ''}
-            </Text>
-            <Text style={styles.body}>{item.preview || 'Start the conversation'}</Text>
-            <Text style={styles.note}>{new Date(item.updatedAt).toLocaleString()}</Text>
-            <ReportButton
-              label={`Open conversation with ${item.name}`}
-              onPress={() => router.push({ pathname: '/messages', params: { conversationId: item.id } })}
-            />
-          </View>
+          <ActionRow key={item.id} title={item.name}
+            leading={<MediaAvatar profileId={item.peerId} name={item.name} />}
+            detail={item.preview || 'Start the conversation'} detailLines={2}
+            meta={`${new Date(item.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${item.unread ? ` · ${item.unread} unread` : ''}`}
+            unread={Boolean(item.unread)}
+            label={`Open conversation with ${item.name}${item.unread ? `, ${item.unread} unread` : ''}. ${new Date(item.updatedAt).toLocaleString()}`}
+            onPress={() => router.push({ pathname: '/messages', params: { conversationId: item.id } })}
+          />
         ))}
       </MediaAvatarCollection>
     </Screen>

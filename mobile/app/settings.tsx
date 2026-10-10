@@ -1,8 +1,7 @@
-import { WebSafeLink } from '@/components/WebSafeLink';
+import { ActionRow } from '@/components/ActionRow';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { myCornerInvitation } from '@/lib/invite';
 import { Screen } from '@/components/Screen';
 import { signOutFromDevice } from '@/lib/auth';
@@ -11,14 +10,7 @@ import { getSupabaseCommunityReadFailureDiagnostics } from '@/lib/community-acti
 import { getSupabaseCommunityReadClientDiagnostics } from '@/lib/community-actions-supabase-live-client';
 import { tokens } from '@/theme/tokens';
 
-const settings = [
-  'Neighborhood: East Legon',
-  'Language: English',
-  'Data saver: On for pilot',
-  'Reduced motion: Uses system setting',
-  'Location sharing: General area only',
-  'Notifications: In-app prototype updates only',
-];
+
 
 export default function SettingsScreen() {
   const readDiagnostics = getCommunityActionsReadDiagnostics();
@@ -43,43 +35,23 @@ export default function SettingsScreen() {
 
   return (
     <Screen title="Settings">
-      <Text style={styles.body}>
-        Planned controls for account, location, notifications, display, language, privacy, and safety.
-      </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Invite Friend to join My Corner"
-        style={styles.signOutButton}
-        onPress={() => {
-          setInviteError(undefined);
-          void Share.share(myCornerInvitation()).catch(() =>
-            setInviteError('Could not open sharing. Please try again.'),
-          );
-        }}
-      >
-        <Ionicons name="share-social-outline" size={24} color={tokens.color.primary} accessible={false} />
-        <Text style={styles.label}>Invite Friend to join My Corner</Text>
-      </Pressable>
+      <Text accessibilityRole="header" style={styles.label}>Account and privacy</Text>
+      <ActionRow icon="person-circle-outline" title="Profile and picture" detail="Public identity and account verification" onPress={() => router.push('/profile')} />
+      <ActionRow icon="chatbubbles-outline" title="Messages and notifications" detail="Who can contact you and your message preferences" onPress={() => router.push('/message-settings')} />
+      <ActionRow icon="shield-checkmark-outline" title="Location and identity privacy" detail="Review address and identity providers" onPress={() => router.push('/location-privacy')} />
+      <Text accessibilityRole="header" style={styles.label}>My Corner</Text>
+      <ActionRow icon="share-social-outline" title="Invite Friend to join My Corner" onPress={() => {
+        setInviteError(undefined);
+        void Share.share(myCornerInvitation()).catch(() => setInviteError('Could not open sharing. Please try again.'));
+      }} />
       {inviteError ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {inviteError}
         </Text>
       ) : null}
       <View style={styles.panel}>
-        {settings.map((item) => (
-          <Text key={item} style={styles.item}>
-            {item}
-          </Text>
-        ))}
-      </View>
-
-      <View style={styles.panel}>
         <Text style={styles.label}>Account</Text>
-        <WebSafeLink href="/profile" asChild>
-          <Pressable accessibilityRole="button" style={styles.signOutButton}>
-            <Text style={{ color: tokens.color.primary, fontWeight: '700' }}>Edit profile and picture</Text>
-          </Pressable>
-        </WebSafeLink>
+
         <Text style={styles.note}>Sign out removes the saved session from this device.</Text>
         {signOutError ? (
           <Text accessibilityRole="alert" style={styles.error}>
@@ -98,7 +70,7 @@ export default function SettingsScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.panel}>
+      {__DEV__ ? <View style={styles.panel}>
         <Text style={styles.label}>Developer diagnostics</Text>
         <Text style={styles.item}>Community reads: {readDiagnostics.activeMode}</Text>
         <Text style={styles.note}>Configured: {readDiagnostics.configuredMode}</Text>
@@ -113,7 +85,7 @@ export default function SettingsScreen() {
         <Text style={styles.note}>Last read table: {readFailureDiagnostics.tableName}</Text>
         <Text style={styles.note}>Last read failure: {readFailureDiagnostics.failureCode}</Text>
         <Text style={styles.note}>Last read message: {readFailureDiagnostics.sanitizedMessage}</Text>
-      </View>
+      </View> : null}
     </Screen>
   );
 }

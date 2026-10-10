@@ -45,55 +45,55 @@ export default function ProfileScreen() {
       </WebSafeLink>
 
       <WebSafeLink href="/profile/verification" asChild>
-        <Pressable style={styles.button}>
+        <Pressable accessibilityRole="button" style={styles.button}>
           <Text style={styles.buttonText}>Verification status</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href="/profile/phone-verification" asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Phone verification</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href="/profile/legal-name" asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Legal name</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href={{ pathname: '/profile/address' }} asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Ghana address</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href={{ pathname: '/profile/map-confirmation' }} asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Map confirmation</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href="/profile/manual-biometric" asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Manual biometric review</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href={{ pathname: '/profile/privacy' }} asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Masked profile and map privacy</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href={{ pathname: '/location-privacy' }} asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Address and identity providers</Text>
         </Pressable>
       </WebSafeLink>
 
       <WebSafeLink href="/report/evidence" asChild>
-        <Pressable style={styles.secondary}>
+        <Pressable accessibilityRole="button" style={styles.secondary}>
           <Text style={styles.secondaryText}>Report evidence</Text>
         </Pressable>
       </WebSafeLink>

@@ -1,6 +1,7 @@
+import { ActionRow } from '@/components/ActionRow';
 import { isEventsClientEnabled } from '@/lib/events-feature';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { ReportButton, reportStyles as styles } from '@/components/JobReportParts';
 import { useMessagingResource } from '@/hooks/useMessagingResource';
@@ -32,24 +33,16 @@ export default function Notifications() {
   }
   return (
     <Screen title="Notifications" onRefresh={() => void resource.refresh()} refreshing={resource.loading}>
-      {resource.error ? <Text style={styles.error}>{resource.error}</Text> : null}
+      {resource.error ? <><Text accessibilityRole="alert" style={styles.error}>{resource.error}</Text><ReportButton label="Retry notifications" onPress={() => void resource.refresh()} /></> : null}
       {resource.loading ? <Text style={styles.body}>Loading updates…</Text> : null}
       {resource.data?.length === 0 ? <Text style={styles.body}>No notifications yet.</Text> : null}
       {resource.data?.map((notice) => (
-        <View key={notice.id} style={styles.panel}>
-          <Text style={styles.title}>
-            {notice.title}
-            {notice.readAt ? '' : ' · New'}
-          </Text>
-          <Text style={styles.body}>{notice.body}</Text>
-          <Text style={styles.note}>{new Date(notice.createdAt).toLocaleString()}</Text>
-          <ReportButton
-            label="Open update"
-            onPress={() => {
-              void open(notice).catch(() => void resource.refresh());
-            }}
-          />
-        </View>
+        <ActionRow key={notice.id} title={notice.title} detail={notice.body}
+          icon={notice.targetKind === 'message_received' ? 'chatbubble-outline' : notice.targetKind?.startsWith('event_') ? 'calendar-outline' : 'notifications-outline'}
+          meta={`${new Date(notice.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${notice.readAt ? '' : ' · New'}`}
+          unread={!notice.readAt} label={`Open update: ${notice.title}${notice.readAt ? '' : ', unread'}`}
+          onPress={() => { void open(notice).catch(() => void resource.refresh()); }} />
+
       ))}
     </Screen>
   );
