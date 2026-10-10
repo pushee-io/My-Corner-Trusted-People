@@ -49,6 +49,12 @@ for (const scenario of [
   { name: 'large-text', width: 390, height: 1100, scale: 1.6 },
   { name: 'empty', width: 390, height: 844, empty: true },
   { name: 'error', width: 390, height: 844, error: true },
+  { name: 'ask-phone', width: 390, height: 844, ask: true },
+  { name: 'ask-compact', width: 320, height: 900, ask: true },
+  { name: 'ask-large-text', width: 390, height: 1200, scale: 1.6, ask: true },
+  { name: 'ai-thinking', width: 390, height: 430, motion: 'thinking', character: 'older-man' },
+  { name: 'ai-answer', width: 390, height: 430, motion: 'answer', character: 'young-man' },
+  { name: 'ai-attention', width: 390, height: 430, motion: 'attention', character: 'woman-purple' },
 ]) {
   const cache = new Map();
   function resource(load) {
@@ -56,6 +62,7 @@ for (const scenario of [
     if (load === 'getCurrentCapabilities') data = { community: true, neighborhoodId: 'fixture-area' };
     else if (load === 'loadVerifiedNeighborhood') data = { name: 'East Legon', city: 'Accra' };
     else if (load === 'loadAskContext') data = { id: 'fixture-area', name: 'East Legon' };
+    else if (load === 'loadAskQuota') data = undefined;
     else if (load === 'loadUnread') data = { unread: 3 };
     else if (load === 'loadHomeNotificationCount') data = 2;
     else if (load === 'loadHomeFeed') data = scenario.empty ? {} : { post };
@@ -125,7 +132,7 @@ for (const scenario of [
         return { useNetInfo: () => ({ isConnected: true, isInternetReachable: true }) };
       if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View };
       if (name === 'expo-router')
-        return { usePathname: () => '/home', useFocusEffect: () => {}, router: { push: () => {}, navigate: () => {} } };
+        return { usePathname: () => scenario.ask ? '/ask' : '/home', useLocalSearchParams: () => ({}), useFocusEffect: () => {}, router: { push: () => {}, navigate: () => {} } };
       if (name === '@expo/vector-icons')
         return {
           Ionicons: ({ name: icon, size, color }) =>
@@ -164,6 +171,12 @@ for (const scenario of [
               h(Native.Text, { style: { color: '#0e6b50' } }, publicName[0]),
             ),
         };
+      if (name.endsWith('useAICharacter')) return {
+        useAICharacter: () => ({
+          character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+          selectCharacter: () => {},
+        }),
+      };
       if (name.endsWith('useProtectedResource')) return { useProtectedResource: resource };
       if (name.endsWith('useMessagingResource'))
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
@@ -176,7 +189,7 @@ for (const scenario of [
       if (name === '@/lib/events-feature') return { isEventsClientEnabled: () => false };
       if (
         name.startsWith('@/lib/') &&
-        !['@/lib/active-requests', '@/lib/navigation-layout', '@/lib/mock-data'].includes(name)
+        !['@/lib/active-requests', '@/lib/navigation-layout', '@/lib/mock-data', '@/lib/ai-characters'].includes(name)
       )
         return new Proxy({}, { get: (_target, key) => (key === 'previewImage' ? () => undefined : key) });
       if (name.startsWith('@/') || name.startsWith('.')) {
@@ -189,7 +202,13 @@ for (const scenario of [
     cache.set(relative, module.exports);
     return module.exports;
   }
-  const Home = loadSource('app/home.tsx').default;
+  const Home = scenario.motion
+    ? () => h(Native.View, { style: { padding: 16, backgroundColor: '#FAFBF9' } },
+      h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
+        character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+        selectCharacter: () => {}, state: scenario.motion,
+      }))
+    : loadSource(scenario.ask ? 'app/ask.tsx' : 'app/home.tsx').default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
   const markup = renderToStaticMarkup(element);
@@ -200,7 +219,7 @@ for (const scenario of [
     font +
     ')}@font-face{font-family:MyCornerNavigation;src:url(data:font/ttf;base64,' +
     artwork +
-    ')}html,body{margin:0;height:100%;background:#FBF7EE}body>div{height:100%}</style></head><body>' +
+    ')}html,body{margin:0;height:100%;background:#FAFBF9}body>div{height:100%}</style></head><body>' +
     markup +
     '</body></html>';
   const file = path.join(output, 'home-' + scenario.name + '.html');

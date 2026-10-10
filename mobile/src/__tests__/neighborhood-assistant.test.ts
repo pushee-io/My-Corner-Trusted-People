@@ -1,3 +1,8 @@
+jest.mock('@/components/AICharacterExperience', () => ({ AICharacterExperience: 'CharacterExperience' }));
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
+jest.mock('@/hooks/useAICharacter', () => ({
+  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+}));
 import { createElement, type ComponentType } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { router } from 'expo-router';
@@ -101,7 +106,7 @@ async function render(component: ComponentType = AskScreen) {
 async function press(label: string) {
   const b = renderer.root
     .findAllByType('Pressable' as never)
-    .find((n) => n.findAllByType('Text' as never).some((t) => t.children.join('') === label));
+    .find((n) => n.props.accessibilityLabel === label || n.findAllByType('Text' as never).some((t) => t.children.join('') === label));
   expect(b).toBeDefined();
   await act(async () => {
     b!.props.onPress();
@@ -113,7 +118,7 @@ async function ask() {
       .findByProps({ accessibilityLabel: 'Neighborhood question' })
       .props.onChangeText('Who can repair a fence nearby?'),
   );
-  await press('Send');
+  await press('Send question');
 }
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -160,7 +165,7 @@ it('follow-up sends question-only context', async () => {
       .findByProps({ accessibilityLabel: 'Neighborhood question' })
       .props.onChangeText('Which ones have reviews?'),
   );
-  await press('Send');
+  await press('Send question');
   expect(askNeighborhood).toHaveBeenLastCalledWith('Which ones have reviews?', ['Who can repair a fence nearby?'], id);
 });
 it('feedback attaches to correct answer', async () => {
@@ -252,16 +257,16 @@ it('starts empty with a placeholder and clears submitted input', async () => {
   await render();
   expect(input().props.value).toBe('');
   expect(input().props.placeholder).toBe('Ask anything about your neighborhood...');
-  expect(pill('Send').props.disabled).toBe(true);
+  expect(pill('Send question').props.disabled).toBe(true);
   await act(async () => input().props.onChangeText('   '));
-  await press('Send');
+  await press('Send question');
   expect(askNeighborhood).not.toHaveBeenCalled();
   await ask();
   expect(askNeighborhood).toHaveBeenCalledWith('Who can repair a fence nearby?', [], id);
   expect(input().props.value).toBe('');
   expect(input().props.placeholder).toBe('Ask anything about your neighborhood...');
   expect(output()).toContain('Who can repair a fence nearby?');
-  expect(pill('Send').props.disabled).toBe(true);
+  expect(pill('Send question').props.disabled).toBe(true);
 });
 it('Search handoff is optional and never autofills or auto-submits', async () => {
   mockParams = { question: 'What is happening this weekend?' };
@@ -286,7 +291,7 @@ it('clears immediately and rejects duplicate sends before a rerender', async () 
   );
   await render();
   await act(async () => input().props.onChangeText('Who can repair a fence?'));
-  const send = pill('Send').props.onPress;
+  const send = pill('Send question').props.onPress;
   await act(async () => {
     send();
     send();

@@ -12,6 +12,9 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { IconButton } from '@/components/IconButton';
+import { AICharacterExperience } from '@/components/AICharacterExperience';
+import { useAICharacter } from '@/hooks/useAICharacter';
 import { ActionPill } from '@/components/ActionPill';
 import { Screen } from '@/components/Screen';
 import { useProtectedResource } from '@/hooks/useProtectedResource';
@@ -41,11 +44,21 @@ const sourceAction = {
 const date = (value: string) =>
   new Date(value).toLocaleString('en-GH', { timeZone: 'Africa/Accra', dateStyle: 'medium', timeStyle: 'short' });
 export default function AskScreen() {
-  const params = useLocalSearchParams<{ question?: string; fromHome?: string }>();
+  const params = useLocalSearchParams<{ question?: string; fromHome?: string; submission?: string }>();
   const composer = useRef<TextInput>(null);
-  const homeQuestion = useRef(
-    params.fromHome === '1' && typeof params.question === 'string' ? params.question.slice(0, 600).trim() : undefined,
-  );
+  const { character, selectCharacter } = useAICharacter();
+  const homeQuestion = useRef<string | undefined>(undefined);
+  const observedHomeHandoff = useRef<string | undefined>(undefined);
+  const handoff = params.fromHome === '1' && typeof params.question === 'string'
+    ? `${params.submission ?? ''}:${params.question}` : undefined;
+  // Route params can arrive after the first native render. Observe each handoff
+  // once, instead of capturing only the initial render's often-empty params.
+  useEffect(() => {
+    if (handoff && observedHomeHandoff.current !== handoff) {
+      observedHomeHandoff.current = handoff;
+      homeQuestion.current = params.question?.slice(0, 600).trim();
+    }
+  }, [handoff, params.question]);
   const quota = useProtectedResource(loadAskQuota, 15000);
   const context = useProtectedResource(loadAskContext, 30000);
   const [question, setQuestion] = useState('');
@@ -170,7 +183,8 @@ export default function AskScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen title="Ask My Corner AI">
-        <Text style={styles.body}>Ask anything about your neighborhood.</Text>
+        <AICharacterExperience character={character} selectCharacter={selectCharacter}
+          state={busy ? 'thinking' : error ? 'attention' : answer ? 'answer' : 'idle'} />
         {context.data ? (
           <Text style={styles.meta}>{context.data.name} · Neighborhood context</Text>
         ) : (
@@ -193,26 +207,25 @@ export default function AskScreen() {
             {quotaMessage(quota.data)}
           </Text>
         ) : null}
-        <TextInput
-          ref={composer}
-          accessibilityLabel="Neighborhood question"
-          placeholder="Ask anything about your neighborhood..."
-          placeholderTextColor={tokens.color.textSecondary}
-          textAlignVertical="top"
-          scrollEnabled
-          value={question}
-          onChangeText={setQuestion}
-          multiline
-          maxLength={600}
-          editable={!busy}
-          style={styles.input}
-        />
-        <ActionPill
-          label={busy ? 'Checking neighborhood sources…' : 'Send'}
-          primary
-          disabled={!neighborhood || busy || question.trim().length < 3}
-          onPress={() => void ask()}
-        />
+        <View style={styles.composer}>
+          <TextInput
+            ref={composer}
+            accessibilityLabel="Neighborhood question"
+            placeholder="Ask anything about your neighborhood..."
+            placeholderTextColor={tokens.color.textSecondary}
+            textAlignVertical="top"
+            scrollEnabled
+            value={question}
+            onChangeText={setQuestion}
+            multiline
+            maxLength={600}
+            editable={!busy}
+            style={styles.input}
+          />
+          <IconButton icon="arrow-up" label={busy ? 'Checking neighborhood sources…' : 'Send question'}
+            disabled={!neighborhood || busy || question.trim().length < 3}
+            onPress={() => void ask()} />
+        </View>
         {busy ? (
           <Text accessibilityLiveRegion="polite" style={styles.meta}>
             My Corner AI is checking your neighborhood...
@@ -230,9 +243,11 @@ export default function AskScreen() {
           <Text style={styles.body}>Search your neighborhood</Text>
         </Pressable>
         {error ? (
-          <Text accessibilityRole="alert" style={styles.body}>
-            {error}
-          </Text>
+          <View style={styles.card}>
+            <Text accessibilityRole="alert" style={styles.body}>{error}</Text>
+            {history.at(-1) ? <ActionPill label="Retry question" disabled={!neighborhood || busy}
+              onPress={() => void ask(history.at(-1)!)} /> : null}
+          </View>
         ) : null}
         {answer ? (
           <View style={styles.section}>
@@ -331,13 +346,17 @@ const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: 16, lineHeight: 24 },
   meta: { color: tokens.color.textPrimary, fontSize: 13, lineHeight: 20 },
   title: { color: tokens.color.textPrimary, fontSize: 19, fontWeight: '700' },
+  composer: {
+    flexDirection: 'row', alignItems: 'flex-end', borderWidth: 1,
+    borderColor: tokens.color.controlBorder, borderRadius: 12,
+    backgroundColor: tokens.color.surface, paddingRight: 4,
+  },
   input: {
-    borderWidth: 1,
-    borderColor: tokens.color.border,
-    borderRadius: 12,
-    minHeight: 90,
-    maxHeight: 160,
-    padding: 14,
+    flex: 1,
+    minWidth: 0,
+    minHeight: 56,
+    maxHeight: 144,
+    padding: 12,
     color: tokens.color.textPrimary,
     fontSize: 16,
     backgroundColor: tokens.color.surface,

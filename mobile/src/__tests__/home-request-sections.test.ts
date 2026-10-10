@@ -1,3 +1,6 @@
+jest.mock('@/hooks/useAICharacter', () => ({
+  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import HomeScreen from '../../app/home';
@@ -16,7 +19,7 @@ jest.mock('react-native', () => ({
   Keyboard: { dismiss: jest.fn() },
   StyleSheet: { create: (s: unknown) => s },
 }));
-jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
+jest.mock('expo-router', () => ({ router: { push: jest.fn() }, useFocusEffect: () => {} }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('../../assets/my-corner-ai/characters/character-woman-kente.png', () => 1);
 jest.mock('@/components/Screen', () => ({

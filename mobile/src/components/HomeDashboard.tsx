@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router, type Href } from 'expo-router';
-import { useState, type PropsWithChildren } from 'react';
+import { router, useFocusEffect, type Href } from 'expo-router';
+import { useCallback, useRef, useState, type PropsWithChildren } from 'react';
 import { Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AICharacterPortrait } from '@/components/AICharacterPortrait';
+import { useAICharacter } from '@/hooks/useAICharacter';
 import { IconButton } from '@/components/IconButton';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
@@ -55,25 +57,23 @@ export function HomeAICard({
   available: boolean;
   loading: boolean;
 }) {
+  const { character } = useAICharacter();
+  const navigating = useRef(false);
+  useFocusEffect(useCallback(() => { navigating.current = false; }, []));
   const [question, setQuestion] = useState('');
   const enabled = available && question.trim().length >= 3;
   function send() {
-    if (!enabled) return;
+    if (!enabled || navigating.current) return;
+    navigating.current = true;
     Keyboard.dismiss();
-    router.push({ pathname: '/ask', params: { question: question.trim().slice(0, 600), fromHome: '1' } });
+    router.push({ pathname: '/ask', params: { question: question.trim().slice(0, 600), fromHome: '1', submission: String(Date.now()) } });
     setQuestion('');
   }
   return (
     <View style={styles.aiCard}>
-      <View style={styles.aiHeading}>
-        <View style={styles.character}>
-          <Image
-            source={require('../../assets/my-corner-ai/characters/character-woman-kente.png')}
-            style={styles.characterPortrait}
-            resizeMode="contain"
-            accessibilityLabel="My Corner AI character"
-          />
-        </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Open Ask My Corner AI"
+        onPress={() => { Keyboard.dismiss(); router.push('/ask'); }} style={styles.aiHeading}>
+        <AICharacterPortrait character={character} />
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>
             Ask My Corner AI
@@ -86,7 +86,7 @@ export function HomeAICard({
                 : 'Neighborhood AI is currently unavailable.'}
           </Text>
         </View>
-      </View>
+      </Pressable>
       <View style={styles.aiInputRow}>
         <TextInput
           accessibilityLabel="Ask My Corner AI question"
@@ -288,8 +288,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, minWidth: 0 },
   aiCard: { backgroundColor: '#144C43', borderRadius: 16, padding: 12, gap: 10 },
   aiHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  character: { width: 54, height: 60, borderRadius: 12, overflow: 'hidden' },
-  characterPortrait: { width: 82, height: 112, position: 'absolute', top: 0, left: -14 },
   aiTitle: { color: '#FFFFFF', fontSize: 18, lineHeight: 24, fontWeight: '700' },
   aiGreeting: { color: '#FFFFFF', fontSize: 14, lineHeight: 20 },
   aiInputRow: {

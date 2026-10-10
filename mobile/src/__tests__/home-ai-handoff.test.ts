@@ -1,9 +1,14 @@
+jest.mock('@/components/AICharacterExperience', () => ({ AICharacterExperience: 'CharacterExperience' }));
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
+jest.mock('@/hooks/useAICharacter', () => ({
+  useAICharacter: () => ({ character: jest.requireActual('@/lib/ai-characters').defaultAICharacter, selectCharacter: jest.fn() }),
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import Ask from '../../app/ask';
 import { askNeighborhood } from '@/lib/neighborhood-assistant';
 let mockContext: { id: string; name: string } | undefined;
-let mockParams: { question: string; fromHome?: string };
+let mockParams: { question?: string; fromHome?: string; submission?: string };
 jest.mock('react-native', () => ({
   View: 'View',
   Text: 'Text',
@@ -68,4 +73,22 @@ it('preserves the existing explicit confirmation for questions passed from Searc
   });
   expect(askNeighborhood).not.toHaveBeenCalled();
   expect(JSON.stringify(view.toJSON())).toContain('Ask about: Who can help nearby?');
+});
+
+it('accepts native route params arriving after the initial render, without a second Send tap', async () => {
+  mockParams = {};
+  mockContext = { id: 'authorized-area', name: 'Osu' };
+  await act(async () => { view = create(createElement(Ask)); });
+  expect(askNeighborhood).not.toHaveBeenCalled();
+  mockParams = { question: 'A late arriving question', fromHome: '1', submission: 'native-1' };
+  await act(async () => view.update(createElement(Ask)));
+  expect(askNeighborhood).toHaveBeenCalledWith('A late arriving question', [], 'authorized-area');
+  await act(async () => view.update(createElement(Ask)));
+  expect(askNeighborhood).toHaveBeenCalledTimes(1);
+});
+it('never submits a blank Home handoff', async () => {
+  mockParams = { question: ' ', fromHome: '1' };
+  mockContext = { id: 'authorized-area', name: 'Osu' };
+  await act(async () => { view = create(createElement(Ask)); });
+  expect(askNeighborhood).not.toHaveBeenCalled();
 });
