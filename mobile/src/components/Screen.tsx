@@ -41,7 +41,9 @@ export function Screen({
           <AppHeader
             title={title}
             showTitle={showTitle}
-            showActions={!['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname)}
+            showActions={
+              !['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname)
+            }
             onBack={onBack}
             homeHeader={homeHeader}
           />
@@ -58,15 +60,19 @@ export function Screen({
         >
           <View style={styles.body}>{children}</View>
         </ScrollView>
-        {footer ? <View style={[styles.footer, contentWidth ? { maxWidth: contentWidth } : null]}>{footer}</View> : null}
+        {footer ? (
+          <View style={[styles.footer, contentWidth ? { maxWidth: contentWidth } : null]}>{footer}</View>
+        ) : null}
         {showTabs ? <BottomNavigation /> : null}
         <CommunicationOverlay />
       </SafeAreaView>
     </CommentsProvider>
   );
-  return ['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname)
-    ? contents
-    : <CommunicationProvider>{contents}</CommunicationProvider>;
+  return ['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname) ? (
+    contents
+  ) : (
+    <CommunicationProvider>{contents}</CommunicationProvider>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -79,6 +85,13 @@ const styles = StyleSheet.create({
     paddingBottom: tokens.spacing.xxl,
   },
   header: { width: '100%', alignSelf: 'center' },
-  footer: { width: '100%', alignSelf: 'center', padding: 12, backgroundColor: tokens.color.surface, borderTopWidth: 1, borderColor: tokens.color.borderSubtle },
+  footer: {
+    width: '100%',
+    alignSelf: 'center',
+    padding: 12,
+    backgroundColor: tokens.color.surface,
+    borderTopWidth: 1,
+    borderColor: tokens.color.borderSubtle,
+  },
   body: { flexShrink: 1, gap: tokens.spacing.md },
 });

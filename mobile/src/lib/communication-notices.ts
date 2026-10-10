@@ -13,7 +13,9 @@ export function noticeHref(notice: Notice): Href | undefined {
       ? { pathname: '/hire/request/status', params: { requestId: notice.targetId } }
       : { pathname: '/provider/request/[requestId]', params: { requestId: notice.targetId } };
   if (notice.targetKind?.startsWith('event_'))
-    return isEventsClientEnabled() ? { pathname: '/events/[eventId]', params: { eventId: notice.targetId } } : undefined;
+    return isEventsClientEnabled()
+      ? { pathname: '/events/[eventId]', params: { eventId: notice.targetId } }
+      : undefined;
   if (notice.targetKind?.startsWith('group_')) return '/groups';
   if (notice.targetKind?.startsWith('marketplace_')) return '/marketplace';
   if (notice.targetKind?.startsWith('agency_') || notice.targetKind?.startsWith('broadcast_'))
@@ -23,8 +25,12 @@ export function noticeHref(notice: Notice): Href | undefined {
 }
 
 export function isPriorityNotice(notice: Notice) {
-  return notice.priority === 'high' || notice.priority === 'critical' || notice.priority === 'emergency'
-    || notice.targetKind === 'job_safety_updated';
+  return (
+    notice.priority === 'high' ||
+    notice.priority === 'critical' ||
+    notice.priority === 'emergency' ||
+    notice.targetKind === 'job_safety_updated'
+  );
 }
 
 // A bounded, session-scoped deduplication record persists across screen navigation.
@@ -34,14 +40,28 @@ export function createNoticeTracker() {
   let initialized = false;
   let seen = new Set<string>();
   return {
-    reset() { owner = undefined; initialized = false; seen.clear(); },
+    reset() {
+      owner = undefined;
+      initialized = false;
+      seen.clear();
+    },
     receive(session: string, notices: Notice[], now = Date.now()) {
-      if (owner !== session) { owner = session; initialized = false; seen.clear(); }
-      const fresh = initialized ? notices.filter((notice) =>
-        !seen.has(notice.id) && !notice.readAt && isPriorityNotice(notice)
-        && Number.isFinite(Date.parse(notice.createdAt))
-        && Date.parse(notice.createdAt) <= now && now - Date.parse(notice.createdAt) < 120000
-      ) : [];
+      if (owner !== session) {
+        owner = session;
+        initialized = false;
+        seen.clear();
+      }
+      const fresh = initialized
+        ? notices.filter(
+            (notice) =>
+              !seen.has(notice.id) &&
+              !notice.readAt &&
+              isPriorityNotice(notice) &&
+              Number.isFinite(Date.parse(notice.createdAt)) &&
+              Date.parse(notice.createdAt) <= now &&
+              now - Date.parse(notice.createdAt) < 120000,
+          )
+        : [];
       initialized = true;
       seen = new Set([...seen, ...notices.map((notice) => notice.id)].slice(-500));
       return fresh.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)).slice(-3);

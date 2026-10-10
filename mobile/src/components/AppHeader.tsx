@@ -1,7 +1,7 @@
 import { IconButton } from '@/components/IconButton';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback, type ReactNode } from 'react';
-import { BackHandler, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Keyboard, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CommunicationActions } from '@/components/CommunicationActions';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { tokens } from '@/theme/tokens';
@@ -26,6 +26,8 @@ export function AppHeader({
   homeHeader?: ReactNode;
 }) {
   const pathname = usePathname();
+  const { width, fontScale } = useWindowDimensions();
+  const stacked = width < 360 || fontScale >= 1.3;
   const root = pathname === '/home' || pathname === '/';
   useFocusEffect(
     useCallback(() => {
@@ -56,7 +58,7 @@ export function AppHeader({
           ))
         : null}
       {!root ? (
-        <View style={styles.titleRow}>
+        <View style={[styles.titleRow, stacked && styles.titleRowStacked]}>
           <IconButton
             icon="arrow-back"
             label="Go back"
@@ -65,12 +67,21 @@ export function AppHeader({
             }
             onPress={onBack ?? navigateBack}
           />
-          {showTitle ? (
+          {showTitle && !stacked ? (
             <Text accessibilityRole="header" style={styles.title}>
               {title}
             </Text>
           ) : null}
-          {showActions ? <CommunicationActions /> : null}
+          {showActions ? (
+            <View style={stacked ? styles.actionsStacked : undefined}>
+              <CommunicationActions />
+            </View>
+          ) : null}
+          {showTitle && stacked ? (
+            <Text accessibilityRole="header" style={styles.titleStacked}>
+              {title}
+            </Text>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -85,6 +96,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.sm },
+  titleRowStacked: { flexWrap: 'wrap' },
+  titleStacked: { width: '100%', ...typography.section, color: tokens.color.textPrimary },
+  actionsStacked: { marginLeft: 'auto' },
   homeRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.sm },
   brand: { flex: 1, minWidth: 0 },
   title: { flex: 1, flexShrink: 1, ...typography.section, color: tokens.color.textPrimary },

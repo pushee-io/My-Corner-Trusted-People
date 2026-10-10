@@ -5,18 +5,38 @@ import { IconButton } from '@/components/IconButton';
 import type { Notice } from '@/lib/messaging';
 import { tokens } from '@/theme/tokens';
 
-export function NoticeToast({ notice, onOpen, onDismiss }: { notice: Notice; onOpen: () => void; onDismiss: () => void }) {
+type ToastProps = { notice: Notice; onOpen: () => void; onDismiss: () => void };
+
+export function NoticeToastOverlay(props: ToastProps) {
+  return (
+    <View pointerEvents="box-none" style={styles.overlay}>
+      <NoticeToast key={props.notice.id} {...props} />
+    </View>
+  );
+}
+
+export function NoticeToast({ notice, onOpen, onDismiss }: ToastProps) {
   const offset = useRef(new Animated.Value(0)).current;
   const [reduceMotion, setReduceMotion] = useState(true);
   const closing = useRef(false);
   useEffect(() => {
     let active = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((value) => { if (active) setReduceMotion(value); }).catch(() => {});
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => {
+        if (active) setReduceMotion(value);
+      })
+      .catch(() => {});
     const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => { active = false; listener.remove(); };
+    return () => {
+      active = false;
+      listener.remove();
+    };
   }, []);
   useEffect(() => {
-    if (reduceMotion) { offset.setValue(0); return; }
+    if (reduceMotion) {
+      offset.setValue(0);
+      return;
+    }
     offset.setValue(-140);
     const animation = Animated.timing(offset, { toValue: 0, duration: 220, useNativeDriver: true });
     animation.start();
@@ -25,7 +45,10 @@ export function NoticeToast({ notice, onOpen, onDismiss }: { notice: Notice; onO
   const dismiss = useCallback(() => {
     if (closing.current) return;
     closing.current = true;
-    if (reduceMotion) { onDismiss(); return; }
+    if (reduceMotion) {
+      onDismiss();
+      return;
+    }
     Animated.timing(offset, { toValue: -180, duration: 170, useNativeDriver: true }).start(({ finished }) => {
       if (finished) onDismiss();
     });
@@ -33,27 +56,59 @@ export function NoticeToast({ notice, onOpen, onDismiss }: { notice: Notice; onO
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    void AccessibilityInfo.isScreenReaderEnabled().then((enabled) => {
-      if (!stopped && !enabled) timer = setTimeout(dismiss, 8000);
-    }).catch(() => { if (!stopped) timer = setTimeout(dismiss, 8000); });
-    return () => { stopped = true; clearTimeout(timer); offset.stopAnimation(); };
+    void AccessibilityInfo.isScreenReaderEnabled()
+      .then((enabled) => {
+        if (!stopped && !enabled) timer = setTimeout(dismiss, 8000);
+      })
+      .catch(() => {
+        if (!stopped) timer = setTimeout(dismiss, 8000);
+      });
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      offset.stopAnimation();
+    };
   }, [dismiss, offset]);
-  const pan = useMemo(() => PanResponder.create({
-    onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dy) > 8,
-    onPanResponderMove: (_event, gesture) => { if (!reduceMotion) offset.setValue(Math.min(0, gesture.dy)); },
-    onPanResponderRelease: (_event, gesture) => {
-      if (Math.abs(gesture.dy) > 35 || Math.abs(gesture.vy) > 0.5) dismiss();
-      else Animated.timing(offset, { toValue: 0, duration: reduceMotion ? 0 : 150, useNativeDriver: true }).start();
-    },
-    onPanResponderTerminate: () => offset.setValue(0),
-  }), [dismiss, offset, reduceMotion]);
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dy) > 8,
+        onPanResponderMove: (_event, gesture) => {
+          if (!reduceMotion) offset.setValue(Math.min(0, gesture.dy));
+        },
+        onPanResponderRelease: (_event, gesture) => {
+          if (Math.abs(gesture.dy) > 35 || Math.abs(gesture.vy) > 0.5) dismiss();
+          else Animated.timing(offset, { toValue: 0, duration: reduceMotion ? 0 : 150, useNativeDriver: true }).start();
+        },
+        onPanResponderTerminate: () => offset.setValue(0),
+      }),
+    [dismiss, offset, reduceMotion],
+  );
   return (
-    <Animated.View {...pan.panHandlers} style={[styles.toast, notice.priority === 'emergency' && styles.emergency, { transform: [{ translateY: offset }] }]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Open update: ${notice.title}`}
-        onPress={onOpen} style={styles.content}>
-        <Ionicons name={notice.priority === 'emergency' ? 'alert-circle-outline' : 'notifications-outline'} size={24} color={tokens.color.primary} accessible={false} />
+    <Animated.View
+      {...pan.panHandlers}
+      style={[
+        styles.toast,
+        notice.priority === 'emergency' && styles.emergency,
+        { transform: [{ translateY: offset }] },
+      ]}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Open update: ${notice.title}`}
+        onPress={onOpen}
+        style={styles.content}
+      >
+        <Ionicons
+          name={notice.priority === 'emergency' ? 'alert-circle-outline' : 'notifications-outline'}
+          size={24}
+          color={tokens.color.primary}
+          accessible={false}
+        />
         <View style={styles.copy}>
-          <Text accessibilityRole="alert" style={styles.title}>{notice.title}</Text>
+          <Text accessibilityRole="alert" style={styles.title}>
+            {notice.title}
+          </Text>
           <Text style={styles.body}>Open to view this update.</Text>
         </View>
       </Pressable>
@@ -62,7 +117,23 @@ export function NoticeToast({ notice, onOpen, onDismiss }: { notice: Notice; onO
   );
 }
 const styles = StyleSheet.create({
-  toast: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: tokens.color.surface, borderWidth: 1, borderLeftWidth: 4, borderColor: tokens.color.primary, borderRadius: 16, padding: 8, elevation: 8, shadowColor: '#102A43', shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 4 } },
+  overlay: { position: 'absolute', top: 4, left: 12, right: 12, zIndex: 1000, elevation: 10 },
+  toast: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderColor: tokens.color.primary,
+    borderRadius: 16,
+    padding: 8,
+    elevation: 8,
+    shadowColor: '#102A43',
+    shadowOpacity: 0.14,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+  },
   emergency: { borderColor: tokens.color.error },
   content: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4, minHeight: 56 },
   copy: { flex: 1, gap: 2 },

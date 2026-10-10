@@ -57,8 +57,8 @@ for (const scenario of [
   { name: 'ask-phone', width: 390, height: 844, ask: true },
   { name: 'ask-compact', width: 320, height: 900, ask: true },
   { name: 'ask-large-text', width: 390, height: 1200, scale: 1.6, ask: true },
-  { name: 'trust-phone', width: 390, height: 760, component: 'trust' },
-  { name: 'feed-actions', width: 390, height: 760, component: 'feed' },
+  { name: 'trust-phone', width: 390, height: 760, component: 'trust', route: '/hire/provider/fixture' },
+  { name: 'feed-actions', width: 390, height: 760, component: 'feed', route: '/community' },
   { name: 'focused-form', width: 390, height: 760, component: 'form', route: '/hire/request/new' },
   { name: 'critical-toast', width: 390, height: 760, component: 'toast' },
   { name: 'ai-thinking', width: 390, height: 430, motion: 'thinking', character: 'older-man' },
@@ -174,15 +174,18 @@ for (const scenario of [
             height: scenario.height,
             fontScale: scenario.scale ?? 1,
           }),
-          StyleSheet: {
-            ...Native.StyleSheet,
-            create: (styles) => {
-              if (scenario.scale)
-                for (const style of Object.values(styles))
-                  for (const key of ['fontSize', 'lineHeight'])
-                    if (typeof style[key] === 'number') style[key] *= scenario.scale;
-              return Native.StyleSheet.create(styles);
-            },
+          Text: ({ style, ...props }) => {
+            const resolved = Native.StyleSheet.flatten(style) ?? {};
+            return h(Native.Text, {
+              ...props,
+              style: [
+                style,
+                scenario.scale ? {
+                  fontSize: (resolved.fontSize ?? 14) * scenario.scale,
+                  lineHeight: (resolved.lineHeight ?? (resolved.fontSize ?? 14) * 1.4) * scenario.scale,
+                } : null,
+              ],
+            });
           },
         };
       if (name === '@react-native-community/netinfo')
@@ -326,12 +329,8 @@ for (const scenario of [
                   style: { height: 150, borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 },
                 }),
               )
-            : h(loadSource('src/components/NoticeToast.tsx').NoticeToast, {
-                notice: { id: 'fixture-critical', title: 'Emergency neighborhood update', priority: 'emergency' },
-                onOpen: () => {},
-                onDismiss: () => {},
-              });
-    return h(
+            : h(Native.Text, { style: { color: '#526479' } }, 'Neighborhood updates appear here.');
+    const page = h(
       Screen,
       {
         title:
@@ -346,6 +345,18 @@ for (const scenario of [
       },
       body,
     );
+    return scenario.component === 'toast'
+      ? h(
+          Native.View,
+          { style: { flex: 1 } },
+          page,
+          h(loadSource('src/components/NoticeToast.tsx').NoticeToastOverlay, {
+            notice: { id: 'fixture-critical', title: 'Emergency neighborhood update', priority: 'emergency' },
+            onOpen: () => {},
+            onDismiss: () => {},
+          }),
+        )
+      : page;
   };
   const Home = scenario.component
     ? Preview

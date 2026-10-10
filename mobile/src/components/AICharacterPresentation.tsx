@@ -66,7 +66,9 @@ export function AICharacterPresentation({
           width: size,
           height: size,
           transform: [
-            { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, state === 'answer' ? -4 : -2] }) },
+            {
+              translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, state === 'answer' ? -4 : -2] }),
+            },
             { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['-1deg', '1deg'] }) },
           ],
         }}

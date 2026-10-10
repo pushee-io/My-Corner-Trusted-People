@@ -166,10 +166,14 @@ export function VerifiedReviews({ providerId }: { providerId: string }) {
               ? `${data.average.toFixed(1)} out of 5 · ${verifiedReviewCount(data.count)}`
               : 'No verified reviews yet.'}
           </Text>
-          <TrustSignals signals={[
-            { id: 'completed', label: 'Completed My Corner jobs', value: String(data.completedJobs) },
-            ...(data.recommendationPercent !== null ? [{ id: 'recommend', label: 'Would recommend', value: `${data.recommendationPercent}%` }] : []),
-          ]} />
+          <TrustSignals
+            signals={[
+              { id: 'completed', label: 'Completed My Corner jobs', value: String(data.completedJobs) },
+              ...(data.recommendationPercent !== null
+                ? [{ id: 'recommend', label: 'Would recommend', value: `${data.recommendationPercent}%` }]
+                : []),
+            ]}
+          />
           <Text accessibilityRole="header" style={styles.title}>
             Reviews
           </Text>
