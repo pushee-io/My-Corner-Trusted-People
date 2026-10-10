@@ -1,3 +1,10 @@
+jest.mock('@/components/AICharacterPresentation', () => ({ AICharacterPresentation: 'AnimatedCharacter' }));
+jest.mock('@/hooks/useAICharacter', () => ({
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { router } from 'expo-router';
@@ -7,8 +14,11 @@ import {
   HomeHeader,
   HomeMarketplaceShowcase,
   HomeBroadcastPreview,
+  HomeGroupsPreview,
+  HomeEventsPreview,
 } from '@/components/HomeDashboard';
 jest.mock('react-native', () => ({
+  useWindowDimensions: () => ({ fontScale: 1 }),
   View: 'View',
   Text: 'Text',
   Image: 'Image',
@@ -18,7 +28,7 @@ jest.mock('react-native', () => ({
   Keyboard: { dismiss: jest.fn() },
   StyleSheet: { create: (s: unknown) => s },
 }));
-jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
+jest.mock('expo-router', () => ({ router: { push: jest.fn() }, useFocusEffect: () => {} }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('../../assets/my-corner-ai/characters/character-woman-kente.png', () => 1);
 jest.mock('@/components/WebSafeLink', () => ({ WebSafeLink: 'Link' }));
@@ -47,7 +57,7 @@ it('puts one send action inside the input row and hands the typed question to As
   expect(router.push).toHaveBeenCalledTimes(1);
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/ask',
-    params: { question: 'Who can repair my sink?', fromHome: '1' },
+    params: { question: 'Who can repair my sink?', fromHome: '1', submission: expect.any(String) },
   });
   expect(field().props.value).toBe('');
 });
@@ -124,4 +134,78 @@ it('opens exact listing and broadcast destinations with real prices and agency i
   });
   expect(JSON.stringify(view.toJSON())).toContain('Authorized agency');
   expect(JSON.stringify(view.toJSON())).not.toContain('Emergency');
+});
+
+it('opens the dedicated AI experience without sending a blank question', async () => {
+  await act(async () => {
+    view = create(createElement(HomeAICard, { available: true, loading: false }));
+  });
+  await act(async () => button('Open Ask My Corner AI').props.onPress());
+  expect(router.push).toHaveBeenCalledWith('/ask');
+});
+it('blocks rapid duplicate Home send taps before React rerenders', async () => {
+  await act(async () => {
+    view = create(createElement(HomeAICard, { available: true, loading: false }));
+  });
+  await act(async () => view.root.findByType('TextInput' as never).props.onChangeText('Who can help me?'));
+  const send = button('Send neighborhood question').props.onPress;
+  await act(async () => {
+    send();
+    send();
+  });
+  expect(router.push).toHaveBeenCalledTimes(1);
+});
+
+it('shows the brand, location pin and full-art animated character presentation', async () => {
+  await act(async () => {
+    view = create(createElement(HomeHeader, { location: 'Osu · Accra' }));
+  });
+  expect(JSON.stringify(view.toJSON())).toContain('Trusted People');
+  expect(view.root.findAllByType('Icon' as never).some((node) => node.props.name === 'location-sharp')).toBe(true);
+  await act(async () => {
+    view.update(createElement(HomeAICard, { available: true, loading: false }));
+  });
+  expect(view.root.findByType('AnimatedCharacter' as never).props.character.full).toBeDefined();
+});
+
+it('shows group content and event dates with exact detail destinations', async () => {
+  await act(async () => {
+    view = create(
+      createElement(HomeGroupsPreview, {
+        groups: [
+          { id: 'group', name: 'Garden neighbors', description: 'Grow together', memberCount: 0, isMember: false },
+        ] as never,
+      }),
+    );
+  });
+  expect(view.root.findByType('Link' as never).props.href).toEqual({
+    pathname: '/groups/[groupId]',
+    params: { groupId: 'group' },
+  });
+  expect(JSON.stringify(view.toJSON())).toContain('Garden neighbors');
+  expect(JSON.stringify(view.toJSON())).toContain('Grow together');
+  expect(JSON.stringify(view.toJSON())).not.toContain('You’re a member');
+  await act(async () =>
+    view.update(
+      createElement(HomeEventsPreview, {
+        events: [
+          {
+            id: 'event',
+            title: 'Garden meetup',
+            startsAt: '2099-01-01T08:00:00Z',
+            timezone: 'Africa/Accra',
+            areaLabel: 'Osu',
+            isGoing: true,
+          },
+        ],
+      }),
+    ),
+  );
+  expect(view.root.findByType('Link' as never).props.href).toEqual({
+    pathname: '/events/[eventId]',
+    params: { eventId: 'event' },
+  });
+  expect(JSON.stringify(view.toJSON())).toContain('Garden meetup');
+  expect(JSON.stringify(view.toJSON())).toContain('Osu');
+  expect(JSON.stringify(view.toJSON())).toContain('You’re going');
 });

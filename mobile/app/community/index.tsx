@@ -1,3 +1,4 @@
+import { FeedPostActions } from '@/components/FeedPostActions';
 import { Ionicons } from '@expo/vector-icons';
 import { ActionPill } from '@/components/ActionPill';
 import { FeedPostBody } from '@/components/FeedPostBody';
@@ -203,14 +204,17 @@ export default function CommunityFeedScreen() {
 
   if (isLoading) {
     return (
-      <Screen title="Neighborhood feed">
+      <Screen title="Neighborhood feed" showBottomNavigation={!composerExpanded}>
         <LoadingState title="Loading neighborhood feed" />
       </Screen>
     );
   }
 
   return (
-    <Screen title={neighborhood ? `${neighborhood.name} feed` : 'Neighborhood feed'}>
+    <Screen
+      title={neighborhood ? `${neighborhood.name} feed` : 'Neighborhood feed'}
+      showBottomNavigation={!composerExpanded}
+    >
       <OfflineBanner />
       <View style={styles.topRow}>
         <View style={[styles.statusPill, styles[`${realtimeStatus}Status`]]}>
@@ -230,7 +234,7 @@ export default function CommunityFeedScreen() {
         <View style={styles.composer}>
           <View style={styles.composerHeading}>
             <Text accessibilityRole="header" style={styles.label}>
-              Share a local update
+              What’s happening, neighbor?
             </Text>
             <ActionPill
               label="Close composer"
@@ -265,7 +269,7 @@ export default function CommunityFeedScreen() {
         </View>
       ) : (
         <ActionPill
-          label={body || media.drafts.length ? 'Continue your post' : 'Share a local update'}
+          label={body || media.drafts.length ? 'Continue your post' : 'What’s happening, neighbor?'}
           onPress={() => setComposerExpanded(true)}
         />
       )}
@@ -328,10 +332,10 @@ export default function CommunityFeedScreen() {
                         {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
                       </Text>
                     </Pressable>
-                    <ActionPill
-                      label={post.isReported ? 'Reported' : 'Report'}
-                      disabled={post.isReported || busyId === `report-${post.id}`}
-                      onPress={() => reportPost(post.id)}
+                    <FeedPostActions
+                      post={post}
+                      reporting={busyId === `report-${post.id}`}
+                      onReport={() => void reportPost(post.id)}
                     />
                   </View>
 

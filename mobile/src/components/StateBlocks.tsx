@@ -1,5 +1,5 @@
 import { useNetInfo } from '@react-native-community/netinfo';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ActionPill } from '@/components/ActionPill';
 import { Surface } from '@/components/Surface';
 import { isNetworkOffline } from '@/lib/network-status';
@@ -32,7 +32,17 @@ export function ErrorState({ title, body, onRetry }: { title: string; body: stri
 export function LoadingState({ title = 'Loading' }: { title?: string }) {
   return (
     <Surface accessibilityRole="progressbar" accessibilityLabel={title} accessibilityState={{ busy: true }}>
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.loadingRow}>
+        <View
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={styles.brandLoader}
+        >
+          <View style={styles.goldRing} />
+        </View>
+        <Text style={styles.loadingTitle}>{title}</Text>
+      </View>
       <Text style={styles.body}>Please wait while My Corner gets this ready.</Text>
     </Surface>
   );
@@ -71,6 +81,25 @@ export function OfflineBanner({
 }
 
 const styles = StyleSheet.create({
+  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.md },
+  loadingTitle: { ...typography.card, color: tokens.color.textPrimary, flex: 1 },
+  // Static branded progress mark: no animation loop, including with Reduce Motion.
+  brandLoader: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#171C1A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goldRing: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: tokens.color.gold,
+    borderTopColor: '#171C1A',
+  },
   title: { ...typography.card, color: tokens.color.textPrimary },
   body: { ...typography.body, color: tokens.color.textSecondary },
   offlineText: { ...typography.metadata, color: tokens.color.textPrimary },

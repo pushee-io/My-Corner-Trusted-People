@@ -1,3 +1,4 @@
+import { CommunicationProvider, CommunicationOverlay } from '@/components/CommunicationProvider';
 import { CommentsProvider } from '@/components/CollapsibleComments';
 import { AppHeader } from '@/components/AppHeader';
 import { PropsWithChildren, type ReactNode } from 'react';
@@ -17,6 +18,7 @@ export function Screen({
   refreshing = false,
   onBack,
   homeHeader,
+  footer,
 }: PropsWithChildren<{
   title: string;
   showTitle?: boolean;
@@ -25,20 +27,23 @@ export function Screen({
   refreshing?: boolean;
   onBack?: () => void;
   homeHeader?: ReactNode;
+  footer?: ReactNode;
 }>) {
   const { width } = useWindowDimensions();
   const pathname = usePathname();
   const showTabs = showBottomNavigation && !isFocusedForm(pathname);
   const contentWidth = width >= 840 ? 760 : width >= 600 ? 560 : undefined;
 
-  return (
+  const contents = (
     <CommentsProvider>
       <SafeAreaView style={styles.safe}>
         <View style={[styles.header, contentWidth ? { maxWidth: contentWidth } : null]}>
           <AppHeader
             title={title}
             showTitle={showTitle}
-            showActions={showTabs}
+            showActions={
+              !['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname)
+            }
             onBack={onBack}
             homeHeader={homeHeader}
           />
@@ -55,9 +60,18 @@ export function Screen({
         >
           <View style={styles.body}>{children}</View>
         </ScrollView>
+        {footer ? (
+          <View style={[styles.footer, contentWidth ? { maxWidth: contentWidth } : null]}>{footer}</View>
+        ) : null}
         {showTabs ? <BottomNavigation /> : null}
+        <CommunicationOverlay />
       </SafeAreaView>
     </CommentsProvider>
+  );
+  return ['/', '/sign-in', '/create-account', '/forgot-password', '/reset-password'].includes(pathname) ? (
+    contents
+  ) : (
+    <CommunicationProvider>{contents}</CommunicationProvider>
   );
 }
 
@@ -71,5 +85,13 @@ const styles = StyleSheet.create({
     paddingBottom: tokens.spacing.xxl,
   },
   header: { width: '100%', alignSelf: 'center' },
+  footer: {
+    width: '100%',
+    alignSelf: 'center',
+    padding: 12,
+    backgroundColor: tokens.color.surface,
+    borderTopWidth: 1,
+    borderColor: tokens.color.borderSubtle,
+  },
   body: { flexShrink: 1, gap: tokens.spacing.md },
 });

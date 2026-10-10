@@ -4,6 +4,7 @@ module.exports = {
   // Native cache contract tests exercise SecureStore's real JS validation.
   transformIgnorePatterns: ['node_modules/(?!expo-secure-store/)'],
   moduleNameMapper: {
+    '\\.(png|jpg|jpeg)$': '<rootDir>/src/test-support/image-mock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {

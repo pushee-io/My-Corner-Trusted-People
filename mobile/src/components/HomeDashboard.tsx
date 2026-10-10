@@ -1,13 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router, type Href } from 'expo-router';
-import { useState, type PropsWithChildren } from 'react';
+import { router, useFocusEffect, type Href } from 'expo-router';
+import { useCallback, useRef, useState, type PropsWithChildren } from 'react';
 import { Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AICharacterPresentation } from '@/components/AICharacterPresentation';
+import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
+import { CommunicationActions } from '@/components/CommunicationActions';
+import { useAICharacter } from '@/hooks/useAICharacter';
 import { IconButton } from '@/components/IconButton';
 import { WebSafeLink } from '@/components/WebSafeLink';
 import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { tokens } from '@/theme/tokens';
 import type { MarketplaceListing, NeighborhoodFeedPost } from '@/types/contracts';
 import type { AgencyBroadcast } from '@/types/day3';
+import type { HomeGroup, HomeEvent } from '@/lib/home-dashboard';
+import { formatEventDate } from '@/lib/events-format';
 
 export function HomeHeader({
   location,
@@ -21,27 +27,13 @@ export function HomeHeader({
   return (
     <View style={styles.header}>
       <View style={styles.brand}>
-        <Text accessibilityRole="header" style={styles.brandName}>
-          My Corner
-        </Text>
-        <Text style={styles.metadata}>{location}</Text>
+        <View style={styles.location}>
+          <Ionicons name="location-sharp" size={14} color={tokens.color.primary} accessible={false} />
+          <Text style={styles.metadata}>{location}</Text>
+        </View>
+        <MyCornerLogo home />
       </View>
-      <View style={styles.actions}>
-        <IconButton
-          icon="chatbubble-outline"
-          label={unread === undefined ? 'Messages' : `Messages, ${unread} unread`}
-          count={unread}
-          onPress={() => router.push('/messages')}
-        />
-        <IconButton
-          icon="notifications-outline"
-          label={
-            notifications === undefined ? 'Notifications' : `Notifications, ${notifications} unread recent updates`
-          }
-          count={notifications}
-          onPress={() => router.push('/notifications')}
-        />
-      </View>
+      <CommunicationActions unread={unread} notifications={notifications} />
     </View>
   );
 }
@@ -55,25 +47,37 @@ export function HomeAICard({
   available: boolean;
   loading: boolean;
 }) {
+  const { character } = useAICharacter();
+  const navigating = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      navigating.current = false;
+    }, []),
+  );
   const [question, setQuestion] = useState('');
   const enabled = available && question.trim().length >= 3;
   function send() {
-    if (!enabled) return;
+    if (!enabled || navigating.current) return;
+    navigating.current = true;
     Keyboard.dismiss();
-    router.push({ pathname: '/ask', params: { question: question.trim().slice(0, 600), fromHome: '1' } });
+    router.push({
+      pathname: '/ask',
+      params: { question: question.trim().slice(0, 600), fromHome: '1', submission: String(Date.now()) },
+    });
     setQuestion('');
   }
   return (
     <View style={styles.aiCard}>
-      <View style={styles.aiHeading}>
-        <View style={styles.character}>
-          <Image
-            source={require('../../assets/my-corner-ai/characters/character-woman-kente.png')}
-            style={styles.characterPortrait}
-            resizeMode="contain"
-            accessibilityLabel="My Corner AI character"
-          />
-        </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Open Ask My Corner AI"
+        onPress={() => {
+          Keyboard.dismiss();
+          router.push('/ask');
+        }}
+        style={styles.aiHeading}
+      >
+        <AICharacterPresentation character={character} />
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>
             Ask My Corner AI
@@ -86,7 +90,7 @@ export function HomeAICard({
                 : 'Neighborhood AI is currently unavailable.'}
           </Text>
         </View>
-      </View>
+      </Pressable>
       <View style={styles.aiInputRow}>
         <TextInput
           accessibilityLabel="Ask My Corner AI question"
@@ -251,6 +255,71 @@ export function HomeMarketplaceShowcase({ listings }: { listings: MarketplaceLis
   );
 }
 
+export function HomeGroupsPreview({ groups }: { groups: HomeGroup[] }) {
+  return (
+    <View style={styles.previewList}>
+      {groups.map((group) => (
+        <WebSafeLink key={group.id} href={{ pathname: '/groups/[groupId]', params: { groupId: group.id } }} asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open group: ${group.name}`}
+            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+          >
+            {group.image ? (
+              <Thumbnail uri={group.image} label={group.name} style={styles.thumbnail} />
+            ) : (
+              <View style={styles.previewIcon}>
+                <Ionicons name="people-outline" size={26} color={tokens.color.primary} accessible={false} />
+              </View>
+            )}
+            <View style={[styles.flex, styles.previewCopy]}>
+              <Text numberOfLines={2} style={styles.previewTitle}>
+                {group.name}
+              </Text>
+              <Text numberOfLines={2} style={styles.metadata}>
+                {group.description}
+              </Text>
+              <Text style={styles.link}>
+                {group.memberCount} members{group.isMember ? ' · You’re a member' : ''}
+              </Text>
+            </View>
+          </Pressable>
+        </WebSafeLink>
+      ))}
+    </View>
+  );
+}
+
+export function HomeEventsPreview({ events }: { events: HomeEvent[] }) {
+  return (
+    <View style={styles.previewList}>
+      {events.map((event) => (
+        <WebSafeLink key={event.id} href={{ pathname: '/events/[eventId]', params: { eventId: event.id } }} asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open event: ${event.title}`}
+            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+          >
+            <View style={[styles.previewIcon, styles.eventIcon]}>
+              <Ionicons name="calendar-outline" size={26} color={tokens.color.primary} accessible={false} />
+            </View>
+            <View style={[styles.flex, styles.previewCopy]}>
+              <Text style={styles.link}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+              <Text numberOfLines={2} style={styles.previewTitle}>
+                {event.title}
+              </Text>
+              <Text numberOfLines={2} style={styles.metadata}>
+                {event.areaLabel}
+              </Text>
+              {event.isGoing ? <Text style={styles.link}>You’re going</Text> : null}
+            </View>
+          </Pressable>
+        </WebSafeLink>
+      ))}
+    </View>
+  );
+}
+
 export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast }) {
   return (
     <WebSafeLink href={{ pathname: '/agency-broadcasts', params: { broadcastId: broadcast.id } }} asChild>
@@ -281,15 +350,13 @@ export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
   brand: { flexGrow: 1, flexShrink: 1, minWidth: 150 },
-  brandName: { color: tokens.color.primary, fontSize: 23, lineHeight: 29, fontWeight: '800' },
+  location: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
   metadata: { color: tokens.color.textSecondary, fontSize: 13, lineHeight: 19 },
   caption: { color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   flex: { flex: 1, minWidth: 0 },
   aiCard: { backgroundColor: '#144C43', borderRadius: 16, padding: 12, gap: 10 },
   aiHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  character: { width: 54, height: 60, borderRadius: 12, overflow: 'hidden' },
-  characterPortrait: { width: 82, height: 112, position: 'absolute', top: 0, left: -14 },
   aiTitle: { color: '#FFFFFF', fontSize: 18, lineHeight: 24, fontWeight: '700' },
   aiGreeting: { color: '#FFFFFF', fontSize: 14, lineHeight: 20 },
   aiInputRow: {
@@ -322,11 +389,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     flex: 1,
-    color: tokens.color.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
-    letterSpacing: 0.8,
-    fontWeight: '700',
+    color: tokens.color.ink,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.7,
+    fontWeight: '800',
   },
   card: {
     backgroundColor: tokens.color.surface,
@@ -357,6 +424,20 @@ const styles = StyleSheet.create({
   listingText: { padding: 8, gap: 4 },
   price: { color: tokens.color.primary, fontSize: 13, lineHeight: 19, fontWeight: '700' },
   broadcast: { backgroundColor: '#F6F8F5' },
+  previewList: { gap: 8 },
+  previewRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  previewCopy: { gap: 4 },
+  previewTitle: { color: tokens.color.textPrimary, fontSize: 15, lineHeight: 21, fontWeight: '700' },
+  previewIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#EAF4EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventIcon: { backgroundColor: '#F5F0E5' },
+  previewPressed: { backgroundColor: tokens.color.surfacePressed },
   megaphone: {
     width: 40,
     height: 40,

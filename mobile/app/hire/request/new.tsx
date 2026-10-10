@@ -187,7 +187,20 @@ export default function NewRequestScreen() {
   }
 
   return (
-    <Screen title="Create request">
+    <Screen
+      title="Create request"
+      footer={
+        <Pressable
+          accessibilityRole="button"
+          disabled={submission.busy || media.busy || !acknowledgementAccepted}
+          accessibilityState={{ disabled: submission.busy || media.busy || !acknowledgementAccepted }}
+          onPress={reviewRequest}
+          style={[styles.button, (submission.busy || media.busy || !acknowledgementAccepted) && { opacity: 0.55 }]}
+        >
+          <Text style={styles.buttonText}>Review request</Text>
+        </Pressable>
+      }
+    >
       <OfflineBanner />
       <Text style={styles.summary}>
         Requesting {category?.name ?? 'help'} from{' '}
@@ -278,6 +291,8 @@ export default function NewRequestScreen() {
           <Pressable
             key={option.value}
             disabled={editingDisabled}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: urgency === option.value, disabled: editingDisabled }}
             onPress={() => setUrgency(option.value)}
             style={[styles.chip, urgency === option.value ? styles.chipSelected : null]}
           >
@@ -292,6 +307,8 @@ export default function NewRequestScreen() {
           <Pressable
             key={option.value}
             disabled={editingDisabled}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: contactPreference === option.value, disabled: editingDisabled }}
             onPress={() => setContactPreference(option.value)}
             style={[styles.chip, contactPreference === option.value ? styles.chipSelected : null]}
           >
@@ -312,17 +329,11 @@ export default function NewRequestScreen() {
         disabled={submission.busy}
       />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <Pressable
-        accessibilityRole="button"
-        disabled={submission.busy || media.busy || !acknowledgementAccepted}
-        accessibilityState={{ disabled: submission.busy || media.busy || !acknowledgementAccepted }}
-        onPress={reviewRequest}
-        style={[styles.button, (submission.busy || media.busy || !acknowledgementAccepted) && { opacity: 0.55 }]}
-      >
-        <Text style={styles.buttonText}>Review request</Text>
-      </Pressable>
+      {error ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
     </Screen>
   );
 }
@@ -335,7 +346,7 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
     borderWidth: 1,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.control,
     padding: tokens.spacing.md,
     fontSize: tokens.type.body,
   },
@@ -343,7 +354,7 @@ const styles = StyleSheet.create({
   readonly: {
     padding: tokens.spacing.md,
     backgroundColor: '#EEF7F4',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.control,
     color: tokens.color.textPrimary,
   },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.sm },
@@ -363,7 +374,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: tokens.color.primary,
     padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.control,
   },
   buttonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: '700' },
   secondaryButton: {
@@ -372,7 +383,7 @@ const styles = StyleSheet.create({
     borderColor: tokens.color.primary,
     borderWidth: 1,
     padding: tokens.spacing.md,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.control,
   },
   secondaryText: { color: tokens.color.primary, textAlign: 'center', fontWeight: '700' },
   error: { color: tokens.color.error, fontWeight: '700' },

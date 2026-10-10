@@ -118,10 +118,11 @@ Use this information hierarchy:
 4. **Hire Trusted Local Help**
 5. **Latest Feed Updates**
 6. **Marketplace Showcase**
-7. **Agency Broadcast Preview**
-8. **Compact Request Status**
-9. **Optional Groups / Events preview if useful**
-10. **Bottom Navigation**
+7. **Groups Preview**
+8. **Events Preview**
+9. **Agency Broadcast Preview**
+10. **Compact Request Status**
+11. **Bottom Navigation**
 
 The page should feel like a **neighborhood dashboard**.
 
@@ -478,24 +479,29 @@ not duplicate navigation.
 
 # 9. GROUPS / EVENTS
 
-Do not necessarily remove Groups and Events entirely from Home.
+Founder correction, 2026-10-10: Groups and Events are required full Home dashboard preview sections, in the same content hierarchy as Feed, Marketplace and Agency Broadcast.
 
-If included, they should appear as **useful content previews**, not static menu icons.
+Required order:
 
-Examples:
+1. LATEST FEED UPDATES
+2. MARKETPLACE SHOWCASE
+3. GROUPS
+4. EVENTS
+5. AGENCY BROADCAST
 
-```text
-Upcoming near you
+Each section must include:
 
-East Legon Community Cleanup — Saturday
-Running Club — 7 AM
-```
+- a bold section heading and chevron / View All affordance
+- real authorized content previews in premium compact cards
+- tap-through to the exact group or event detail
+- a section action opening the existing Groups or Events route
+- a polished empty state when no data exists
 
-Use real authorized data.
+Groups show a group image/icon, name and authorized aggregate member or activity context. Never expose private membership identities or group posts merely to fill Home.
 
-Keep the section compact.
+Events show a title, date/time, safe coarse location and icon/image, plus the current viewer's attendance state where supplied. Preserve the existing Events feature gate; an unavailable state must not bypass it. Never show private addresses in Home previews.
 
-If there is no useful current content, do not force the section into the Home page.
+Do not replace these sections with simple navigation icons, static menu rows, feature-directory buttons or shortcut pills. Do not insert fake production content. Keep Agency Broadcast's premium treatment below both sections and keep request status compact.
 
 ---
 

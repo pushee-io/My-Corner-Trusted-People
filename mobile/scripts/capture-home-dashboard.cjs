@@ -44,22 +44,143 @@ const listings = ['Garden bench', 'Side table', 'Reading chair'].map((title, i) 
 }));
 for (const scenario of [
   { name: 'phone', width: 390, height: 844 },
+  { name: 'home-full', width: 390, height: 1900 },
+  { name: 'home-empty-full', width: 390, height: 1500, empty: true },
+  { name: 'events-disabled', width: 390, height: 1900, eventsDisabled: true },
   { name: 'compact', width: 320, height: 760 },
   { name: 'tablet', width: 840, height: 1100 },
   { name: 'large-text', width: 390, height: 1100, scale: 1.6 },
   { name: 'empty', width: 390, height: 844, empty: true },
   { name: 'error', width: 390, height: 844, error: true },
+  { name: 'search-phone', width: 390, height: 844, page: 'app/search.tsx', route: '/search' },
+  { name: 'messages-phone', width: 390, height: 844, page: 'app/messages.tsx', route: '/messages' },
+  { name: 'notifications-phone', width: 390, height: 844, page: 'app/notifications.tsx', route: '/notifications' },
+  { name: 'settings-phone', width: 390, height: 844, page: 'app/settings.tsx', route: '/settings' },
+  { name: 'settings-compact', width: 320, height: 900, page: 'app/settings.tsx', route: '/settings' },
+  { name: 'ask-phone', width: 390, height: 844, ask: true },
+  { name: 'ask-compact', width: 320, height: 900, ask: true },
+  { name: 'ask-large-text', width: 390, height: 1200, scale: 1.6, ask: true },
+  { name: 'hire-categories', width: 390, height: 844, page: 'app/hire/categories.tsx', route: '/hire/categories' },
+  { name: 'hire-providers', width: 390, height: 1000, page: 'app/hire/providers.tsx', route: '/hire/providers' },
+  { name: 'trust-phone', width: 390, height: 760, component: 'trust', route: '/hire/provider/fixture' },
+  { name: 'feed-actions', width: 390, height: 760, component: 'feed', route: '/community' },
+  { name: 'focused-form', width: 390, height: 760, component: 'form', route: '/hire/request/new' },
+  { name: 'critical-toast', width: 390, height: 760, component: 'toast' },
+  { name: 'ai-thinking', width: 390, height: 430, motion: 'thinking', character: 'older-man' },
+  { name: 'ai-answer', width: 390, height: 430, motion: 'answer', character: 'young-man' },
+  { name: 'ai-attention', width: 390, height: 430, motion: 'attention', character: 'woman-purple' },
 ]) {
   const cache = new Map();
   function resource(load) {
     let data;
+    if (typeof load === 'function' && load.name === 'loadCommunicationSnapshot')
+      return {
+        data: {
+          unread: 3,
+          notices: [{ id: 'fixture-unread', title: 'New update', createdAt: '2026-10-10T08:00:00Z' }],
+        },
+        loading: false,
+        refresh: () => {},
+      };
+    if (scenario.page === 'app/hire/providers.tsx' && typeof load === 'function')
+      return {
+        data: load.toString().includes('loadDay2BProvidersByCategory')
+          ? { items: [loadSource('src/lib/mock-data.ts').providers[0]] }
+          : { count: 0, completedJobs: 46, reviews: [] },
+        loading: false,
+        refresh: () => {},
+      };
+    if (load === 'loadInbox')
+      return {
+        data: {
+          conversations: ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'].map((name, i) => ({
+            id: 'fixture-thread-' + i,
+            peerId: 'fixture-peer-' + i,
+            name,
+            preview: 'Thanks, see you at the agreed pickup time.',
+            updatedAt: '2026-10-10T08:00:00Z',
+            unread: i === 0 ? 2 : 0,
+          })),
+        },
+        loading: false,
+        refresh: () => {},
+      };
+    if (load === 'loadNotifications')
+      return {
+        data: [
+          {
+            id: 'fixture-notice',
+            title: 'New message',
+            body: 'You have a new message from your pickup conversation.',
+            targetKind: 'message_received',
+            createdAt: '2026-10-10T08:00:00Z',
+          },
+          {
+            id: 'fixture-read',
+            title: 'Request updated',
+            body: 'Your request status has changed.',
+            targetKind: 'hire_update',
+            readAt: '2026-10-10T08:00:00Z',
+            createdAt: '2026-10-09T08:00:00Z',
+          },
+        ],
+        loading: false,
+        refresh: () => {},
+      };
+    if (scenario.page === 'app/search.tsx' && typeof load === 'function')
+      return { data: [], loading: false, refresh: () => {} };
     if (load === 'getCurrentCapabilities') data = { community: true, neighborhoodId: 'fixture-area' };
     else if (load === 'loadVerifiedNeighborhood') data = { name: 'East Legon', city: 'Accra' };
     else if (load === 'loadAskContext') data = { id: 'fixture-area', name: 'East Legon' };
+    else if (load === 'loadAskQuota') data = undefined;
     else if (load === 'loadUnread') data = { unread: 3 };
     else if (load === 'loadHomeNotificationCount') data = 2;
     else if (load === 'loadHomeFeed') data = scenario.empty ? {} : { post };
     else if (load === 'loadHomeMarketplace') data = scenario.empty ? [] : listings;
+    else if (load === 'loadHomeGroups')
+      data = scenario.empty
+        ? []
+        : [
+            {
+              id: 'fixture-group-garden',
+              name: 'Garden neighbors',
+              description: 'Growing greener streets, together.',
+              memberCount: 24,
+              isMember: true,
+            },
+            {
+              id: 'fixture-group-readers',
+              name: 'Weekend readers',
+              description: 'Good books and neighborhood conversation.',
+              memberCount: 18,
+              isMember: false,
+            },
+          ];
+    else if (load === 'loadHomeEvents')
+      data = {
+        enabled: !scenario.eventsDisabled,
+        events:
+          scenario.empty || scenario.eventsDisabled
+            ? []
+            : [
+                {
+                  id: 'fixture-event',
+                  title: 'Community garden morning',
+                  startsAt: '2026-10-17T08:00:00Z',
+                  timezone: 'Africa/Accra',
+                  areaLabel: 'East Legon · Accra',
+                  isGoing: true,
+                },
+                {
+                  id: 'fixture-event-readers',
+                  title: 'Saturday book exchange',
+                  startsAt: '2026-10-24T10:00:00Z',
+                  timezone: 'Africa/Accra',
+                  areaLabel: 'East Legon · Accra',
+                  isGoing: false,
+                },
+              ],
+      };
     else if (load === 'loadHomeBroadcast')
       data = scenario.empty
         ? undefined
@@ -79,13 +200,26 @@ for (const scenario of [
         })),
         providers: {},
       };
-    const failed = scenario.error && ['loadHomeFeed', 'loadHomeMarketplace', 'loadHomeBroadcast'].includes(load);
+    const failed =
+      scenario.error &&
+      ['loadHomeFeed', 'loadHomeMarketplace', 'loadHomeGroups', 'loadHomeEvents', 'loadHomeBroadcast'].includes(load);
     return {
       data: failed ? undefined : data,
       error: failed ? 'Fixture offline state' : undefined,
       loading: false,
       refresh: () => {},
     };
+  }
+  function scaledTextStyle(style) {
+    if (!scenario.scale) return style;
+    const resolved = Native.StyleSheet.flatten(style) ?? {};
+    return [
+      style,
+      {
+        fontSize: (resolved.fontSize ?? 14) * scenario.scale,
+        lineHeight: (resolved.lineHeight ?? (resolved.fontSize ?? 14) * 1.4) * scenario.scale,
+      },
+    ];
   }
   function loadSource(relative) {
     if (cache.has(relative)) return cache.get(relative);
@@ -110,22 +244,20 @@ for (const scenario of [
             height: scenario.height,
             fontScale: scenario.scale ?? 1,
           }),
-          StyleSheet: {
-            ...Native.StyleSheet,
-            create: (styles) => {
-              if (scenario.scale)
-                for (const style of Object.values(styles))
-                  for (const key of ['fontSize', 'lineHeight'])
-                    if (typeof style[key] === 'number') style[key] *= scenario.scale;
-              return Native.StyleSheet.create(styles);
-            },
-          },
+          Text: (props) => h(Native.Text, { ...props, style: scaledTextStyle(props.style) }),
+          TextInput: (props) => h(Native.TextInput, { ...props, style: scaledTextStyle(props.style) }),
         };
       if (name === '@react-native-community/netinfo')
         return { useNetInfo: () => ({ isConnected: true, isInternetReachable: true }) };
-      if (name === 'react-native-safe-area-context') return { SafeAreaView: Native.View };
+      if (name === 'react-native-safe-area-context')
+        return { SafeAreaView: Native.View, useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) };
       if (name === 'expo-router')
-        return { usePathname: () => '/home', useFocusEffect: () => {}, router: { push: () => {}, navigate: () => {} } };
+        return {
+          usePathname: () => scenario.route ?? (scenario.ask ? '/ask' : '/home'),
+          useLocalSearchParams: () => ({}),
+          useFocusEffect: () => {},
+          router: { push: () => {}, navigate: () => {} },
+        };
       if (name === '@expo/vector-icons')
         return {
           Ionicons: ({ name: icon, size, color }) =>
@@ -146,9 +278,11 @@ for (const scenario of [
         };
       if (name.endsWith('WebSafeLink')) return { WebSafeLink: ({ children }) => children };
       if (name.endsWith('CollapsibleComments')) return { CommentsProvider: ({ children }) => children };
+      if (name.endsWith('MediaThumbnail')) return { MediaThumbnail: () => null };
       if (name.endsWith('MediaAvatar'))
         return {
-          MediaAvatar: ({ name: publicName, size }) =>
+          MediaAvatarCollection: ({ children }) => children,
+          MediaAvatar: ({ name: publicName, size = 44 }) =>
             h(
               Native.View,
               {
@@ -164,6 +298,13 @@ for (const scenario of [
               h(Native.Text, { style: { color: '#0e6b50' } }, publicName[0]),
             ),
         };
+      if (name.endsWith('useAICharacter'))
+        return {
+          useAICharacter: () => ({
+            character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+            selectCharacter: () => {},
+          }),
+        };
       if (name.endsWith('useProtectedResource')) return { useProtectedResource: resource };
       if (name.endsWith('useMessagingResource'))
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
@@ -173,10 +314,23 @@ for (const scenario of [
             'data:image/png;base64,' +
             fs.readFileSync(path.resolve(root, path.dirname(relative), name)).toString('base64'),
         };
+      if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
+      if (name.includes('community-actions') && name.startsWith('@/lib/'))
+        return new Proxy({}, { get: () => () => ({}) });
+      if (name === '@/lib/search-repository') return { searchRepository: { search: () => [] } };
       if (name === '@/lib/events-feature') return { isEventsClientEnabled: () => false };
       if (
         name.startsWith('@/lib/') &&
-        !['@/lib/active-requests', '@/lib/navigation-layout', '@/lib/mock-data'].includes(name)
+        ![
+          '@/lib/active-requests',
+          '@/lib/navigation-layout',
+          '@/lib/mock-data',
+          '@/lib/ai-characters',
+          '@/lib/communication-notices',
+          '@/lib/feed-share',
+          '@/lib/events-format',
+          '@/lib/reputation-signals',
+        ].includes(name)
       )
         return new Proxy({}, { get: (_target, key) => (key === 'previewImage' ? () => undefined : key) });
       if (name.startsWith('@/') || name.startsWith('.')) {
@@ -185,11 +339,106 @@ for (const scenario of [
       }
       return require(name);
     }
-    new Function('require', 'module', 'exports', result.code)(sourceRequire, module, module.exports);
+    new Function('require', 'module', 'exports', '__DEV__', result.code)(sourceRequire, module, module.exports, false);
     cache.set(relative, module.exports);
     return module.exports;
   }
-  const Home = loadSource('app/home.tsx').default;
+  const Preview = () => {
+    const Screen = loadSource('src/components/Screen.tsx').Screen;
+    const signals = [
+      { id: 'phone', label: 'Phone verified', value: 'Yes' },
+      { id: 'jobs', label: 'Completed jobs', value: '12' },
+      { id: 'response', label: 'Response rate', value: '92%' },
+      { id: 'recommend', label: 'Would recommend', value: '100%' },
+    ];
+    const action = h(
+      Native.Pressable,
+      { style: { backgroundColor: '#0E6B50', padding: 16, borderRadius: 12 } },
+      h(Native.Text, { style: { color: 'white', fontWeight: '700', textAlign: 'center' } }, 'Review request'),
+    );
+    const body =
+      scenario.component === 'trust'
+        ? h(
+            Native.View,
+            { style: { gap: 12 } },
+            h(loadSource('src/components/TrustSignals.tsx').VerifiedProviderBadge, { phoneVerified: true }),
+            h(loadSource('src/components/TrustSignals.tsx').TrustSignals, { signals }),
+          )
+        : scenario.component === 'feed'
+          ? h(
+              Native.View,
+              { style: { gap: 16 } },
+              h(Native.Text, { style: { fontSize: 18, fontWeight: '700' } }, 'What’s happening, neighbor?'),
+              h(
+                Native.View,
+                { style: { padding: 16, backgroundColor: 'white', borderRadius: 16, gap: 12 } },
+                h(Native.Text, { style: { fontWeight: '700' } }, post.authorName),
+                h(Native.Text, null, post.body),
+                h(loadSource('src/components/FeedPostActions.tsx').FeedPostActions, {
+                  post: { ...post, moderationStatus: 'clean' },
+                  reporting: false,
+                  onReport: () => {},
+                }),
+              ),
+            )
+          : scenario.component === 'form'
+            ? h(
+                Native.View,
+                { style: { gap: 12 } },
+                h(Native.Text, null, 'Job title'),
+                h(Native.TextInput, {
+                  placeholder: 'What do you need help with?',
+                  style: { borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 },
+                }),
+                h(Native.Text, null, 'Describe your request'),
+                h(Native.TextInput, {
+                  multiline: true,
+                  style: { height: 150, borderWidth: 1, borderColor: '#7A867E', padding: 16, borderRadius: 12 },
+                }),
+              )
+            : h(Native.Text, { style: { color: '#526479' } }, 'Neighborhood updates appear here.');
+    const page = h(
+      Screen,
+      {
+        title:
+          scenario.component === 'form'
+            ? 'Create request'
+            : scenario.component === 'feed'
+              ? 'Neighborhood feed'
+              : scenario.component === 'trust'
+                ? 'Provider trust'
+                : 'Notifications',
+        footer: scenario.component === 'form' ? action : undefined,
+      },
+      body,
+    );
+    return scenario.component === 'toast'
+      ? h(
+          Native.View,
+          { style: { flex: 1 } },
+          page,
+          h(loadSource('src/components/NoticeToast.tsx').NoticeToastOverlay, {
+            notice: { id: 'fixture-critical', title: 'Emergency neighborhood update', priority: 'emergency' },
+            onOpen: () => {},
+            onDismiss: () => {},
+          }),
+        )
+      : page;
+  };
+  const Home = scenario.component
+    ? Preview
+    : scenario.motion
+      ? () =>
+          h(
+            Native.View,
+            { style: { padding: 16, backgroundColor: '#FAFBF9' } },
+            h(loadSource('src/components/AICharacterExperience.tsx').AICharacterExperience, {
+              character: loadSource('src/lib/ai-characters.ts').findAICharacter(scenario.character),
+              selectCharacter: () => {},
+              state: scenario.motion,
+            }),
+          )
+      : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
   const markup = renderToStaticMarkup(element);
@@ -200,7 +449,7 @@ for (const scenario of [
     font +
     ')}@font-face{font-family:MyCornerNavigation;src:url(data:font/ttf;base64,' +
     artwork +
-    ')}html,body{margin:0;height:100%;background:#FBF7EE}body>div{height:100%}</style></head><body>' +
+    ')}html,body{margin:0;height:100%;background:#FAFBF9}body>div{height:100%}</style></head><body>' +
     markup +
     '</body></html>';
   const file = path.join(output, 'home-' + scenario.name + '.html');
@@ -227,10 +476,38 @@ fs.writeFileSync(
   path.join(output, 'evidence.json'),
   JSON.stringify(
     {
-      renderer: 'Actual Home components through React Native Web with test-only fixtures',
+      renderer:
+        'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
       native: false,
       authenticatedData: false,
-      scenarios: ['phone', 'compact', 'tablet', 'large-text', 'empty', 'error'],
+      scenarios: [
+        'hire-categories',
+        'hire-providers',
+        'trust-phone',
+        'feed-actions',
+        'focused-form',
+        'critical-toast',
+        'phone',
+        'home-full',
+        'home-empty-full',
+        'events-disabled',
+        'compact',
+        'tablet',
+        'large-text',
+        'empty',
+        'error',
+        'ask-phone',
+        'ask-compact',
+        'ask-large-text',
+        'ai-thinking',
+        'ai-answer',
+        'ai-attention',
+        'search-phone',
+        'messages-phone',
+        'notifications-phone',
+        'settings-phone',
+        'settings-compact',
+      ],
     },
     null,
     2,

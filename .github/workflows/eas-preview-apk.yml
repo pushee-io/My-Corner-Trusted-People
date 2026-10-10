@@ -28,7 +28,7 @@ on:
       existing_build_id:
         description: 'Existing completed EAS build ID to inspect without starting a new build'
         required: false
-        default: '1597cda3-24a0-4a17-91a6-4b41765c2c77'
+        default: ''
         type: string
 
 permissions:
@@ -102,8 +102,8 @@ jobs:
         run: |
           npx --yes eas-cli@22.6.0 build:list --platform android --build-profile preview --limit 50 --json --non-interactive > "${RUNNER_TEMP}/existing-preview-builds.json"
           jq '[.[] | {id, status, createdAt, gitCommitHash, appBuildVersion}]' "${RUNNER_TEMP}/existing-preview-builds.json"
-          if jq -e 'any(.[]; (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.createdAt >= "2026-09-25T00:00:00Z" and .status == "FINISHED" and .id != "a352ebca-9cee-4155-b564-125df0a67288" and .id != "34e50a41-a32d-42ce-93b7-8baf91518764" and .id != "b30911f6-4b82-47ef-91d2-38e7732cd0e2" and .id != "c7f685a6-6ffc-4463-99ac-626b7f61c8a2" and .id != "b6ea9558-74c4-49fe-9f28-f8a9baed72ff" and .id != "6f96b91b-8358-47e9-ac5d-5aee15058497" and .id != "8608e3fd-fe98-4d7a-88ac-713830f806e9" and .id != "d8716a23-5845-409d-9286-216a49566ce6" and .id != "234dd105-1a06-469e-b16a-c8b42cea6e78" and .id != "56b70a4b-0f0d-4e67-8709-6625a6848192" and .id != "2646d53a-c144-40f2-9b2b-ff5db9e78644" and .id != "63a99013-52d6-4d35-9034-c3869cca6209"))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
-            echo "::error::An active or newer completed Preview build exists. Inspect and reuse it; do not submit a duplicate."
+          if jq -e --arg source "$GITHUB_SHA" 'any(.[]; (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.status == "FINISHED" and .gitCommitHash == $source))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
+            echo "::error::An active Preview build or a finished Preview build for the current source commit exists. Inspect and reuse it; do not submit a duplicate."
             exit 1
           fi
 

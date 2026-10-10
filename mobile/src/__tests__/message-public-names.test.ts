@@ -5,6 +5,7 @@ import { NeighborResults } from '@/components/NeighborResults';
 import PublicNameScreen from '../../app/profile/public-name';
 import { saveOwnPublicName } from '@/lib/messaging';
 
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 let mockData: unknown;
 let mockParams: { conversationId?: string } = {};
 let mockSession = 'one';

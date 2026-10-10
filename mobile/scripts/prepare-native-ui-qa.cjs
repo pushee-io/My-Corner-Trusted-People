@@ -19,6 +19,8 @@ const files = [
     'AppHeader',
     'BottomNavigation',
     'MessagesAccess',
+    'CommunicationActions',
+    'CommunicationContext',
     'AskMyCornerAccess',
     'ActionPill',
     'StateBlocks',
@@ -57,6 +59,7 @@ for (const [revision, ref] of [
       else if (
         name.startsWith('@/hooks/') ||
         name === '@/components/CollapsibleComments' ||
+        name === '@/components/CommunicationProvider' ||
         ['@/lib/capabilities', '@/lib/messaging', '@/lib/neighborhood-assistant', '@/lib/events-feature'].includes(name)
       )
         destination = path.join(out, 'data');
@@ -85,6 +88,8 @@ export const loadUnread = async () => ({unread: 4});
 export const loadAskContext = async () => ({});
 export const isEventsClientEnabled = () => true;
 export const CommentsProvider = ({children}) => children;
+export const CommunicationProvider = ({children}) => children;
+export const CommunicationOverlay = () => null;
 `,
 );
 write(
@@ -171,7 +176,14 @@ write(
       baseline,
       head,
       renderer: 'Android emulator / Expo Go / real native shared components',
-      testDoubles: ['router adapter', 'capabilities', 'unread count', 'network state', 'comments provider'],
+      testDoubles: [
+        'router adapter',
+        'capabilities',
+        'unread count',
+        'network state',
+        'comments provider',
+        'communication provider (no live notices)',
+      ],
       liveData: false,
       fullProductFlowAcceptance: false,
     },

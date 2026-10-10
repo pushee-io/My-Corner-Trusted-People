@@ -1,3 +1,5 @@
+import { TrustSignals, VerifiedProviderBadge } from '@/components/TrustSignals';
+import { MediaAvatar } from '@/components/media/MediaAvatar';
 import { VerifiedReviews } from '@/components/VerifiedReviews';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -105,25 +107,17 @@ export default function ProviderProfileScreen() {
 
   return (
     <Screen title={provider.name}>
-      <Text style={styles.headline}>{provider.headline}</Text>
+      <View style={styles.identity}>
+        <MediaAvatar profileId={provider.profileId} name={provider.name} size={64} />
+        <View style={{ flex: 1, gap: 6 }}>
+          <Text style={styles.headline}>{provider.headline}</Text>
+          <VerifiedProviderBadge phoneVerified={provider.phoneVerified} />
+        </View>
+      </View>
 
       <Text style={styles.body}>
         {provider.neighborhood} · {provider.areaLabel}
       </Text>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Trust signals</Text>
-
-        {provider.trustSignals.map((signal) => (
-          <View key={signal.id} style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {signal.label}: {signal.value}
-            </Text>
-          </View>
-        ))}
-
-        <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
-      </View>
 
       {canStartRequest && selectedCategoryId ? (
         <WebSafeLink
@@ -133,7 +127,7 @@ export default function ProviderProfileScreen() {
           }}
           asChild
         >
-          <Pressable style={styles.button}>
+          <Pressable accessibilityRole="button" style={styles.button}>
             <Text style={styles.buttonText}>Start request</Text>
           </Pressable>
         </WebSafeLink>
@@ -144,6 +138,14 @@ export default function ProviderProfileScreen() {
       )}
 
       <VerifiedReviews key={provider.id} providerId={provider.id} />
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Trust signals</Text>
+
+        <TrustSignals signals={provider.trustSignals} />
+
+        <Text style={styles.note}>Trust signals help you make a decision. They are not a guarantee.</Text>
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Service coverage</Text>
@@ -157,6 +159,7 @@ export default function ProviderProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headline: {
     fontSize: tokens.type.card,
     fontWeight: '700',
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
   section: {
     gap: tokens.spacing.sm,
     backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     borderColor: tokens.color.border,
     padding: tokens.spacing.lg,
@@ -193,9 +196,11 @@ const styles = StyleSheet.create({
     color: tokens.color.textSecondary,
   },
   button: {
+    minHeight: tokens.touch.min,
+    justifyContent: 'center',
     backgroundColor: tokens.color.primary,
     padding: tokens.spacing.lg,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
   },
   buttonText: {
     color: '#FFFFFF',
@@ -204,7 +209,7 @@ const styles = StyleSheet.create({
   },
   unavailableBox: {
     backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     borderColor: tokens.color.border,
     padding: tokens.spacing.lg,

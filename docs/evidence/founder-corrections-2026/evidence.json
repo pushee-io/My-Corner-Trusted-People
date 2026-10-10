@@ -1,0 +1,155 @@
+{
+  "sourceCommit": "90347268bde851618ff06d0753839702195e7eb1",
+  "run": "https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/38041326737",
+  "artifact": "home-dashboard-review",
+  "artifactId": 11666421212,
+  "renderer": "React Native Web server render and headless Chrome",
+  "native": false,
+  "authenticatedData": false,
+  "fixtureOnly": true,
+  "limits": [
+    "Static layout evidence, not animation performance",
+    "Simulated font scale, not OS Dynamic Type",
+    "Component compositions do not prove complete authenticated flows"
+  ],
+  "scenarios": [
+    {
+      "name": "phone",
+      "file": "phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "1e613fdcb15c4f649a9e87100ab71c9f61c0ec21"
+    },
+    {
+      "name": "compact",
+      "file": "compact.png",
+      "kind": "screen-fixture",
+      "blobSha": "49ad65e96584fa64435039c9c0bfb12c994c7938"
+    },
+    {
+      "name": "tablet",
+      "file": "tablet.png",
+      "kind": "screen-fixture",
+      "blobSha": "9cf128b7272f2a76bf2d07b999bfbc798cb5c43b"
+    },
+    {
+      "name": "large-text",
+      "file": "large-text.png",
+      "kind": "screen-fixture",
+      "blobSha": "a020495a853e9d6f28bfaf8d77201da3cb010b71"
+    },
+    {
+      "name": "empty",
+      "file": "empty.png",
+      "kind": "screen-fixture",
+      "blobSha": "47b5bc825462483db8c70da0052b08ec4c671459"
+    },
+    {
+      "name": "error",
+      "file": "error.png",
+      "kind": "screen-fixture",
+      "blobSha": "c38e3fe0dd587706dbd7240a0cb9e0f4b4406ae5"
+    },
+    {
+      "name": "search-phone",
+      "file": "search-phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "7682cada6f2c43625ecf9206e69a9dd114ed6ce8"
+    },
+    {
+      "name": "messages-phone",
+      "file": "messages-phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "1e17760d62f60aab5adca6ecf809619b0c5640e0"
+    },
+    {
+      "name": "notifications-phone",
+      "file": "notifications-phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "5251b21257b53b33994db9b2e2e569bf67a342ea"
+    },
+    {
+      "name": "settings-phone",
+      "file": "settings-phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "048751073150fbeb1a2fd5ac178daf1122d1a613"
+    },
+    {
+      "name": "settings-compact",
+      "file": "settings-compact.png",
+      "kind": "screen-fixture",
+      "blobSha": "569914dbf415813b0cd05be4b6725b14ef80da92"
+    },
+    {
+      "name": "ask-phone",
+      "file": "ask-phone.png",
+      "kind": "screen-fixture",
+      "blobSha": "206fba5b4932ff2d0344d28f99dcef90fe9d405d"
+    },
+    {
+      "name": "ask-compact",
+      "file": "ask-compact.png",
+      "kind": "screen-fixture",
+      "blobSha": "cdc2de576b79a51368e2f3c44c6951f306bb9705"
+    },
+    {
+      "name": "ask-large-text",
+      "file": "ask-large-text.png",
+      "kind": "screen-fixture",
+      "blobSha": "0a094b45f67d2329f2b8ba9339f443b6d0746f20"
+    },
+    {
+      "name": "hire-categories",
+      "file": "hire-categories.png",
+      "kind": "screen-fixture",
+      "blobSha": "f88ac6ff43bf016ea95f2c608744622c402eaaf0"
+    },
+    {
+      "name": "hire-providers",
+      "file": "hire-providers.png",
+      "kind": "screen-fixture",
+      "blobSha": "46479f58597c33c9942bc7efee52572382dfebf8"
+    },
+    {
+      "name": "trust-phone",
+      "file": "trust-phone.png",
+      "kind": "component-composition",
+      "blobSha": "7adbd351ec71f20c7c99e6e492e97643dccbba94"
+    },
+    {
+      "name": "feed-actions",
+      "file": "feed-actions.png",
+      "kind": "component-composition",
+      "blobSha": "5f449975319697f4de283cb11baaa7c61345fd18"
+    },
+    {
+      "name": "focused-form",
+      "file": "focused-form.png",
+      "kind": "component-composition",
+      "blobSha": "be29406cc6f7b134c41faa1324937f98e8197766"
+    },
+    {
+      "name": "critical-toast",
+      "file": "critical-toast.png",
+      "kind": "component-composition",
+      "blobSha": "c118232ae9ca26b6014df11a2da2509ac6352e3a"
+    },
+    {
+      "name": "ai-thinking",
+      "file": "ai-thinking.png",
+      "kind": "component-composition",
+      "blobSha": "11dedf50a6d45da1a05087ff300cc9d2d3637651"
+    },
+    {
+      "name": "ai-answer",
+      "file": "ai-answer.png",
+      "kind": "component-composition",
+      "blobSha": "e7f348034f0ae82a60151ea047e420e3bef97582"
+    },
+    {
+      "name": "ai-attention",
+      "file": "ai-attention.png",
+      "kind": "component-composition",
+      "blobSha": "1c95cafa32b4ff104773e6873c80f36fc600b408"
+    }
+  ]
+}
