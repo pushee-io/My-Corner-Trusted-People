@@ -2,7 +2,7 @@ name: EAS Preview APK
 # Founder approved exactly one Home redesign Preview APK on 2026-10-10.
 # Application checkout is pinned to merged PR #180 source 9adacca341cb4f4a4b4897932d28052aa68108bb.
 # Native acceptance remains pending; no backend deployment.
-# Only an explicit "Build approved EAS Preview APK" commit submits a new build.
+# Verification only: reuse finished APK57; no build submission exists in this workflow.
 
 on:
   push:
@@ -45,11 +45,7 @@ concurrency:
 jobs:
   build-and-verify-preview:
     name: Build and verify Android preview APK
-    if: >-
-      (github.event_name == 'push' &&
-      startsWith(github.event.head_commit.message, 'Build approved EAS Preview APK')) ||
-      (github.event_name == 'workflow_dispatch' &&
-      (inputs.founder_approved == true || inputs.existing_build_id != ''))
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Verify existing Home Preview APK57')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     defaults:
@@ -94,63 +90,12 @@ jobs:
             exit 1
           fi
 
-      - name: Verify EAS preview Supabase environment
-        if: github.event_name == 'push' || inputs.existing_build_id == ''
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          npx --yes eas-cli@22.6.0 env:exec \
-            preview \
-            'node scripts/verify-preview-supabase-env.mjs' \
-            --non-interactive
-
-      - name: Prevent duplicate approved Preview submission
-        if: github.event_name == 'push' || inputs.existing_build_id == ''
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          npx --yes eas-cli@22.6.0 build:list --platform android --build-profile preview --limit 50 --json --non-interactive > "${RUNNER_TEMP}/existing-preview-builds.json"
-          jq '[.[] | {id, status, createdAt, gitCommitHash, appBuildVersion}]' "${RUNNER_TEMP}/existing-preview-builds.json"
-          if jq -e --arg source "$SOURCE_COMMIT" 'any(.[]; (.gitCommitHash == $source) or (.status == "NEW" or .status == "IN_QUEUE" or .status == "IN_PROGRESS" or .status == "PENDING_CANCEL") or (.createdAt >= "2026-09-25T00:00:00Z" and .status == "FINISHED" and .id != "a352ebca-9cee-4155-b564-125df0a67288" and .id != "34e50a41-a32d-42ce-93b7-8baf91518764" and .id != "b30911f6-4b82-47ef-91d2-38e7732cd0e2" and .id != "c7f685a6-6ffc-4463-99ac-626b7f61c8a2" and .id != "b6ea9558-74c4-49fe-9f28-f8a9baed72ff" and .id != "6f96b91b-8358-47e9-ac5d-5aee15058497" and .id != "8608e3fd-fe98-4d7a-88ac-713830f806e9" and .id != "d8716a23-5845-409d-9286-216a49566ce6" and .id != "234dd105-1a06-469e-b16a-c8b42cea6e78" and .id != "56b70a4b-0f0d-4e67-8709-6625a6848192" and .id != "2646d53a-c144-40f2-9b2b-ff5db9e78644" and .id != "63a99013-52d6-4d35-9034-c3869cca6209" and .id != "79bef3d4-bfb4-42fd-ab9e-7829e7c5bbf5" and .id != "22aaa804-4df7-48bc-87ff-40673021faac" and .id != "72d18404-4aa5-48b9-a49c-98ab4026e0ec"))' "${RUNNER_TEMP}/existing-preview-builds.json" > /dev/null; then
-            echo "::error::An active or newer completed Preview build exists. Inspect and reuse it; do not submit a duplicate."
-            exit 1
-          fi
-
-      - name: Submit EAS cloud Android APK build
-        id: submit
-        if: github.event_name == 'push' || inputs.existing_build_id == ''
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          cloud_log="${RUNNER_TEMP}/eas-submit.log"
-          set +e
-          npx --yes eas-cli@22.6.0 build             --platform android             --profile preview             --non-interactive             --no-wait 2>&1 | tee "$cloud_log"
-          cloud_status=${PIPESTATUS[0]}
-          set -e
-
-          if [ "$cloud_status" -ne 0 ]; then
-            echo "::error::EAS cloud build submission failed."
-            exit "$cloud_status"
-          fi
-
-          details_url="$(grep -Eo             'https://expo\.dev/accounts/[^/]+/projects/[^/]+/builds/[0-9a-f-]{36}'             "$cloud_log" | tail -n 1 || true)"
-          build_id="${details_url##*/}"
-
-          if ! printf '%s' "$build_id" | grep -Eq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
-            echo "::error::The real EAS build ID could not be parsed from submission output."
-            exit 1
-          fi
-
-          echo "build_id=${build_id}" >> "$GITHUB_OUTPUT"
-          echo "details_url=${details_url}" >> "$GITHUB_OUTPUT"
-          echo "Recorded EAS build ID: ${build_id}"
-
       - name: Resolve EAS build ID
         id: build
         env:
-          EXISTING_BUILD_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.existing_build_id || '' }}
-          SUBMITTED_BUILD_ID: ${{ steps.submit.outputs.build_id }}
-          SUBMITTED_DETAILS_URL: ${{ steps.submit.outputs.details_url }}
+          EXISTING_BUILD_ID: 44da6021-3519-4b68-9762-084f0bb21966
+          SUBMITTED_BUILD_ID: ''
+          SUBMITTED_DETAILS_URL: ''
         run: |
           build_id="${EXISTING_BUILD_ID:-$SUBMITTED_BUILD_ID}"
           if ! printf '%s' "$build_id" | grep -Eq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
@@ -231,6 +176,9 @@ jobs:
           test -s "$apk_path"
           echo "apk_path=${apk_path}" >> "$GITHUB_OUTPUT"
 
+      - name: Install image verification dependency
+        run: python3 -m pip install Pillow==11.3.0
+
       - name: Inspect APK provenance and product media bytecode
         id: verify_apk
         env:
@@ -290,13 +238,30 @@ jobs:
           if not matches:
               raise SystemExit('Replacement navigation font missing or different in APK')
           print('Verified replacement navigation font:', ', '.join(matches))
-          expected_character = Path('assets/my-corner-ai/characters/character-woman-kente.png').read_bytes()
+          import io
+          from PIL import Image, ImageChops
+          with Image.open('assets/my-corner-ai/characters/character-woman-kente.png') as source_image:
+              expected_character = source_image.convert('RGBA')
+          character_matches = []
+          candidates = []
           with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
-              character_matches = [entry.filename for entry in apk.infolist()
-                                   if entry.file_size == len(expected_character) and apk.read(entry) == expected_character]
+              for entry in apk.infolist():
+                  if not entry.filename.lower().endswith(('.png', '.webp', '.jpg', '.jpeg')):
+                      continue
+                  try:
+                      with Image.open(io.BytesIO(apk.read(entry))) as bundled_image:
+                          if bundled_image.size != expected_character.size:
+                              continue
+                          actual = bundled_image.convert('RGBA')
+                          candidates.append(entry.filename)
+                          if actual.tobytes() == expected_character.tobytes():
+                              character_matches.append(entry.filename)
+                  except (OSError, ValueError):
+                      continue
           if not character_matches:
-              raise SystemExit('Approved Home AI character missing or different in APK')
-          print('Verified approved Home AI character:', ', '.join(character_matches))
+              print('Same-size image candidates:', candidates)
+              raise SystemExit('Approved Home AI character pixels missing or different in APK')
+          print('Verified approved Home AI character, exact RGBA pixels:', ', '.join(character_matches))
           # Hermes stores this label as UTF-16 because its string includes a middle dot.
           with zipfile.ZipFile(os.environ['APK_PATH']) as apk:
               bundle = apk.read('assets/index.android.bundle')
