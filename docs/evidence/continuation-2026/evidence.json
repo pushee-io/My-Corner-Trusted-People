@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-10",
+  "main": "9adacca341cb4f4a4b4897932d28052aa68108bb",
+  "applicationCommit": "63cf8a9a2fb887d91402de3db83b6f641df69238",
+  "branch": "codex/home-ai-continuation-2026",
+  "pr": 181,
+  "kind": "React Native Web render of actual components with explicit test-only fixtures",
+  "native": false,
+  "authenticatedData": false,
+  "motionCaptured": false,
+  "reviewedScenarios": [
+    "phone",
+    "compact",
+    "tablet",
+    "large-text",
+    "empty",
+    "error",
+    "ask-phone",
+    "ask-compact",
+    "ask-large-text",
+    "ai-thinking",
+    "ai-answer",
+    "ai-attention",
+    "search-phone",
+    "messages-phone",
+    "notifications-phone",
+    "settings-phone",
+    "settings-compact"
+  ],
+  "committedImages": [
+    "docs/evidence/continuation-2026/home-phone.png",
+    "docs/evidence/continuation-2026/home-ask-phone.png",
+    "docs/evidence/continuation-2026/home-ask-compact.png",
+    "docs/evidence/continuation-2026/home-ai-thinking.png",
+    "docs/evidence/continuation-2026/home-ai-answer.png",
+    "docs/evidence/continuation-2026/home-ai-attention.png",
+    "docs/evidence/continuation-2026/search-phone.png",
+    "docs/evidence/continuation-2026/messages-phone.png",
+    "docs/evidence/continuation-2026/notifications-phone.png",
+    "docs/evidence/continuation-2026/settings-phone.png",
+    "docs/evidence/continuation-2026/settings-compact.png"
+  ],
+  "homeAskImageSource": {
+    "commit": "2165ad55ce99e7cd692b623fddaa84828e242efe",
+    "run": 38031880443,
+    "note": "Later changes to these screen components are formatting only; source behavior also covered by final candidate CI."
+  },
+  "additionalImageSource": {
+    "commit": "b38cb67301e724aadd6435ef2f5ddcf7b393124d",
+    "run": 38032641184
+  },
+  "limits": [
+    "No native Android capture or authenticated device interaction evidence in this checkpoint.",
+    "Large-text fixtures scale text styles; they do not change or prove Android display/font settings.",
+    "Media, account and neighborhood values are test fixtures only, never app runtime production data.",
+    "Static state frames do not prove animation smoothness.",
+    "Native emulator shell unavailable; no further capture retries attempted."
+  ],
+  "qualityGate": {
+    "applicationCommit": "63cf8a9a2fb887d91402de3db83b6f641df69238",
+    "run": 38032785076,
+    "job": 114157025210,
+    "conclusion": "success"
+  }
+}
