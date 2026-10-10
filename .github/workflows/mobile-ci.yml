@@ -48,7 +48,27 @@ jobs:
         run: npx expo-doctor
 
       - name: Check formatting
+        id: formatting
         run: npm run format
+
+      - name: Report exact formatting repairs
+        if: failure() && steps.formatting.outcome == 'failure'
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const { execFileSync } = require('node:child_process');
+          const prettier = require('prettier');
+          (async () => {
+            const paths = execFileSync('git', ['ls-files'], { encoding: 'utf8' }).trim().split('\n');
+            for (const file of paths) {
+              const info = await prettier.getFileInfo(file, { ignorePath: '.prettierignore' });
+              if (info.ignored || !info.inferredParser) continue;
+              const input = fs.readFileSync(file, 'utf8');
+              const formatted = await prettier.format(input, { ...(await prettier.resolveConfig(file)), filepath: file });
+              if (formatted !== input) console.log('FORMAT_REPAIR ' + JSON.stringify({ path: 'mobile/' + file, content: formatted }));
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE
 
       - name: Lint
         run: npm run lint
@@ -80,6 +100,16 @@ jobs:
         with:
           name: ui-foundations-component-states
           path: ${{ runner.temp }}/ui-foundations
+          if-no-files-found: error
+
+      - name: Capture Home dashboard review fixtures
+        run: node scripts/capture-home-dashboard.cjs "$RUNNER_TEMP/home-dashboard"
+
+      - name: Upload Home dashboard review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-dashboard-review
+          path: ${{ runner.temp }}/home-dashboard
           if-no-files-found: error
 
       - name: Verify Android bundle

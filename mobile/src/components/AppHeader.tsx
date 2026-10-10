@@ -1,6 +1,6 @@
 import { IconButton } from '@/components/IconButton';
 import { router, useFocusEffect, usePathname } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { BackHandler, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { MessagesAccess } from '@/components/MessagesAccess';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
@@ -17,18 +17,20 @@ export function AppHeader({
   showTitle = true,
   showActions = true,
   onBack,
+  homeHeader,
 }: {
   title: string;
   showTitle?: boolean;
   showActions?: boolean;
   onBack?: () => void;
+  homeHeader?: ReactNode;
 }) {
   const pathname = usePathname();
   const root = pathname === '/home' || pathname === '/';
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        if ((pathname === '/ask' || onBack) && Keyboard.isVisible()) {
+        if ((root || pathname === '/ask' || onBack) && Keyboard.isVisible()) {
           Keyboard.dismiss();
           return true;
         }
@@ -43,7 +45,7 @@ export function AppHeader({
   );
   return (
     <View style={styles.header}>
-      {root ? (
+      {root ? homeHeader ?? (
         <View style={styles.homeRow}>
           <View style={styles.brand}>
             <MyCornerLogo />

@@ -180,6 +180,7 @@ async function reportsForCurrentUser(postIds: string[], commentIds: string[]) {
 export async function listNeighborhoodFeedPosts(
   neighborhoodId: string,
   sourcePostId?: string,
+  limit = 50,
 ): Promise<NeighborhoodFeedPost[]> {
   assertSupabaseConfigured();
   const session = mediaSessionRevision();
@@ -191,7 +192,7 @@ export async function listNeighborhoodFeedPosts(
     .eq('neighborhood_id', neighborhoodId)
     .neq('moderation_status', 'blocked')
     .order('created_at', { ascending: false })
-    .limit(sourcePostId ? 1 : 50);
+    .limit(sourcePostId ? 1 : Math.max(1, Math.min(50, Math.floor(limit) || 50)));
   if (sourcePostId) query = query.eq('id', sourcePostId);
   const { data: posts, error: postsError } = await query;
 

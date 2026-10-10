@@ -222,7 +222,7 @@ export async function getMarketplaceViewer() {
   return { id: profile.id, displayName: profile.displayName };
 }
 
-export async function listMarketplaceListings(neighborhoodId: string): Promise<MarketplaceListing[]> {
+export async function listMarketplaceListings(neighborhoodId: string, limit = 50): Promise<MarketplaceListing[]> {
   assertSupabaseConfigured();
   const { data, error } = await supabase
     .from('marketplace_listings')
@@ -230,7 +230,7 @@ export async function listMarketplaceListings(neighborhoodId: string): Promise<M
     .eq('neighborhood_id', neighborhoodId)
     .neq('moderation_status', 'blocked')
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(Math.max(1, Math.min(50, Math.floor(limit) || 50)));
   if (error) throw error;
   return hydrateListings((data ?? []) as ListingRow[]);
 }
