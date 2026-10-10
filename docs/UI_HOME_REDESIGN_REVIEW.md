@@ -10,7 +10,7 @@ The approved reference PNG was inspected. The current-home JPEG was present but 
 
 Before: shared brand/actions header, separate location, AI pill, Hire/Provider/Feed destination grid, expanded Active Requests, Past Requests, Explore destination grid, Your corner links, moderation grid.
 
-After: compact My Corner/location header with message and notification icons, featured approved AI character with neighborhood greeting/input/inline send, full-width Hire Trusted Local Help, one authorized Feed card, horizontal Marketplace previews, authorized Agency broadcast, compact request counts and expandable complete lists. Provider inbox and moderator tools remain capability-gated. Groups/Events remain accessible through existing Community navigation; optional previews are omitted. BottomNavigation is unchanged.
+After: compact My Corner/location header with message and notification icons, featured approved AI character with neighborhood greeting/input/inline send, full-width Hire Trusted Local Help, one authorized Feed card, horizontal Marketplace previews, authorized Agency broadcast, compact request counts and expandable complete lists. Provider inbox and moderator tools remain capability-gated. Groups/Events remain accessible through existing My Activity navigation; optional previews are omitted. BottomNavigation is unchanged.
 
 | Target | Original gap | Implementation |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ After: compact My Corner/location header with message and notification icons, fe
 - Messages: `loadUnread` through session-aware messaging resource.
 - Notifications: unread entries from existing `loadNotifications`; its API returns up to 100 recent entries, so accessibility wording explicitly calls this recent updates. Missing/error data does not invent a zero.
 - Requests: unchanged requester repository, canonical partition/order and provider resolution; complete counts and lists retained.
-- Groups: existing Community/group repositories and routes. Events: existing feature-gated runtime repository and routes.
+- Groups: existing group repositories and My Activity routes. Events: existing feature-gated runtime repository and routes.
 
 No authentication, RPC, RLS, schema, backend, Production or signing configuration changes. Protected resources clear on account/focus/background changes. Community sections unmount when capabilities disappear; Home AI draft is keyed to session/context. The new read limits default to the existing 50-item behavior for other screens.
 

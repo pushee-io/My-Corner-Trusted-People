@@ -39,6 +39,7 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
 
       - name: Install dependencies
+        id: install
         run: npm ci
 
       - name: Verify preview build contract
@@ -71,12 +72,15 @@ jobs:
           NODE
 
       - name: Lint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint
 
       - name: Typecheck
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run typecheck
 
       - name: Test
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm test -- --runInBand
 
       - name: Capture trust acknowledgement component states
@@ -103,9 +107,11 @@ jobs:
           if-no-files-found: error
 
       - name: Capture Home dashboard review fixtures
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: node scripts/capture-home-dashboard.cjs "$RUNNER_TEMP/home-dashboard"
 
       - name: Upload Home dashboard review evidence
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: home-dashboard-review

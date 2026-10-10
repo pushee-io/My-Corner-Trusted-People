@@ -58,12 +58,14 @@ export function HomeAICard({ neighborhood, available, loading }: {
   return (
     <View style={styles.aiCard}>
       <View style={styles.aiHeading}>
-        <Image
-          source={require('../../assets/my-corner-ai/characters/character-woman-kente.png')}
-          style={styles.character}
-          resizeMode="contain"
-          accessibilityLabel="My Corner AI character"
-        />
+        <View style={styles.character}>
+          <Image
+            source={require('../../assets/my-corner-ai/characters/character-woman-kente.png')}
+            style={styles.characterPortrait}
+            resizeMode="contain"
+            accessibilityLabel="My Corner AI character"
+          />
+        </View>
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>Ask My Corner AI</Text>
           <Text style={styles.aiGreeting}>
@@ -232,7 +234,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1, minWidth: 0 },
   aiCard: { backgroundColor: '#144C43', borderRadius: 16, padding: 12, gap: 10 },
   aiHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  character: { width: 54, height: 60, borderRadius: 12 },
+  character: { width: 54, height: 60, borderRadius: 12, overflow: 'hidden' },
+  characterPortrait: { width: 82, height: 112, position: 'absolute', top: 0, left: -14 },
   aiTitle: { color: '#FFFFFF', fontSize: 18, lineHeight: 24, fontWeight: '700' },
   aiGreeting: { color: '#FFFFFF', fontSize: 14, lineHeight: 20 },
   aiInputRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, paddingLeft: 12 },
