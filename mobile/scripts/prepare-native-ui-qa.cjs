@@ -105,7 +105,7 @@ write(
   `
 import React, {useState} from 'react';
 import {registerRootComponent} from 'expo';
-import {View, Text, Pressable, TextInput} from 'react-native';
+import {View, Text, Pressable, TextInput, useWindowDimensions} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {usePathname, setQaPath} from './router';
 import * as Before from './before/src/components/StateBlocks';
@@ -118,6 +118,7 @@ import {TrustAcknowledgement as BeforeTrust} from './before/src/components/Trust
 import {TrustAcknowledgement as AfterTrust} from './after/src/components/TrustAcknowledgement';
 const text = {fontSize:16, color:'#102A43', lineHeight:24};
 function App() {
+ const {width, fontScale} = useWindowDimensions();
  const [revision,setRevision] = useState('before'); const [scenario,setScenario] = useState('foundations');
  const [checked,setChecked] = useState(false); const [retried,setRetried] = useState(false);
  const pathname = usePathname();
@@ -129,7 +130,7 @@ function App() {
  const title = scenario === 'provider' ? 'QA Provider with a longer public name' : scenario === 'request' ? 'Create request' : 'My Corner home';
  return <SafeAreaProvider><SafeAreaView style={{flex:1,backgroundColor:'#FBF7EE'}} edges={['top']}>
   <View style={{paddingHorizontal:8,paddingBottom:4,backgroundColor:'#E7EBE8'}}>
-   <Text allowFontScaling={false} style={{fontSize:11,color:'#102A43'}}>Native QA fixture · {revision} · {scenario} · no live data</Text>
+   <Text allowFontScaling={false} style={{fontSize:11,color:'#102A43'}}>Native QA fixture · {revision} · {scenario} · no live data · {width}dp · font {fontScale.toFixed(1)}</Text>
    <View style={{flexDirection:'row',flexWrap:'wrap'}}>{['before','after','foundations','provider','request'].map(name => <Pressable key={name} accessibilityRole="button" accessibilityLabel={'QA '+name} onPress={() => ['before','after'].includes(name) ? setRevision(name) : select(name)} style={{padding:8,minHeight:36}}><Text allowFontScaling={false} style={{fontSize:12,color:'#102A43'}}>{name}</Text></Pressable>)}</View>
   </View>
   <Screen title={title}>

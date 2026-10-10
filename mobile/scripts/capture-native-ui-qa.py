@@ -28,45 +28,54 @@ def tap(label):
             adb('shell', 'input', 'tap', str((x1 + x2) // 2), str((y1 + y2) // 2))
             time.sleep(1)
             return
+    (out / 'failure.png').write_bytes(adb('exec-out', 'screencap', '-p'))
+    (out / 'failure.xml').write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))
     raise RuntimeError('Missing native control: ' + label)
 
 
-ready = False
-for attempt in range(40):
-    try:
-        current = nodes()
-        print('Startup', attempt, [(n.get('text'), n.get('content-desc')) for n in current if n.get('text') or n.get('content-desc')], flush=True)
-        # A cold CI emulator can show a launcher ANR over the running fixture.
-        # Dismiss only this known system dialog, never an app crash dialog.
-        if any(n.get('text') == "Pixel Launcher isn't responding" for n in current):
-            tap('Close app')
-            continue
-        if any('This is the developer menu' in n.get('text', '') for n in current):
-            tap('Continue')
-            continue
-        if any(n.get('text') == 'Enter URL manually' for n in current):
-            adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
-            time.sleep(3)
-            continue
-        if any(n.get('content-desc') == 'QA after' for n in current):
-            ready = True
-            break
-        for label in ['Continue', 'Got it']:
-            if any(n.get('text') == label for n in current):
-                tap(label)
-    except (subprocess.SubprocessError, ET.ParseError):
-        pass
-    time.sleep(3)
-if not ready:
-    (out / 'startup.png').write_bytes(adb('exec-out', 'screencap', '-p'))
-    (out / 'startup.xml').write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))
-    raise RuntimeError('Native fixture did not become ready; see startup screenshot and Metro log')
+def wait_ready():
+    ready = False
+    for attempt in range(40):
+        try:
+            current = nodes()
+            print('Startup', attempt, [(n.get('text'), n.get('content-desc')) for n in current if n.get('text') or n.get('content-desc')], flush=True)
+            # A cold CI emulator can show a launcher ANR over the running fixture.
+            # Dismiss only this known system dialog, never an app crash dialog.
+            if any(n.get('text') == "Pixel Launcher isn't responding" for n in current):
+                tap('Close app')
+                continue
+            if any('This is the developer menu' in n.get('text', '') for n in current):
+                tap('Continue')
+                continue
+            if any(n.get('text') == 'Enter URL manually' for n in current):
+                adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+                time.sleep(3)
+                continue
+            if any(n.get('content-desc') == 'QA after' for n in current):
+                ready = True
+                break
+            for label in ['Continue', 'Got it']:
+                if any(n.get('text') == label for n in current):
+                    tap(label)
+        except (subprocess.SubprocessError, ET.ParseError):
+            pass
+        time.sleep(3)
+    if not ready:
+        (out / 'startup.png').write_bytes(adb('exec-out', 'screencap', '-p'))
+        (out / 'startup.xml').write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))
+        raise RuntimeError('Native fixture did not become ready; see startup screenshot and Metro log')
+
+wait_ready()
 
 for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), ('large-text', '720x1600', '320', '1.6'), ('tablet', '1280x2000', '240', '1.0')]:
     adb('shell', 'wm', 'size', size)
     adb('shell', 'wm', 'density', density)
     adb('shell', 'settings', 'put', 'system', 'font_scale', font_scale)
-    time.sleep(3)
+    # Expo Go must restart to apply Android density/font configuration to RN.
+    adb('shell', 'am', 'force-stop', 'host.exp.exponent')
+    adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+    wait_ready()
+    assert any(('font ' + font_scale) in n.get('text', '') for n in nodes()), 'RN font scale did not update'
     for revision in ['before', 'after']:
         tap('QA ' + revision)
         for scenario in ['foundations', 'provider', 'request']:
@@ -99,7 +108,10 @@ assert any(n.get('content-desc') == 'Review request' and n.get('enabled') == 'fa
 if metadata.get('phase') == 'B':
     adb('shell', 'wm', 'size', '720x1600')
     adb('shell', 'wm', 'density', '320')
-    time.sleep(3)
+    adb('shell', 'am', 'force-stop', 'host.exp.exponent')
+    adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
+    wait_ready()
+    tap('QA after')
     tap('QA request')
     tap('QA job title')
     adb('shell', 'input', 'text', 'Kitchen%ssink%sleak')
