@@ -33,7 +33,7 @@ def tap(label):
     raise RuntimeError('Missing native control: ' + label)
 
 
-def wait_ready():
+def wait_ready(expected_width=None, expected_font=None):
     ready = False
     for attempt in range(40):
         try:
@@ -47,13 +47,21 @@ def wait_ready():
             if any('This is the developer menu' in n.get('text', '') for n in current):
                 tap('Continue')
                 continue
+            if any(n.get('text') == 'Go Home' for n in current) and any(n.get('text') == 'Reload' for n in current):
+                # Close only an observed Expo developer menu, not the app's root.
+                adb('shell', 'input', 'keyevent', '4')
+                time.sleep(2)
+                continue
             if any(n.get('text') == 'Enter URL manually' for n in current):
                 adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
                 time.sleep(3)
                 continue
             if any(n.get('content-desc') == 'QA after' for n in current):
-                ready = True
-                break
+                banners = [re.search(r'([\d.]+)dp · font ([\d.]+)', n.get('text', '')) for n in current]
+                configured = any(m and (expected_width is None or abs(float(m[1]) - expected_width) < 1) and (expected_font is None or abs(float(m[2]) - expected_font) < 0.05) for m in banners)
+                if configured:
+                    ready = True
+                    break
             for label in ['Continue', 'Got it']:
                 if any(n.get('text') == label for n in current):
                     tap(label)
@@ -74,8 +82,8 @@ for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), (
     # Expo Go must restart to apply Android density/font configuration to RN.
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
     adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
-    wait_ready()
-    assert any(('font ' + font_scale) in n.get('text', '') for n in nodes()), 'RN font scale did not update'
+    time.sleep(3)
+    wait_ready(int(size.split('x')[0]) * 160 / int(density), float(font_scale))
     for revision in ['before', 'after']:
         tap('QA ' + revision)
         for scenario in ['foundations', 'provider', 'request']:
@@ -110,7 +118,8 @@ if metadata.get('phase') == 'B':
     adb('shell', 'wm', 'density', '320')
     adb('shell', 'am', 'force-stop', 'host.exp.exponent')
     adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'exp://127.0.0.1:8081', 'host.exp.exponent')
-    wait_ready()
+    time.sleep(3)
+    wait_ready(360, 1.0)
     tap('QA after')
     tap('QA request')
     tap('QA job title')
