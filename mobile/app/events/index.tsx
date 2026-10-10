@@ -92,10 +92,10 @@ function EventsContent() {
                 href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
                 asChild
               >
-                <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+                <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, width >= 600 ? styles.mediumCard : null, pressed ? styles.pressed : null]}>
                   <MediaThumbnail parent="event" parentId={event.id} />
                   <Text style={styles.title}>{event.title}</Text>
-                  <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+                  <Text style={styles.date}>{formatEventDate(event.startsAt, event.timezone)}</Text>
                   <Text style={styles.body}>{event.areaLabel}</Text>
                   <Text style={styles.meta}>Status: Pending review</Text>
                 </Pressable>
@@ -112,10 +112,10 @@ function EventsContent() {
             href={{ pathname: '/events/[eventId]', params: { eventId: event.id } } as unknown as Href}
             asChild
           >
-            <Pressable accessibilityRole="button" style={[styles.card, width >= 600 ? styles.mediumCard : null]}>
+            <Pressable accessibilityRole="button" style={({ pressed }) => [styles.card, width >= 600 ? styles.mediumCard : null, pressed ? styles.pressed : null]}>
               <MediaThumbnail parent="event" parentId={event.id} />
               <Text style={styles.title}>{event.title}</Text>
-              <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+              <Text style={styles.date}>{formatEventDate(event.startsAt, event.timezone)}</Text>
               <Text style={styles.body}>{event.areaLabel}</Text>
               <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
               <Text style={styles.meta}>
@@ -135,7 +135,10 @@ const styles = StyleSheet.create({
   eventGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
   section: { gap: tokens.spacing.sm },
   sectionTitle: { color: tokens.color.textPrimary, fontSize: tokens.type.card, fontWeight: '700' },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
+  date: { color: tokens.color.primary, fontSize: tokens.type.body, fontWeight: '700' },
   card: {
+    width: '100%',
     minHeight: tokens.touch.min,
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.lg,
     gap: tokens.spacing.xs,
   },
-  mediumCard: { flexBasis: '48%', flexGrow: 1, minWidth: 260 },
+  mediumCard: { flexBasis: '48%', flexGrow: 1, minWidth: 260, width: 'auto' },
   notice: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,

@@ -162,7 +162,7 @@ export default function GroupsScreen() {
               {canRequestMembership(section.membershipStatus) ? (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityState={{ busy: requestingGroupId === section.group.id }}
+                  accessibilityState={{ busy: requestingGroupId === section.group.id, disabled: Boolean(requestingGroupId) }}
                   disabled={Boolean(requestingGroupId)}
                   onPress={() => void requestJoin(section.group.id)}
                   style={[
@@ -213,10 +213,11 @@ const styles = StyleSheet.create({
   headerRow: {
     alignItems: 'flex-start',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: tokens.spacing.sm,
     justifyContent: 'space-between',
   },
-  headerText: { flex: 1, gap: tokens.spacing.xs },
+  headerText: { flex: 1, minWidth: 160, gap: tokens.spacing.xs },
   helper: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
   list: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
   meta: { color: tokens.color.textSecondary, fontSize: tokens.type.support },
