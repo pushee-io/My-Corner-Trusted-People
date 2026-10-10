@@ -1,7 +1,8 @@
+import { PublicIdentity } from '@/components/PublicIdentity';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
 import { MediaGallery } from '@/components/media/MediaGallery';
-import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
+import { MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { File } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
@@ -308,13 +309,11 @@ export default function MarketplaceScreen() {
                 <Image source={{ uri: listing.imageUrl }} style={styles.listingImage} resizeMode="cover" />
               ) : null}
               <MediaGallery parent="marketplace_listing" parentId={listing.id} refreshKey={mediaRefresh} />
-              <MediaAvatar profileId={listing.sellerId} name={listing.sellerName} />
+              <PublicIdentity profileId={listing.sellerId} name={listing.sellerName} />
               <Text style={styles.title}>{listing.title}</Text>
               <Text style={styles.body}>{listing.description}</Text>
               <Text style={styles.price}>{priceLabel(listing)}</Text>
-              <Text style={styles.note}>
-                {listing.availability} · {listing.sellerName}
-              </Text>
+              <Text style={styles.note}>{listing.availability}</Text>
               <Text style={styles.note}>Pickup area: {listing.pickupArea}</Text>
               <WebSafeLink
                 href={{

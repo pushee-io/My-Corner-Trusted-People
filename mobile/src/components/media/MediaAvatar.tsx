@@ -11,10 +11,18 @@ const AvatarContext = createContext<DisplayMedia[] | null>(null);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** One authorization/signing request for all authors on a visible feed. */
-export function MediaAvatarCollection({ profileIds, children }: { profileIds: string[]; children: ReactNode }) {
+export function MediaAvatarCollection({
+  profileIds,
+  children,
+  refreshKey = 0,
+}: {
+  profileIds: string[];
+  children: ReactNode;
+  refreshKey?: number;
+}) {
   const revision = useSyncExternalStore(subscribeMediaSession, mediaSessionRevision, mediaSessionRevision);
   const ids = JSON.stringify([...new Set(profileIds.filter((id) => uuid.test(id)))].sort());
-  const key = `${revision}:${ids}`;
+  const key = `${revision}:${ids}:${refreshKey}`;
   const [result, setResult] = useState<{ key: string; items: DisplayMedia[] }>({ key: '', items: [] });
   useFocusEffect(
     useCallback(() => {

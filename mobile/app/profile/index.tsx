@@ -13,7 +13,7 @@ async function loadProfile() {
 }
 
 export default function ProfileScreen() {
-  const resource = useProtectedResource(loadProfile);
+  const resource = useProtectedResource(loadProfile, 0, { preserveDuringMediaPicker: true });
   const profile = resource.data;
   const error = resource.error;
 

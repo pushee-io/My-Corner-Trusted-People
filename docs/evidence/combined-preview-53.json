@@ -1,0 +1,22 @@
+{
+  "buildId": "63a99013-52d6-4d35-9034-c3869cca6209",
+  "sourceCommit": "4c1aa82ebe1f789c73f8548dc393fc38e92c84b9",
+  "status": "FINISHED",
+  "androidVersionCode": 53,
+  "applicationId": "com.mycorner.trustedpeople",
+  "supabaseRef": "opeojxwkwwnnncnsuaag",
+  "artifactUrl": "https://expo.dev/artifacts/eas/9mIJ8zhd3h_wfObpaiI8A_GbhRQ9e4RFvChuKGbdODc.apk",
+  "sha256": "64188c84aca69df08996e2a374ff1c36ea1f47be5e76067b6d82ee760ac0a007",
+  "combinedPRs": [
+    173,
+    174
+  ],
+  "testCount": 600,
+  "suiteCount": 105,
+  "buildWorkflowRunId": 37871680033,
+  "mobileWorkflowRunId": 37871703735,
+  "databaseWorkflowRunId": 37871703723,
+  "artifactVerification": "passed",
+  "nativeAcceptance": "pending",
+  "productionModified": false
+}

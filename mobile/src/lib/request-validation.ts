@@ -25,7 +25,7 @@ export function validateRequestDraft(
   }
   if (!input.preferredTime) errors.preferredTime = 'Choose a preferred time.';
   if (!input.contactPreference) errors.contactPreference = 'Choose how the provider should respond.';
-  if (!consentAccepted) errors.consent = 'Review and accept the safety notice.';
+  if (!consentAccepted) errors.consent = 'Select the trust acknowledgement checkbox.';
 
   return {
     valid: Object.keys(errors).length === 0,

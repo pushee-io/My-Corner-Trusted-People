@@ -91,7 +91,7 @@ const pickupColumns =
 
 function mapListing(
   row: ListingRow,
-  sellerName = 'Neighbor',
+  sellerName = 'Public name unavailable',
   imageUrls: string[] = row.image_url ? [row.image_url] : [],
 ): MarketplaceListing {
   return {
@@ -113,7 +113,7 @@ function mapListing(
 
 function mapPickupRequest(
   row: PickupRequestRow,
-  requesterName = 'Neighbor',
+  requesterName = 'Public name unavailable',
   privateDetails?: string,
 ): MarketplacePickupRequest {
   return {
