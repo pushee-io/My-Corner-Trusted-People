@@ -394,7 +394,9 @@ it('changing the character preserves the answer and follow-up context without re
   expect(renderer.root.findByType('CharacterExperience' as never).props.character.id).toBe('older-man');
   expect(output()).toContain('Fictional FenceCare');
   expect(askNeighborhood).toHaveBeenCalledTimes(1);
-  await act(async () => renderer.root.findByProps({ accessibilityLabel: 'Neighborhood question' }).props.onChangeText('Which has reviews?'));
+  await act(async () =>
+    renderer.root.findByProps({ accessibilityLabel: 'Neighborhood question' }).props.onChangeText('Which has reviews?'),
+  );
   await press('Send question');
   expect(askNeighborhood).toHaveBeenLastCalledWith('Which has reviews?', ['Who can repair a fence nearby?'], id);
 });

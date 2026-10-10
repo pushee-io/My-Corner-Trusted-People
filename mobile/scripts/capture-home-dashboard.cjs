@@ -64,9 +64,45 @@ for (const scenario of [
   const cache = new Map();
   function resource(load) {
     let data;
-    if (load === 'loadInbox') return { data: { conversations: ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'].map((name, i) => ({ id: 'fixture-thread-'+i, peerId: 'fixture-peer-'+i, name, preview: 'Thanks, see you at the agreed pickup time.', updatedAt: '2026-10-10T08:00:00Z', unread: i === 0 ? 2 : 0 })) }, loading: false, refresh: () => {} };
-    if (load === 'loadNotifications') return { data: [{ id: 'fixture-notice', title: 'New message', body: 'You have a new message from your pickup conversation.', targetKind: 'message_received', createdAt: '2026-10-10T08:00:00Z' }, { id: 'fixture-read', title: 'Request updated', body: 'Your request status has changed.', targetKind: 'hire_update', readAt: '2026-10-10T08:00:00Z', createdAt: '2026-10-09T08:00:00Z' }], loading: false, refresh: () => {} };
-    if (scenario.page === 'app/search.tsx' && typeof load === 'function') return { data: [], loading: false, refresh: () => {} };
+    if (load === 'loadInbox')
+      return {
+        data: {
+          conversations: ['Akosua Mensah', 'Kwame Owusu', 'Ama Boateng'].map((name, i) => ({
+            id: 'fixture-thread-' + i,
+            peerId: 'fixture-peer-' + i,
+            name,
+            preview: 'Thanks, see you at the agreed pickup time.',
+            updatedAt: '2026-10-10T08:00:00Z',
+            unread: i === 0 ? 2 : 0,
+          })),
+        },
+        loading: false,
+        refresh: () => {},
+      };
+    if (load === 'loadNotifications')
+      return {
+        data: [
+          {
+            id: 'fixture-notice',
+            title: 'New message',
+            body: 'You have a new message from your pickup conversation.',
+            targetKind: 'message_received',
+            createdAt: '2026-10-10T08:00:00Z',
+          },
+          {
+            id: 'fixture-read',
+            title: 'Request updated',
+            body: 'Your request status has changed.',
+            targetKind: 'hire_update',
+            readAt: '2026-10-10T08:00:00Z',
+            createdAt: '2026-10-09T08:00:00Z',
+          },
+        ],
+        loading: false,
+        refresh: () => {},
+      };
+    if (scenario.page === 'app/search.tsx' && typeof load === 'function')
+      return { data: [], loading: false, refresh: () => {} };
     if (load === 'getCurrentCapabilities') data = { community: true, neighborhoodId: 'fixture-area' };
     else if (load === 'loadVerifiedNeighborhood') data = { name: 'East Legon', city: 'Accra' };
     else if (load === 'loadAskContext') data = { id: 'fixture-area', name: 'East Legon' };
@@ -166,6 +202,7 @@ for (const scenario of [
         };
       if (name.endsWith('WebSafeLink')) return { WebSafeLink: ({ children }) => children };
       if (name.endsWith('CollapsibleComments')) return { CommentsProvider: ({ children }) => children };
+      if (name.endsWith('MediaThumbnail')) return { MediaThumbnail: () => null };
       if (name.endsWith('MediaAvatar'))
         return {
           MediaAvatarCollection: ({ children }) => children,
@@ -202,7 +239,8 @@ for (const scenario of [
             fs.readFileSync(path.resolve(root, path.dirname(relative), name)).toString('base64'),
         };
       if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
-      if (name.includes('community-actions') && name.startsWith('@/lib/')) return new Proxy({}, { get: () => () => ({}) });
+      if (name.includes('community-actions') && name.startsWith('@/lib/'))
+        return new Proxy({}, { get: () => () => ({}) });
       if (name === '@/lib/search-repository') return { searchRepository: { search: () => [] } };
       if (name === '@/lib/events-feature') return { isEventsClientEnabled: () => false };
       if (
@@ -269,10 +307,29 @@ fs.writeFileSync(
   path.join(output, 'evidence.json'),
   JSON.stringify(
     {
-      renderer: 'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
+      renderer:
+        'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
       native: false,
       authenticatedData: false,
-      scenarios: ['phone', 'compact', 'tablet', 'large-text', 'empty', 'error', 'ask-phone', 'ask-compact', 'ask-large-text', 'ai-thinking', 'ai-answer', 'ai-attention', 'search-phone', 'messages-phone', 'notifications-phone', 'settings-phone', 'settings-compact'],
+      scenarios: [
+        'phone',
+        'compact',
+        'tablet',
+        'large-text',
+        'empty',
+        'error',
+        'ask-phone',
+        'ask-compact',
+        'ask-large-text',
+        'ai-thinking',
+        'ai-answer',
+        'ai-attention',
+        'search-phone',
+        'messages-phone',
+        'notifications-phone',
+        'settings-phone',
+        'settings-compact',
+      ],
     },
     null,
     2,
