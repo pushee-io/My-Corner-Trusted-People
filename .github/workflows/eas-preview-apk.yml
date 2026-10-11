@@ -1,6 +1,6 @@
 name: EAS Preview APK
-# Founder approved one new Android Preview APK on 2026-10-09 after merging #176.
-# Includes current main plus the #173/#174 fixes already shipped in APK53.
+# Founder approved one new Android Preview APK on 2026-10-11 UTC after merging #182.
+# Includes merged Home media, expressive characters, and compact Feed actions.
 # Native acceptance remains pending; no backend deployment.
 # Only an explicit "Build approved EAS Preview APK" commit submits a new build.
 
