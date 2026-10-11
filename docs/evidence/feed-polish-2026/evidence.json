@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "0e762c656e65f56b99c35db7837df70aae8fe7ac",
+  "workflowRun": "https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/38107613056",
+  "artifactId": 11689504326,
+  "renderer": "Production FeedPostCard and action controls through React Native Web; fixture identity, content and media",
+  "native": false,
+  "authenticatedData": false,
+  "files": [
+    {
+      "file": "feed-phone.png",
+      "sha256": "8b8ae5dfe4465fab0d4f42e07539447c814a513aabc3d9b2721d30586c663420"
+    },
+    {
+      "file": "feed-compact.png",
+      "sha256": "6b64c6e20ce9a5149801533d1931ca4f8ece581cc16eb9e9488909a23c0eb559"
+    },
+    {
+      "file": "feed-media.png",
+      "sha256": "d09c9217f899e27da499146b1caea712ea0bba2deccc994bfbaac2cc360b1df0"
+    },
+    {
+      "file": "feed-large-text.png",
+      "sha256": "cf2d4c7dc92eee2b95859bec5c7d22b417edec2f0e85c5f38bf21d5e04325f7c"
+    },
+    {
+      "file": "feed-tablet.png",
+      "sha256": "50e2de9e852e95ae1e7b5e0b42d809d5340987ca9ca5c2b572cb9f4d3cca986e"
+    }
+  ]
+}

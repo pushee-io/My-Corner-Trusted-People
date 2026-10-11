@@ -40,3 +40,8 @@ Focus/background/Reduce Motion changes stop animated values and facial timers. C
 Pending CI capture. Dashboard evidence uses clearly test-only data and media; it does not claim authenticated device content. The motion harness mounts the actual production React Native Web component, with a runnable HTML preview and timed screenshots. Native animation performance, TalkBack, real-device media and native gesture/keyboard checks remain unverified for this correction.
 
 A new Preview APK should wait for review of the imagery, Feed and character fidelity/motion evidence. No new build is requested yet.
+
+
+## Founder Feed action-bar correction — 2026-10-11 UTC
+
+The follow-up replaces Feed's mixed Like/Share and separate Comments row with a single icon-first bar, tighter production card spacing, and preserved modal/keyboard/share behavior. See the [Feed review and committed screenshot gallery](UI_FEED_VISUAL_POLISH_2026.md) for the exact tested revision, acceptance checklist and native limits. This supersedes the Feed action layout described above; character behavior is unchanged by this correction.
