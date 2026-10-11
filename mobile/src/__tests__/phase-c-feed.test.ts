@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { Keyboard, Share } from 'react-native';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import Feed from '../../app/community/index';
 import {
@@ -97,6 +98,7 @@ beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   jest.clearAllMocks();
   mockPostId = undefined;
+  mockPost.moderationStatus = 'clean';
   mockMedia.drafts = [];
   jest.mocked(getCurrentNeighborhood).mockResolvedValue({ id: 'authorized-area', name: 'QA neighborhood' } as never);
 });
@@ -180,4 +182,54 @@ it('does not render posts or subscribe when neighborhood authorization fails', a
   expect(view.root.findAllByType('Gallery' as never)).toHaveLength(0);
   expect(subscribeToNeighborhoodFeedPosts).not.toHaveBeenCalled();
   expect(JSON.stringify(view.toJSON())).toContain('Neighborhood verification required');
+});
+
+it('presents one icon-first row with counts, preserves authorized sharing, and removes the separate comment trigger', async () => {
+  mockPostId = 'post-one';
+  await render();
+  const row = view.root.findByProps({ testID: 'feed-action-row' });
+  expect(row.findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel)).toEqual([
+    'Like post, 2 likes',
+    '0 comments, collapsed',
+    'Share post link',
+    'Post options',
+  ]);
+  expect(row.findAllByType('Icon' as never).map((node) => node.props.name)).toEqual([
+    'heart-outline',
+    'chatbubble-outline',
+    'share-outline',
+    'ellipsis-horizontal',
+  ]);
+  expect(row.findAllByType('Text' as never).map((node) => node.children.join(''))).toEqual(['2', '0']);
+  expect(buttons('0 comments, collapsed')).toHaveLength(1);
+  await press('Share post link');
+  expect(Share.share).toHaveBeenCalledWith(
+    expect.objectContaining({
+      message: expect.stringContaining('mycorner://community?postId=post-one'),
+    }),
+  );
+  expect(JSON.stringify(jest.mocked(Share.share).mock.calls)).not.toContain(mockPost.body);
+});
+
+it('keeps unavailable sharing disabled and preserves keyboard-first Back through the icon comment trigger', async () => {
+  mockPostId = 'post-one';
+  mockPost.moderationStatus = 'pending';
+  await render();
+  expect(buttons('Share post link')[0].props.disabled).toBe(true);
+  await press('Share post link');
+  expect(Share.share).not.toHaveBeenCalled();
+  await press('0 comments, collapsed');
+  expect(buttons('0 comments, expanded')[0].props.accessibilityState.expanded).toBe(true);
+  await act(async () => {
+    field('Reply to feed post').props.onFocus();
+    field('Reply to feed post').props.onChangeText('Keep my draft');
+  });
+  const modal = view.root.findByType('Modal' as never);
+  await act(async () => modal.props.onRequestClose());
+  expect(Keyboard.dismiss).toHaveBeenCalled();
+  expect(modal.props.visible).toBe(true);
+  await act(async () => modal.props.onRequestClose());
+  expect(modal.props.visible).toBe(false);
+  await press('0 comments, collapsed');
+  expect(field('Reply to feed post').props.value).toBe('Keep my draft');
 });

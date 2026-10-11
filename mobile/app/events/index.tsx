@@ -1,3 +1,5 @@
+import { partitionEvents, isEventHappeningNow } from '@/lib/event-lifecycle';
+import { useEventClock } from '@/hooks/useEventClock';
 import { MediaThumbnail } from '@/components/media/MediaThumbnail';
 import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -22,6 +24,8 @@ export default function EventsScreen() {
 function EventsContent() {
   const { width } = useWindowDimensions();
   const [events, setEvents] = useState<Event[]>([]);
+  const now = useEventClock(events);
+  const [showPast, setShowPast] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
@@ -40,8 +44,7 @@ function EventsContent() {
   }, [load]);
 
   const diagnostics = eventsRuntimeRepository.getDiagnostics();
-  const pendingEvents = events.filter((event) => event.moderationStatus === 'pending');
-  const upcomingEvents = events.filter((event) => event.moderationStatus !== 'pending');
+  const { pending: pendingEvents, upcoming: upcomingEvents, past: pastEvents } = partitionEvents(events, now);
 
   return (
     <Screen title="Events">
@@ -74,7 +77,7 @@ function EventsContent() {
           </Pressable>
         </View>
       ) : null}
-      {!loading && !error && events.length === 0 ? (
+      {!loading && !error && upcomingEvents.length === 0 ? (
         <View style={styles.notice}>
           <Text style={styles.title}>No upcoming events</Text>
           <Text style={styles.meta}>Create the first plan for your neighborhood.</Text>
@@ -112,6 +115,9 @@ function EventsContent() {
         </View>
       ) : null}
 
+      <Text accessibilityRole="header" style={styles.sectionTitle}>
+        Active & upcoming
+      </Text>
       <View style={styles.eventGrid}>
         {upcomingEvents.map((event) => (
           <WebSafeLink
@@ -131,7 +137,9 @@ function EventsContent() {
               <Text style={styles.title}>{event.title}</Text>
               <Text style={styles.date}>{formatEventDate(event.startsAt, event.timezone)}</Text>
               <Text style={styles.body}>{event.areaLabel}</Text>
-              <Text style={styles.meta}>Status: {eventStatusLabel(event)}</Text>
+              <Text style={styles.meta}>
+                {isEventHappeningNow(event, now) ? 'Happening now' : eventStatusLabel(event)}
+              </Text>
               <Text style={styles.meta}>
                 {event.attendeeCount}
                 {event.capacity ? ` of ${event.capacity}` : ''} going
@@ -140,6 +148,39 @@ function EventsContent() {
           </WebSafeLink>
         ))}
       </View>
+      {pastEvents.length ? (
+        <View style={styles.section}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: showPast }}
+            onPress={() => setShowPast(!showPast)}
+            style={styles.secondary}
+          >
+            <Text style={styles.secondaryText}>
+              {showPast ? 'Hide' : 'View'} past & other events ({pastEvents.length})
+            </Text>
+          </Pressable>
+          {showPast
+            ? pastEvents.map((event) => (
+                <WebSafeLink
+                  key={event.id}
+                  href={{ pathname: '/events/[eventId]', params: { eventId: event.id } }}
+                  asChild
+                >
+                  <Pressable accessibilityRole="button" style={styles.card}>
+                    <Text style={styles.title}>{event.title}</Text>
+                    <Text style={styles.meta}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+                    <Text style={styles.meta}>
+                      {event.status === 'scheduled' && event.moderationStatus === 'approved'
+                        ? 'Past event'
+                        : eventStatusLabel(event)}
+                    </Text>
+                  </Pressable>
+                </WebSafeLink>
+              ))
+            : null}
+        </View>
+      ) : null}
     </Screen>
   );
 }

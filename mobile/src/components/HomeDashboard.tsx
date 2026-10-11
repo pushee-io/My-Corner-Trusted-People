@@ -1,7 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type PropsWithChildren } from 'react';
-import { Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Image,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type StyleProp,
+  type ImageStyle,
+} from 'react-native';
 import { AICharacterPresentation } from '@/components/AICharacterPresentation';
 import { MyCornerLogo } from '@/components/brand/MyCornerLogo';
 import { CommunicationActions } from '@/components/CommunicationActions';
@@ -13,6 +24,9 @@ import { tokens } from '@/theme/tokens';
 import type { MarketplaceListing, NeighborhoodFeedPost } from '@/types/contracts';
 import type { AgencyBroadcast } from '@/types/day3';
 import type { HomeGroup, HomeEvent } from '@/lib/home-dashboard';
+import { useEventClock } from '@/hooks/useEventClock';
+import { feedTimeLabel } from '@/lib/feed-time';
+import { FeedShareAction } from '@/components/FeedPostActions';
 import { formatEventDate } from '@/lib/events-format';
 
 export function HomeHeader({
@@ -77,7 +91,7 @@ export function HomeAICard({
         }}
         style={styles.aiHeading}
       >
-        <AICharacterPresentation character={character} />
+        <AICharacterPresentation character={character} state={question.trim() ? 'listening' : 'idle'} />
         <View style={styles.flex}>
           <Text accessibilityRole="header" style={styles.aiTitle}>
             Ask My Corner AI
@@ -170,7 +184,7 @@ export function HomeSectionState({
   );
 }
 
-function Thumbnail({ uri, label, style }: { uri?: string; label: string; style: typeof styles.thumbnail }) {
+function Thumbnail({ uri, label, style }: { uri?: string; label: string; style: StyleProp<ImageStyle> }) {
   const [failed, setFailed] = useState<string>();
   return uri && uri !== failed ? (
     <Image
@@ -189,39 +203,52 @@ function Thumbnail({ uri, label, style }: { uri?: string; label: string; style: 
 
 export function HomeFeedPreview({ post, image }: { post: NeighborhoodFeedPost; image?: string }) {
   return (
-    <WebSafeLink href={{ pathname: '/community', params: { postId: post.id } }} asChild>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Open post by ${post.authorName}`} style={styles.card}>
-        <View style={styles.authorRow}>
-          <MediaAvatar profileId={post.authorId} name={post.authorName} size={34} />
-          <View style={styles.flex}>
-            <Text numberOfLines={1} style={styles.author}>
-              {post.authorName}
-            </Text>
-            <Text style={styles.caption}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
+    <View style={[styles.card, styles.feedCard]}>
+      <WebSafeLink href={{ pathname: '/community', params: { postId: post.id } }} asChild>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Open post by ${post.authorName}`}
+          style={styles.feedContent}
+        >
+          <View style={styles.authorRow}>
+            <MediaAvatar profileId={post.authorId} name={post.authorName} size={40} />
+            <View style={styles.flex}>
+              <Text numberOfLines={1} style={styles.author}>
+                {post.authorName}
+              </Text>
+              <Text style={styles.caption}>{feedTimeLabel(post.createdAt)} · Neighborhood update</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={tokens.color.primary} accessible={false} />
           </View>
-        </View>
-        <View style={styles.feedBody}>
-          <Text numberOfLines={3} ellipsizeMode="tail" style={[styles.body, styles.flex]}>
+          <Text numberOfLines={3} ellipsizeMode="tail" style={styles.body}>
             {post.body}
           </Text>
-          {image ? <Thumbnail uri={image} label="Post preview" style={styles.thumbnail} /> : null}
-        </View>
-        <View style={styles.engagement}>
-          <View style={styles.actions}>
-            <Ionicons
-              name={post.likedByMe ? 'heart' : 'heart-outline'}
-              size={17}
-              color={tokens.color.primary}
-              accessible={false}
-            />
-            <Text style={styles.caption}>{post.likeCount} likes</Text>
-            <Ionicons name="chatbubble-outline" size={16} color={tokens.color.textSecondary} accessible={false} />
-            <Text style={styles.caption}>{post.comments.length} comments</Text>
+          {image ? <Thumbnail uri={image} label="Post preview" style={styles.feedImage} /> : null}
+          <View style={styles.engagement}>
+            <View style={styles.actions}>
+              <Ionicons
+                name={post.likedByMe ? 'heart' : 'heart-outline'}
+                size={17}
+                color={tokens.color.primary}
+                accessible={false}
+              />
+              <Text style={styles.caption}>
+                {post.likeCount} {post.likeCount === 1 ? 'like' : 'likes'}
+              </Text>
+              <Ionicons name="chatbubble-outline" size={16} color={tokens.color.textSecondary} accessible={false} />
+              <Text style={styles.caption}>
+                {post.comments.length} {post.comments.length === 1 ? 'comment' : 'comments'}
+              </Text>
+            </View>
+            <Text style={styles.link}>More →</Text>
           </View>
-          <Text style={styles.link}>More</Text>
-        </View>
-      </Pressable>
-    </WebSafeLink>
+        </Pressable>
+      </WebSafeLink>
+      <View style={styles.feedFooter}>
+        <Text style={styles.caption}>Join the conversation</Text>
+        <FeedShareAction post={post} />
+      </View>
+    </View>
   );
 }
 
@@ -255,68 +282,133 @@ export function HomeMarketplaceShowcase({ listings }: { listings: MarketplaceLis
   );
 }
 
+function PreviewArtwork({ uri, title, kind }: { uri?: string; title: string; kind: 'group' | 'event' }) {
+  const [failed, setFailed] = useState<string>();
+  if (uri && failed !== uri)
+    return (
+      <Image
+        source={{ uri }}
+        accessibilityLabel={`${title} ${kind === 'group' ? 'group image' : 'event image'}`}
+        resizeMode="cover"
+        style={styles.previewImage}
+        onError={() => setFailed(uri)}
+      />
+    );
+  return (
+    <View
+      style={[styles.previewImage, styles.artworkFallback, kind === 'event' && styles.eventFallback]}
+      accessibilityLabel={`${title}, no photo yet`}
+    >
+      <View style={styles.artworkCircle} />
+      <View style={styles.artworkCircleSmall} />
+      <Ionicons
+        name={kind === 'group' ? 'people-outline' : 'calendar-outline'}
+        size={32}
+        color={tokens.color.primary}
+        accessible={false}
+      />
+      <Text style={styles.fallbackTitle}>
+        {kind === 'group'
+          ? title
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((word) => word[0])
+              .join('')
+              .toUpperCase()
+          : 'Around the corner'}
+      </Text>
+    </View>
+  );
+}
+
 export function HomeGroupsPreview({ groups }: { groups: HomeGroup[] }) {
   return (
-    <View style={styles.previewList}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.marketRow}>
       {groups.map((group) => (
         <WebSafeLink key={group.id} href={{ pathname: '/groups/[groupId]', params: { groupId: group.id } }} asChild>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Open group: ${group.name}`}
-            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+            style={({ pressed }) => [styles.previewCard, pressed && styles.previewPressed]}
           >
-            {group.image ? (
-              <Thumbnail uri={group.image} label={group.name} style={styles.thumbnail} />
-            ) : (
-              <View style={styles.previewIcon}>
-                <Ionicons name="people-outline" size={26} color={tokens.color.primary} accessible={false} />
+            <PreviewArtwork uri={group.image} title={group.name} kind="group" />
+            <View style={styles.previewCardBody}>
+              <View style={styles.authorRow}>
+                {group.avatar && group.avatar !== group.image ? (
+                  <Thumbnail uri={group.avatar} label={`${group.name} profile image`} style={styles.groupAvatar} />
+                ) : null}
+                <Text numberOfLines={2} style={[styles.previewTitle, styles.flex]}>
+                  {group.name}
+                </Text>
               </View>
-            )}
-            <View style={[styles.flex, styles.previewCopy]}>
-              <Text numberOfLines={2} style={styles.previewTitle}>
-                {group.name}
-              </Text>
               <Text numberOfLines={2} style={styles.metadata}>
-                {group.description}
+                {group.description || 'Connect with neighbors who share your interests.'}
               </Text>
-              <Text style={styles.link}>
-                {group.memberCount} members{group.isMember ? ' · You’re a member' : ''}
-              </Text>
+              <View style={styles.engagement}>
+                <Text style={styles.caption}>
+                  {group.memberCount} {group.memberCount === 1 ? 'member' : 'members'}
+                </Text>
+                {group.isMember ? <Text style={styles.membership}>You’re a member</Text> : null}
+              </View>
+              <View style={styles.previewCardAction}>
+                <Text style={styles.link}>Explore group</Text>
+                <Ionicons name="arrow-forward" size={18} color={tokens.color.primary} accessible={false} />
+              </View>
             </View>
           </Pressable>
         </WebSafeLink>
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
 export function HomeEventsPreview({ events }: { events: HomeEvent[] }) {
+  const now = useEventClock(events);
+  const current = events.filter((event) => Date.parse(event.endsAt ?? event.startsAt) > now);
+  if (!current.length)
+    return (
+      <View style={styles.card}>
+        <Text style={styles.previewTitle}>Your next local plan starts here</Text>
+        <Text style={styles.metadata}>
+          No active or upcoming events. Explore Events for past gatherings or create a new plan.
+        </Text>
+      </View>
+    );
   return (
-    <View style={styles.previewList}>
-      {events.map((event) => (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.marketRow}>
+      {current.map((event) => (
         <WebSafeLink key={event.id} href={{ pathname: '/events/[eventId]', params: { eventId: event.id } }} asChild>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Open event: ${event.title}`}
-            style={({ pressed }) => [styles.card, styles.previewRow, pressed && styles.previewPressed]}
+            style={({ pressed }) => [styles.previewCard, pressed && styles.previewPressed]}
           >
-            <View style={[styles.previewIcon, styles.eventIcon]}>
-              <Ionicons name="calendar-outline" size={26} color={tokens.color.primary} accessible={false} />
-            </View>
-            <View style={[styles.flex, styles.previewCopy]}>
-              <Text style={styles.link}>{formatEventDate(event.startsAt, event.timezone)}</Text>
+            <PreviewArtwork uri={event.image} title={event.title} kind="event" />
+            <View style={styles.previewCardBody}>
+              <Text style={styles.eventDate}>{formatEventDate(event.startsAt, event.timezone)}</Text>
               <Text numberOfLines={2} style={styles.previewTitle}>
                 {event.title}
               </Text>
-              <Text numberOfLines={2} style={styles.metadata}>
-                {event.areaLabel}
-              </Text>
-              {event.isGoing ? <Text style={styles.link}>You’re going</Text> : null}
+              <View style={styles.authorRow}>
+                <Ionicons name="location-outline" size={15} color={tokens.color.textSecondary} accessible={false} />
+                <Text numberOfLines={2} style={[styles.metadata, styles.flex]}>
+                  {event.areaLabel}
+                </Text>
+              </View>
+              {Date.parse(event.startsAt) <= now ? (
+                <Text style={styles.membership}>Happening now</Text>
+              ) : event.isGoing ? (
+                <Text style={styles.membership}>You’re going</Text>
+              ) : null}
+              <View style={styles.previewCardAction}>
+                <Text style={styles.link}>View event</Text>
+                <Ionicons name="arrow-forward" size={18} color={tokens.color.primary} accessible={false} />
+              </View>
             </View>
           </Pressable>
         </WebSafeLink>
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -348,6 +440,78 @@ export function HomeBroadcastPreview({ broadcast }: { broadcast: AgencyBroadcast
 }
 
 const styles = StyleSheet.create({
+  feedCard: { padding: 0, overflow: 'hidden' },
+  feedContent: { padding: 12, gap: 10 },
+  feedImage: { width: '100%', height: 130, borderRadius: 10 },
+  feedFooter: {
+    borderTopWidth: 1,
+    borderTopColor: tokens.color.borderSubtle,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  previewCard: {
+    width: 252,
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSubtle,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  previewImage: { width: 250, height: 128 },
+  previewCardBody: { padding: 12, gap: 8 },
+  previewCardAction: {
+    minHeight: 36,
+    borderTopWidth: 1,
+    borderTopColor: tokens.color.borderSubtle,
+    paddingTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  groupAvatar: { width: 36, height: 36, borderRadius: 12 },
+  membership: {
+    color: tokens.color.primary,
+    backgroundColor: '#EAF4EF',
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+    fontSize: 12,
+    fontWeight: '600',
+    alignSelf: 'flex-start',
+    overflow: 'hidden',
+  },
+  eventDate: { color: tokens.color.primary, fontSize: 12, lineHeight: 18, fontWeight: '700' },
+  artworkFallback: {
+    backgroundColor: '#DCEAE2',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  eventFallback: { backgroundColor: '#F1E5CE' },
+  artworkCircle: {
+    position: 'absolute',
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: '#FFFFFF55',
+    top: -60,
+    right: -45,
+  },
+  artworkCircleSmall: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 12,
+    borderColor: '#FFFFFF66',
+    bottom: -45,
+    left: -20,
+  },
+  fallbackTitle: { color: tokens.color.primary, fontSize: 16, fontWeight: '700' },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
   brand: { flexGrow: 1, flexShrink: 1, minWidth: 150 },
   location: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },

@@ -117,3 +117,30 @@ it('uses a static state when Reduce Motion is enabled initially', async () => {
   expect(mockStart).not.toHaveBeenCalled();
   expect(JSON.stringify(view.toJSON())).toContain('Checking your neighborhood');
 });
+
+it('uses independent limb layers and expression frames without moving the entire body', async () => {
+  jest.useFakeTimers();
+  const schedule = jest.spyOn(globalThis, 'setTimeout');
+  const cancel = jest.spyOn(globalThis, 'clearTimeout');
+  await act(async () => {
+    view = create(
+      createElement(AICharacterExperience, { character: aiCharacters[0], selectCharacter: jest.fn(), state: 'answer' }),
+    );
+  });
+  expect(view.root.findAllByProps({ testID: 'character-independent-limb' })).toHaveLength(1);
+  expect(view.root.findAllByProps({ testID: 'character-expression-speaking' })).toHaveLength(1);
+  await act(async () => jest.advanceTimersByTime(2520));
+  expect(view.root.findAllByProps({ testID: 'character-expression-happy' })).toHaveLength(1);
+  await act(async () => jest.advanceTimersByTime(720));
+  expect(view.root.findAllByProps({ testID: 'character-expression-blink' })).toHaveLength(1);
+  const index = schedule.mock.calls
+    .map((call, i) => (call[1] === 120 ? i : -1))
+    .filter((i) => i >= 0)
+    .at(-1)!;
+  const timer = schedule.mock.results[index].value;
+  await act(async () => mockAppChange('background'));
+  expect(cancel).toHaveBeenCalledWith(timer);
+  schedule.mockRestore();
+  cancel.mockRestore();
+  jest.useRealTimers();
+});

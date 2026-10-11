@@ -12,8 +12,29 @@ const { renderToStaticMarkup } = require('react-dom/server');
 const Native = require('react-native-web');
 const root = path.resolve(__dirname, '..');
 const output = path.resolve(process.argv[2] ?? '/tmp/home-dashboard');
+// Stable fixture clock; the separate live motion process retains its real clock.
+Date.now = () => Date.parse('2026-10-11T02:00:00Z');
 fs.mkdirSync(output, { recursive: true });
 const h = React.createElement;
+const feedOnly = process.argv.includes('--feed-only');
+const renderOnly = process.argv.includes('--render-only');
+const capturedScenarios = [];
+// RN Web's static renderer emits already-loaded data URLs. Deduplicate them
+// after rendering into adjacent assets so the review archive stays portable/small.
+const fixtureImages = new Map();
+function fixtureImage(file) {
+  if (!fixtureImages.has(file)) {
+    const extension = path.extname(file).slice(1);
+    const bytes = fs.readFileSync(file);
+    const uri = `data:image/${extension === 'jpg' ? 'jpeg' : extension};base64,${bytes.toString('base64')}`;
+    const asset = `assets/${fixtureImages.size}-${path.basename(file)}`;
+    fs.mkdirSync(path.join(output, 'assets'), { recursive: true });
+    fs.writeFileSync(path.join(output, asset), bytes);
+    fixtureImages.set(file, { uri, asset });
+  }
+  return fixtureImages.get(file).uri;
+}
+const gardenPhoto = fixtureImage(path.join(__dirname, 'fixtures/garden.jpg'));
 const glyphs = require('@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json');
 const font = fs
   .readFileSync(require.resolve('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'))
@@ -28,6 +49,8 @@ const post = {
   likeCount: 4,
   comments: [{ id: 'fixture-comment' }],
   likedByMe: false,
+  moderationStatus: 'clean',
+  visibility: 'verified_neighborhood_members',
 };
 const illustration = (fill) =>
   'data:image/svg+xml;base64,' +
@@ -63,13 +86,19 @@ for (const scenario of [
   { name: 'hire-categories', width: 390, height: 844, page: 'app/hire/categories.tsx', route: '/hire/categories' },
   { name: 'hire-providers', width: 390, height: 1000, page: 'app/hire/providers.tsx', route: '/hire/providers' },
   { name: 'trust-phone', width: 390, height: 760, component: 'trust', route: '/hire/provider/fixture' },
-  { name: 'feed-actions', width: 390, height: 760, component: 'feed', route: '/community' },
+  { name: 'feed-actions', width: 390, height: 844, component: 'feed', route: '/community' },
+  { name: 'feed-compact', width: 320, height: 900, component: 'feed', route: '/community' },
+  { name: 'feed-media', width: 390, height: 1100, component: 'feed', route: '/community', feedMedia: true },
+  { name: 'feed-large-text', width: 390, height: 1400, scale: 1.6, component: 'feed', route: '/community' },
+  { name: 'feed-tablet', width: 840, height: 1100, component: 'feed', route: '/community' },
   { name: 'focused-form', width: 390, height: 760, component: 'form', route: '/hire/request/new' },
   { name: 'critical-toast', width: 390, height: 760, component: 'toast' },
   { name: 'ai-thinking', width: 390, height: 430, motion: 'thinking', character: 'older-man' },
   { name: 'ai-answer', width: 390, height: 430, motion: 'answer', character: 'young-man' },
   { name: 'ai-attention', width: 390, height: 430, motion: 'attention', character: 'woman-purple' },
 ]) {
+  if (feedOnly && scenario.component !== 'feed') continue;
+  capturedScenarios.push(scenario.name);
   const cache = new Map();
   function resource(load) {
     let data;
@@ -143,6 +172,7 @@ for (const scenario of [
         : [
             {
               id: 'fixture-group-garden',
+              image: gardenPhoto,
               name: 'Garden neighbors',
               description: 'Growing greener streets, together.',
               memberCount: 24,
@@ -165,6 +195,7 @@ for (const scenario of [
             : [
                 {
                   id: 'fixture-event',
+                  image: gardenPhoto,
                   title: 'Community garden morning',
                   startsAt: '2026-10-17T08:00:00Z',
                   timezone: 'Africa/Accra',
@@ -277,7 +308,18 @@ for (const scenario of [
             ),
         };
       if (name.endsWith('WebSafeLink')) return { WebSafeLink: ({ children }) => children };
-      if (name.endsWith('CollapsibleComments')) return { CommentsProvider: ({ children }) => children };
+      if (name.endsWith('MediaGallery'))
+        return {
+          MediaGallery: ({ parentId }) =>
+            scenario.feedMedia && parentId === post.id
+              ? h(Native.Image, {
+                  source: { uri: gardenPhoto },
+                  accessibilityLabel: 'Test-only garden photo',
+                  resizeMode: 'cover',
+                  style: { width: '100%', height: 180, borderRadius: 10 },
+                })
+              : null,
+        };
       if (name.endsWith('MediaThumbnail')) return { MediaThumbnail: () => null };
       if (name.endsWith('MediaAvatar'))
         return {
@@ -310,9 +352,7 @@ for (const scenario of [
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
       if (name.endsWith('.png'))
         return {
-          uri:
-            'data:image/png;base64,' +
-            fs.readFileSync(path.resolve(root, path.dirname(relative), name)).toString('base64'),
+          uri: fixtureImage(path.resolve(root, path.dirname(relative), name)),
         };
       if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
       if (name.includes('community-actions') && name.startsWith('@/lib/'))
@@ -326,6 +366,9 @@ for (const scenario of [
           '@/lib/navigation-layout',
           '@/lib/mock-data',
           '@/lib/ai-characters',
+          '@/lib/ai-character-motion',
+          '@/lib/feed-time',
+          '@/lib/event-lifecycle',
           '@/lib/communication-notices',
           '@/lib/feed-share',
           '@/lib/events-format',
@@ -369,15 +412,29 @@ for (const scenario of [
               Native.View,
               { style: { gap: 16 } },
               h(Native.Text, { style: { fontSize: 18, fontWeight: '700' } }, 'What’s happening, neighbor?'),
-              h(
-                Native.View,
-                { style: { padding: 16, backgroundColor: 'white', borderRadius: 16, gap: 12 } },
-                h(Native.Text, { style: { fontWeight: '700' } }, post.authorName),
-                h(Native.Text, null, post.body),
-                h(loadSource('src/components/FeedPostActions.tsx').FeedPostActions, {
-                  post: { ...post, moderationStatus: 'clean' },
+              ...[
+                { ...post, likedByMe: true },
+                {
+                  ...post,
+                  id: 'fixture-second',
+                  authorName: 'Kojo Mensah',
+                  createdAt: '2026-10-11T01:45:00Z',
+                  body: 'Does anyone know when the book exchange starts on Saturday?',
+                  likeCount: 0,
+                  comments: [],
+                  moderationStatus: 'pending',
+                },
+              ].map((fixturePost) =>
+                h(loadSource('src/components/FeedPostCard.tsx').FeedPostCard, {
+                  key: fixturePost.id,
+                  post: fixturePost,
+                  mediaRefresh: 0,
+                  liking: false,
                   reporting: false,
+                  replying: false,
+                  onLike: () => {},
                   onReport: () => {},
+                  children: () => h(Native.Text, null, 'Test-only reply content'),
                 }),
               ),
             )
@@ -441,7 +498,8 @@ for (const scenario of [
       : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
-  const markup = renderToStaticMarkup(element);
+  let markup = renderToStaticMarkup(element);
+  for (const { uri, asset } of fixtureImages.values()) markup = markup.replaceAll(uri, asset);
   const html =
     '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
     renderToStaticMarkup(getStyleElement()) +
@@ -454,6 +512,7 @@ for (const scenario of [
     '</body></html>';
   const file = path.join(output, 'home-' + scenario.name + '.html');
   fs.writeFileSync(file, html);
+  if (renderOnly) continue;
   const screenshot = path.join(output, 'home-' + scenario.name + '.png');
   execFileSync(
     process.env.CHROME_BIN ?? 'google-chrome',
@@ -480,36 +539,19 @@ fs.writeFileSync(
         'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
       native: false,
       authenticatedData: false,
-      scenarios: [
-        'hire-categories',
-        'hire-providers',
-        'trust-phone',
-        'feed-actions',
-        'focused-form',
-        'critical-toast',
-        'phone',
-        'home-full',
-        'home-empty-full',
-        'events-disabled',
-        'compact',
-        'tablet',
-        'large-text',
-        'empty',
-        'error',
-        'ask-phone',
-        'ask-compact',
-        'ask-large-text',
-        'ai-thinking',
-        'ai-answer',
-        'ai-attention',
-        'search-phone',
-        'messages-phone',
-        'notifications-phone',
-        'settings-phone',
-        'settings-compact',
+      scenarios: capturedScenarios,
+      notes: [
+        'Feed uses the actual production FeedPostCard and action bar; public identity, media and content are test-only fixtures. No authenticated/native-device claim.',
       ],
     },
     null,
     2,
   ),
 );
+
+if (!feedOnly && !renderOnly)
+  execFileSync(
+    process.execPath,
+    [path.join(__dirname, 'capture-character-motion.cjs'), path.join(output, 'character-motion')],
+    { stdio: 'inherit' },
+  );
