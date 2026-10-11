@@ -6,7 +6,7 @@ import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvat
 import { ParentMediaEditor } from '@/components/media/ParentMediaEditor';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/StateBlocks';
 import { getCurrentProfile } from '@/lib/auth';
@@ -181,21 +181,10 @@ export default function GroupDetailScreen() {
   function sharePost(post: SocialGroupPostDetail) {
     if (!section) return;
 
-    Alert.alert(
-      'Share carefully',
-      'This group is limited to verified neighbors. Make sure the author is comfortable with sharing outside it.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Continue',
-          onPress: () =>
-            void Share.share({
-              title: section.group.name,
-              message: `${post.authorName} in ${section.group.name}: ${post.body}`,
-            }).catch(() => setError('Could not open sharing. Try again.')),
-        },
-      ],
-    );
+    void Share.share({
+      title: 'My Corner',
+      message: `Open this group in My Corner. Sign-in and group access are required.\nmycorner://groups/${encodeURIComponent(section.group.id)}?postId=${encodeURIComponent(post.id)}`,
+    }).catch(() => setError('Could not open sharing. Try again.'));
   }
 
   async function reportPost(postId: string, reason: string) {
@@ -494,7 +483,7 @@ const styles = StyleSheet.create({
   commentButton: {
     alignItems: 'center',
     backgroundColor: tokens.color.primary,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     justifyContent: 'center',
     minHeight: tokens.touch.min,
     paddingHorizontal: tokens.spacing.md,
@@ -503,7 +492,7 @@ const styles = StyleSheet.create({
   commentComposer: { flexDirection: 'row', gap: tokens.spacing.sm },
   commentInput: {
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     flex: 1,
@@ -520,7 +509,7 @@ const styles = StyleSheet.create({
   composer: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
@@ -536,7 +525,7 @@ const styles = StyleSheet.create({
   error: {
     backgroundColor: '#FDECEA',
     borderColor: tokens.color.error,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.error,
     padding: tokens.spacing.md,
@@ -547,7 +536,7 @@ const styles = StyleSheet.create({
   membershipPanel: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     gap: tokens.spacing.md,
     padding: tokens.spacing.lg,
@@ -556,7 +545,7 @@ const styles = StyleSheet.create({
   notice: {
     backgroundColor: '#EEF7F4',
     borderColor: tokens.color.success,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     padding: tokens.spacing.md,
@@ -572,7 +561,7 @@ const styles = StyleSheet.create({
   postBody: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 24 },
   postInput: {
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
@@ -581,7 +570,7 @@ const styles = StyleSheet.create({
   },
   postList: {
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     overflow: 'hidden',
   },
@@ -589,7 +578,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
     backgroundColor: tokens.color.primary,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     justifyContent: 'center',
     minHeight: tokens.touch.min,
     paddingHorizontal: tokens.spacing.lg,

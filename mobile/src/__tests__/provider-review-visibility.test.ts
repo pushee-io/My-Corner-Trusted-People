@@ -1,3 +1,4 @@
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { router } from 'expo-router';
@@ -22,6 +23,7 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'android' },
   Text: 'Text',
   View: 'View',
+  Keyboard: { dismiss: jest.fn() },
   TextInput: 'TextInput',
   Pressable: 'Pressable',
   StyleSheet: { create: (s: unknown) => s },
@@ -173,18 +175,18 @@ it('renders a negative recommendation and no unrelated response', async () => {
   expect(output()).not.toContain('Provider response');
 });
 
-it('places the single primary request action after identity/trust and before reputation and coverage', async () => {
+it('places the single primary request action after identity and before reputation, supporting trust and coverage', async () => {
   await render(createElement(ProviderProfile));
   const texts = renderer.root.findAllByType('Text' as never).map((node) => node.children.join(''));
   expect(texts.filter((text) => text === 'Start request')).toHaveLength(1);
   const order = [
     'Plumbing',
     'QA · General area',
-    'Trust signals',
-    'Phone: Verified',
     'Start request',
     'Provider reputation',
     'Reviews',
+    'Trust signals',
+    'Phone: Verified',
     'Service coverage',
   ];
   for (let index = 1; index < order.length; index++) {

@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   body: { color: tokens.color.textPrimary, fontSize: tokens.type.body, lineHeight: 22 },
   button: {
     backgroundColor: tokens.color.primary,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     justifyContent: 'center',
     minHeight: tokens.touch.min,
     padding: tokens.spacing.lg,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   buttonText: { color: '#FFFFFF', fontSize: tokens.type.body, fontWeight: '700', textAlign: 'center' },
   image: {
     backgroundColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     flexBasis: '48%',
     height: 180,
     minWidth: 145,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     alignItems: 'center',
     backgroundColor: '#EEF7F4',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     height: 160,
     justifyContent: 'center',
     width: '100%',
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   imagePlaceholderText: { color: tokens.color.textSecondary, fontSize: tokens.type.support, fontWeight: '700' },
   input: {
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   price: { color: tokens.color.primary, fontSize: tokens.type.card, fontWeight: '700' },
   privacyNote: {
     backgroundColor: '#FFF4D6',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.support,
     lineHeight: 20,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   },
   privateDetails: {
     backgroundColor: '#E7F6EE',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,
     lineHeight: 22,
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     borderColor: tokens.color.primary,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     justifyContent: 'center',
     minHeight: tokens.touch.min,
@@ -452,14 +452,14 @@ const styles = StyleSheet.create({
   status: { color: tokens.color.primary, fontSize: tokens.type.support, fontWeight: '700' },
   success: {
     backgroundColor: '#E7F6EE',
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.support,
     padding: tokens.spacing.md,
   },
   textArea: {
     borderColor: tokens.color.border,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.radius.card,
     borderWidth: 1,
     color: tokens.color.textPrimary,
     fontSize: tokens.type.body,

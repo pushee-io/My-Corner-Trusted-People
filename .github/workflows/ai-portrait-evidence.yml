@@ -1,0 +1,22 @@
+name: AI portrait derivation
+on:
+  push:
+    branches: [codex/home-ai-continuation-2026]
+    paths:
+      - 'mobile/scripts/derive-ai-portraits.py'
+      - '.github/workflows/ai-portrait-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  portraits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install Pillow==11.3.0
+      - run: python3 mobile/scripts/derive-ai-portraits.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: derived-ai-portraits
+          path: ${{ runner.temp }}/ai-portraits
+          if-no-files-found: error

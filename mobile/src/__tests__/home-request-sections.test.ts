@@ -1,3 +1,10 @@
+jest.mock('@/components/AICharacterPresentation', () => ({ AICharacterPresentation: 'AnimatedCharacter' }));
+jest.mock('@/hooks/useAICharacter', () => ({
+  useAICharacter: () => ({
+    character: jest.requireActual('@/lib/ai-characters').defaultAICharacter,
+    selectCharacter: jest.fn(),
+  }),
+}));
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import HomeScreen from '../../app/home';
@@ -7,6 +14,7 @@ let mockRequests: JobRequest[] = [];
 let mockCapabilities = { community: true, provider: false, moderator: false, neighborhoodId: 'area' };
 let mockNeighborhood: { name: string; city: string } | null = { name: 'Osu', city: 'Accra' };
 jest.mock('react-native', () => ({
+  useWindowDimensions: () => ({ fontScale: 1 }),
   View: 'View',
   Text: 'Text',
   Pressable: 'Pressable',
@@ -16,7 +24,7 @@ jest.mock('react-native', () => ({
   Keyboard: { dismiss: jest.fn() },
   StyleSheet: { create: (s: unknown) => s },
 }));
-jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
+jest.mock('expo-router', () => ({ router: { push: jest.fn() }, useFocusEffect: () => {} }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
 jest.mock('../../assets/my-corner-ai/characters/character-woman-kente.png', () => 1);
 jest.mock('@/components/Screen', () => ({
@@ -34,6 +42,8 @@ jest.mock('@/lib/home-dashboard', () => ({
   loadHomeFeed: jest.fn(),
   loadHomeMarketplace: jest.fn(),
   loadHomeBroadcast: jest.fn(),
+  loadHomeGroups: jest.fn(),
+  loadHomeEvents: jest.fn(),
   loadHomeNotificationCount: jest.fn(),
   previewImage: jest.fn(),
 }));
@@ -140,6 +150,8 @@ it('uses the specified dashboard order and removes directory sections', async ()
     'Hire Trusted Local Help',
     'LATEST FEED UPDATES',
     'MARKETPLACE SHOWCASE',
+    'GROUPS',
+    'EVENTS',
     'AGENCY BROADCAST',
     'My Requests',
   ];
@@ -155,6 +167,8 @@ it('preserves provider and moderation access and removes previews when capabilit
   expect(routes()).toContain('/hire/categories');
   expect(routes()).not.toContain('/community');
   expect(routes()).not.toContain('/marketplace');
+  expect(routes()).not.toContain('/groups');
+  expect(routes()).not.toContain('/events');
   mockCapabilities = { community: true, provider: false, moderator: true, neighborhoodId: 'area' };
   await act(async () => view.update(createElement(HomeScreen)));
   expect(routes()).toContain('/community');
@@ -165,4 +179,6 @@ it('preserves provider and moderation access and removes previews when capabilit
   await act(async () => view.update(createElement(HomeScreen)));
   expect(routes()).not.toContain('/community/moderation');
   expect(routes()).not.toContain('/marketplace');
+  expect(routes()).not.toContain('/groups');
+  expect(routes()).not.toContain('/events');
 });

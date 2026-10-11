@@ -96,3 +96,23 @@ it('preserves selected semantics, touch size, press and focus feedback', async (
   expect(focused.borderColor).not.toBe(normal.borderColor);
   expect(focused.borderWidth).toBe(normal.borderWidth);
 });
+
+it.each([
+  ['/home', 'Home'],
+  ['/marketplace/listing/item', 'Market'],
+  ['/settings/privacy', 'Settings'],
+  ['/search', 'Search'],
+  ['/community', 'Community'],
+  ['/hire/provider/person', 'Hire'],
+])('keeps only the current destination green at %s, including capability refresh', async (path, label) => {
+  mockCapabilities = { loading: true };
+  mockPath = path;
+  await act(async () => {
+    view = create(createElement(BottomNavigation));
+  });
+  expect(tabs().filter((node) => node.props.accessibilityState.selected)).toHaveLength(1);
+  for (const node of tabs()) {
+    const icon = node.findAll((child) => child.type === ('Icon' as never) || child.type === ('Artwork' as never))[0];
+    expect(icon.props.color === '#0E6B50').toBe(node.props.accessibilityLabel === label);
+  }
+});

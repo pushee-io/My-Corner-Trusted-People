@@ -4,6 +4,8 @@ import {
   type SearchRpc,
 } from '../../../supabase/functions/_shared/neighborhood-search';
 import type { Source } from '../../../supabase/functions/_shared/neighborhood-assistant';
+import { reputationSignals } from '@/lib/reputation-signals';
+import type { TrustSignal } from '@/types/contracts';
 export type SearchResultKind = 'post' | 'event' | 'provider' | 'group' | 'agency_broadcast' | 'marketplace_listing';
 export type SearchResult = {
   id: string;
@@ -16,20 +18,12 @@ export type SearchResult = {
   mediaParent?: import('@/lib/media-contract').MediaParent;
   mediaParentId?: string;
   thumbnailUrl?: string;
+  trustSignals?: TrustSignal[];
 };
 export type SearchResults = SearchResult[] & { unavailableSources?: string[] };
 export type SearchRepository = { search: (query: string) => Promise<SearchResults> };
 function displaySource(source: Source): SearchResult {
-  const reputation = source.reputation;
   const details = [source.authority];
-  if (reputation)
-    details.push(
-      reputation.verifiedCount
-        ? `${reputation.average.toFixed(1)} / 5 · ${reputation.verifiedCount} verified reviews`
-        : 'No verified reviews yet',
-    );
-  if (reputation?.completedJobs !== undefined)
-    details.push(`${reputation.completedJobs} confirmed completed My Corner jobs`);
   if (source.availability) details.push(`Provider-stated availability: ${source.availability}`);
   return {
     id: `${source.kind}-${source.id}`,
@@ -44,6 +38,7 @@ function displaySource(source: Source): SearchResult {
     body: source.text,
     href: source.href,
     sourceLabel: sourceRegistry[source.kind].label,
+    trustSignals: reputationSignals(source.reputation),
   };
 }
 // One injectable adapter, with the same authorized planner/RPC path in every mode.

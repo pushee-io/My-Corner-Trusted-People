@@ -108,8 +108,9 @@ for layout, size, density, font_scale in [('phone', '720x1600', '320', '1.0'), (
                 labels = [n.get('content-desc') for n in current]
                 if scenario in ['provider', 'request']:
                     assert 'Go back' in labels
-                    assert 'Messages, 4 unread' not in labels
-                    assert 'Notifications' not in labels
+                    # Current founder direction keeps compact access on every private screen.
+                    assert 'Messages' in labels
+                    assert 'Notifications' in labels
                 if scenario == 'request':
                     assert 'Home' not in labels  # No bottom tabs on focused form.
             (out / (name + '.xml')).write_bytes(adb('shell', 'cat', '/sdcard/qa.xml'))

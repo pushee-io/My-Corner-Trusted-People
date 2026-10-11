@@ -1,0 +1,79 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AICharacterPresentation, type AIMotionState } from '@/components/AICharacterPresentation';
+import { aiCharacters, type AICharacter, type AICharacterId } from '@/lib/ai-characters';
+import { AICharacterPortrait } from '@/components/AICharacterPortrait';
+import { tokens } from '@/theme/tokens';
+
+export type { AIMotionState } from '@/components/AICharacterPresentation';
+const messages: Record<AIMotionState, string> = {
+  idle: 'How can I help?',
+  thinking: 'Checking your neighborhood…',
+  answer: 'Here is what I found.',
+  attention: 'Let’s try another way.',
+};
+export function AICharacterExperience({
+  character,
+  selectCharacter,
+  state,
+}: {
+  character: AICharacter;
+  selectCharacter: (id: AICharacterId) => void;
+  state: AIMotionState;
+}) {
+  return (
+    <View style={styles.container}>
+      <View style={[styles.stage, state === 'attention' && styles.attention]}>
+        <View style={styles.introduction}>
+          <Text accessibilityRole="header" style={styles.title}>
+            Your neighborhood concierge
+          </Text>
+          <Text accessibilityLiveRegion="polite" style={styles.message}>
+            {messages[state]}
+          </Text>
+          <Text style={styles.hint}>Answers grounded in your neighborhood.</Text>
+        </View>
+        <AICharacterPresentation character={character} state={state} size={112} />
+      </View>
+      <Text style={styles.selectorLabel}>Choose your My Corner AI character</Text>
+      <View accessibilityRole="radiogroup" style={styles.selector}>
+        {aiCharacters.map((option) => (
+          <Pressable
+            key={option.id}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ checked: option.id === character.id }}
+            onPress={() => selectCharacter(option.id)}
+            style={({ pressed }) => [styles.option, pressed && styles.pressed]}
+          >
+            <AICharacterPortrait character={option} size={58} selected={option.id === character.id} />
+            <Text style={[styles.choice, option.id === character.id && styles.chosen]}>{option.displayName}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: { gap: 8 },
+  stage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#144C43',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 2,
+    borderColor: '#144C43',
+    gap: 4,
+  },
+  attention: { borderColor: tokens.color.gold },
+  introduction: { flex: 1, minWidth: 0, gap: 8 },
+  title: { color: tokens.color.onPrimary, fontSize: 17, lineHeight: 23, fontWeight: '700' },
+  message: { color: tokens.color.onPrimary, fontSize: 15, lineHeight: 21 },
+  hint: { color: '#DCECE3', fontSize: 12, lineHeight: 18 },
+  selectorLabel: { color: tokens.color.textSecondary, ...tokens.typography.caption },
+  selector: { flexDirection: 'row', justifyContent: 'space-between', gap: 2 },
+  option: { flex: 1, minHeight: 80, minWidth: 58, alignItems: 'center', borderRadius: 12, paddingVertical: 4, gap: 2 },
+  pressed: { backgroundColor: tokens.color.surfacePressed },
+  choice: { color: tokens.color.textSecondary, fontSize: 12, lineHeight: 18, textAlign: 'center', flexShrink: 1 },
+  chosen: { color: tokens.color.primary, fontWeight: '700' },
+});

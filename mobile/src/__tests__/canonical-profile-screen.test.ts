@@ -3,6 +3,8 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import ProfileScreen from '../../app/profile';
 import { getCurrentProfile } from '@/lib/auth';
 import { loadOwnPublicName } from '@/lib/messaging';
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Icon' }));
+jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
 jest.mock('react-native', () => ({
   View: 'View',
   Text: 'Text',

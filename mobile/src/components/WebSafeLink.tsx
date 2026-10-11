@@ -9,8 +9,11 @@ type WebSafeLinkProps = {
 };
 
 export function WebSafeLink({ children, href }: WebSafeLinkProps) {
-  if (Platform.OS === 'web') {
+  // Expo's native Link slot flattens function-valued styles as objects, dropping
+  // the Pressable background/layout. Keep the Pressable as owner of that style.
+  if (Platform.OS === 'web' || typeof children.props.style === 'function') {
     const onPress: PressableProps['onPress'] = (event) => {
+      if (children.props.disabled) return;
       children.props.onPress?.(event);
       router.push(href);
     };

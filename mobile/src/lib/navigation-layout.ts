@@ -1,6 +1,11 @@
 // Presentation policy only. No role checks, data fetching or navigation redirects.
 const focusedForms = new Set([
   '/hire/request/new',
+  '/community/new-post',
+  '/hire/request/report-cancel',
+  '/report/evidence',
+  '/provider/request/status-update',
+  '/provider/availability',
   '/hire/request/review',
   '/groups/new',
   '/events/new',

@@ -31,7 +31,9 @@ jest.mock('expo-router', () => ({
   usePathname: jest.fn(),
 }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => '00000000-0000-4000-8000-000000000011' }));
-jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
+jest.mock('@/components/Screen', () => ({
+  Screen: ({ children, footer }: { children: unknown; footer?: unknown }) => [children, footer],
+}));
 jest.mock('@/components/StateBlocks', () => ({
   OfflineBanner: 'OfflineBanner',
   EmptyState: 'EmptyState',

@@ -1,0 +1,146 @@
+{
+  "renderer": "Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures",
+  "native": false,
+  "authenticatedData": false,
+  "scenarios": [
+    "hire-categories",
+    "hire-providers",
+    "trust-phone",
+    "feed-actions",
+    "focused-form",
+    "critical-toast",
+    "phone",
+    "home-full",
+    "home-empty-full",
+    "events-disabled",
+    "compact",
+    "tablet",
+    "large-text",
+    "empty",
+    "error",
+    "ask-phone",
+    "ask-compact",
+    "ask-large-text",
+    "ai-thinking",
+    "ai-answer",
+    "ai-attention",
+    "search-phone",
+    "messages-phone",
+    "notifications-phone",
+    "settings-phone",
+    "settings-compact"
+  ],
+  "sourceCommit": "96a0f3586021b16abe0f4155f9c612fd4c7bee04",
+  "workflowRun": "https://github.com/pushee-io/My-Corner-Trusted-People/actions/runs/38082827645",
+  "notes": [
+    "Test-only React Native Web renders of actual screen components; Feed/trust/form/toast are component compositions.",
+    "home-full and home-empty-full use extended-height canvases to expose the dashboard order; they are not native scrolling captures.",
+    "Static images cannot establish animation smoothness, gestures, keyboard/Back or TalkBack."
+  ],
+  "files": [
+    {
+      "file": "ai-answer.png",
+      "sha256": "cd6d5eb03f4abcb1426cc30d89e5493205bcb0f4b12e8e448a2288bb316c1493"
+    },
+    {
+      "file": "ai-attention.png",
+      "sha256": "777d7d072552ee3758a3dae1af3669950dec96e1e5bf5c0f6d3999f24ca04b41"
+    },
+    {
+      "file": "ai-thinking.png",
+      "sha256": "ca26290c0ee998675813d2ea1066d6faeca7d34b9e9b365488187176dc643e18"
+    },
+    {
+      "file": "ask-compact.png",
+      "sha256": "c167a51cb8c5567493c6f40c754cd6b159951d56682213f88359872ed839c617"
+    },
+    {
+      "file": "ask-large-text.png",
+      "sha256": "65729bcd895728cb37c586ac6254c06841854f8df16b867c929447b4cd6c5018"
+    },
+    {
+      "file": "ask-phone.png",
+      "sha256": "b1f315360f54ee83689919dc9b6b3e27df3c28d99e676b9067d3d2d5328278a6"
+    },
+    {
+      "file": "compact.png",
+      "sha256": "5700bcf93ccb1c00e828f89f9a78de52ea32220889f20a267cf03cf92c2f9ad1"
+    },
+    {
+      "file": "critical-toast.png",
+      "sha256": "0dfe5686e0d1db9e23e7fc3c1efa5fc0b2d2445618d44f3fd7b320685a0b0c9b"
+    },
+    {
+      "file": "empty.png",
+      "sha256": "6d11baafd691b99768371cff71637aef6830d8af99df532c3fbdee34c5e78caa"
+    },
+    {
+      "file": "error.png",
+      "sha256": "5eae4c32d065037bff82fb12593851cc67b8234090ba7a2805e48a2ab8885b48"
+    },
+    {
+      "file": "events-disabled.png",
+      "sha256": "943f79cc164686a4cfb7d701c8a0c063c38e755cfca583dec12d7d21599c7926"
+    },
+    {
+      "file": "feed-actions.png",
+      "sha256": "054314cf6bfe0b1c0dfa9ae1d1b219d10b36a5678b4206d2796e25bc4a1e1fc8"
+    },
+    {
+      "file": "focused-form.png",
+      "sha256": "cfef08485e34d88631dea46cbdb295cac3b09f82b4698b258ea61b338140ea8a"
+    },
+    {
+      "file": "hire-categories.png",
+      "sha256": "69707067eb634bd70f894506d67e92e1cd83e479c3f2afc68e863b18873b165c"
+    },
+    {
+      "file": "hire-providers.png",
+      "sha256": "83794435204dda1298d6b5abb4494825aec691da61fdbe751ad53fccbf576053"
+    },
+    {
+      "file": "home-empty-full.png",
+      "sha256": "bdb847baf0ff4fa872225d5995e9a6dbe4a4a86d5548a93ca4742a5006d8a1ef"
+    },
+    {
+      "file": "home-full.png",
+      "sha256": "a38d0109cbb907771d62c702411d5a1900db50177126a8cda07f33c0a1ecc0b9"
+    },
+    {
+      "file": "large-text.png",
+      "sha256": "1fb05f980a9c082c9b8a8dd355c8f0f239b7b78348427ccd48d110ae983a1995"
+    },
+    {
+      "file": "messages-phone.png",
+      "sha256": "8fbc7d909f86994b8429d5a83c6261b3f49047597639819d398ca6caf9d75d18"
+    },
+    {
+      "file": "notifications-phone.png",
+      "sha256": "516864b512533fc5dbd2129d85e1fbf869809c4f25015b3ee9bc49e7b6b986eb"
+    },
+    {
+      "file": "phone.png",
+      "sha256": "4d45251078047ffad5544fe6d3e4f3d628ffbb2007ddf8e701c286c232000668"
+    },
+    {
+      "file": "search-phone.png",
+      "sha256": "4c5c2a8d72bc29ac39b441ac6a8d4135499c628c0ffec4b27d9e4d02d95f595c"
+    },
+    {
+      "file": "settings-compact.png",
+      "sha256": "cc4e7e3669adebd28fbcb762a28ef9e1446f24f3b07e940c79d36d8e40bd2622"
+    },
+    {
+      "file": "settings-phone.png",
+      "sha256": "64fb48622f9a231b5e5512d53b00ed2979fb2dc2520683dc807aabf519078650"
+    },
+    {
+      "file": "tablet.png",
+      "sha256": "2a9a6409c64ea364d3eebd49710f5375f6dc50a5098246338f4d4c17e2a72d57"
+    },
+    {
+      "file": "trust-phone.png",
+      "sha256": "7774117603dd438cf8156c5b9df483dec5d6147aa7803f63792415ed4eb2eeec"
+    }
+  ]
+}

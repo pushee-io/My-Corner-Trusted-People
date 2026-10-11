@@ -4,6 +4,7 @@ import { getCommunityActionsReadRepository } from '@/lib/community-actions-repos
 import { getMarketplaceNeighborhood, listMarketplaceListings } from '@/lib/marketplace-repository';
 import { listMedia } from '@/lib/media-repository';
 import { loadNotifications } from '@/lib/messaging';
+import { eventsRuntimeRepository } from '@/lib/events-runtime-repository';
 import type { DisplayMedia } from '@/lib/media-contract';
 
 export async function loadHomeFeed() {
@@ -18,6 +19,69 @@ export async function loadHomeMarketplace() {
   const neighborhood = await getMarketplaceNeighborhood();
   return listMarketplaceListings(neighborhood.id, 6);
 }
+
+export async function loadHomeGroups() {
+  const repository = getCommunityActionsReadRepository();
+  if (repository.mode !== 'supabase') throw new Error('Live groups unavailable');
+  const viewer = await getCurrentCapabilities();
+  if (!viewer.community || !viewer.neighborhoodId) return [];
+  const sections = await repository.listSocialGroupScreenSections({
+    profileId: viewer.profileId,
+    neighborhoodId: viewer.neighborhoodId,
+    clusterId: viewer.clusterId ?? '',
+    regionId: 'greater-accra',
+    isVerifiedNeighborhoodMember: viewer.community,
+  });
+  const groups = sections
+    .filter(({ group }) => group.moderationStatus !== 'blocked')
+    .sort((a, b) => Date.parse(b.group.createdAt) - Date.parse(a.group.createdAt))
+    .slice(0, 2);
+  const media = groups.length
+    ? await listMedia(
+        'group_avatar',
+        groups.map(({ group }) => group.id),
+      ).catch(() => [])
+    : [];
+  // Home needs public group metadata, never posts or other people's membership.
+  return groups.map(({ group, membershipStatus }) => ({
+    id: group.id,
+    name: group.name,
+    description: group.description,
+    memberCount: group.memberCount,
+    isMember: membershipStatus === 'accepted',
+    image: previewImage(media.find((item) => item.parent_id === group.id)),
+  }));
+}
+export type HomeGroup = Awaited<ReturnType<typeof loadHomeGroups>>[number];
+
+export async function loadHomeEvents() {
+  if (eventsRuntimeRepository.mode !== 'supabase') throw new Error('Live events unavailable');
+  if (!(await eventsRuntimeRepository.isEnabled())) return { enabled: false, events: [] };
+  const events = await eventsRuntimeRepository.listEvents();
+  // The legacy offline cache is not scoped to Home's signed-in session. Fail closed.
+  if (eventsRuntimeRepository.getDiagnostics().lastReadUsedCache) throw new Error('Live events unavailable');
+  return {
+    enabled: true,
+    events: events
+      .filter(
+        (event) =>
+          event.status === 'scheduled' &&
+          event.moderationStatus === 'approved' &&
+          Date.parse(event.startsAt) >= Date.now(),
+      )
+      .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))
+      .slice(0, 2)
+      .map((event) => ({
+        id: event.id,
+        title: event.title,
+        startsAt: event.startsAt,
+        timezone: event.timezone,
+        areaLabel: event.areaLabel,
+        isGoing: event.currentUserRsvpStatus === 'going',
+      })),
+  };
+}
+export type HomeEvent = Awaited<ReturnType<typeof loadHomeEvents>>['events'][number];
 
 export async function loadHomeBroadcast() {
   const repository = getCommunityActionsReadRepository();
