@@ -16,6 +16,9 @@ const output = path.resolve(process.argv[2] ?? '/tmp/home-dashboard');
 Date.now = () => Date.parse('2026-10-11T02:00:00Z');
 fs.mkdirSync(output, { recursive: true });
 const h = React.createElement;
+const feedOnly = process.argv.includes('--feed-only');
+const renderOnly = process.argv.includes('--render-only');
+const capturedScenarios = [];
 // RN Web's static renderer emits already-loaded data URLs. Deduplicate them
 // after rendering into adjacent assets so the review archive stays portable/small.
 const fixtureImages = new Map();
@@ -83,13 +86,19 @@ for (const scenario of [
   { name: 'hire-categories', width: 390, height: 844, page: 'app/hire/categories.tsx', route: '/hire/categories' },
   { name: 'hire-providers', width: 390, height: 1000, page: 'app/hire/providers.tsx', route: '/hire/providers' },
   { name: 'trust-phone', width: 390, height: 760, component: 'trust', route: '/hire/provider/fixture' },
-  { name: 'feed-actions', width: 390, height: 760, component: 'feed', route: '/community' },
+  { name: 'feed-actions', width: 390, height: 844, component: 'feed', route: '/community' },
+  { name: 'feed-compact', width: 320, height: 900, component: 'feed', route: '/community' },
+  { name: 'feed-media', width: 390, height: 1100, component: 'feed', route: '/community', feedMedia: true },
+  { name: 'feed-large-text', width: 390, height: 1400, scale: 1.6, component: 'feed', route: '/community' },
+  { name: 'feed-tablet', width: 840, height: 1100, component: 'feed', route: '/community' },
   { name: 'focused-form', width: 390, height: 760, component: 'form', route: '/hire/request/new' },
   { name: 'critical-toast', width: 390, height: 760, component: 'toast' },
   { name: 'ai-thinking', width: 390, height: 430, motion: 'thinking', character: 'older-man' },
   { name: 'ai-answer', width: 390, height: 430, motion: 'answer', character: 'young-man' },
   { name: 'ai-attention', width: 390, height: 430, motion: 'attention', character: 'woman-purple' },
 ]) {
+  if (feedOnly && scenario.component !== 'feed') continue;
+  capturedScenarios.push(scenario.name);
   const cache = new Map();
   function resource(load) {
     let data;
@@ -299,7 +308,18 @@ for (const scenario of [
             ),
         };
       if (name.endsWith('WebSafeLink')) return { WebSafeLink: ({ children }) => children };
-      if (name.endsWith('CollapsibleComments')) return { CommentsProvider: ({ children }) => children };
+      if (name.endsWith('MediaGallery'))
+        return {
+          MediaGallery: ({ parentId }) =>
+            scenario.feedMedia && parentId === post.id
+              ? h(Native.Image, {
+                  source: { uri: gardenPhoto },
+                  accessibilityLabel: 'Test-only garden photo',
+                  resizeMode: 'cover',
+                  style: { width: '100%', height: 180, borderRadius: 10 },
+                })
+              : null,
+        };
       if (name.endsWith('MediaThumbnail')) return { MediaThumbnail: () => null };
       if (name.endsWith('MediaAvatar'))
         return {
@@ -392,15 +412,29 @@ for (const scenario of [
               Native.View,
               { style: { gap: 16 } },
               h(Native.Text, { style: { fontSize: 18, fontWeight: '700' } }, 'What’s happening, neighbor?'),
-              h(
-                Native.View,
-                { style: { padding: 16, backgroundColor: 'white', borderRadius: 16, gap: 12 } },
-                h(Native.Text, { style: { fontWeight: '700' } }, post.authorName),
-                h(Native.Text, null, post.body),
-                h(loadSource('src/components/FeedPostActions.tsx').FeedPostActions, {
-                  post: { ...post, moderationStatus: 'clean' },
+              ...[
+                { ...post, likedByMe: true },
+                {
+                  ...post,
+                  id: 'fixture-second',
+                  authorName: 'Kojo Mensah',
+                  createdAt: '2026-10-11T01:45:00Z',
+                  body: 'Does anyone know when the book exchange starts on Saturday?',
+                  likeCount: 0,
+                  comments: [],
+                  moderationStatus: 'pending',
+                },
+              ].map((fixturePost) =>
+                h(loadSource('src/components/FeedPostCard.tsx').FeedPostCard, {
+                  key: fixturePost.id,
+                  post: fixturePost,
+                  mediaRefresh: 0,
+                  liking: false,
                   reporting: false,
+                  replying: false,
+                  onLike: () => {},
                   onReport: () => {},
+                  children: () => h(Native.Text, null, 'Test-only reply content'),
                 }),
               ),
             )
@@ -478,6 +512,7 @@ for (const scenario of [
     '</body></html>';
   const file = path.join(output, 'home-' + scenario.name + '.html');
   fs.writeFileSync(file, html);
+  if (renderOnly) continue;
   const screenshot = path.join(output, 'home-' + scenario.name + '.png');
   execFileSync(
     process.env.CHROME_BIN ?? 'google-chrome',
@@ -504,33 +539,9 @@ fs.writeFileSync(
         'Actual Home, Ask, Search, inbox, notifications and Settings through React Native Web with test-only fixtures',
       native: false,
       authenticatedData: false,
-      scenarios: [
-        'hire-categories',
-        'hire-providers',
-        'trust-phone',
-        'feed-actions',
-        'focused-form',
-        'critical-toast',
-        'phone',
-        'home-full',
-        'home-empty-full',
-        'events-disabled',
-        'compact',
-        'tablet',
-        'large-text',
-        'empty',
-        'error',
-        'ask-phone',
-        'ask-compact',
-        'ask-large-text',
-        'ai-thinking',
-        'ai-answer',
-        'ai-attention',
-        'search-phone',
-        'messages-phone',
-        'notifications-phone',
-        'settings-phone',
-        'settings-compact',
+      scenarios: capturedScenarios,
+      notes: [
+        'Feed uses the actual production FeedPostCard and action bar; public identity, media and content are test-only fixtures. No authenticated/native-device claim.',
       ],
     },
     null,
@@ -538,8 +549,9 @@ fs.writeFileSync(
   ),
 );
 
-execFileSync(
-  process.execPath,
-  [path.join(__dirname, 'capture-character-motion.cjs'), path.join(output, 'character-motion')],
-  { stdio: 'inherit' },
-);
+if (!feedOnly && !renderOnly)
+  execFileSync(
+    process.execPath,
+    [path.join(__dirname, 'capture-character-motion.cjs'), path.join(output, 'character-motion')],
+    { stdio: 'inherit' },
+  );

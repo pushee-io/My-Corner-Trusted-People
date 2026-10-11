@@ -1,13 +1,9 @@
-import { feedTimeLabel } from '@/lib/feed-time';
-import { FeedPostActions } from '@/components/FeedPostActions';
-import { Ionicons } from '@expo/vector-icons';
+import { FeedPostCard } from '@/components/FeedPostCard';
 import { ActionPill } from '@/components/ActionPill';
-import { FeedPostBody } from '@/components/FeedPostBody';
 import { useLocalSearchParams } from 'expo-router';
-import { CollapsibleComments, dismissCommentKeyboard, useCommentDraft } from '@/components/CollapsibleComments';
+import { dismissCommentKeyboard, useCommentDraft } from '@/components/CollapsibleComments';
 import { MediaComposer, useMediaComposer } from '@/components/media/MediaComposer';
 import { useMediaSubmission } from '@/components/media/useMediaSubmission';
-import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaAvatar, MediaAvatarCollection } from '@/components/media/MediaAvatar';
 import { useEffect, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -288,108 +284,60 @@ export default function CommunityFeedScreen() {
             {posts
               .filter((post) => !postId || post.id === postId)
               .map((post) => (
-                <View key={post.id} style={styles.card}>
-                  <View style={styles.authorRow}>
-                    <MediaAvatar profileId={post.authorId} name={post.authorName} />
-                    <View style={styles.authorDetails}>
-                      <WebSafeLink
-                        href={{ pathname: '/neighbors/[profileId]', params: { profileId: post.authorId } }}
-                        asChild
-                      >
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel={`View ${post.authorName}'s profile`}
-                          style={styles.authorLink}
-                        >
-                          <Text style={styles.author}>{post.authorName}</Text>
-                        </Pressable>
-                      </WebSafeLink>
-                      <Text style={styles.time}>{feedTimeLabel(post.createdAt)}</Text>
-                    </View>
-                  </View>
-                  <FeedPostBody body={post.body} />
-                  <MediaGallery parent="neighborhood_post" parentId={post.id} refreshKey={mediaRefresh} />
-
-                  <View style={styles.actions}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`${post.likedByMe ? 'Unlike' : 'Like'} post, ${post.likeCount} likes`}
-                      accessibilityState={{ selected: post.likedByMe, disabled: busyId === `like-${post.id}` }}
-                      disabled={busyId === `like-${post.id}`}
-                      onPress={() => toggleLike(post)}
-                      style={({ pressed }) => [
-                        styles.actionButton,
-                        post.likedByMe && styles.liked,
-                        pressed && styles.pressed,
-                      ]}
-                    >
-                      <Ionicons
-                        name={post.likedByMe ? 'heart' : 'heart-outline'}
-                        size={22}
-                        color={tokens.color.primary}
-                        accessible={false}
-                      />
-                      <Text style={styles.actionText}>
-                        {post.likedByMe ? 'Unlike' : 'Like'} · {post.likeCount}
-                      </Text>
-                    </Pressable>
-                    <FeedPostActions
-                      post={post}
-                      reporting={busyId === `report-${post.id}`}
-                      onReport={() => void reportPost(post.id)}
-                    />
-                  </View>
-
-                  <CollapsibleComments
-                    id={post.id}
-                    count={post.comments.length}
-                    busy={busyId === `reply-${post.id}`}
-                    error={error}
-                  >
-                    {({ onFocus, onBlur }) => (
-                      <>
-                        {post.comments.length ? (
-                          <View style={styles.replies}>
-                            {post.comments.map((comment) => (
-                              <View key={comment.id} style={styles.reply}>
-                                <View style={styles.authorRow}>
-                                  <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
-                                  <Text style={[styles.author, styles.authorDetails]}>{comment.authorName}</Text>
-                                </View>
-                                <Text style={styles.body}>{comment.body}</Text>
-                                <ActionPill
-                                  label={comment.isReported ? 'Reply reported' : 'Report reply'}
-                                  disabled={comment.isReported || busyId === `report-${comment.id}`}
-                                  onPress={() => reportComment(comment)}
-                                />
+                <FeedPostCard
+                  key={post.id}
+                  post={post}
+                  mediaRefresh={mediaRefresh}
+                  liking={busyId === `like-${post.id}`}
+                  reporting={busyId === `report-${post.id}`}
+                  replying={busyId === `reply-${post.id}`}
+                  error={error}
+                  onLike={() => void toggleLike(post)}
+                  onReport={() => void reportPost(post.id)}
+                >
+                  {({ onFocus, onBlur }) => (
+                    <>
+                      {post.comments.length ? (
+                        <View style={styles.replies}>
+                          {post.comments.map((comment) => (
+                            <View key={comment.id} style={styles.reply}>
+                              <View style={styles.authorRow}>
+                                <MediaAvatar profileId={comment.authorId} name={comment.authorName} size={32} />
+                                <Text style={[styles.author, styles.authorDetails]}>{comment.authorName}</Text>
                               </View>
-                            ))}
-                          </View>
-                        ) : null}
-
-                        <View style={styles.replyBox}>
-                          <TextInput
-                            multiline
-                            editable={busyId !== `reply-${post.id}`}
-                            value={replyDrafts[post.id] ?? ''}
-                            onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
-                            placeholder="Write a reply"
-                            style={styles.replyInput}
-                            accessibilityLabel="Reply to feed post"
-                            onFocus={onFocus}
-                            onBlur={onBlur}
-                          />
-                          <ActionPill
-                            label={busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
-                            disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
-                            onPress={() => publishReply(post.id)}
-                            primary
-                          />
+                              <Text style={styles.body}>{comment.body}</Text>
+                              <ActionPill
+                                label={comment.isReported ? 'Reply reported' : 'Report reply'}
+                                disabled={comment.isReported || busyId === `report-${comment.id}`}
+                                onPress={() => reportComment(comment)}
+                              />
+                            </View>
+                          ))}
                         </View>
-                      </>
-                    )}
-                  </CollapsibleComments>
-                </View>
+                      ) : null}
+
+                      <View style={styles.replyBox}>
+                        <TextInput
+                          multiline
+                          editable={busyId !== `reply-${post.id}`}
+                          value={replyDrafts[post.id] ?? ''}
+                          onChangeText={(value) => setReplyDrafts((drafts) => ({ ...drafts, [post.id]: value }))}
+                          placeholder="Write a reply"
+                          style={styles.replyInput}
+                          accessibilityLabel="Reply to feed post"
+                          onFocus={onFocus}
+                          onBlur={onBlur}
+                        />
+                        <ActionPill
+                          label={busyId === `reply-${post.id}` ? 'Replying...' : 'Reply'}
+                          disabled={busyId === `reply-${post.id}` || !(replyDrafts[post.id] ?? '').trim()}
+                          onPress={() => publishReply(post.id)}
+                          primary
+                        />
+                      </View>
+                    </>
+                  )}
+                </FeedPostCard>
               ))}
           </View>
         </MediaAvatarCollection>
@@ -411,32 +359,11 @@ export default function CommunityFeedScreen() {
 }
 
 const styles = StyleSheet.create({
-  actionButton: {
-    minHeight: tokens.touch.min,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.md,
-    borderRadius: tokens.radius.control,
-  },
-  liked: { backgroundColor: tokens.color.successSurface },
-  pressed: { backgroundColor: tokens.color.surfacePressed },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.md },
   authorDetails: { flex: 1, minWidth: 0 },
-  authorLink: { minHeight: 32, justifyContent: 'center' },
   composerHeading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: tokens.spacing.sm },
-  actionText: { color: tokens.color.primary, ...tokens.typography.label },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
   author: { color: tokens.color.textPrimary, ...tokens.typography.button },
   body: { color: tokens.color.textPrimary, ...tokens.typography.body },
-  card: {
-    backgroundColor: tokens.color.surface,
-    borderColor: tokens.color.borderSubtle,
-    borderRadius: tokens.radius.card,
-    borderWidth: 1,
-    gap: tokens.spacing.sm,
-    padding: tokens.spacing.lg,
-  },
   composer: {
     backgroundColor: tokens.color.surface,
     borderColor: tokens.color.borderSubtle,
@@ -508,7 +435,6 @@ const styles = StyleSheet.create({
     paddingVertical: tokens.spacing.xs,
   },
   statusText: { color: tokens.color.textPrimary, fontSize: tokens.type.support, fontWeight: '700' },
-  time: { color: tokens.color.textSecondary, ...tokens.typography.caption },
   topRow: {
     alignItems: 'center',
     flexDirection: 'row',

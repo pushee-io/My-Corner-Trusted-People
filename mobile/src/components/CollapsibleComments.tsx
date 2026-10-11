@@ -54,11 +54,13 @@ export function CollapsibleComments({
   busy = false,
   error,
   children,
+  renderTrigger,
 }: {
   id: string;
   count: number;
   busy?: boolean;
   error?: string;
+  renderTrigger?: (control: { expanded: boolean; open: () => void }) => ReactNode;
   children: (focus: { onFocus: () => void; onBlur: () => void }) => ReactNode;
 }) {
   const controller = useContext(CommentsContext);
@@ -82,28 +84,33 @@ export function CollapsibleComments({
     if (controller) controller.close();
     else setLocalOpen(false);
   }
+  const open = () => {
+    if (controller) controller.open(id);
+    else setLocalOpen(true);
+  };
   return (
     <View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${count} comments, ${expanded ? 'expanded' : 'collapsed'}`}
-        accessibilityState={{ expanded }}
-        onFocus={() => setControlFocused(true)}
-        onBlur={() => setControlFocused(false)}
-        style={({ pressed }) => [
-          styles.control,
-          {
-            borderColor: controlFocused ? tokens.color.focusRing : 'transparent',
-            backgroundColor: pressed ? tokens.color.surfacePressed : 'transparent',
-          },
-        ]}
-        onPress={() => {
-          if (controller) controller.open(id);
-          else setLocalOpen(true);
-        }}
-      >
-        <Text style={styles.controlText}>Comments ({count})</Text>
-      </Pressable>
+      {renderTrigger ? (
+        renderTrigger({ expanded, open })
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${count} comments, ${expanded ? 'expanded' : 'collapsed'}`}
+          accessibilityState={{ expanded }}
+          onFocus={() => setControlFocused(true)}
+          onBlur={() => setControlFocused(false)}
+          style={({ pressed }) => [
+            styles.control,
+            {
+              borderColor: controlFocused ? tokens.color.focusRing : 'transparent',
+              backgroundColor: pressed ? tokens.color.surfacePressed : 'transparent',
+            },
+          ]}
+          onPress={open}
+        >
+          <Text style={styles.controlText}>Comments ({count})</Text>
+        </Pressable>
+      )}
       <Modal
         visible={expanded}
         transparent
