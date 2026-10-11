@@ -45,7 +45,12 @@ export function AICharacterArt({
 }) {
   const rig = rigs[character.id];
   const scale = size / rig.crop.width;
-  const cuts = [rig.head, ...(rig.limb ? [rig.limb] : [])];
+  // Retain original jaw/neck and wrist/elbow pixels behind the articulated layers.
+  // The overlap avoids a transparent seam as the head/limb rotates.
+  const cuts = [
+    { ...rig.head, height: rig.head.height - 38 },
+    ...(rig.limb ? [{ ...rig.limb, height: rig.limb.height - (character.id === 'older-man' ? 64 : 14) }] : []),
+  ];
   const parts = cuts.reduce((remaining, cut) => remaining.flatMap((part) => subtractArtRect(part, cut)), [rig.crop]);
   const position = (rect: ArtRect) => ({
     position: 'absolute' as const,

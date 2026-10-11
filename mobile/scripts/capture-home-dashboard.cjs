@@ -12,8 +12,11 @@ const { renderToStaticMarkup } = require('react-dom/server');
 const Native = require('react-native-web');
 const root = path.resolve(__dirname, '..');
 const output = path.resolve(process.argv[2] ?? '/tmp/home-dashboard');
+// Stable fixture clock; the separate live motion process retains its real clock.
+Date.now = () => Date.parse('2026-10-11T02:00:00Z');
 fs.mkdirSync(output, { recursive: true });
 const h = React.createElement;
+const gardenPhoto = pathToFileURL(path.join(__dirname, 'fixtures/garden.jpg')).href;
 const glyphs = require('@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json');
 const font = fs
   .readFileSync(require.resolve('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'))
@@ -145,7 +148,7 @@ for (const scenario of [
         : [
             {
               id: 'fixture-group-garden',
-              image: illustration('#83A888'),
+              image: gardenPhoto,
               name: 'Garden neighbors',
               description: 'Growing greener streets, together.',
               memberCount: 24,
@@ -168,7 +171,7 @@ for (const scenario of [
             : [
                 {
                   id: 'fixture-event',
-                  image: illustration('#B4C79C'),
+                  image: gardenPhoto,
                   title: 'Community garden morning',
                   startsAt: '2026-10-17T08:00:00Z',
                   timezone: 'Africa/Accra',
@@ -314,9 +317,7 @@ for (const scenario of [
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
       if (name.endsWith('.png'))
         return {
-          uri:
-            'data:image/png;base64,' +
-            fs.readFileSync(path.resolve(root, path.dirname(relative), name)).toString('base64'),
+          uri: pathToFileURL(path.resolve(root, path.dirname(relative), name)).href,
         };
       if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
       if (name.includes('community-actions') && name.startsWith('@/lib/'))
