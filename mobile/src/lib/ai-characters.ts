@@ -1,6 +1,12 @@
 export const aiCharacters = [
   {
     id: 'woman-kente',
+    expressions: {
+      happy: require('../../assets/my-corner-ai/characters/expressions/woman-kente-happy.png'),
+      blink: require('../../assets/my-corner-ai/characters/expressions/woman-kente-blink.png'),
+      speaking: require('../../assets/my-corner-ai/characters/expressions/woman-kente-speaking.png'),
+      surprised: require('../../assets/my-corner-ai/characters/expressions/woman-kente-surprised.png'),
+    },
     displayName: 'Ebony',
     label: 'Ebony, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-woman-kente.png'),
@@ -8,6 +14,12 @@ export const aiCharacters = [
   },
   {
     id: 'older-man',
+    expressions: {
+      happy: require('../../assets/my-corner-ai/characters/expressions/older-man-happy.png'),
+      blink: require('../../assets/my-corner-ai/characters/expressions/older-man-blink.png'),
+      speaking: require('../../assets/my-corner-ai/characters/expressions/older-man-speaking.png'),
+      surprised: require('../../assets/my-corner-ai/characters/expressions/older-man-surprised.png'),
+    },
     displayName: 'Mr. Owusu',
     label: 'Mr. Owusu, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-older-man.png'),
@@ -15,6 +27,12 @@ export const aiCharacters = [
   },
   {
     id: 'young-man',
+    expressions: {
+      happy: require('../../assets/my-corner-ai/characters/expressions/young-man-happy.png'),
+      blink: require('../../assets/my-corner-ai/characters/expressions/young-man-blink.png'),
+      speaking: require('../../assets/my-corner-ai/characters/expressions/young-man-speaking.png'),
+      surprised: require('../../assets/my-corner-ai/characters/expressions/young-man-surprised.png'),
+    },
     displayName: 'Ekow',
     label: 'Ekow, My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-young-man.png'),
@@ -22,6 +40,12 @@ export const aiCharacters = [
   },
   {
     id: 'woman-purple',
+    expressions: {
+      happy: require('../../assets/my-corner-ai/characters/expressions/woman-purple-happy.png'),
+      blink: require('../../assets/my-corner-ai/characters/expressions/woman-purple-blink.png'),
+      speaking: require('../../assets/my-corner-ai/characters/expressions/woman-purple-speaking.png'),
+      surprised: require('../../assets/my-corner-ai/characters/expressions/woman-purple-surprised.png'),
+    },
     displayName: 'Mama G.',
     label: 'Mama G., My Corner AI character',
     full: require('../../assets/my-corner-ai/characters/character-woman-purple.png'),

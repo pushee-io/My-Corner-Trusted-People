@@ -28,6 +28,8 @@ const post = {
   likeCount: 4,
   comments: [{ id: 'fixture-comment' }],
   likedByMe: false,
+  moderationStatus: 'clean',
+  visibility: 'verified_neighborhood_members',
 };
 const illustration = (fill) =>
   'data:image/svg+xml;base64,' +
@@ -143,6 +145,7 @@ for (const scenario of [
         : [
             {
               id: 'fixture-group-garden',
+              image: illustration('#83A888'),
               name: 'Garden neighbors',
               description: 'Growing greener streets, together.',
               memberCount: 24,
@@ -165,6 +168,7 @@ for (const scenario of [
             : [
                 {
                   id: 'fixture-event',
+                  image: illustration('#B4C79C'),
                   title: 'Community garden morning',
                   startsAt: '2026-10-17T08:00:00Z',
                   timezone: 'Africa/Accra',
@@ -326,6 +330,9 @@ for (const scenario of [
           '@/lib/navigation-layout',
           '@/lib/mock-data',
           '@/lib/ai-characters',
+          '@/lib/ai-character-motion',
+          '@/lib/feed-time',
+          '@/lib/event-lifecycle',
           '@/lib/communication-notices',
           '@/lib/feed-share',
           '@/lib/events-format',
@@ -512,4 +519,10 @@ fs.writeFileSync(
     null,
     2,
   ),
+);
+
+execFileSync(
+  process.execPath,
+  [path.join(__dirname, 'capture-character-motion.cjs'), path.join(output, 'character-motion')],
+  { stdio: 'inherit' },
 );

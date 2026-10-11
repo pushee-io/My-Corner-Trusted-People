@@ -7,6 +7,9 @@ import { tokens } from '@/theme/tokens';
 export type { AIMotionState } from '@/components/AICharacterPresentation';
 const messages: Record<AIMotionState, string> = {
   idle: 'How can I help?',
+  listening: 'I’m listening.',
+  happy: 'Happy to help.',
+  surprised: 'Let’s take a closer look.',
   thinking: 'Checking your neighborhood…',
   answer: 'Here is what I found.',
   attention: 'Let’s try another way.',

@@ -189,7 +189,7 @@ export default function AskScreen() {
         <AICharacterExperience
           character={character}
           selectCharacter={selectCharacter}
-          state={busy ? 'thinking' : error ? 'attention' : answer ? 'answer' : 'idle'}
+          state={busy ? 'thinking' : error ? 'attention' : question.trim() ? 'listening' : answer ? 'answer' : 'idle'}
         />
         {context.data ? (
           <Text style={styles.meta}>{context.data.name} · Neighborhood context</Text>

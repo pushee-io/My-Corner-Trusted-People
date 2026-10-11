@@ -1,0 +1,30 @@
+[
+  {
+    "id": "woman-kente",
+    "input": "exec-2ca29437-08aa-4d8d-aa8b-0f78fe73a463.png",
+    "sha256": "4f3294f5ef3d687e73248a4f6e50d49075093225893d8075d4e2fa54cedb6381",
+    "frames": ["happy", "blink", "speaking", "surprised"],
+    "frameSize": [192, 224]
+  },
+  {
+    "id": "older-man",
+    "input": "exec-1095a14b-4b31-4b17-8fb5-f771ac251a7a.png",
+    "sha256": "88be93840a253da7e8926a97b27e82c4418b5a5d8412e5e236ec9807383d92be",
+    "frames": ["happy", "blink", "speaking", "surprised"],
+    "frameSize": [192, 224]
+  },
+  {
+    "id": "woman-purple",
+    "input": "exec-ddbdf558-3e28-4bc5-bff6-82607d1ca6e8.png",
+    "sha256": "044aafb5c020de446c0b9aa2f65e4a13ae82c7767a951b4114fb6373b238a022",
+    "frames": ["happy", "blink", "speaking", "surprised"],
+    "frameSize": [192, 224]
+  },
+  {
+    "id": "young-man",
+    "input": "exec-f6a52879-86d1-4320-beed-9ac9ea468c40.png",
+    "sha256": "7597c367368ec17b790aebaa2edcff21f99ce3a8c680ec042bc7e478cf70d158",
+    "frames": ["happy", "blink", "speaking", "surprised"],
+    "frameSize": [192, 224]
+  }
+]
