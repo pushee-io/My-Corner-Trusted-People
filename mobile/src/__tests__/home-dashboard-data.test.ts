@@ -31,7 +31,10 @@ jest.mock('@/lib/marketplace-repository', () => ({
 }));
 jest.mock('@/lib/media-repository', () => ({ listMedia: jest.fn() }));
 jest.mock('@/lib/messaging', () => ({ loadNotifications: jest.fn() }));
-beforeEach(() => jest.resetAllMocks());
+beforeEach(() => {
+  jest.resetAllMocks();
+  jest.mocked(listMedia).mockResolvedValue([]);
+});
 it('bounds Feed to one authorized post and requests media only for its parent', async () => {
   jest.mocked(getCurrentNeighborhood).mockResolvedValue({ id: 'area', name: 'Area' });
   jest.mocked(listNeighborhoodFeedPosts).mockResolvedValue([{ id: 'post', authorName: 'Public name' }] as never);
@@ -193,4 +196,52 @@ it('shows only the next approved scheduled events and strips private detail fiel
   await expect(loadHomeEvents()).rejects.toThrow('Live events unavailable');
   jest.mocked(eventsRuntimeRepository.listEvents).mockRejectedValue(new Error('Forbidden'));
   await expect(loadHomeEvents()).rejects.toThrow('Forbidden');
+});
+
+it('uses authorized group cover first, avatar fallback, and never expired URLs', async () => {
+  jest
+    .mocked(getCurrentCapabilities)
+    .mockResolvedValue({ community: true, profileId: 'viewer', neighborhoodId: 'area' } as never);
+  jest.mocked(getCommunityActionsReadRepository).mockReturnValue({
+    mode: 'supabase',
+    listSocialGroupScreenSections: async () =>
+      ['a', 'b'].map((id) => ({
+        group: { id, name: id, createdAt: '2026-01-01', memberCount: 1 },
+        membershipStatus: 'accepted',
+      })),
+  } as never);
+  jest.mocked(listMedia).mockImplementation(async (parent) =>
+    parent === 'group_cover'
+      ? ([
+          { parent_id: 'a', media_type: 'image', url: 'cover-a', expiresAt: Date.now() + 5000 },
+          { parent_id: 'b', media_type: 'image', url: 'expired', expiresAt: 1 },
+        ] as never)
+      : ([{ parent_id: 'b', media_type: 'image', url: 'avatar-b', expiresAt: Date.now() + 5000 }] as never),
+  );
+  expect((await loadHomeGroups()).map((x) => x.image)).toEqual(['cover-a', 'avatar-b']);
+});
+it('keeps an ongoing event until its end, requests only selected media and uses the first photo', async () => {
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-11T12:00:00Z'));
+  jest.mocked(eventsRuntimeRepository.isEnabled).mockResolvedValue(true);
+  jest.mocked(eventsRuntimeRepository.getDiagnostics).mockReturnValue({ lastReadUsedCache: false } as never);
+  const event = {
+    status: 'scheduled',
+    moderationStatus: 'approved',
+    startsAt: '2026-10-11T11:00:00Z',
+    endsAt: '2026-10-11T13:00:00Z',
+    timezone: 'Africa/Accra',
+  };
+  jest.mocked(eventsRuntimeRepository.listEvents).mockResolvedValue([
+    { ...event, id: 'ongoing' },
+    { ...event, id: 'ended', endsAt: '2026-10-11T12:00:00Z' },
+  ] as never);
+  jest.mocked(listMedia).mockResolvedValue([
+    { parent_id: 'ongoing', media_type: 'video', posterUrl: 'poster', expiresAt: Date.now() + 5000 },
+    { parent_id: 'ongoing', media_type: 'image', url: 'hero', expiresAt: Date.now() + 5000 },
+  ] as never);
+  const result = await loadHomeEvents();
+  expect(result.events).toHaveLength(1);
+  expect(result.events[0]).toMatchObject({ id: 'ongoing', image: 'hero', happeningNow: true });
+  expect(listMedia).toHaveBeenCalledWith('event', ['ongoing']);
+  jest.restoreAllMocks();
 });

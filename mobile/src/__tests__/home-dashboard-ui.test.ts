@@ -106,7 +106,8 @@ it('links Feed preview to the exact post with canonical identity, bounded text a
   expect(
     view.root.findAllByType('Text' as never).find((n) => n.children.includes(post.body))?.props.numberOfLines,
   ).toBe(3);
-  expect(JSON.stringify(view.toJSON())).not.toMatch(/Verified|Share post/);
+  expect(JSON.stringify(view.toJSON())).not.toMatch(/Verified/);
+  expect(button('Share post link').props.disabled).toBe(true);
 });
 it('opens exact listing and broadcast destinations with real prices and agency identity', async () => {
   await act(async () => {
@@ -196,6 +197,9 @@ it('shows group content and event dates with exact detail destinations', async (
             timezone: 'Africa/Accra',
             areaLabel: 'Osu',
             isGoing: true,
+            endsAt: undefined,
+            happeningNow: false,
+            image: undefined,
           },
         ],
       }),

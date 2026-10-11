@@ -37,10 +37,10 @@ import { tokens } from '@/theme/tokens';
 import type { JobRequest } from '@/types/contracts';
 
 function HomeContentPreviews() {
-  const feed = useProtectedResource(loadHomeFeed);
+  const feed = useProtectedResource(loadHomeFeed, 45000);
   const market = useProtectedResource(loadHomeMarketplace);
-  const groups = useProtectedResource(loadHomeGroups);
-  const events = useProtectedResource(loadHomeEvents);
+  const groups = useProtectedResource(loadHomeGroups, 45000);
+  const events = useProtectedResource(loadHomeEvents, 45000);
   const broadcast = useProtectedResource(loadHomeBroadcast);
   return (
     <>

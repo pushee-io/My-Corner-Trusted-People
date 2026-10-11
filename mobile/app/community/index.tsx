@@ -1,3 +1,4 @@
+import { feedTimeLabel } from '@/lib/feed-time';
 import { FeedPostActions } from '@/components/FeedPostActions';
 import { Ionicons } from '@expo/vector-icons';
 import { ActionPill } from '@/components/ActionPill';
@@ -303,7 +304,7 @@ export default function CommunityFeedScreen() {
                           <Text style={styles.author}>{post.authorName}</Text>
                         </Pressable>
                       </WebSafeLink>
-                      <Text style={styles.time}>{new Date(post.createdAt).toLocaleString('en-GH')}</Text>
+                      <Text style={styles.time}>{feedTimeLabel(post.createdAt)}</Text>
                     </View>
                   </View>
                   <FeedPostBody body={post.body} />
@@ -422,7 +423,7 @@ const styles = StyleSheet.create({
   pressed: { backgroundColor: tokens.color.surfacePressed },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.md },
   authorDetails: { flex: 1, minWidth: 0 },
-  authorLink: { minHeight: tokens.touch.min, justifyContent: 'center' },
+  authorLink: { minHeight: 32, justifyContent: 'center' },
   composerHeading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: tokens.spacing.sm },
   actionText: { color: tokens.color.primary, ...tokens.typography.label },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.spacing.md },
