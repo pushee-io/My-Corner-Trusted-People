@@ -16,7 +16,22 @@ const output = path.resolve(process.argv[2] ?? '/tmp/home-dashboard');
 Date.now = () => Date.parse('2026-10-11T02:00:00Z');
 fs.mkdirSync(output, { recursive: true });
 const h = React.createElement;
-const gardenPhoto = pathToFileURL(path.join(__dirname, 'fixtures/garden.jpg')).href;
+// RN Web's static renderer emits already-loaded data URLs. Deduplicate them
+// after rendering into adjacent assets so the review archive stays portable/small.
+const fixtureImages = new Map();
+function fixtureImage(file) {
+  if (!fixtureImages.has(file)) {
+    const extension = path.extname(file).slice(1);
+    const bytes = fs.readFileSync(file);
+    const uri = `data:image/${extension === 'jpg' ? 'jpeg' : extension};base64,${bytes.toString('base64')}`;
+    const asset = `assets/${fixtureImages.size}-${path.basename(file)}`;
+    fs.mkdirSync(path.join(output, 'assets'), { recursive: true });
+    fs.writeFileSync(path.join(output, asset), bytes);
+    fixtureImages.set(file, { uri, asset });
+  }
+  return fixtureImages.get(file).uri;
+}
+const gardenPhoto = fixtureImage(path.join(__dirname, 'fixtures/garden.jpg'));
 const glyphs = require('@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json');
 const font = fs
   .readFileSync(require.resolve('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'))
@@ -317,7 +332,7 @@ for (const scenario of [
         return { useMessagingResource: resource, usePrivateSessionKey: () => 'fixture' };
       if (name.endsWith('.png'))
         return {
-          uri: pathToFileURL(path.resolve(root, path.dirname(relative), name)).href,
+          uri: fixtureImage(path.resolve(root, path.dirname(relative), name)),
         };
       if (name === 'expo-crypto') return { randomUUID: () => 'fixture-nonce' };
       if (name.includes('community-actions') && name.startsWith('@/lib/'))
@@ -449,7 +464,8 @@ for (const scenario of [
       : loadSource(scenario.page ?? (scenario.ask ? 'app/ask.tsx' : 'app/home.tsx')).default;
   Native.AppRegistry.registerComponent('Home-' + scenario.name, () => Home);
   const { element, getStyleElement } = Native.AppRegistry.getApplication('Home-' + scenario.name);
-  const markup = renderToStaticMarkup(element);
+  let markup = renderToStaticMarkup(element);
+  for (const { uri, asset } of fixtureImages.values()) markup = markup.replaceAll(uri, asset);
   const html =
     '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
     renderToStaticMarkup(getStyleElement()) +
